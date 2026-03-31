@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 import config
 
-def get_llm():
+def get_shared_llm():
     # 1. INITIALIZE LANGCHAIN CHATOPENAI WITH OPENROUTER BASE URL
     llm = ChatOpenAI(
         model=config.VISION_MODEL,
