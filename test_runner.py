@@ -1,62 +1,53 @@
-# test_runner.py
+import json
 import config
 from tools.device_connection import DeviceConnection
 from tools.ui_tools import UITools
-from core.llm_client import OpenRouterClient
+from core.llm_client import get_llm
 from agents.observer_agent import ObserverAgent
+from agents.decider_agent import DeciderAgent
 
 def run_simulation():
-    print("==========================================")
-    print("MENGJALANKAN SIMULASI INPUT USER")
-    print("==========================================")
-
+    # 1. SETUP USER INPUT
     simulated_user_input = {
-        "target_app_id": "com.whatsapp",
-        "task_goal": "Mencari kontak bernama 'Rafa' dan mengirim pesan 'Halo'",
-        "expected_action": "Buka aplikasi dan cari icon pencarian"
+        "target_app_id": "com.shopee.id",
+        "task_goal": "Mencari Profile Saya dan Mengedit Nama Saya"
     }
 
-    print(f"[*] Skenario Target App : {simulated_user_input['target_app_id']}")
-    print(f"[*] Skenario Goal User  : {simulated_user_input['task_goal']}\n")
-
-    # 2. Inisialisasi Koneksi dan Tools
+    # 2. INITIALIZE CONNECTION & TOOLS
     connection_manager = DeviceConnection(config.TARGET_DEVICE)
     d = connection_manager.connect()
-    
     if not d:
-        print("[!] Keluar dari simulasi karena gagal terhubung ke perangkat.")
         return
-
     ui_tools = UITools(d, config.OUTPUT_DIR)
-    llm_client = OpenRouterClient(config.OPENROUTER_API_KEY, config.VISION_MODEL)
     
-    # 3. Masukkan Tools dan GOAL USER ke dalam Agent
-    agent = ObserverAgent(ui_tools, llm_client, task_goal=simulated_user_input["task_goal"])
+    # 3. INITIALIZE LANGCHAIN LLM
+    llm = get_llm()
     
-    # 4. Jalankan Agent
-    report = agent.observe()
+    # 4. INITIALIZE AGENTS
+    observer = ObserverAgent(ui_tools)
+    decider = DeciderAgent(llm)
     
-    # 5. Tampilkan Hasil Simulasi
-    print("\n==========================================")
-    print("HASIL OBSERVASI AI BERDASARKAN INPUT USER")
-    print("==========================================")
-    if report["status"] == "success":
-        print(f"Screenshot Path    : {report['screenshot_path']}")
-        print(f"Total Elemen Aktif : {report['total_elements']}")
-        print("-" * 42)
-        analysis = report['ai_analysis']
-        if analysis:
-            print("ANALISIS TERSTRUKTUR DARI AI:")
-            print(f"  > Nama Layar    : {analysis.current_screen_name}")
-            print(f"  > Target Selesai: {analysis.is_goal_achieved}")
-            print(f"  > Analisis      : {analysis.reasoning}")
-            print(f"  > Saran Next    : {analysis.next_action}")
-        else:
-            print("[!] AI gagal memberikan analisis terstruktur.")
-        print("-" * 42)
-    else:
-        print(f"Status Error: {report.get('message', 'Terjadi kesalahan')}")
-    print("==========================================")
+    # 5. EXECUTE OBSERVER (PERCEPTION)
+    print("[*] Running Observer Agent...")
+    state = observer.observe()
+    
+    # 6. EXECUTE DECIDER (REASONING)
+    print("[*] Running Decider Agent...")
+    decision = decider.decide(state, simulated_user_input["task_goal"])
+    
+    # 7. PRINT RESULTS
+    print("\n=== SYSTEM REPORT ===")
+    print(f"Screenshot: {state['screenshot_path']}")
+    print(f"Elements Found: {len(state['elements'])}")
+    json_path = state['screenshot_path'].replace(".png", ".json")
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(state['elements'], f, indent=4)
+    print(f"Details Saved: {json_path}")
+    if decision:
+        print(f"Screen Name: {decision.current_screen_name}")
+        print(f"Goal Achieved: {decision.is_goal_achieved}")
+        print(f"Reasoning: {decision.reasoning}")
+        print(f"Next Action: {decision.next_action}")
 
 if __name__ == "__main__":
     run_simulation()

@@ -1,3 +1,5 @@
 uiautomator2
-openai
 pydantic
+langchain
+langchain-openai
+langchain-core
