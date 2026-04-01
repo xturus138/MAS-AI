@@ -25,8 +25,9 @@ class ObserverAgent:
         img_b64 = self._encode_image(state.screenshot_path)
         prompt = (
             f"Tujuan User: {state.task_goal}\n"
-            f"Struktur XML:\n{state.ui_elements_summary}\n\n"
-            f"Analisis layar ini dan sebutkan elemen penting yang terlihat."
+            f"Analisis XML: {state.ui_elements_summary}\n\n"
+            f"Tugas: Identifikasi elemen penting untuk mencapai tujuan.\n"
+            f"WAJIB: Sebutkan koordinat @x,y untuk setiap elemen yang kamu temukan di 'key_elements_found'."
         )
         
         message = HumanMessage(content=[

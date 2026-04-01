@@ -15,9 +15,11 @@ class OrchestratorAgent:
     def decide(self, state: OrchestratorState) -> OrchestratorState:
         prompt = (
             f"Tujuan Akhir: {state.task_goal}\n"
-            f"Pemahaman Layar (Dari Observer): {state.observer_analysis}\n"
+            f"Informasi Layar: {state.observer_analysis}\n"
             f"Riwayat Tindakan: {state.action_history}\n\n"
-            f"Apakah tujuan sudah selesai? Jika belum, berikan instruksi detail kepada Executor (sebutkan target atau koordinatnya)."
+            f"TUGAS: Berikan instruksi ke Executor.\n"
+            f"ATURAN: Gunakan koordinat @x,y yang disediakan oleh Observer. "
+            f"JANGAN menebak koordinat jika tidak ada dalam analisis layar."
         )
         
         message = HumanMessage(content=prompt)

@@ -21,9 +21,19 @@ class ObserverTools:
         elements = []
         for node in root.iter('node'):
             attribs = node.attrib
+            # Ambil elemen yang bisa diklik atau input teks
             if attribs.get('clickable') == 'true' or 'EditText' in attribs.get('class', ''):
                 bounds = [int(x) for x in re.findall(r'\d+', attribs.get('bounds', ''))]
-                label = attribs.get('text') or attribs.get('content-desc') or "unknown"
-                elements.append(f"[{bounds[0]},{bounds[1]}] {attribs.get('class')}: '{label}'")
+                if len(bounds) == 4:
+                    # Hitung titik tengah (center) untuk akurasi klik yang lebih baik
+                    center_x = (bounds[0] + bounds[2]) // 2
+                    center_y = (bounds[1] + bounds[3]) // 2
+                    
+                    label = attribs.get('text') or attribs.get('content-desc') or ""
+                    resource_id = attribs.get('resource-id', '').split('/')[-1]
+                    class_name = attribs.get('class', '').split('.')[-1]
+                    
+                    elements.append(f"@{center_x},{center_y} | {class_name} | ID:{resource_id} | '{label}'")
         
-        return filepath, "\n".join(elements[:20])
+        # Tingkatkan limit ke 50 agar navigasi bawah (tab bar) tidak terpotong
+        return filepath, "\n".join(elements[:50])

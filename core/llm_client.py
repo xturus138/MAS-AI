@@ -7,6 +7,7 @@ def get_shared_llm():
         model=config.VISION_MODEL,
         api_key=config.OPENROUTER_API_KEY,
         base_url="https://openrouter.ai/api/v1",
+        max_tokens=config.MAX_TOKENS,
         default_headers={
             "HTTP-Referer": "https://localhost", 
             "X-Title": "MAS-Agent"

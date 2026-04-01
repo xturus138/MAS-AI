@@ -23,7 +23,7 @@ def run_workflow():
     executor = ExecutorAgent(shared_llm, exe_tools.get_tools())
     
     state = OrchestratorState(
-        task_goal="Masuk ke menu Keranjang Belanja (Cart)"
+        task_goal="Mencari Profile Saya dan Melihat Nama Saya"
     )
     
     max_steps = 5
