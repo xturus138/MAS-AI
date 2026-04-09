@@ -1,7 +1,7 @@
 import base64
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage
-from core.state import OrchestratorState
+from core.state import AgentState
 
 # STEP 1 DEFINISI OUTPUT DAN LOGIKA OBSERVER AGENT DENGAN TOOLS MANDIRI //
 class ObserverOutput(BaseModel):
@@ -17,7 +17,7 @@ class ObserverAgent:
         with open(image_path, "rb") as img:
             return base64.b64encode(img.read()).decode('utf-8')
 
-    def analyze(self, state: OrchestratorState) -> OrchestratorState:
+    def analyze(self, state: AgentState) -> AgentState:
         img_path, xml_summary = self.tools.capture_state()
         state.screenshot_path = img_path
         state.ui_elements_summary = xml_summary

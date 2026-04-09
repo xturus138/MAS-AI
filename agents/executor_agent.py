@@ -1,5 +1,5 @@
 from langchain_core.messages import SystemMessage, HumanMessage
-from core.state import OrchestratorState
+from core.state import AgentState
 
 # STEP 1 LOGIKA EXECUTOR MENGGUNAKAN LANGCHAIN TOOLS BINDING //
 class ExecutorAgent:
@@ -7,9 +7,9 @@ class ExecutorAgent:
         self.llm_with_tools = llm.bind_tools(tools)
         self.tools_map = {tool.name: tool for tool in tools}
 
-    def execute(self, state: OrchestratorState) -> OrchestratorState:
+    def execute(self, state: AgentState) -> AgentState:
         system_prompt = SystemMessage(content="Anda adalah robot eksekutor Android. Gunakan tools yang tersedia untuk menjalankan instruksi.")
-        human_prompt = HumanMessage(content=f"Instruksi dari Orchestrator: {state.orchestrator_instruction}\n\nData layar: {state.ui_elements_summary}")
+        human_prompt = HumanMessage(content=f"Instruksi dari Decider: {state.decider_instruction}\n\nData layar: {state.ui_elements_summary}")
         
         response = self.llm_with_tools.invoke([system_prompt, human_prompt])
         
@@ -24,6 +24,6 @@ class ExecutorAgent:
             
         result_str = " | ".join(execution_logs)
         state.execution_result = result_str
-        state.action_history.append(f"Step {state.current_step}: {state.orchestrator_instruction} -> {result_str}")
+        state.action_history.append(f"Step {state.current_step}: {state.decider_instruction} -> {result_str}")
         
         return state

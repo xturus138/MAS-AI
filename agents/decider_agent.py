@@ -1,18 +1,18 @@
-# agents/orchestrator_agent.py
+# agents/decider_agent.py
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage
-from core.state import OrchestratorState
+from core.state import AgentState
 
-# STEP 1 DEFINISI OUTPUT DAN LOGIKA ORCHESTRATOR AGENT //
-class OrchestratorDecision(BaseModel):
+# STEP 1 DEFINISI OUTPUT DAN LOGIKA DECIDER AGENT //
+class DeciderDecision(BaseModel):
     is_completed: bool = Field(description="True jika tujuan user telah tercapai")
     next_instruction: str = Field(description="Instruksi spesifik untuk Executor jika belum selesai. Misal: 'Klik tombol profil di koordinat 100, 200'")
 
-class OrchestratorAgent:
+class DeciderAgent:
     def __init__(self, llm):
-        self.llm = llm.with_structured_output(OrchestratorDecision)
+        self.llm = llm.with_structured_output(DeciderDecision)
 
-    def decide(self, state: OrchestratorState) -> OrchestratorState:
+    def decide(self, state: AgentState) -> AgentState:
         prompt = (
             f"Tujuan Akhir: {state.task_goal}\n"
             f"Informasi Layar: {state.observer_analysis}\n"
@@ -26,5 +26,5 @@ class OrchestratorAgent:
         decision = self.llm.invoke([message])
         
         state.is_completed = decision.is_completed
-        state.orchestrator_instruction = decision.next_instruction
+        state.decider_instruction = decision.next_instruction
         return state
