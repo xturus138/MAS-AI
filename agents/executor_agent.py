@@ -8,12 +8,20 @@ class ExecutorAgent:
 
     def execute(self, state: AgentState) -> dict:
         system_prompt = SystemMessage(
-            content="You are an Android executor robot. "
-                    "Use the available tools to execute instructions."
+            content=(
+                "You are an Android executor robot. Your task is to execute the Decider's instruction on the device.\n\n"
+                "GUIDELINES:\n"
+                "1. Map labels, resource IDs, or descriptions from the Decider to the exact '@x,y' coordinates found in the Screen Data.\n"
+                "2. Use 'swipe_screen' if the instruction involves scrolling, paging, or finding elements not currently visible.\n"
+                "3. Use 'click_coordinates' for standard button/link interactions using its center point.\n"
+                "4. Use 'start_app' if the Decider wants to open a specific application and you are not currently in it.\n"
+                "5. If a form needs to be submitted after typing, use 'press_enter'.\n"
+                "6. Only use tools provided to you. Do not guess or hallucinate parameters."
+            )
         )
         human_prompt = HumanMessage(
             content=f"Instruction from Decider: {state['decider_instruction']}\n\n"
-                    f"Screen data: {state['ui_elements_summary']}"
+                    f"Screen Data (Summarized): \n{state['ui_elements_summary']}"
         )
 
         response = self.llm_with_tools.invoke([system_prompt, human_prompt])
@@ -21,11 +29,18 @@ class ExecutorAgent:
         execution_logs = []
         if response.tool_calls:
             for tool_call in response.tool_calls:
-                selected_tool = self.tools_map[tool_call["name"]]
-                tool_output = selected_tool.invoke(tool_call["args"])
-                execution_logs.append(tool_output)
+                try:
+                    tool_name = tool_call["name"]
+                    if tool_name in self.tools_map:
+                        selected_tool = self.tools_map[tool_name]
+                        tool_output = selected_tool.invoke(tool_call["args"])
+                        execution_logs.append(f"[{tool_name}]: {tool_output}")
+                    else:
+                        execution_logs.append(f"Error: Tool '{tool_name}' not found.")
+                except Exception as e:
+                    execution_logs.append(f"Error executing {tool_call['name']}: {str(e)}")
         else:
-            execution_logs.append("Executor: Could not find a suitable tool for this instruction.")
+            execution_logs.append("Executor: No tool was called. Instruction might be unclear or already completed.")
 
         result_str = " | ".join(execution_logs)
         print(f"[Executor] {result_str}")

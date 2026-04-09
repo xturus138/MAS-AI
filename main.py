@@ -18,7 +18,7 @@ def run_workflow():
     obs_tools = ObserverTools(device_session, config.OUTPUT_DIR)
     exe_tools = ExecutorTools(device_session)
 
-    observer = ObserverAgent(shared_llm, obs_tools)
+    observer = ObserverAgent(shared_llm, obs_tools.get_tools())
     decider  = DeciderAgent(shared_llm)
     executor = ExecutorAgent(shared_llm, exe_tools.get_tools())
 

@@ -10,7 +10,9 @@ class ObserverOutput(BaseModel):
 class ObserverAgent:
     def __init__(self, llm, tools):
         self.llm = llm.with_structured_output(ObserverOutput)
-        self.tools = tools
+        # tools is a list containing [take_screenshot, get_ui_hierarchy]
+        self.take_screenshot = tools[0]
+        self.get_ui_hierarchy = tools[1]
 
     def _encode_image(self, image_path):
         with open(image_path, "rb") as img:
@@ -18,7 +20,10 @@ class ObserverAgent:
 
     def analyze(self, state: AgentState) -> dict:
         print(f"\n--- CYCLE {state['current_step'] + 1} | [Observer] Analyzing screen... ---")
-        img_path, xml_summary = self.tools.capture_state()
+        
+        # Use separate tools
+        img_path = self.take_screenshot.invoke({})
+        xml_summary = self.get_ui_hierarchy.invoke({})
 
         img_b64 = self._encode_image(img_path)
         prompt = (
