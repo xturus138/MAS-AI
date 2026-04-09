@@ -1,30 +1,35 @@
-# agents/decider_agent.py
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage
 from core.state import AgentState
 
-# STEP 1 DEFINISI OUTPUT DAN LOGIKA DECIDER AGENT //
 class DeciderDecision(BaseModel):
-    is_completed: bool = Field(description="True jika tujuan user telah tercapai")
-    next_instruction: str = Field(description="Instruksi spesifik untuk Executor jika belum selesai. Misal: 'Klik tombol profil di koordinat 100, 200'")
+    is_completed: bool = Field(description="True if the user's goal has been achieved")
+    next_instruction: str = Field(
+        description="Specific instruction for the Executor if not completed yet. "
+                    "Example: 'Click the profile button at coordinates 100, 200'"
+    )
 
 class DeciderAgent:
     def __init__(self, llm):
         self.llm = llm.with_structured_output(DeciderDecision)
 
-    def decide(self, state: AgentState) -> AgentState:
+    def decide(self, state: AgentState) -> dict:
         prompt = (
-            f"Tujuan Akhir: {state.task_goal}\n"
-            f"Informasi Layar: {state.observer_analysis}\n"
-            f"Riwayat Tindakan: {state.action_history}\n\n"
-            f"TUGAS: Berikan instruksi ke Executor.\n"
-            f"ATURAN: Gunakan koordinat @x,y yang disediakan oleh Observer. "
-            f"JANGAN menebak koordinat jika tidak ada dalam analisis layar."
+            f"Final Goal: {state['task_goal']}\n"
+            f"Screen Information: {state['observer_analysis']}\n"
+            f"Action History: {state['action_history']}\n\n"
+            f"TASK: Provide an instruction to the Executor.\n"
+            f"RULES: Use @x,y coordinates provided by the Observer. "
+            f"DO NOT guess coordinates if they are not in the screen analysis."
         )
-        
+
         message = HumanMessage(content=prompt)
         decision = self.llm.invoke([message])
-        
-        state.is_completed = decision.is_completed
-        state.decider_instruction = decision.next_instruction
-        return state
+
+        status = "COMPLETED ✓" if decision.is_completed else f"Continuing → '{decision.next_instruction}'"
+        print(f"[Decider] {status}")
+
+        return {
+            "is_completed": decision.is_completed,
+            "decider_instruction": decision.next_instruction,
+        }

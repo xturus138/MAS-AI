@@ -3,10 +3,9 @@ from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage
 from core.state import AgentState
 
-# STEP 1 DEFINISI OUTPUT DAN LOGIKA OBSERVER AGENT DENGAN TOOLS MANDIRI //
 class ObserverOutput(BaseModel):
-    screen_description: str = Field(description="Deskripsi singkat layar saat ini")
-    key_elements_found: str = Field(description="Elemen penting apa saja yang terlihat")
+    screen_description: str = Field(description="Brief description of the current screen")
+    key_elements_found: str = Field(description="Key elements visible on the screen")
 
 class ObserverAgent:
     def __init__(self, llm, tools):
@@ -17,24 +16,30 @@ class ObserverAgent:
         with open(image_path, "rb") as img:
             return base64.b64encode(img.read()).decode('utf-8')
 
-    def analyze(self, state: AgentState) -> AgentState:
+    def analyze(self, state: AgentState) -> dict:
+        print(f"\n--- CYCLE {state['current_step'] + 1} | [Observer] Analyzing screen... ---")
         img_path, xml_summary = self.tools.capture_state()
-        state.screenshot_path = img_path
-        state.ui_elements_summary = xml_summary
 
-        img_b64 = self._encode_image(state.screenshot_path)
+        img_b64 = self._encode_image(img_path)
         prompt = (
-            f"Tujuan User: {state.task_goal}\n"
-            f"Analisis XML: {state.ui_elements_summary}\n\n"
-            f"Tugas: Identifikasi elemen penting untuk mencapai tujuan.\n"
-            f"WAJIB: Sebutkan koordinat @x,y untuk setiap elemen yang kamu temukan di 'key_elements_found'."
+            f"User Goal: {state['task_goal']}\n"
+            f"XML Analysis: {xml_summary}\n\n"
+            f"Task: Identify key elements to achieve the goal.\n"
+            f"MANDATORY: Mention @x,y coordinates for every element you find in 'key_elements_found'."
         )
-        
+
         message = HumanMessage(content=[
             {"type": "text", "text": prompt},
             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}}
         ])
-        
+
         result = self.llm.invoke([message])
-        state.observer_analysis = f"Layar: {result.screen_description}. Terlihat: {result.key_elements_found}"
-        return state
+        analysis = f"Screen: {result.screen_description}. Found: {result.key_elements_found}"
+        print(f"[Observer] {analysis}")
+
+        return {
+            "screenshot_path": img_path,
+            "ui_elements_summary": xml_summary,
+            "observer_analysis": analysis,
+            "current_step": state["current_step"] + 1,
+        }

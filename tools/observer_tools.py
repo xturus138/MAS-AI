@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 import re
 from datetime import datetime
 
-# STEP 1 ALAT PERSEPSI KHUSUS OBSERVER AGENT //
 class ObserverTools:
     def __init__(self, device_session, output_dir):
         self.d = device_session
@@ -21,11 +20,9 @@ class ObserverTools:
         elements = []
         for node in root.iter('node'):
             attribs = node.attrib
-            # Ambil elemen yang bisa diklik atau input teks
             if attribs.get('clickable') == 'true' or 'EditText' in attribs.get('class', ''):
                 bounds = [int(x) for x in re.findall(r'\d+', attribs.get('bounds', ''))]
                 if len(bounds) == 4:
-                    # Hitung titik tengah (center) untuk akurasi klik yang lebih baik
                     center_x = (bounds[0] + bounds[2]) // 2
                     center_y = (bounds[1] + bounds[3]) // 2
                     
@@ -35,5 +32,4 @@ class ObserverTools:
                     
                     elements.append(f"@{center_x},{center_y} | {class_name} | ID:{resource_id} | '{label}'")
         
-        # Tingkatkan limit ke 50 agar navigasi bawah (tab bar) tidak terpotong
         return filepath, "\n".join(elements[:50])

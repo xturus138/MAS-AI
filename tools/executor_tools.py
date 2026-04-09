@@ -1,7 +1,6 @@
 import time
 from langchain_core.tools import tool
 
-# STEP 1 ALAT AKSI KHUSUS EXECUTOR AGENT //
 class ExecutorTools:
     def __init__(self, device_session):
         self.d = device_session
@@ -11,23 +10,23 @@ class ExecutorTools:
 
         @tool
         def click_coordinates(x: int, y: int) -> str:
-            """Klik pada koordinat x dan y di layar perangkat."""
+            """Click on x and y coordinates on the device screen."""
             d.click(x, y)
             time.sleep(1)
-            return f"Berhasil menekan koordinat {x}, {y}"
+            return f"Successfully clicked coordinates {x}, {y}"
 
         @tool
         def type_text(text: str) -> str:
-            """Mengetik teks menggunakan keyboard perangkat."""
+            """Type text using the device keyboard."""
             d.send_keys(text)
             time.sleep(1)
-            return f"Berhasil mengetik: {text}"
+            return f"Successfully typed: {text}"
 
         @tool
         def press_back() -> str:
-            """Menekan tombol kembali (back) pada perangkat."""
+            """Press the back button on the device."""
             d.press("back")
             time.sleep(1)
-            return "Berhasil menekan tombol kembali"
+            return "Successfully pressed the back button"
 
         return [click_coordinates, type_text, press_back]
