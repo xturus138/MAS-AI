@@ -1,54 +1,50 @@
-from langchain_core.messages import SystemMessage, HumanMessage
 from core.state import AgentState
+from tools.executor_tools import ExecutorTools
+
 
 class ExecutorAgent:
-    def __init__(self, llm, tools):
-        self.llm_with_tools = llm.bind_tools(tools)
-        self.tools_map = {tool.name: tool for tool in tools}
+    def __init__(self, tools: ExecutorTools):
+        self.tools = tools
 
     def execute(self, state: AgentState) -> dict:
-        system_prompt = SystemMessage(
-            content=(
-                "You are an Android executor robot. Your task is to execute the Decider's instruction on the device.\n\n"
-                "GUIDELINES:\n"
-                "1. Map labels, resource IDs, or descriptions from the Decider to the exact '@x,y' coordinates found in the Screen Data.\n"
-                "2. Use 'swipe_screen' if the instruction involves scrolling, paging, or finding elements not currently visible.\n"
-                "3. Use 'click_coordinates' for standard button/link interactions using its center point.\n"
-                "4. Use 'start_app' if the Decider wants to open a specific application and you are not currently in it.\n"
-                "5. If a form needs to be submitted after typing, use 'press_enter'.\n"
-                "6. Only use tools provided to you. Do not guess or hallucinate parameters."
-            )
-        )
-        human_prompt = HumanMessage(
-            content=f"Instruction from Decider: {state['decider_instruction']}\n\n"
-                    f"Screen Data (Summarized): \n{state['ui_elements_summary']}"
-        )
+        plan = state["action_plan"]
+        action_type = plan["action_type"]
 
-        response = self.llm_with_tools.invoke([system_prompt, human_prompt])
+        if action_type == "click":
+            result = self.tools.click_coordinates(plan["target_x"], plan["target_y"])
 
-        execution_logs = []
-        if response.tool_calls:
-            for tool_call in response.tool_calls:
-                try:
-                    tool_name = tool_call["name"]
-                    if tool_name in self.tools_map:
-                        selected_tool = self.tools_map[tool_name]
-                        tool_output = selected_tool.invoke(tool_call["args"])
-                        execution_logs.append(f"[{tool_name}]: {tool_output}")
-                    else:
-                        execution_logs.append(f"Error: Tool '{tool_name}' not found.")
-                except Exception as e:
-                    execution_logs.append(f"Error executing {tool_call['name']}: {str(e)}")
+        elif action_type == "long_click":
+            result = self.tools.long_click(plan["target_x"], plan["target_y"])
+
+        elif action_type == "input":
+            self.tools.click_coordinates(plan["target_x"], plan["target_y"])
+            result = self.tools.type_text(plan["text_payload"])
+
+        elif action_type == "scroll":
+            result = self.tools.swipe_screen(plan["scroll_direction"], plan.get("scroll_region"))
+
+        elif action_type == "press_back":
+            result = self.tools.press_back()
+
+        elif action_type == "press_home":
+            result = self.tools.press_home()
+
+        elif action_type == "press_enter":
+            result = self.tools.press_enter()
+
+        elif action_type == "start_app":
+            result = self.tools.start_app(plan["app_package"])
+
         else:
-            execution_logs.append("Executor: No tool was called. Instruction might be unclear or already completed.")
+            result = f"ERROR: Unknown action_type '{action_type}'"
 
-        result_str = " | ".join(execution_logs)
-        print(f"[Executor] {result_str}")
+        print(f"[Executor] [{action_type}] {plan['intent']} → {result}")
 
         new_history = state["action_history"] + [
-            f"Step {state['current_step']}: {state['decider_instruction']} → {result_str}"
+            f"Step {state['current_step']}: [{action_type}] {plan['intent']} → {result}"
         ]
+
         return {
-            "execution_result": result_str,
+            "execution_result": result,
             "action_history": new_history,
         }
