@@ -4,14 +4,9 @@ import xml.etree.ElementTree as ET
 import re
 from datetime import datetime
 
-# Disable Intel oneDNN (MKL-DNN) backend BEFORE importing PaddlePaddle.
-# PaddleOCR v5 PIR-format models are incompatible with oneDNN on Windows,
-# causing a NotImplementedError deep inside the inference engine.
-os.environ['FLAGS_use_mkldnn'] = '0'
-
 import cv2
 import numpy as np
-from paddleocr import PaddleOCR
+import easyocr
 from langchain_core.tools import tool
 from core.ports.device_port import IDeviceClient
 from shared import config
@@ -32,11 +27,9 @@ class ObserverTools:
             if not os.path.exists(d):
                 os.makedirs(d)
 
-        self.ocr_model = PaddleOCR(
-            lang='en', 
-            use_angle_cls=False,
-            enable_mkldnn=False
-        )
+        # EasyOCR Reader — initialized once, reused across calls.
+        # gpu=True uses CUDA if available, falls back to CPU otherwise.
+        self.ocr_model = easyocr.Reader(['en'], gpu=True)
 
     def get_tools(self):
         d = self.d
@@ -67,61 +60,40 @@ class ObserverTools:
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
-            results = ocr_model.ocr(image_path)
+            # Load image and resize for speed optimization
+            img = cv2.imread(image_path)
+            if img is None:
+                return json.dumps({"error": f"Could not read image: {image_path}"})
+            
+            orig_h, orig_w = img.shape[:2]
+            target_h = 1080
+            scale = 1.0
+            if orig_h > target_h:
+                scale = target_h / orig_h
+                new_w = int(orig_w * scale)
+                img = cv2.resize(img, (new_w, target_h), interpolation=cv2.INTER_AREA)
+
+            # Run EasyOCR on the (possibly resized) image
+            # Returns list of (bbox_points, text, confidence)
+            results = ocr_model.readtext(img)
             extracted = []
 
-            if results and results[0]:
-                res = results[0]
-                if hasattr(res, 'keys') or isinstance(res, dict):
-                    # PaddleX / PaddleOCR v3+ format
-                    res_dict = res if isinstance(res, dict) else res.dict() if hasattr(res, 'dict') else dict(res)
-                    texts = res_dict.get('rec_texts', [])
-                    scores = res_dict.get('rec_scores', [])
-                    polys = res_dict.get('dt_polys', []) or res_dict.get('rec_polys', [])
-                    
-                    for i in range(min(len(texts), len(scores), len(polys))):
-                        text = texts[i]
-                        confidence = scores[i]
-                        box_points = polys[i]
-                        
-                        if confidence < 0.6:
-                            continue
-                            
-                        xs = [pt[0] for pt in box_points]
-                        ys = [pt[1] for pt in box_points]
-                        x_min = int(min(xs))
-                        y_min = int(min(ys))
-                        x_max = int(max(xs))
-                        y_max = int(max(ys))
+            for (box_points, text, confidence) in results:
+                if confidence < 0.4:
+                    continue
 
-                        extracted.append({
-                            "text": str(text),
-                            "bounds": [x_min, y_min, x_max, y_max],
-                            "confidence": round(float(confidence), 4)
-                        })
-                else:
-                    # Legacy PaddleOCR format
-                    for line in res:
-                        if not line or len(line) < 2: continue
-                        box_points = line[0]
-                        text = line[1][0]
-                        confidence = line[1][1]
+                # box_points is [[x1,y1],[x2,y1],[x2,y2],[x1,y2]]
+                # Rescale coordinates back to original size
+                xs = [pt[0] / scale for pt in box_points]
+                ys = [pt[1] / scale for pt in box_points]
+                x_min, y_min = int(min(xs)), int(min(ys))
+                x_max, y_max = int(max(xs)), int(max(ys))
 
-                        if confidence < 0.6:
-                            continue
-
-                        xs = [pt[0] for pt in box_points]
-                        ys = [pt[1] for pt in box_points]
-                        x_min = int(min(xs))
-                        y_min = int(min(ys))
-                        x_max = int(max(xs))
-                        y_max = int(max(ys))
-
-                        extracted.append({
-                            "text": str(text),
-                            "bounds": [x_min, y_min, x_max, y_max],
-                            "confidence": round(float(confidence), 4)
-                        })
+                extracted.append({
+                    "text": str(text),
+                    "bounds": [x_min, y_min, x_max, y_max],
+                    "confidence": round(float(confidence), 4)
+                })
 
             json_data = json.dumps(extracted)
             

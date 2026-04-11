@@ -1,7 +1,4 @@
 import os
-# Disable Intel oneDNN (MKL-DNN) backend for stability on Windows
-os.environ['FLAGS_use_mkldnn'] = '0'
-os.environ['FLAGS_use_onednn'] = '0'
 
 from shared import config
 from core.models.state import AgentState
@@ -16,7 +13,7 @@ from agents.executor_agent import ExecutorAgent
 
 
 def run_workflow():
-    print("[*] Starting Multi-Agent System (Hexagonal Architecture)...")
+    print("[*] Starting Multi-Agent System...")
 
     # 1. Initialize Adapters (Infrastructure)
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
@@ -35,7 +32,7 @@ def run_workflow():
     app = build_graph(observer, decider, executor)
 
     initial_state: AgentState = {
-        "task_goal": "Open Shopee, go to cart, and remove all the product in there",
+        "task_goal": "Click Search bar, type 'TOTE BAG', click search button, select a product with more than 1000 sales, and add it to the cart (choose any available color/variant).",
         "current_step": 0,
         "screenshot_path": "",
         "annotated_screenshot_path": "",

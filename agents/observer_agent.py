@@ -28,9 +28,28 @@ class ObserverAgent:
             if not os.path.exists(d):
                 os.makedirs(d)
 
-    def _encode_image(self, image_path: str) -> str:
-        with open(image_path, "rb") as img:
-            return base64.b64encode(img.read()).decode("utf-8")
+    def _encode_image(self, image_path: str, max_height: int = 800) -> str:
+        """
+        Reads an image, resizes it to a maximum height to optimize LLM visual tokens,
+        and returns a base64 encoded string.
+        """
+        img = cv2.imread(image_path)
+        if img is None:
+            return ""
+
+        # Resize to optimize for Vision-Language model tokens
+        h, w = img.shape[:2]
+        if h > max_height:
+            scale = max_height / h
+            new_w = int(w * scale)
+            img = cv2.resize(img, (new_w, max_height), interpolation=cv2.INTER_AREA)
+
+        # Encode as JPEG for efficient transmission
+        success, buffer = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+        if not success:
+            return ""
+            
+        return base64.b64encode(buffer).decode("utf-8")
 
     def _needs_visual_fallback(self, xml_content: str) -> bool:
         if not xml_content or xml_content.strip() == "":
@@ -82,37 +101,46 @@ class ObserverAgent:
         return widget_set
 
     def _run_ocr_on_bounds(self, image_path: str, widgets: list) -> list:
-        img = cv2.imread(image_path)
-        if img is None:
+        """
+        Runs OCR on the full screenshot once and maps results to specific widget bounds.
+        This replaces the slow 'crop-then-OCR' loop.
+        """
+        # 1. Perform a single OCR pass on the entire screenshot
+        print(f"[Observer] Running full-screen OCR for mapping...")
+        ocr_result_raw = self.ocr_extract_text.invoke({"image_path": image_path})
+        
+        try:
+            ocr_items = json.loads(ocr_result_raw)
+        except (json.JSONDecodeError, TypeError):
+            ocr_items = []
+
+        if not ocr_items:
             return widgets
 
+        # 2. Map OCR text blocks to widgets based on spatial containment
         for widget in widgets:
+            # Skip if widget already has text from XML
             if widget.get("text"):
                 continue
 
-            x1, y1, x2, y2 = widget["bounds"]
-            x1, y1 = max(0, x1), max(0, y1)
-            x2, y2 = min(img.shape[1], x2), min(img.shape[0], y2)
-            if x2 <= x1 or y2 <= y1:
-                continue
+            w_x1, w_y1, w_x2, w_y2 = widget["bounds"]
+            matched_text_segments = []
 
-            base = os.path.basename(image_path).replace(".png", "")
-            crop_filename = f"crop_{base}_{widget['id']}.png"
-            cropped_path = os.path.join(self.dirs["crops"], crop_filename)
-            
-            cv2.imwrite(cropped_path, img[y1:y2, x1:x2])
+            for ocr_item in ocr_items:
+                o_text = ocr_item.get("text", "")
+                o_bounds = ocr_item.get("bounds", [])
+                if not o_text or len(o_bounds) != 4:
+                    continue
 
-            ocr_result_raw = self.ocr_extract_text.invoke({"image_path": cropped_path})
-            try:
-                ocr_items = json.loads(ocr_result_raw)
-                if ocr_items and isinstance(ocr_items, list):
-                    combined_text = " ".join(
-                        item.get("text", "") for item in ocr_items if item.get("text")
-                    ).strip()
-                    if combined_text:
-                        widget["text"] = combined_text
-            except (json.JSONDecodeError, TypeError):
-                pass
+                # Check if the center of the OCR detection falls within the widget bounds
+                ox1, oy1, ox2, oy2 = o_bounds
+                cx, cy = (ox1 + ox2) / 2, (oy1 + oy2) / 2
+
+                if (w_x1 <= cx <= w_x2) and (w_y1 <= cy <= w_y2):
+                    matched_text_segments.append(o_text)
+
+            if matched_text_segments:
+                widget["text"] = " ".join(matched_text_segments).strip()
 
         return widgets
 
