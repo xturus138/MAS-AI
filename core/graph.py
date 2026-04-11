@@ -1,6 +1,7 @@
 from langgraph.graph import StateGraph, START, END
 from core.state import AgentState
 
+
 def build_graph(observer_agent, decider_agent, executor_agent) -> StateGraph:
     def route_after_decider(state: AgentState) -> str:
         if state["is_completed"]:

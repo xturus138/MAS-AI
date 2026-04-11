@@ -9,6 +9,7 @@ from agents.observer_agent import ObserverAgent
 from agents.decider_agent import DeciderAgent
 from agents.executor_agent import ExecutorAgent
 
+
 def run_workflow():
     print("[*] Starting Multi-Agent System (LangGraph)...")
 
@@ -19,24 +20,24 @@ def run_workflow():
     exe_tools = ExecutorTools(device_session)
 
     observer = ObserverAgent(shared_llm, obs_tools.get_tools())
-    decider  = DeciderAgent(shared_llm)
-    executor = ExecutorAgent(shared_llm, exe_tools.get_tools())
+    decider = DeciderAgent(shared_llm)
+    executor = ExecutorAgent(exe_tools)
 
     app = build_graph(observer, decider, executor)
 
     initial_state: AgentState = {
-        "task_goal": "Open cart and remove Nintendo Switch from cart",
+        "task_goal": "Open Shopee, go to profile, and change the name into 'Raditya138'",
         "current_step": 0,
         "screenshot_path": "",
         "ui_elements_summary": "",
         "observer_analysis": "",
-        "decider_instruction": "",
+        "action_plan": {},
         "execution_result": "",
         "is_completed": False,
         "action_history": [],
     }
 
-    config_run = {"recursion_limit": 30}
+    config_run = {"recursion_limit": 50}
 
     final_state = app.invoke(initial_state, config=config_run)
 
@@ -45,8 +46,9 @@ def run_workflow():
     print(f"Status : {status}")
     print(f"Steps  : {final_state['current_step']}")
     print("Action History:")
-    for history in final_state["action_history"]:
-        print(f"  - {history}")
+    for entry in final_state["action_history"]:
+        print(f"  - {entry}")
+
 
 if __name__ == "__main__":
     run_workflow()

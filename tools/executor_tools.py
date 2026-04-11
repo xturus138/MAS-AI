@@ -1,84 +1,64 @@
 import time
-from langchain_core.tools import tool
+
 
 class ExecutorTools:
     def __init__(self, device_session):
         self.d = device_session
 
-    def get_tools(self):
-        d = self.d 
+    def click_coordinates(self, x: int, y: int) -> str:
+        self.d.click(x, y)
+        time.sleep(1)
+        return f"Clicked ({x}, {y})"
 
-        @tool
-        def click_coordinates(x: int, y: int) -> str:
-            """Click on x and y coordinates on the device screen."""
-            d.click(x, y)
-            time.sleep(1)
-            return f"Successfully clicked coordinates {x}, {y}"
+    def long_click(self, x: int, y: int) -> str:
+        self.d.long_click(x, y)
+        time.sleep(1)
+        return f"Long-clicked ({x}, {y})"
 
-        @tool
-        def long_click(x: int, y: int) -> str:
-            """Perform a long click on x and y coordinates on the device screen."""
-            d.long_click(x, y)
-            time.sleep(1)
-            return f"Successfully long clicked coordinates {x}, {y}"
+    def type_text(self, text: str) -> str:
+        self.d.send_keys(text)
+        time.sleep(1)
+        return f"Typed: {text}"
 
-        @tool
-        def type_text(text: str) -> str:
-            """Type text into the focused input field using the device keyboard."""
-            d.send_keys(text)
-            time.sleep(1)
-            return f"Successfully typed: {text}"
+    def swipe_screen(self, direction: str, region: dict = None) -> str:
+        if region:
+            cx = (region["x1"] + region["x2"]) // 2
+            if direction == "up":
+                self.d.swipe(cx, region["y2"], cx, region["y1"])
+            elif direction == "down":
+                self.d.swipe(cx, region["y1"], cx, region["y2"])
+            elif direction == "left":
+                cy = (region["y1"] + region["y2"]) // 2
+                self.d.swipe(region["x2"], cy, region["x1"], cy)
+            elif direction == "right":
+                cy = (region["y1"] + region["y2"]) // 2
+                self.d.swipe(region["x1"], cy, region["x2"], cy)
+        else:
+            self.d.swipe_ext(direction, scale=0.8)
+        time.sleep(1)
+        return f"Swiped {direction}" + (f" in region {region}" if region else " (full screen)")
 
-        @tool
-        def swipe_screen(direction: str) -> str:
-            """Swipe the screen in a specified direction. Supported: 'up', 'down', 'left', 'right'."""
-            d.swipe_ext(direction, scale=0.8)
-            time.sleep(1)
-            return f"Successfully swiped {direction}"
+    def start_app(self, package_name: str) -> str:
+        self.d.app_start(package_name)
+        time.sleep(2)
+        return f"Started app: {package_name}"
 
-        @tool
-        def start_app(package_name: str) -> str:
-            """Launch an application using its package name (e.g., 'com.tokopedia.tkpd')."""
-            d.app_start(package_name)
-            time.sleep(2)
-            return f"Successfully started app: {package_name}"
+    def stop_app(self, package_name: str) -> str:
+        self.d.app_stop(package_name)
+        time.sleep(1)
+        return f"Stopped app: {package_name}"
 
-        @tool
-        def stop_app(package_name: str) -> str:
-            """Force-stop an application using its package name."""
-            d.app_stop(package_name)
-            time.sleep(1)
-            return f"Successfully stopped app: {package_name}"
+    def press_back(self) -> str:
+        self.d.press("back")
+        time.sleep(1)
+        return "Pressed back"
 
-        @tool
-        def press_back() -> str:
-            """Press the system back button."""
-            d.press("back")
-            time.sleep(1)
-            return "Successfully pressed the back button"
+    def press_home(self) -> str:
+        self.d.press("home")
+        time.sleep(1)
+        return "Pressed home"
 
-        @tool
-        def press_home() -> str:
-            """Press the system home button to return to the dashboard."""
-            d.press("home")
-            time.sleep(1)
-            return "Successfully pressed the home button"
-
-        @tool
-        def press_enter() -> str:
-            """Press the enter or search key on the keyboard."""
-            d.press("enter")
-            time.sleep(1)
-            return "Successfully pressed the enter button"
-
-        return [
-            click_coordinates, 
-            long_click,
-            type_text, 
-            swipe_screen,
-            start_app,
-            stop_app,
-            press_back,
-            press_home,
-            press_enter
-        ]
+    def press_enter(self) -> str:
+        self.d.press("enter")
+        time.sleep(1)
+        return "Pressed enter"
