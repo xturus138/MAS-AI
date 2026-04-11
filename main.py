@@ -1,3 +1,7 @@
+import os
+os.environ['FLAGS_use_mkldnn'] = '0'
+os.environ['FLAGS_use_onednn'] = '0'
+
 import config
 from core.llm_client import get_shared_llm
 from core.state import AgentState
@@ -26,9 +30,12 @@ def run_workflow():
     app = build_graph(observer, decider, executor)
 
     initial_state: AgentState = {
-        "task_goal": "Open Shopee, go to profile, and change the name into 'Raditya138'",
+        "task_goal": "Open Shopee, go to cart, and remove all the product in there",
         "current_step": 0,
         "screenshot_path": "",
+        "annotated_screenshot_path": "",
+        "ocr_result": "",
+        "detected_elements": "",
         "ui_elements_summary": "",
         "observer_analysis": "",
         "action_plan": {},

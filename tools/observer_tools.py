@@ -4,6 +4,11 @@ import xml.etree.ElementTree as ET
 import re
 from datetime import datetime
 
+# Disable Intel oneDNN (MKL-DNN) backend BEFORE importing PaddlePaddle.
+# PaddleOCR v5 PIR-format models are incompatible with oneDNN on Windows,
+# causing a NotImplementedError deep inside the inference engine.
+os.environ['FLAGS_use_mkldnn'] = '0'
+
 import cv2
 import numpy as np
 from paddleocr import PaddleOCR
@@ -14,86 +19,121 @@ class ObserverTools:
     def __init__(self, device_session, output_dir):
         self.d = device_session
         self.output_dir = output_dir
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
+        
+        self.dirs = {
+            "raw": os.path.join(output_dir, "raw"),
+            "xml": os.path.join(output_dir, "xml"),
+            "json": os.path.join(output_dir, "json"),
+            "annotated": os.path.join(output_dir, "annotated")
+        }
+        
+        for d in self.dirs.values():
+            if not os.path.exists(d):
+                os.makedirs(d)
 
-        self.ocr_model = PaddleOCR(lang='en', use_angle_cls=False, show_log=False)
+        self.ocr_model = PaddleOCR(
+            lang='en', 
+            use_angle_cls=False,
+            enable_mkldnn=False
+        )
 
     def get_tools(self):
         d = self.d
-        output_dir = self.output_dir
         ocr_model = self.ocr_model
+        dirs = self.dirs
 
         @tool
         def take_screenshot() -> str:
-            """Capture a screenshot of the current device screen and return the file path."""
+            """Takes a screenshot of the current device screen and returns the local file path."""
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filepath = os.path.join(output_dir, f"state_{timestamp}.png")
+            filepath = os.path.join(dirs["raw"], f"raw_{timestamp}.png")
             d.screenshot(filepath)
             return filepath
 
         @tool
         def get_ui_hierarchy() -> str:
-            """Dump the current UI hierarchy and return a summarized list of clickable elements."""
+            """Dumps the current UI hierarchy (XML) from the device and returns the raw XML string."""
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             xml_content = d.dump_hierarchy()
-            root = ET.fromstring(xml_content)
-            elements = []
-            for node in root.iter('node'):
-                attribs = node.attrib
-                if attribs.get('clickable') == 'true' or 'EditText' in attribs.get('class', ''):
-                    bounds = [int(x) for x in re.findall(r'\d+', attribs.get('bounds', ''))]
-                    if len(bounds) == 4:
-                        center_x = (bounds[0] + bounds[2]) // 2
-                        center_y = (bounds[1] + bounds[3]) // 2
-
-                        label = attribs.get('text') or attribs.get('content-desc') or ""
-                        resource_id = attribs.get('resource-id', '').split('/')[-1]
-                        class_name = attribs.get('class', '').split('.')[-1]
-
-                        elements.append(f"@{center_x},{center_y} | {class_name} | ID:{resource_id} | '{label}'")
-
-            return "\n".join(elements[:50])
+            filepath = os.path.join(dirs["xml"], f"hierarchy_{timestamp}.xml")
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(xml_content)
+            return xml_content
 
         @tool
         def ocr_extract_text(image_path: str) -> str:
-            """Extract text, bounding boxes, and confidence scores from an image using PaddleOCR.
-            Returns a JSON string: [{"text": "...", "bounds": [x1, y1, x2, y2], "confidence": 0.95}]
-            """
+            """Performs OCR on the given image path and returns a JSON string of detected text blocks and their bounds."""
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
-            results = ocr_model.ocr(image_path, cls=False)
+            results = ocr_model.ocr(image_path)
             extracted = []
 
             if results and results[0]:
-                for line in results[0]:
-                    box_points = line[0]
-                    text = line[1][0]
-                    confidence = line[1][1]
+                res = results[0]
+                if hasattr(res, 'keys') or isinstance(res, dict):
+                    # PaddleX / PaddleOCR v3+ format
+                    res_dict = res if isinstance(res, dict) else res.dict() if hasattr(res, 'dict') else dict(res)
+                    texts = res_dict.get('rec_texts', [])
+                    scores = res_dict.get('rec_scores', [])
+                    polys = res_dict.get('dt_polys', []) or res_dict.get('rec_polys', [])
+                    
+                    for i in range(min(len(texts), len(scores), len(polys))):
+                        text = texts[i]
+                        confidence = scores[i]
+                        box_points = polys[i]
+                        
+                        if confidence < 0.6:
+                            continue
+                            
+                        xs = [pt[0] for pt in box_points]
+                        ys = [pt[1] for pt in box_points]
+                        x_min = int(min(xs))
+                        y_min = int(min(ys))
+                        x_max = int(max(xs))
+                        y_max = int(max(ys))
 
-                    if confidence < 0.6:
-                        continue
+                        extracted.append({
+                            "text": str(text),
+                            "bounds": [x_min, y_min, x_max, y_max],
+                            "confidence": round(float(confidence), 4)
+                        })
+                else:
+                    # Legacy PaddleOCR format
+                    for line in res:
+                        if not line or len(line) < 2: continue
+                        box_points = line[0]
+                        text = line[1][0]
+                        confidence = line[1][1]
 
-                    xs = [pt[0] for pt in box_points]
-                    ys = [pt[1] for pt in box_points]
-                    x_min = int(min(xs))
-                    y_min = int(min(ys))
-                    x_max = int(max(xs))
-                    y_max = int(max(ys))
+                        if confidence < 0.6:
+                            continue
 
-                    extracted.append({
-                        "text": text,
-                        "bounds": [x_min, y_min, x_max, y_max],
-                        "confidence": round(float(confidence), 4)
-                    })
+                        xs = [pt[0] for pt in box_points]
+                        ys = [pt[1] for pt in box_points]
+                        x_min = int(min(xs))
+                        y_min = int(min(ys))
+                        x_max = int(max(xs))
+                        y_max = int(max(ys))
 
-            return json.dumps(extracted)
+                        extracted.append({
+                            "text": str(text),
+                            "bounds": [x_min, y_min, x_max, y_max],
+                            "confidence": round(float(confidence), 4)
+                        })
+
+            json_data = json.dumps(extracted)
+            
+            base = os.path.basename(image_path).replace(".png", "")
+            json_path = os.path.join(dirs["json"], f"ocr_{base}.json")
+            with open(json_path, "w", encoding="utf-8") as f:
+                f.write(json_data)
+                
+            return json_data
 
         @tool
         def detect_visual_elements(image_path: str) -> str:
-            """Detect UI elements (buttons, inputs, etc.) using OpenCV contour detection.
-            Returns a JSON string: [{"bounds": [x, y, x+w, y+h]}]
-            """
+            """Uses computer vision to detect UI elements like buttons/inputs from a screenshot and returns a JSON string of bounds."""
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
@@ -122,14 +162,18 @@ class ObserverTools:
 
                 detected.append({"bounds": [x, y, x + w, y + h]})
 
-            return json.dumps(detected)
+            json_data = json.dumps(detected)
+            
+            base = os.path.basename(image_path).replace(".png", "")
+            json_path = os.path.join(dirs["json"], f"cv_{base}.json")
+            with open(json_path, "w", encoding="utf-8") as f:
+                f.write(json_data)
+
+            return json_data
 
         @tool
         def annotate_screenshot(image_path: str, elements: list) -> str:
-            """Draw bounding boxes and ID labels on a screenshot for agent visual reference.
-            Expects elements as: [{"id": 1, "bounds": [x1, y1, x2, y2]}, ...]
-            Returns the file path of the annotated image.
-            """
+            """Draws bounding boxes and numeric IDs onto a screenshot for visual debugging and returns the path to the annotated image."""
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
@@ -160,7 +204,7 @@ class ObserverTools:
                 cv2.putText(img, label, (x1 + 2, y1 - baseline - 1), font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
 
             base_name = os.path.basename(image_path)
-            output_path = os.path.join(output_dir, f"annotated_{base_name}")
+            output_path = os.path.join(dirs["annotated"], f"annotated_{base_name}")
             cv2.imwrite(output_path, img)
 
             return output_path

@@ -38,10 +38,10 @@ class ExecutorAgent:
         else:
             result = f"ERROR: Unknown action_type '{action_type}'"
 
-        print(f"[Executor] [{action_type}] {plan['intent']} → {result}")
+        print(f"[Executor] [{action_type}] {plan['intent']} -> {result}")
 
         new_history = state["action_history"] + [
-            f"Step {state['current_step']}: [{action_type}] {plan['intent']} → {result}"
+            f"Step {state['current_step']}: [{action_type}] {plan['intent']} -> {result}"
         ]
 
         return {
