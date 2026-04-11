@@ -27,7 +27,6 @@ venv/
 ENV/
 
 # Configuration and Secrets
-shared/config.py
 config.py
 .env
 .flaskenv
