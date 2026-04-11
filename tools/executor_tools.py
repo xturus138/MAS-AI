@@ -1,8 +1,8 @@
 import time
-
+from core.ports.device_port import IDeviceClient
 
 class ExecutorTools:
-    def __init__(self, device_session):
+    def __init__(self, device_session: IDeviceClient):
         self.d = device_session
 
     def click_coordinates(self, x: int, y: int) -> str:

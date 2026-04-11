@@ -13,10 +13,11 @@ import cv2
 import numpy as np
 from paddleocr import PaddleOCR
 from langchain_core.tools import tool
-
+from core.ports.device_port import IDeviceClient
+from shared import config
 
 class ObserverTools:
-    def __init__(self, device_session, output_dir):
+    def __init__(self, device_session: IDeviceClient, output_dir: str):
         self.d = device_session
         self.output_dir = output_dir
         

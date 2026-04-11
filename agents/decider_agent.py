@@ -1,7 +1,8 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, HumanMessage
-from core.state import AgentState
+from core.models.state import AgentState
+from core.ports.llm_port import ILLMClient
 
 
 class ActionPlan(BaseModel):

@@ -27,9 +27,13 @@ venv/
 ENV/
 
 # Configuration and Secrets
+shared/config.py
 config.py
 .env
 .flaskenv
+
+# Temporary and local files
+tmp_xml.xml
 
 # Project specific outputs
 outputs/

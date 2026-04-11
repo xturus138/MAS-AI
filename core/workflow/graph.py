@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, START, END
-from core.state import AgentState
+from core.models.state import AgentState
 
 
 def build_graph(observer_agent, decider_agent, executor_agent) -> StateGraph:

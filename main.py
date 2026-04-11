@@ -1,12 +1,13 @@
 import os
+# Disable Intel oneDNN (MKL-DNN) backend for stability on Windows
 os.environ['FLAGS_use_mkldnn'] = '0'
 os.environ['FLAGS_use_onednn'] = '0'
 
-import config
-from core.llm_client import get_shared_llm
-from core.state import AgentState
-from core.graph import build_graph
-from core.device_connection import DeviceConnection
+from shared import config
+from core.models.state import AgentState
+from core.workflow.graph import build_graph
+from adapters.device.adb_adapter import ADBAdapter
+from adapters.llm.langchain_adapter import LangChainAdapter
 from tools.observer_tools import ObserverTools
 from tools.executor_tools import ExecutorTools
 from agents.observer_agent import ObserverAgent
@@ -15,18 +16,22 @@ from agents.executor_agent import ExecutorAgent
 
 
 def run_workflow():
-    print("[*] Starting Multi-Agent System (LangGraph)...")
+    print("[*] Starting Multi-Agent System (Hexagonal Architecture)...")
 
-    device_session = DeviceConnection(config.TARGET_DEVICE).connect()
-    shared_llm = get_shared_llm()
+    # 1. Initialize Adapters (Infrastructure)
+    device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
+    llm_adapter = LangChainAdapter()
 
-    obs_tools = ObserverTools(device_session, config.OUTPUT_DIR)
-    exe_tools = ExecutorTools(device_session)
+    # 2. Initialize Tools (Domain Services)
+    obs_tools = ObserverTools(device_adapter, config.OUTPUT_DIR)
+    exe_tools = ExecutorTools(device_adapter)
 
-    observer = ObserverAgent(shared_llm, obs_tools.get_tools())
-    decider = DeciderAgent(shared_llm)
+    # 3. Initialize Agents (Business Logic)
+    observer = ObserverAgent(llm_adapter, obs_tools.get_tools())
+    decider = DeciderAgent(llm_adapter)
     executor = ExecutorAgent(exe_tools)
 
+    # 4. Orchestration (Workflow)
     app = build_graph(observer, decider, executor)
 
     initial_state: AgentState = {
@@ -46,6 +51,7 @@ def run_workflow():
 
     config_run = {"recursion_limit": 50}
 
+    # Execute Graph
     final_state = app.invoke(initial_state, config=config_run)
 
     print("\n=== FINAL SUMMARY ===")

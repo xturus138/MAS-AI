@@ -5,11 +5,12 @@ import os
 import xml.etree.ElementTree as ET
 import cv2
 from langchain_core.messages import HumanMessage, SystemMessage
-from core.state import AgentState
+from core.models.state import AgentState
+from core.ports.llm_port import ILLMClient
 
 
 class ObserverAgent:
-    def __init__(self, llm, tools):
+    def __init__(self, llm: ILLMClient, tools: list):
         self.llm = llm
         self.take_screenshot = tools[0]
         self.get_ui_hierarchy = tools[1]
