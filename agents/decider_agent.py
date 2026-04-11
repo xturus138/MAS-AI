@@ -72,7 +72,8 @@ OUTPUT RULES:
 - Do NOT use abstract or high-level instructions. The Executor has zero reasoning capability.
 - For 'input' actions: set text_payload to the exact text and target_x/target_y to the input field's coordinates.
 - For 'scroll' actions: set scroll_direction and optionally scroll_region if the scroll must be confined to a specific UI area.
-- For 'start_app' actions: set app_package to the full Android package name."""
+- For 'start_app' actions: set app_package to the full Android package name.
+- FINAL RULE: Your response must be ONLY the raw JSON object. Do not include markdown code blocks, conversational text, or any preamble. The response must be immediately parseable as JSON. """
 
 
 class DeciderAgent:
@@ -95,6 +96,7 @@ class DeciderAgent:
             HumanMessage(content=human_prompt),
         ]
 
+        print("[Decider] Thinking about the next action...")
         plan = self.llm.invoke(messages)
 
         status = "COMPLETED" if plan.is_completed else (

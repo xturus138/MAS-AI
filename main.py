@@ -26,7 +26,7 @@ def run_workflow():
     app = build_graph(observer, decider, executor)
 
     initial_state: AgentState = {
-        "task_goal": "Open cart and remove Nintendo Switch from cart",
+        "task_goal": "Open Shopee, go to profile, and change the name into 'Raditya138'",
         "current_step": 0,
         "screenshot_path": "",
         "ui_elements_summary": "",
@@ -37,7 +37,7 @@ def run_workflow():
         "action_history": [],
     }
 
-    config_run = {"recursion_limit": 30}
+    config_run = {"recursion_limit": 50}
 
     final_state = app.invoke(initial_state, config=config_run)
 
