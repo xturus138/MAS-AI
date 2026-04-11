@@ -7,6 +7,9 @@ def build_graph(observer_agent, decider_agent, executor_agent) -> StateGraph:
         if state["is_completed"]:
             print("\nWORKFLOW COMPLETED: Goal Reached")
             return END
+        if state["current_step"] >= 25:
+            print("\nWORKFLOW STOPPED: Maximum step budget reached (25 steps)")
+            return END
         return "executor_node"
 
     graph = StateGraph(AgentState)

@@ -32,7 +32,7 @@ def run_workflow():
     app = build_graph(observer, decider, executor)
 
     initial_state: AgentState = {
-        "task_goal": "Click Search bar, type 'TOTE BAG', click search button, select a product with more than 1000 sales, and add it to the cart (choose any available color/variant).",
+        "task_goal": "Search for 'Kabel Data Type C'. Click the top result to open the product page, and click the 'Masukkan Keranjang' (Add to Cart) button.",
         "current_step": 0,
         "screenshot_path": "",
         "annotated_screenshot_path": "",

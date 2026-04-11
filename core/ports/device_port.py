@@ -41,3 +41,8 @@ class IDeviceClient(ABC):
     @abstractmethod
     def dump_hierarchy(self) -> str:
         pass
+
+    @abstractmethod
+    def wait_idle(self, timeout: float = 10.0):
+        """Wait for the device UI to become idle (no pending animations/transitions)."""
+        pass

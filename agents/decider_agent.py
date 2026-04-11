@@ -30,10 +30,6 @@ class ActionPlan(BaseModel):
         default="",
         description="Scroll direction: 'up' | 'down' | 'left' | 'right'. Required if action_type is 'scroll'."
     )
-    scroll_region: Optional[dict] = Field(
-        default=None,
-        description="Target area for scroll: {'x1': int, 'y1': int, 'x2': int, 'y2': int}. None defaults to full screen."
-    )
     app_package: str = Field(
         default="",
         description="App package name (e.g. 'com.tokopedia.tkpd'). Required if action_type is 'start_app'."
@@ -52,27 +48,24 @@ The Executor is a pure rule-based dispatcher. It cannot interpret natural langua
 Before filling in the output fields, execute these three steps mentally:
 
 STEP 1 - WIDGET MATCHING:
-Scan the Observer's element list (format: @x,y | ClassName | ID:resource_id | 'label').
+Scan the Observer's element list (format: ID:element_id | @x,y | ClassName | ID:resource_id | 'label').
 Identify the element that best matches the intent of the next required action.
-Use its @x,y as the starting coordinate.
+Use its @x,y as the target_x and target_y. The x,y provided by the Observer are PRE-COMPUTED CENTER COORDINATES; use them exactly as given.
 
 STEP 2 - WIDGET PREDICTION (apply if Step 1 fails):
 If no element in the list clearly matches, use spatial reasoning and visual context to predict a logical coordinate.
-Example: A "Confirm" button is typically in the bottom-right area of a dialog box.
-Example: A search bar is usually positioned near the top of the screen.
 
 STEP 3 - WIDGET LOCATION ADJUSTMENT:
 Verify whether the click point needs to shift to the actual functional element.
 Example: If the target is a text label "Search:", the click must land on the input box beside it, not the label itself.
-Example: If selecting a list item, confirm the coordinate falls within the item's bounds, not an adjacent element.
 
 OUTPUT RULES:
 - Produce exactly ONE ActionPlan per response.
-- target_x and target_y must be absolute pixel coordinates ready for direct ADB execution.
-- If the overall goal is fully achieved, set is_completed=True. The action_type field will be ignored.
-- Do NOT use abstract or high-level instructions. The Executor has zero reasoning capability.
+- target_x and target_y must be integers ready for direct ADB execution.
+- If the overall goal is fully achieved, set is_completed=True.
+- Do NOT use abstract or high-level instructions. 
 - For 'input' actions: set text_payload to the exact text and target_x/target_y to the input field's coordinates.
-- For 'scroll' actions: set scroll_direction and optionally scroll_region if the scroll must be confined to a specific UI area.
+- For 'scroll' actions: set scroll_direction to 'up', 'down', 'left', or 'right'.
 - For 'start_app' actions: set app_package to the full Android package name.
 - FINAL RULE: Your response must be ONLY the raw JSON object. Do not include markdown code blocks, conversational text, or any preamble. The response must be immediately parseable as JSON. """
 

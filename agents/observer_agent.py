@@ -28,7 +28,7 @@ class ObserverAgent:
             if not os.path.exists(d):
                 os.makedirs(d)
 
-    def _encode_image(self, image_path: str, max_height: int = 800) -> str:
+    def _encode_image(self, image_path: str, max_height: int = 1280) -> str:
         """
         Reads an image, resizes it to a maximum height to optimize LLM visual tokens,
         and returns a base64 encoded string.
@@ -322,12 +322,26 @@ class ObserverAgent:
         with open(analysis_path, "w", encoding="utf-8") as f:
             f.write(llm_response.content)
 
+        # Pre-compute centers and construct a properly formatted widget list for Decider
+        formatted_ui_elements = []
+        for el in final_widget_set:
+            bounds = el.get("bounds", [0,0,0,0])
+            cx = (bounds[0] + bounds[2]) // 2
+            cy = (bounds[1] + bounds[3]) // 2
+            cls_name = el.get("class", "UnknownClass")
+            res_id = el.get("resource_id", "none")
+            text = el.get("text", "")
+            el_id = el.get("id", "?")
+            formatted_ui_elements.append(f"ID:{el_id} | @{cx},{cy} | {cls_name} | ID:{res_id} | '{text}'")
+            
+        ui_summary_text = "\n".join(formatted_ui_elements)
+
         return {
             "screenshot_path": raw_image_path,
             "annotated_screenshot_path": annotated_path,
             "ocr_result": ocr_raw,
             "detected_elements": cv_raw,
-            "ui_elements_summary": json.dumps(final_widget_set, ensure_ascii=False),
+            "ui_elements_summary": ui_summary_text,
             "observer_analysis": llm_response.content,
             "current_step": state["current_step"] + 1,
         }

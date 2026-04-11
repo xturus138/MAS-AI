@@ -40,3 +40,9 @@ class ADBAdapter(IDeviceClient):
 
     def dump_hierarchy(self) -> str:
         return self.d.dump_hierarchy()
+
+    def wait_idle(self, timeout: float = 10.0):
+        try:
+            self.d.wait_idle(timeout=timeout)
+        except Exception:
+            pass  # Timeout is non-fatal; proceed with best effort
