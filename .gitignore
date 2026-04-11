@@ -42,7 +42,6 @@ logs/
 *.log
 
 # IDEs
-.vscode/
 .idea/
 *.swp
 *.swo
