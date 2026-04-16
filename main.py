@@ -19,16 +19,18 @@ def run_workflow():
     # 1. Initialize Infrastructure (Adapters)
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
     
-    # [Hybrid Setup] - Easily swap models here
     perception_llm = LangChainAdapter(
         model_name=config.PERCEPTION_MODEL, 
-        base_url=config.LOCAL_LLM_URL, 
-        is_local=True
+        api_key=config.OPENROUTER_API_KEY if not config.USE_LOCAL_PERCEPTION else "none",
+        base_url="https://openrouter.ai/api/v1" if not config.USE_LOCAL_PERCEPTION else config.LOCAL_LLM_URL,
+        is_local=config.USE_LOCAL_PERCEPTION
     )
+    # Strategic LLM (Dynamic: Local or OpenRouter)
     strategic_llm = LangChainAdapter(
         model_name=config.STRATEGIC_MODEL,
-        api_key=config.OPENROUTER_API_KEY,
-        base_url="https://openrouter.ai/api/v1"
+        api_key=config.OPENROUTER_API_KEY if not config.USE_LOCAL_STRATEGIC else "none",
+        base_url="https://openrouter.ai/api/v1" if not config.USE_LOCAL_STRATEGIC else config.LOCAL_LLM_URL,
+        is_local=config.USE_LOCAL_STRATEGIC
     )
 
     # 2. Initialize Tools

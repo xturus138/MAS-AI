@@ -21,6 +21,8 @@ PERCEPTION_MODEL = os.getenv("PERCEPTION_MODEL", LOCAL_VISION_MODEL) # Observer
 
 # Local Adapter Config
 LOCAL_LLM_URL = os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1")
+USE_LOCAL_PERCEPTION = os.getenv("USE_LOCAL_PERCEPTION", "True").lower() == "true"
+USE_LOCAL_STRATEGIC = os.getenv("USE_LOCAL_STRATEGIC", "True").lower() == "true"
 
 # System Configuration
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", "outputs")
