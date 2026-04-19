@@ -310,11 +310,11 @@ class ObserverAgent:
                 "ocr_result": ocr_raw,
                 "detected_elements": cv_raw,
                 "ui_elements_summary": ui_summary_text,
-                "widgets": final_widget_set, # Keep the FULL set in raw state
-                "observer_analysis": raw_res, # The complete semantic map
+                "widgets": final_widget_set,
+                "observer_analysis": raw_res,
                 "current_step": state["current_step"] + 1,
                 "sender": "observer",
                 "previous_ui_summary": ui_summary_text,
                 "stagnation_count": new_stagnation_count,
             },
-        )
+        )
