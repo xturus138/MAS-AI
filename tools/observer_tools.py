@@ -4,19 +4,15 @@ import xml.etree.ElementTree as ET
 import re
 from datetime import datetime
 
-# Disable Intel oneDNN (MKL-DNN) backend BEFORE importing PaddlePaddle.
-# PaddleOCR v5 PIR-format models are incompatible with oneDNN on Windows,
-# causing a NotImplementedError deep inside the inference engine.
-os.environ['FLAGS_use_mkldnn'] = '0'
-
 import cv2
 import numpy as np
-from paddleocr import PaddleOCR
+import easyocr
 from langchain_core.tools import tool
-
+from core.ports.device_port import IDeviceClient
+from shared import config
 
 class ObserverTools:
-    def __init__(self, device_session, output_dir):
+    def __init__(self, device_session: IDeviceClient, output_dir: str):
         self.d = device_session
         self.output_dir = output_dir
         
@@ -31,11 +27,9 @@ class ObserverTools:
             if not os.path.exists(d):
                 os.makedirs(d)
 
-        self.ocr_model = PaddleOCR(
-            lang='en', 
-            use_angle_cls=False,
-            enable_mkldnn=False
-        )
+        # EasyOCR Reader — initialized once, reused across calls.
+        # gpu=True uses CUDA if available, falls back to CPU otherwise.
+        self.ocr_model = easyocr.Reader(['en'], gpu=True)
 
     def get_tools(self):
         d = self.d
@@ -51,76 +45,45 @@ class ObserverTools:
             return filepath
 
         @tool
-        def get_ui_hierarchy() -> str:
-            """Dumps the current UI hierarchy (XML) from the device and returns the raw XML string."""
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            xml_content = d.dump_hierarchy()
-            filepath = os.path.join(dirs["xml"], f"hierarchy_{timestamp}.xml")
-            with open(filepath, "w", encoding="utf-8") as f:
-                f.write(xml_content)
-            return xml_content
-
-        @tool
         def ocr_extract_text(image_path: str) -> str:
             """Performs OCR on the given image path and returns a JSON string of detected text blocks and their bounds."""
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
-            results = ocr_model.ocr(image_path)
+            # Load image and resize for speed optimization
+            img = cv2.imread(image_path)
+            if img is None:
+                return json.dumps({"error": f"Could not read image: {image_path}"})
+            
+            orig_h, orig_w = img.shape[:2]
+            target_h = 1080
+            scale = 1.0
+            if orig_h > target_h:
+                scale = target_h / orig_h
+                new_w = int(orig_w * scale)
+                img = cv2.resize(img, (new_w, target_h), interpolation=cv2.INTER_AREA)
+
+            # Run EasyOCR on the (possibly resized) image
+            # Returns list of (bbox_points, text, confidence)
+            results = ocr_model.readtext(img)
             extracted = []
 
-            if results and results[0]:
-                res = results[0]
-                if hasattr(res, 'keys') or isinstance(res, dict):
-                    # PaddleX / PaddleOCR v3+ format
-                    res_dict = res if isinstance(res, dict) else res.dict() if hasattr(res, 'dict') else dict(res)
-                    texts = res_dict.get('rec_texts', [])
-                    scores = res_dict.get('rec_scores', [])
-                    polys = res_dict.get('dt_polys', []) or res_dict.get('rec_polys', [])
-                    
-                    for i in range(min(len(texts), len(scores), len(polys))):
-                        text = texts[i]
-                        confidence = scores[i]
-                        box_points = polys[i]
-                        
-                        if confidence < 0.6:
-                            continue
-                            
-                        xs = [pt[0] for pt in box_points]
-                        ys = [pt[1] for pt in box_points]
-                        x_min = int(min(xs))
-                        y_min = int(min(ys))
-                        x_max = int(max(xs))
-                        y_max = int(max(ys))
+            for (box_points, text, confidence) in results:
+                if confidence < 0.4:
+                    continue
 
-                        extracted.append({
-                            "text": str(text),
-                            "bounds": [x_min, y_min, x_max, y_max],
-                            "confidence": round(float(confidence), 4)
-                        })
-                else:
-                    # Legacy PaddleOCR format
-                    for line in res:
-                        if not line or len(line) < 2: continue
-                        box_points = line[0]
-                        text = line[1][0]
-                        confidence = line[1][1]
+                # box_points is [[x1,y1],[x2,y1],[x2,y2],[x1,y2]]
+                # Rescale coordinates back to original size
+                xs = [pt[0] / scale for pt in box_points]
+                ys = [pt[1] / scale for pt in box_points]
+                x_min, y_min = int(min(xs)), int(min(ys))
+                x_max, y_max = int(max(xs)), int(max(ys))
 
-                        if confidence < 0.6:
-                            continue
-
-                        xs = [pt[0] for pt in box_points]
-                        ys = [pt[1] for pt in box_points]
-                        x_min = int(min(xs))
-                        y_min = int(min(ys))
-                        x_max = int(max(xs))
-                        y_max = int(max(ys))
-
-                        extracted.append({
-                            "text": str(text),
-                            "bounds": [x_min, y_min, x_max, y_max],
-                            "confidence": round(float(confidence), 4)
-                        })
+                extracted.append({
+                    "text": str(text),
+                    "bounds": [x_min, y_min, x_max, y_max],
+                    "confidence": round(float(confidence), 4)
+                })
 
             json_data = json.dumps(extracted)
             
@@ -181,27 +144,41 @@ class ObserverTools:
 
             for element in elements:
                 el_id = element.get("id", "?")
-                bounds = element.get("bounds", [])
-                if len(bounds) != 4:
+                el_type = element.get("type", "container")
+                # Annotation box: prefer cv_bounds (full visual region), fall back to bounds
+                ann_bounds = element.get("cv_bounds") or element.get("bounds", [])
+                click_bounds = element.get("bounds", ann_bounds)
+                if len(ann_bounds) != 4:
                     continue
 
-                x1, y1, x2, y2 = int(bounds[0]), int(bounds[1]), int(bounds[2]), int(bounds[3])
+                x1, y1, x2, y2 = int(ann_bounds[0]), int(ann_bounds[1]), int(ann_bounds[2]), int(ann_bounds[3])
 
-                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+                # Color logic: Red for interactive containers, Blue for static text
+                color = (0, 0, 255) if el_type == "container" else (255, 0, 0)
+                thickness = 2 if el_type == "container" else 1
+
+                cv2.rectangle(img, (x1, y1), (x2, y2), color, thickness)
+
+                # Draw a small green dot at the ACTUAL click center (from precision bounds)
+                if len(click_bounds) == 4:
+                    cx = int((click_bounds[0] + click_bounds[2]) / 2)
+                    cy = int((click_bounds[1] + click_bounds[3]) / 2)
+                    cv2.circle(img, (cx, cy), 4, (0, 220, 0), -1)
+
 
                 label = str(el_id)
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                font_scale = 0.5
-                thickness = 1
-                (text_w, text_h), baseline = cv2.getTextSize(label, font, font_scale, thickness)
+                font_scale = 0.4
+                font_thickness = 1
+                (text_w, text_h), baseline = cv2.getTextSize(label, font, font_scale, font_thickness)
 
                 bg_x1 = x1
                 bg_y1 = y1 - text_h - baseline - 2
                 bg_x2 = x1 + text_w + 4
                 bg_y2 = y1
 
-                cv2.rectangle(img, (bg_x1, bg_y1), (bg_x2, bg_y2), (0, 0, 255), -1)
-                cv2.putText(img, label, (x1 + 2, y1 - baseline - 1), font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
+                cv2.rectangle(img, (bg_x1, bg_y1), (bg_x2, bg_y2), color, -1)
+                cv2.putText(img, label, (x1 + 2, y1 - baseline - 1), font, font_scale, (255, 255, 255), font_thickness, cv2.LINE_AA)
 
             base_name = os.path.basename(image_path)
             output_path = os.path.join(dirs["annotated"], f"annotated_{base_name}")
@@ -209,4 +186,4 @@ class ObserverTools:
 
             return output_path
 
-        return [take_screenshot, get_ui_hierarchy, ocr_extract_text, detect_visual_elements, annotate_screenshot]
+        return [take_screenshot, ocr_extract_text, detect_visual_elements, annotate_screenshot]

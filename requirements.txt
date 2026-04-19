@@ -4,8 +4,8 @@ langchain
 langchain-openai
 langchain-core
 langgraph
-paddleocr
-paddlepaddle
+easyocr
 opencv-python
 numpy
 Pillow
+python-dotenv

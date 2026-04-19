@@ -27,9 +27,12 @@ venv/
 ENV/
 
 # Configuration and Secrets
-config.py
+/config.py
 .env
 .flaskenv
+
+# Temporary and local files
+tmp_xml.xml
 
 # Project specific outputs
 outputs/
@@ -38,7 +41,6 @@ logs/
 *.log
 
 # IDEs
-.vscode/
 .idea/
 *.swp
 *.swo

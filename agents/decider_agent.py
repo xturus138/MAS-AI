@@ -1,7 +1,8 @@
-from typing import Literal, Optional
+from typing import Literal
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, HumanMessage
-from core.state import AgentState
+from langgraph.types import Command
+from core.models.state import AgentState
 
 
 class ActionPlan(BaseModel):
@@ -12,14 +13,8 @@ class ActionPlan(BaseModel):
     intent: str = Field(
         description="Brief description of what this action aims to achieve toward the overall goal."
     )
-    target_description: str = Field(
-        description="Description of the target widget matched or predicted from Observer output."
-    )
-    target_x: int = Field(
-        description="Final adjusted X coordinate for click or input actions. Use 0 if not applicable."
-    )
-    target_y: int = Field(
-        description="Final adjusted Y coordinate for click or input actions. Use 0 if not applicable."
+    target_id: int = Field(
+        description="The integer ID of the widget from the Observer's list. Use -1 if no specific widget."
     )
     text_payload: str = Field(
         default="",
@@ -28,10 +23,6 @@ class ActionPlan(BaseModel):
     scroll_direction: str = Field(
         default="",
         description="Scroll direction: 'up' | 'down' | 'left' | 'right'. Required if action_type is 'scroll'."
-    )
-    scroll_region: Optional[dict] = Field(
-        default=None,
-        description="Target area for scroll: {'x1': int, 'y1': int, 'x2': int, 'y2': int}. None defaults to full screen."
     )
     app_package: str = Field(
         default="",
@@ -44,51 +35,37 @@ class ActionPlan(BaseModel):
 
 SYSTEM_PROMPT = """You are the Decider Agent in an Android GUI testing multi-agent system.
 
-Your role is to receive the current screen state from the Observer and produce exactly ONE structured ActionPlan for the Executor to carry out.
+Your role is to receive the current screen state from the Observer and produce exactly ONE structured ActionPlan for the Executor.
 
-The Executor is a pure rule-based dispatcher. It cannot interpret natural language, reason about the UI, or handle ambiguity. Every coordinate and parameter you provide must be final, absolute, and immediately executable.
-
-Before filling in the output fields, execute these three steps mentally:
-
-STEP 1 - WIDGET MATCHING:
-Scan the Observer's element list (format: @x,y | ClassName | ID:resource_id | 'label').
-Identify the element that best matches the intent of the next required action.
-Use its @x,y as the starting coordinate.
-
-STEP 2 - WIDGET PREDICTION (apply if Step 1 fails):
-If no element in the list clearly matches, use spatial reasoning and visual context to predict a logical coordinate.
-Example: A "Confirm" button is typically in the bottom-right area of a dialog box.
-Example: A search bar is usually positioned near the top of the screen.
-
-STEP 3 - WIDGET LOCATION ADJUSTMENT:
-Verify whether the click point needs to shift to the actual functional element.
-Example: If the target is a text label "Search:", the click must land on the input box beside it, not the label itself.
-Example: If selecting a list item, confirm the coordinate falls within the item's bounds, not an adjacent element.
+HOW TO SELECT A TARGET:
+1. Examine the 'Available UI Elements' provided in the prompt.
+2. Match the 'Subgoal' (from Orchestrator) to the most appropriate element.
+3. Use that element's ID as the 'target_id'.
 
 OUTPUT RULES:
-- Produce exactly ONE ActionPlan per response.
-- target_x and target_y must be absolute pixel coordinates ready for direct ADB execution.
-- If the overall goal is fully achieved, set is_completed=True. The action_type field will be ignored.
-- Do NOT use abstract or high-level instructions. The Executor has zero reasoning capability.
-- For 'input' actions: set text_payload to the exact text and target_x/target_y to the input field's coordinates.
-- For 'scroll' actions: set scroll_direction and optionally scroll_region if the scroll must be confined to a specific UI area.
-- For 'start_app' actions: set app_package to the full Android package name.
-- FINAL RULE: Your response must be ONLY the raw JSON object. Do not include markdown code blocks, conversational text, or any preamble. The response must be immediately parseable as JSON. """
+- Produce exactly ONE ActionPlan.
+- target_id MUST be an integer ID taken directly from the provided list, or -1.
+- DO NOT guess or invent IDs outside the list.
+- For 'input': set text_payload and target_id to the input field's ID.
+- For 'scroll': set scroll_direction, target_id = -1.
+- For 'start_app': set app_package.
+- Set is_completed=True ONLY when the full goal is done."""
 
 
 class DeciderAgent:
     def __init__(self, llm):
         self.llm = llm.with_structured_output(ActionPlan)
 
-    def decide(self, state: AgentState) -> dict:
+    def decide(self, state: AgentState) -> Command:
         history_text = "\n".join(state["action_history"]) if state["action_history"] else "None"
+        subgoal = state.get("current_subgoal", "") or "Determine and execute the next best action toward the goal."
 
         human_prompt = (
             f"Goal: {state['task_goal']}\n\n"
-            f"Current Screen Analysis:\n{state['observer_analysis']}\n\n"
-            f"Available UI Elements:\n{state['ui_elements_summary']}\n\n"
+            f"Subgoal (what to do NOW): {subgoal}\n\n"
+            f"Available UI Elements (ID | Class | Text):\n{state['ui_elements_summary']}\n\n"
             f"Action History:\n{history_text}\n\n"
-            f"Apply the three-step Widget Location process and produce the next ActionPlan."
+            f"Select the element that matches the Subgoal and output ONE ActionPlan."
         )
 
         messages = [
@@ -100,11 +77,16 @@ class DeciderAgent:
         plan = self.llm.invoke(messages)
 
         status = "COMPLETED" if plan.is_completed else (
-            f"type={plan.action_type} | target=({plan.target_x},{plan.target_y}) | intent={plan.intent}"
+            f"type={plan.action_type} | target_id={plan.target_id} | intent={plan.intent}"
         )
         print(f"[Decider] {status}")
 
-        return {
-            "action_plan": plan.model_dump(),
-            "is_completed": plan.is_completed,
-        }
+        # Hand control back to the Orchestrator
+        return Command(
+            goto="orchestrator_node",
+            update={
+                "action_plan": plan.model_dump(),
+                "is_completed": plan.is_completed,
+                "sender": "decider",
+            },
+        )
