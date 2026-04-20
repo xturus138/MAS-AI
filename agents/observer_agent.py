@@ -21,7 +21,8 @@ class ObserverAgent:
         self.dirs = {
             "crops": os.path.join(self.base_output, "crops"),
             "analysis": os.path.join(self.base_output, "analysis"),
-            "json": os.path.join(self.base_output, "json")
+            "json": os.path.join(self.base_output, "json"),
+            "merged": os.path.join(self.base_output, "merged")
         }
         for d in self.dirs.values():
             if not os.path.exists(d):
@@ -231,6 +232,12 @@ class ObserverAgent:
         final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height)
         print(f"[Observer] Final vision widget count: {len(final_widget_set)}")
 
+        # Save merged results for analysis
+        merged_json_path = os.path.join(self.dirs["merged"], f"merged_{basename}.json")
+        with open(merged_json_path, "w", encoding="utf-8") as f:
+            json.dump(final_widget_set, f, indent=4, ensure_ascii=False)
+        print(f"[Observer] Merged results saved to: {merged_json_path}")
+
         print("[Observer] Annotating screenshot...")
         annotated_path = self.annotate_screenshot.invoke({
             "image_path": raw_image_path,
@@ -271,6 +278,12 @@ class ObserverAgent:
         llm_response = self.llm.invoke([system_message, message])
         raw_res = llm_response.content
         print("[Observer] Full semantic interpretation received.")
+
+        # Save semantic analysis to file
+        analysis_path = os.path.join(self.dirs["analysis"], f"analysis_{basename}.txt")
+        with open(analysis_path, "w", encoding="utf-8") as f:
+            f.write(raw_res)
+        print(f"[Observer] Semantic analysis saved to: {analysis_path}")
 
         # --- Enhanced Semantic State ---
         # We no longer filter out 'irrelevant' widgets here. 

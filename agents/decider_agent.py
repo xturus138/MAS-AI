@@ -38,8 +38,8 @@ SYSTEM_PROMPT = """You are the Decider Agent in an Android GUI testing multi-age
 Your role is to receive the current screen state from the Observer and produce exactly ONE structured ActionPlan for the Executor.
 
 HOW TO SELECT A TARGET:
-1. Examine the 'Available UI Elements' provided in the prompt.
-2. Match the 'Subgoal' (from Orchestrator) to the most appropriate element.
+1. Use the 'Screen Analysis' and 'Available UI Elements' to understand the UI semantics and layout.
+2. Match the 'Subgoal' (from Orchestrator) to the most appropriate functional element.
 3. Use that element's ID as the 'target_id'.
 
 OUTPUT RULES:
@@ -63,6 +63,7 @@ class DeciderAgent:
         human_prompt = (
             f"Goal: {state['task_goal']}\n\n"
             f"Subgoal (what to do NOW): {subgoal}\n\n"
+            f"Screen Analysis (Semantic Map):\n{state.get('observer_analysis', 'N/A')}\n\n"
             f"Available UI Elements (ID | Class | Text):\n{state['ui_elements_summary']}\n\n"
             f"Action History:\n{history_text}\n\n"
             f"Select the element that matches the Subgoal and output ONE ActionPlan."

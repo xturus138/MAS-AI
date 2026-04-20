@@ -62,7 +62,7 @@ def run_workflow():
         "action_history": [],
         "current_subgoal": "",
         "orchestrator_reasoning": "",
-        "sender": "START",  # Explicitly start to trigger Observer
+        "sender": "START", 
         "stagnation_count": 0,
         "previous_ui_summary": "",
     }
