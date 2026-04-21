@@ -1,8 +1,10 @@
+import json
 from typing import Literal
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.types import Command
 from core.models.state import AgentState
+from core.utils.toons_helper import compress_and_report
 
 
 class ActionPlan(BaseModel):
@@ -33,60 +35,58 @@ class ActionPlan(BaseModel):
     )
 
 
+from langchain_core.prompts import ChatPromptTemplate
+
+
 SYSTEM_PROMPT = """You are the Decider Agent in an Android GUI testing multi-agent system.
 
-Your role is to receive the current screen state from the Observer and produce exactly ONE structured ActionPlan for the Executor.
+Your role: Given the current screen state, output exactly ONE ActionPlan for the Executor.
 
-HOW TO SELECT A TARGET:
-1. Examine the 'Available UI Elements' provided in the prompt.
-2. Match the 'Subgoal' (from Orchestrator) to the most appropriate element.
-3. Use that element's ID as the 'target_id'.
-
-OUTPUT RULES:
-- Produce exactly ONE ActionPlan.
-- target_id MUST be an integer ID taken directly from the provided list, or -1.
-- DO NOT guess or invent IDs outside the list.
-- For 'input': set text_payload and target_id to the input field's ID.
+RULES:
+- target_id MUST be an integer ID from the SEMANTIC_MAP, or -1.
+- PREFER 'input' for typing. Set text_payload and target_id to the input field's ID. NEVER try to "click" individual keyboard keys.
 - For 'scroll': set scroll_direction, target_id = -1.
 - For 'start_app': set app_package.
-- Set is_completed=True ONLY when the full goal is done."""
+- Set is_completed=True ONLY when the full goal is achieved."""
 
 
 class DeciderAgent:
     def __init__(self, llm):
         self.llm = llm.with_structured_output(ActionPlan)
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", SYSTEM_PROMPT),
+            ("human", "Goal: {task_goal}\n"
+                      "Subgoal: {subgoal}\n\n"
+                      "Screen Analysis (Semantic Map):\n{observer_analysis}\n\n"
+                      "Recent Actions: {history_json}\n\n"
+                      "Output ONE ActionPlan.")
+        ])
 
     def decide(self, state: AgentState) -> Command:
-        history_text = "\n".join(state["action_history"]) if state["action_history"] else "None"
+        history_window = (state.get("action_history") or [])[-10:]
+        history_json = compress_and_report(history_window, "action_history", "decider") if history_window else "[]"
         subgoal = state.get("current_subgoal", "") or "Determine and execute the next best action toward the goal."
 
-        human_prompt = (
-            f"Goal: {state['task_goal']}\n\n"
-            f"Subgoal (what to do NOW): {subgoal}\n\n"
-            f"Available UI Elements (ID | Class | Text):\n{state['ui_elements_summary']}\n\n"
-            f"Action History:\n{history_text}\n\n"
-            f"Select the element that matches the Subgoal and output ONE ActionPlan."
+        messages = self.prompt.format_messages(
+            task_goal=state.get('task_goal', 'N/A'),
+            subgoal=subgoal,
+            observer_analysis=state.get('observer_analysis', 'N/A'),
+            history_json=history_json
         )
 
-        messages = [
-            SystemMessage(content=SYSTEM_PROMPT),
-            HumanMessage(content=human_prompt),
-        ]
-
         print("[Decider] Thinking about the next action...")
-        plan = self.llm.invoke(messages)
+        plan = self.llm.invoke(
+            messages,
+            config={"tags": ["decider", f"step_{state.get('current_step', 0)}"]}
+        )
 
         status = "COMPLETED" if plan.is_completed else (
             f"type={plan.action_type} | target_id={plan.target_id} | intent={plan.intent}"
         )
         print(f"[Decider] {status}")
 
-        # Hand control back to the Orchestrator
-        return Command(
-            goto="orchestrator_node",
-            update={
-                "action_plan": plan.model_dump(),
-                "is_completed": plan.is_completed,
-                "sender": "decider",
-            },
-        )
+        return {
+            "action_plan": plan.model_dump(),
+            "is_completed": plan.is_completed,
+            "sender": "decider",
+        }

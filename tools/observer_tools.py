@@ -186,4 +186,9 @@ class ObserverTools:
 
             return output_path
 
-        return [take_screenshot, ocr_extract_text, detect_visual_elements, annotate_screenshot]
+        @tool
+        def check_keyboard_state() -> str:
+            """Checks if the on-screen keyboard is visible via OS-level state."""
+            return json.dumps({"is_shown": d.check_keyboard_state()})
+
+        return [take_screenshot, ocr_extract_text, detect_visual_elements, annotate_screenshot, check_keyboard_state]

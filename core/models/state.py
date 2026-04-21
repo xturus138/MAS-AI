@@ -14,7 +14,7 @@ class AgentState(TypedDict):
     action_plan: dict
     execution_result: str
     is_completed: bool
-    action_history: List[str]
+    action_history: List[dict]
     current_subgoal: str
     orchestrator_reasoning: str
     sender: str

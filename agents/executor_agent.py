@@ -1,3 +1,4 @@
+import json
 from langgraph.types import Command
 from core.models.state import AgentState
 from tools.executor_tools import ExecutorTools
@@ -15,7 +16,6 @@ class ExecutorAgent:
         lookup_error = None
         widgets = state.get("widgets", [])
 
-        # Resolve ID to Coordinates (Strictly, no workarounds)
         if action_type in ["click", "long_click", "input"]:
             target_id = plan.get("target_id", -1)
             
@@ -57,16 +57,17 @@ class ExecutorAgent:
 
         print(f"[Executor] [{action_type}] {plan['intent']} -> {result}")
 
-        new_history = state["action_history"] + [
-            f"Step {state['current_step']}: [{action_type}] {plan['intent']} -> {result}"
-        ]
+        history_entry = {
+            "s":   state["current_step"],
+            "a":   action_type,
+            "tid": plan.get("target_id", -1),
+            "why": plan.get("intent", ""),
+            "r":   result
+        }
+        new_history = state["action_history"] + [history_entry]
 
-        # Hand control back to the Orchestrator
-        return Command(
-            goto="orchestrator_node",
-            update={
-                "execution_result": result,
-                "action_history": new_history,
-                "sender": "executor",
-            },
-        )
+        return {
+            "execution_result": result,
+            "action_history": new_history,
+            "sender": "executor",
+        }

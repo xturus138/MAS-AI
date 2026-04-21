@@ -46,3 +46,8 @@ class IDeviceClient(ABC):
     def wait_idle(self, timeout: float = 10.0):
         """Wait for the device UI to become idle (no pending animations/transitions)."""
         pass
+
+    @abstractmethod
+    def check_keyboard_state(self) -> bool:
+        """Check if the on-screen keyboard is currently visible."""
+        pass
