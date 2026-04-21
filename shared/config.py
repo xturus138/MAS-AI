@@ -1,28 +1,35 @@
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Device Configuration
 TARGET_DEVICE = os.getenv("TARGET_DEVICE", "T8SGEE5TF695ZPV4")
 
-# LLM Configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4000"))
-
-# Base Models
-VISION_MODEL = os.getenv("VISION_MODEL", "google/gemini-3-flash-preview")
-LOCAL_VISION_MODEL = os.getenv("LOCAL_VISION_MODEL", "gemma3:4b")
-
-# Role-specific Models (Hybrid Mapping)
-STRATEGIC_MODEL = os.getenv("STRATEGIC_MODEL", VISION_MODEL)  # Orchestrator & Decider
-PERCEPTION_MODEL = os.getenv("PERCEPTION_MODEL", LOCAL_VISION_MODEL) # Observer
-
-# Local Adapter Config
+OUTPUT_DIR    = os.getenv("OUTPUT_DIR", "outputs")
+MAX_TOKENS    = int(os.getenv("MAX_TOKENS", "4000"))
 LOCAL_LLM_URL = os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1")
-USE_LOCAL_PERCEPTION = os.getenv("USE_LOCAL_PERCEPTION", "True").lower() == "true"
-USE_LOCAL_STRATEGIC = os.getenv("USE_LOCAL_STRATEGIC", "True").lower() == "true"
 
-# System Configuration
-OUTPUT_DIR = os.getenv("OUTPUT_DIR", "outputs")
+PROVIDER_URLS: dict = {
+    "openrouter": "https://openrouter.ai/api/v1",
+    "blackbox":   "https://api.blackbox.ai/v1",
+    "openai":     "https://api.openai.com/v1",
+    "local":      os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1"),
+}
+
+PERCEPTION_PROVIDER = os.getenv("PERCEPTION_PROVIDER", "openrouter").lower()
+PERCEPTION_API_KEY  = os.getenv("PERCEPTION_API_KEY", os.getenv("OPENROUTER_API_KEY", "none"))
+PERCEPTION_BASE_URL = os.getenv("PERCEPTION_BASE_URL", PROVIDER_URLS.get(PERCEPTION_PROVIDER, "https://openrouter.ai/api/v1"))
+PERCEPTION_MODEL    = os.getenv("PERCEPTION_MODEL", "google/gemini-2.0-flash-001")
+
+STRATEGIC_PROVIDER = os.getenv("STRATEGIC_PROVIDER", "openrouter").lower()
+STRATEGIC_API_KEY  = os.getenv("STRATEGIC_API_KEY", os.getenv("OPENROUTER_API_KEY", "none"))
+STRATEGIC_BASE_URL = os.getenv("STRATEGIC_BASE_URL", PROVIDER_URLS.get(STRATEGIC_PROVIDER, "https://openrouter.ai/api/v1"))
+STRATEGIC_MODEL    = os.getenv("STRATEGIC_MODEL", "liquid/lfm-2.5-1.2b-thinking:free")
+
+print(f"[*] Environment Loaded:")
+print(f"    - Perception Model: {PERCEPTION_MODEL}")
+print(f"    - Strategic Model:  {STRATEGIC_MODEL}")
+print(f"    - Max Tokens:       {MAX_TOKENS}")
+
+TOKEN_CONTEXT_WINDOW = int(os.getenv("TOKEN_CONTEXT_WINDOW", "32768"))
+TOKEN_WARN_THRESHOLD = float(os.getenv("TOKEN_WARN_THRESHOLD", "0.75"))

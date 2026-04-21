@@ -1,3 +1,4 @@
+import json
 from langgraph.types import Command
 from core.models.state import AgentState
 from tools.executor_tools import ExecutorTools
@@ -57,9 +58,16 @@ class ExecutorAgent:
 
         print(f"[Executor] [{action_type}] {plan['intent']} -> {result}")
 
-        new_history = state["action_history"] + [
-            f"Step {state['current_step']}: [{action_type}] {plan['intent']} -> {result}"
-        ]
+        # Uniform minimal dict — single-letter keys make action_history a TOON-compressible uniform array.
+        # Keys: s=step, a=action_type, tid=target_id, why=intent, r=result
+        history_entry = {
+            "s":   state["current_step"],
+            "a":   action_type,
+            "tid": plan.get("target_id", -1),
+            "why": plan.get("intent", ""),
+            "r":   result
+        }
+        new_history = state["action_history"] + [history_entry]
 
         # Hand control back to the Orchestrator
         return Command(

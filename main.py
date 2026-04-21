@@ -4,7 +4,7 @@ from shared import config
 from core.models.state import AgentState
 from core.workflow.graph import build_graph
 from adapters.device.adb_adapter import ADBAdapter
-from adapters.llm.langchain_adapter import LangChainAdapter
+from core.utils.llm_factory import LLMFactory
 from tools.observer_tools import ObserverTools
 from tools.executor_tools import ExecutorTools
 from agents.observer_agent import ObserverAgent
@@ -17,21 +17,14 @@ def run_workflow():
     print("[*] Starting Multi-Agent Swarm System...")
 
     # 1. Initialize Infrastructure (Adapters)
-    device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
+    import datetime
+    session_id = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
-    perception_llm = LangChainAdapter(
-        model_name=config.PERCEPTION_MODEL, 
-        api_key=config.OPENROUTER_API_KEY if not config.USE_LOCAL_PERCEPTION else "none",
-        base_url="https://openrouter.ai/api/v1" if not config.USE_LOCAL_PERCEPTION else config.LOCAL_LLM_URL,
-        is_local=config.USE_LOCAL_PERCEPTION
-    )
-    # Strategic LLM (Dynamic: Local or OpenRouter)
-    strategic_llm = LangChainAdapter(
-        model_name=config.STRATEGIC_MODEL,
-        api_key=config.OPENROUTER_API_KEY if not config.USE_LOCAL_STRATEGIC else "none",
-        base_url="https://openrouter.ai/api/v1" if not config.USE_LOCAL_STRATEGIC else config.LOCAL_LLM_URL,
-        is_local=config.USE_LOCAL_STRATEGIC
-    )
+    device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
+
+    # Use the Factory — provider, URL, and API key are all read from .env.
+    perception_llm = LLMFactory.create("perception", session_id=session_id)
+    strategic_llm  = LLMFactory.create("strategic",  session_id=session_id)
 
     # 2. Initialize Tools
     obs_tools = ObserverTools(device_adapter, config.OUTPUT_DIR)

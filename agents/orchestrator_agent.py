@@ -2,35 +2,29 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.types import Command
 from core.models.state import AgentState
 import json, re
+from core.utils.toons_helper import compress_and_report
 
-SYSTEM_PROMPT = """You are the Orchestrator Agent in an Android GUI testing Multi-Agent Swarm.
+SYSTEM_PROMPT = """You are the Orchestrator in an Android GUI testing Multi-Agent Swarm.
 
-You are the strategic manager and central router. You do NOT perform any UI actions yourself.
-Your only job is to evaluate the current state and decide which sub-agent should act next based on the full conversation history.
+You are the strategic router. You do NOT perform UI actions.
+Decide which sub-agent to call next based on the current state.
 
-Sub-agents available:
-  - observer  : Takes a fresh screenshot and analyses the screen when you need up-to-date UI info.
+Sub-agents:
+  - observer  : Takes a fresh screenshot and analyses the screen.
   - decider   : Receives a 'current_subgoal' from you and produces an ActionPlan.
   - executor  : Executes the ActionPlan that the Decider prepared.
-  - END       : Use this when the goal is fully achieved.
-
-TYPICAL WORKFLOW (but you are dynamic):
-1. START or EXECUTOR just finished -> Call 'observer' to see what happened.
-2. OBSERVER just finished -> Call 'decider' and set a 'current_subgoal'.
-3. DECIDER just finished -> Call 'executor' to perform the action.
-4. UI is stuck/looping -> Update 'current_subgoal' to try a different approach or press back.
+  - END       : Use when the goal is fully achieved.
 
 Routing Rules:
-- If 'is_completed' is true, route to 'END'.
-- If 'current_step' > 25, route to 'END' (safety limit).
-- You MUST provide a concrete 'current_subgoal' whenever routing to 'decider'.
+- is_completed=true -> END.
+- current_step > 25 -> END (safety limit).
+- START or executor done -> observer.
+- observer done -> decider (with a concrete subgoal).
+- decider done -> executor.
+- UI stuck/looping -> new subgoal or press back.
 
-Your output MUST be a single JSON object:
-{
-  "next": "observer" | "decider" | "executor" | "END",
-  "current_subgoal": "Description of the next tactical objective",
-  "reasoning": "Brief explanation of why this transition is necessary"
-}
+Output ONE JSON object:
+{"next": "observer"|"decider"|"executor"|"END", "current_subgoal": "...", "reasoning": "..."}
 Output ONLY raw JSON."""
 
 class OrchestratorAgent:
@@ -46,18 +40,24 @@ class OrchestratorAgent:
             print("[Orchestrator] Budget exceeded. Ending.")
             return Command(goto="__end__", update={"sender": "orchestrator"})
 
-        history_text = "\n".join(state.get("action_history") or []) or "None"
+        # Compress action history with TOONS — uniform dict keys enable tabular compression.
+        history_window = list(state.get("action_history") or [])[-10:]
+        history_json = compress_and_report(history_window, "action_history", "orchestrator") if history_window else "[]"
         sender = state.get("sender", "START")
+
+        # Extract only the SUMMARY line from observer_analysis to minimize token usage.
+        # The full semantic map is for the Decider; the Orchestrator only needs high-level context.
+        raw_analysis = state.get("observer_analysis", "None")
+        summary_match = re.search(r"SUMMARY:\s*(.+)", raw_analysis, re.DOTALL)
+        screen_summary = summary_match.group(1).strip() if summary_match else raw_analysis[:300]
 
         human_prompt = (
             f"Goal: {state.get('task_goal')}\n"
-            f"Current Step: {state.get('current_step')}\n"
-            f"Last Agent (Sender): {sender}\n"
-            f"Action History:\n{history_text}\n\n"
-            f"Observer Perception (Full UI Map):\n{state.get('observer_analysis', 'None')}\n\n"
+            f"Step: {state.get('current_step')} | Last Agent: {sender} | Stagnation: {state.get('stagnation_count', 0)}\n"
+            f"Screen Summary: {screen_summary}\n"
             f"Execution Result: {state.get('execution_result', 'N/A')}\n"
-            f"Stagnation Count: {state.get('stagnation_count', 0)}\n\n"
-            f"Task: Decide the NEXT agent to call. Use the Full UI Map to provide a highly specific subgoal if routing to the decider. Output ONE JSON object."
+            f"Recent Actions: {history_json}\n\n"
+            f"Decide the NEXT agent. Output ONE JSON object."
         )
 
         messages = [
@@ -66,7 +66,22 @@ class OrchestratorAgent:
         ]
 
         print(f"[Orchestrator] Dynamically evaluating transition from {sender}...")
-        response = self.llm.invoke(messages)
+
+        # Enforce observer as the first move to gain context
+        if sender == "START":
+            return Command(
+                goto="observer_node",
+                update={
+                    "current_subgoal": "Capture initial screen state.",
+                    "orchestrator_reasoning": "Initial state requires observation.",
+                    "sender": "orchestrator"
+                }
+            )
+
+        response = self.llm.invoke(
+            messages, 
+            config={"tags": ["orchestrator", f"step_{state.get('current_step', 0)}"]}
+        )
 
         raw = response.content.strip()
         raw = re.sub(r"^```(?:json)?", "", raw).strip()

@@ -7,6 +7,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.types import Command
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
+from core.utils.toons_helper import compress_and_report
 
 
 class ObserverAgent:
@@ -30,8 +31,8 @@ class ObserverAgent:
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
         """
-        Reads an image, resizes it to a maximum height (720px) to optimize LLM visual tokens,
-        and returns a base64 encoded string.
+        Reads an image, resizes it to a maximum height (720px) and encodes it
+        as WebP at 70% quality to minimize base64 token usage.
         """
         img = cv2.imread(image_path)
         if img is None:
@@ -44,8 +45,11 @@ class ObserverAgent:
             new_w = int(w * scale)
             img = cv2.resize(img, (new_w, max_height), interpolation=cv2.INTER_AREA)
 
-        # Encode as JPEG for efficient transmission
-        success, buffer = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+        # Encode as WebP (70% quality) — significantly smaller than JPEG 90%
+        success, buffer = cv2.imencode(".webp", img, [int(cv2.IMWRITE_WEBP_QUALITY), 70])
+        if not success:
+            # Fallback to JPEG if WebP not supported
+            success, buffer = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
         if not success:
             return ""
             
@@ -247,35 +251,33 @@ class ObserverAgent:
         print("[Observer] Calling multimodal LLM for semantic interpretation...")
         img_b64 = self._encode_image(annotated_path)
 
-        list_of_texts_with_ids = [
-            {"id": el["id"], "text": el.get("text", "(no text)")}
-            for el in final_widget_set
-        ]
+        elements_data = [{"i": el["id"], "t": el.get("text") or ""} for el in final_widget_set]
+        elements_json = compress_and_report(elements_data, "elements", "observer")
 
         system_prompt = (
-            "You are a Perception Agent. Your task is to look at an annotated Android screenshot and create a COMPLETE semantic map of the UI.\n\n"
-            "INSTRUCTIONS:\n"
-            "1. For EVERY ID visible on the screen, identify exactly what that element is (e.g., 'Floating Add Button', 'Menu Icon', 'Note Title').\n"
-            "2. Note the approximate bounding box if requested, but primarily focus on the FUNCTION of each ID.\n\n"
-            "OUTPUT FORMAT:\n"
-            "SEMANTIC_MAP: [[ID]: [Description], ...]\n"
-            "SUMMARY: [Brief overview of what page this is and what can be done here]"
+            "You are a Perception Agent. Analyze an annotated Android screenshot and map every visible ID to its UI function.\n"
+            "OUTPUT FORMAT (strict):\n"
+            "SEMANTIC_MAP: [[ID]: Description, ...]\n"
+            "SUMMARY: One sentence describing the screen and key actions available."
         )
 
         user_prompt = (
-            f"Annotated screenshot provided. Detected elements list: {json.dumps(list_of_texts_with_ids, ensure_ascii=False)}.\n\n"
-            f"User Goal: {state['task_goal']}.\n"
-            f"Current Subgoal: {state.get('current_subgoal', '')}.\n\n"
-            f"TASK: Map every ID to its function. Be thorough. Ensure you identify any action buttons (like '+' or 'Create') correctly."
+            f"Goal: {state['task_goal']}\n"
+            f"Subgoal: {state.get('current_subgoal', '')}\n"
+            f"Elements: {elements_json}\n\n"
+            f"Map every ID in the screenshot to its function. Identify interactive elements (buttons, inputs, nav icons) precisely."
         )
 
         message = HumanMessage(content=[
             {"type": "text", "text": user_prompt},
-            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}}
+            {"type": "image_url", "image_url": {"url": f"data:image/webp;base64,{img_b64}"}}
         ])
 
         system_message = SystemMessage(content=system_prompt)
-        llm_response = self.llm.invoke([system_message, message])
+        llm_response = self.llm.invoke(
+            [system_message, message],
+            config={"tags": ["observer", f"step_{state.get('current_step', 0)}"]}
+        )
         raw_res = llm_response.content
         print("[Observer] Full semantic interpretation received.")
 
@@ -290,21 +292,13 @@ class ObserverAgent:
         # We pass the ENTIRE set to the Orchestrator/Decider, sorted by VLM priority if possible.
         
         # Extract suggested IDs to put them at the top of the summary for the Decider
-        relevant_ids_match = re.search(r"SEMANTIC_MAP:.*?\[(\d+)\].*?", raw_res, re.DOTALL)
-        # (Simplified extraction for a full list - we just keep the VLM text as the analysis)
-        
-        # We limit to 50 widgets to stay safe with token limits, but 50 covers almost all screens.
         filtered_widgets = final_widget_set[:50]
 
-        # Build a clean element summary for the Decider/Orchestrator
-        formatted_ui_elements = []
-        for el in filtered_widgets:
-            cls_name = el.get("class", "Widget")
-            text = el.get("text", "(no text)")
-            el_id = el.get("id", "?")
-            formatted_ui_elements.append(f"ID:{el_id} | {cls_name} | '{text}'")
-            
-        ui_summary_text = "\n".join(formatted_ui_elements)
+        summary_data = [
+            {"id": el.get("id", "?"), "cls": el.get("class", "Widget"), "text": el.get("text", "")}
+            for el in filtered_widgets
+        ]
+        ui_summary_text = compress_and_report(summary_data, "ui_summary", "observer")
 
         # --- Stagnation Detection ---
         previous_ui = state.get("previous_ui_summary", "")
