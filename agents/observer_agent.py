@@ -99,6 +99,45 @@ class ObserverAgent:
         merged.append(current)
         return merged
 
+    def _group_keyboard_elements(self, elements: list, image_height: int) -> list:
+        """Groups dense clusters of elements in the lower half of the screen into a single Keyboard element."""
+        kb_threshold_y = image_height * 0.50
+        
+        kb_candidates = []
+        non_kb_elements = []
+        single_letter_count = 0
+        
+        for el in elements:
+            b = el.get("bounds", [0, 0, 0, 0])
+            cy = (b[1] + b[3]) / 2
+            
+            if cy > kb_threshold_y:
+                kb_candidates.append(el)
+                text = el.get("text", "").strip()
+                if len(text) == 1 and text.isalpha():
+                    single_letter_count += 1
+            else:
+                non_kb_elements.append(el)
+                
+        # Heuristic: A keyboard has many elements AND specifically many single alphabetical letters
+        if len(kb_candidates) > 15 and single_letter_count >= 10:
+            all_x1 = min(el["bounds"][0] for el in kb_candidates)
+            all_y1 = min(el["bounds"][1] for el in kb_candidates)
+            all_x2 = max(el["bounds"][2] for el in kb_candidates)
+            all_y2 = max(el["bounds"][3] for el in kb_candidates)
+            
+            keyboard_el = {
+                "bounds": [all_x1, all_y1, all_x2, all_y2],
+                "cv_bounds": [all_x1, all_y1, all_x2, all_y2],
+                "text": "On-Screen Keyboard",
+                "type": "container"
+            }
+            non_kb_elements.append(keyboard_el)
+            print(f"[Observer] Detected and grouped {len(kb_candidates)} keyboard elements (found {single_letter_count} keys).")
+            return non_kb_elements
+            
+        return elements
+
     def _merge_and_filter(self, cv_elements: list, ocr_elements: list, image_height: int) -> list:
         # Filter out the top status bar only (clock, signal icons - not interactive)
         # We do NOT filter the bottom because the nav bar lives there.
@@ -203,6 +242,8 @@ class ObserverAgent:
                     "type": "text_stub"
                 })
 
+        merged = self._group_keyboard_elements(merged, image_height)
+
         final_widget_set = []
         for idx, el in enumerate(merged, start=1):
             el["id"] = idx
@@ -256,6 +297,7 @@ class ObserverAgent:
 
         system_prompt = (
             "You are a Perception Agent. Analyze an annotated Android screenshot and map every visible ID to its UI function.\n"
+            "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys (A, B, C, Enter, etc.).\n"
             "OUTPUT FORMAT (strict):\n"
             "SEMANTIC_MAP: [[ID]: Description, ...]\n"
             "SUMMARY: One sentence describing the screen and key actions available."
@@ -265,7 +307,7 @@ class ObserverAgent:
             f"Goal: {state['task_goal']}\n"
             f"Subgoal: {state.get('current_subgoal', '')}\n"
             f"Elements: {elements_json}\n\n"
-            f"Map every ID in the screenshot to its function. Identify interactive elements (buttons, inputs, nav icons) precisely."
+            f"Map every ID in the screenshot to its function. Identify interactive elements (buttons, inputs, nav icons) precisely. Skip interpreting individual keyboard keys if they appear."
         )
 
         message = HumanMessage(content=[

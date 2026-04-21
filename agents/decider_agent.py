@@ -41,7 +41,7 @@ Your role: Given the current screen state, output exactly ONE ActionPlan for the
 
 RULES:
 - target_id MUST be an integer ID from the SEMANTIC_MAP, or -1.
-- For 'input': set text_payload and target_id to the field's ID.
+- PREFER 'input' for typing. Set text_payload and target_id to the input field's ID. NEVER try to "click" individual keyboard keys.
 - For 'scroll': set scroll_direction, target_id = -1.
 - For 'start_app': set app_package.
 - Set is_completed=True ONLY when the full goal is achieved."""
