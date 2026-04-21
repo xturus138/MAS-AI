@@ -35,6 +35,9 @@ class ActionPlan(BaseModel):
     )
 
 
+from langchain_core.prompts import ChatPromptTemplate
+
+
 SYSTEM_PROMPT = """You are the Decider Agent in an Android GUI testing multi-agent system.
 
 Your role: Given the current screen state, output exactly ONE ActionPlan for the Executor.
@@ -50,25 +53,26 @@ RULES:
 class DeciderAgent:
     def __init__(self, llm):
         self.llm = llm.with_structured_output(ActionPlan)
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", SYSTEM_PROMPT),
+            ("human", "Goal: {task_goal}\n"
+                      "Subgoal: {subgoal}\n\n"
+                      "Screen Analysis (Semantic Map):\n{observer_analysis}\n\n"
+                      "Recent Actions: {history_json}\n\n"
+                      "Output ONE ActionPlan.")
+        ])
 
     def decide(self, state: AgentState) -> Command:
-        # Compress action history with TOONS — uniform dict keys enable tabular compression.
-        history_window = (state["action_history"] or [])[-10:]
+        history_window = (state.get("action_history") or [])[-10:]
         history_json = compress_and_report(history_window, "action_history", "decider") if history_window else "[]"
         subgoal = state.get("current_subgoal", "") or "Determine and execute the next best action toward the goal."
 
-        human_prompt = (
-            f"Goal: {state['task_goal']}\n"
-            f"Subgoal: {subgoal}\n\n"
-            f"Screen Analysis (Semantic Map):\n{state.get('observer_analysis', 'N/A')}\n\n"
-            f"Recent Actions: {history_json}\n\n"
-            f"Output ONE ActionPlan."
+        messages = self.prompt.format_messages(
+            task_goal=state.get('task_goal', 'N/A'),
+            subgoal=subgoal,
+            observer_analysis=state.get('observer_analysis', 'N/A'),
+            history_json=history_json
         )
-
-        messages = [
-            SystemMessage(content=SYSTEM_PROMPT),
-            HumanMessage(content=human_prompt),
-        ]
 
         print("[Decider] Thinking about the next action...")
         plan = self.llm.invoke(
@@ -81,12 +85,8 @@ class DeciderAgent:
         )
         print(f"[Decider] {status}")
 
-        # Hand control directly to the Executor to bypass Orchestrator overhead
-        return Command(
-            goto="executor_node",
-            update={
-                "action_plan": plan.model_dump(),
-                "is_completed": plan.is_completed,
-                "sender": "decider",
-            },
-        )
+        return {
+            "action_plan": plan.model_dump(),
+            "is_completed": plan.is_completed,
+            "sender": "decider",
+        }

@@ -10,34 +10,29 @@ from tools.executor_tools import ExecutorTools
 from agents.observer_agent import ObserverAgent
 from agents.decider_agent import DeciderAgent
 from agents.executor_agent import ExecutorAgent
-from agents.orchestrator_agent import OrchestratorAgent
+from agents.supervisor_agent import SupervisorAgent
 
 
 def run_workflow():
     print("[*] Starting Multi-Agent Swarm System...")
 
-    # 1. Initialize Infrastructure (Adapters)
     import datetime
     session_id = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
 
-    # Use the Factory — provider, URL, and API key are all read from .env.
     perception_llm = LLMFactory.create("perception", session_id=session_id)
     strategic_llm  = LLMFactory.create("strategic",  session_id=session_id)
 
-    # 2. Initialize Tools
     obs_tools = ObserverTools(device_adapter, config.OUTPUT_DIR)
     exe_tools = ExecutorTools(device_adapter)
 
-    # 3. Initialize Agents (Dependency Injection)
     observer     = ObserverAgent(perception_llm, obs_tools.get_tools())
     decider      = DeciderAgent(strategic_llm)
     executor     = ExecutorAgent(exe_tools)
-    orchestrator = OrchestratorAgent(strategic_llm)
+    supervisor   = SupervisorAgent(strategic_llm)
 
-    # 4. Build the Swarm Graph
-    app = build_graph(orchestrator, observer, decider, executor)
+    app = build_graph(observer, decider, executor, supervisor)
 
     initial_state: AgentState = {
         "task_goal": "Create a new note, write 'Meeting at 3 PM tomorrow', and save it",
@@ -62,7 +57,6 @@ def run_workflow():
 
     config_run = {"recursion_limit": 100}
 
-    # Execute Graph
     final_state = app.invoke(initial_state, config=config_run)
 
     print("\n=== FINAL SUMMARY ===")

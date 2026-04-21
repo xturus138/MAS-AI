@@ -3,7 +3,7 @@ import json
 import re
 import os
 import cv2
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate
 from langgraph.types import Command
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
@@ -39,17 +39,14 @@ class ObserverAgent:
         if img is None:
             return ""
 
-        # Resize to optimize for Vision-Language model tokens
         h, w = img.shape[:2]
         if h > max_height:
             scale = max_height / h
             new_w = int(w * scale)
             img = cv2.resize(img, (new_w, max_height), interpolation=cv2.INTER_AREA)
 
-        # Encode as WebP (70% quality) — significantly smaller than JPEG 90%
         success, buffer = cv2.imencode(".webp", img, [int(cv2.IMWRITE_WEBP_QUALITY), 70])
         if not success:
-            # Fallback to JPEG if WebP not supported
             success, buffer = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
         if not success:
             return ""
@@ -64,7 +61,6 @@ class ObserverAgent:
         if not ocr_elements:
             return []
         
-        # Sort by Y top first, then X left
         sorted_ocr = sorted(ocr_elements, key=lambda x: (x["bounds"][1], x["bounds"][0]))
         
         merged = []
@@ -77,15 +73,11 @@ class ObserverAgent:
             curr_b = current["bounds"]
             next_b = next_el["bounds"]
             
-            # Check if on the same/close vertical line (Y overlap)
-            # and close horizontally (X distance)
             y_overlap = min(curr_b[3], next_b[3]) - max(curr_b[1], next_b[1])
             h_dist = next_b[0] - curr_b[2]
             
-            # Heuristic: overlap more than 50% of height and distance < 50px
             height = curr_b[3] - curr_b[1]
             if y_overlap > height * 0.5 and h_dist < 40:
-                # Merge
                 current["bounds"] = [
                     min(curr_b[0], next_b[0]),
                     min(curr_b[1], next_b[1]),
@@ -119,7 +111,6 @@ class ObserverAgent:
             else:
                 non_kb_elements.append(el)
                 
-        # ADB confirms keyboard is open. Group everything in the bottom half.
         if kb_candidates:
             all_x1 = min(el["bounds"][0] for el in kb_candidates)
             all_y1 = min(el["bounds"][1] for el in kb_candidates)
@@ -139,11 +130,8 @@ class ObserverAgent:
         return elements
 
     def _merge_and_filter(self, cv_elements: list, ocr_elements: list, image_height: int, is_kb_shown: bool = False) -> list:
-        # Filter out the top status bar only (clock, signal icons - not interactive)
-        # We do NOT filter the bottom because the nav bar lives there.
         status_bar_threshold = image_height * 0.05
 
-        # 1. Pre-merge OCR blocks horizontally
         ocr_elements = self._merge_ocr_blocks(ocr_elements)
 
         filtered_cv = [
@@ -181,18 +169,16 @@ class ObserverAgent:
         merged = []
         used_ocr = set()
 
-        # Step 1: Matching CV containers with OCR text
         for cv_el in filtered_cv:
             cv_bounds = cv_el["bounds"]
             matched_text = []
-            matched_ocr_bounds = []  # Store individual OCR bounds for precision
+            matched_ocr_bounds = []
             
             for ocr_idx, ocr_el in enumerate(filtered_ocr):
                 if ocr_idx in used_ocr:
                     continue
                 ocr_bounds = ocr_el["bounds"]
                 
-                # Check if text is INSIDE CV box or very nearby
                 is_inside = (ocr_bounds[0] >= cv_bounds[0] - 10 and 
                              ocr_bounds[1] >= cv_bounds[1] - 10 and 
                              ocr_bounds[2] <= cv_bounds[2] + 10 and 
@@ -203,8 +189,6 @@ class ObserverAgent:
                     matched_ocr_bounds.append(ocr_bounds)
                     used_ocr.add(ocr_idx)
 
-            # If OCR text was matched, use the UNION of OCR bounds as the click target
-            # (more precise than the full CV contour center)
             if matched_ocr_bounds:
                 all_x1 = min(b[0] for b in matched_ocr_bounds)
                 all_y1 = min(b[1] for b in matched_ocr_bounds)
@@ -215,25 +199,22 @@ class ObserverAgent:
                 click_bounds = cv_bounds
 
             entry = {
-                "bounds": click_bounds,   # Precise click target (OCR-driven if available)
-                "cv_bounds": cv_bounds,   # Keep original CV bounds for annotation
+                "bounds": click_bounds,
+                "cv_bounds": cv_bounds,
                 "text": " ".join(matched_text) if matched_text else "",
                 "type": "container"
             }
             merged.append(entry)
 
-        # Step 2: Fallback for orphaned OCR text (only if it looks meaningful)
         for ocr_idx, ocr_el in enumerate(filtered_ocr):
             if ocr_idx not in used_ocr:
                 text = ocr_el.get("text", "").strip()
-                # Heuristic: Skip very short text or very long paragraphs (pure content)
                 if len(text) < 2 or len(text) > 100:
                     continue
                 
-                # Aspect ratio check: most buttons are wider than tall
                 b = ocr_el["bounds"]
                 w, h = b[2]-b[0], b[3]-b[1]
-                if h > 0 and w/h < 0.2: # Very tall skinny text might be noise
+                if h > 0 and w/h < 0.2:
                     continue
 
                 merged.append({
@@ -284,7 +265,6 @@ class ObserverAgent:
         final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
         print(f"[Observer] Final vision widget count: {len(final_widget_set)}")
 
-        # Save merged results for analysis
         merged_json_path = os.path.join(self.dirs["merged"], f"merged_{basename}.json")
         with open(merged_json_path, "w", encoding="utf-8") as f:
             json.dump(final_widget_set, f, indent=4, ensure_ascii=False)
@@ -302,34 +282,32 @@ class ObserverAgent:
         elements_data = [{"i": el["id"], "t": el.get("text") or ""} for el in final_widget_set]
         elements_json = compress_and_report(elements_data, "elements", "observer")
 
-        system_prompt = (
-            "You are a Perception Agent. Analyze an annotated Android screenshot and map every visible ID to its UI function.\n"
-            "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys (A, B, C, Enter, etc.).\n"
-            "OUTPUT FORMAT (strict):\n"
-            "SEMANTIC_MAP: [[ID]: Description, ...]\n"
-            "SUMMARY: One sentence describing the screen and key actions available."
-        )
-
-        user_prompt = (
-            f"Goal: {state['task_goal']}\n"
-            f"Subgoal: {state.get('current_subgoal', '')}\n"
-            f"Elements: {elements_json}\n\n"
-            f"Map every ID in the screenshot to its function. Identify interactive elements (buttons, inputs, nav icons) precisely. Skip interpreting individual keyboard keys if they appear."
-        )
-
-        message = HumanMessage(content=[
-            {"type": "text", "text": user_prompt},
-            {"type": "image_url", "image_url": {"url": f"data:image/webp;base64,{img_b64}"}}
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are a Perception Agent. Analyze an annotated Android screenshot and map every visible ID to its UI function.\n"
+                       "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys (A, B, C, Enter, etc.).\n"
+                       "OUTPUT FORMAT (strict):\n"
+                       "SEMANTIC_MAP: [[ID]: Description, ...]\n"
+                       "SUMMARY: One sentence describing the screen and key actions available."),
+            ("human", [
+                {"type": "text", "text": "Goal: {task_goal}\nSubgoal: {subgoal}\nElements: {elements_json}\n\nMap every ID in the screenshot to its function. Identify interactive elements (buttons, inputs, nav icons) precisely. Skip interpreting individual keyboard keys if they appear."},
+                {"type": "image_url", "image_url": {"url": "data:image/webp;base64,{img_b64}"}}
+            ])
         ])
 
-        system_message = SystemMessage(content=system_prompt)
+        messages = prompt.format_messages(
+            task_goal=state['task_goal'],
+            subgoal=state.get('current_subgoal', ''),
+            elements_json=elements_json,
+            img_b64=img_b64
+        )
+
         try:
             import sys
             print("[Observer] Translating vision to semantics ", end="", flush=True)
             chunks = []
             
             for chunk in self.llm.stream(
-                [system_message, message],
+                messages,
                 config={
                     "tags": ["observer", f"step_{state.get('current_step', 0)}"],
                     "timeout": 45.0
@@ -351,17 +329,12 @@ class ObserverAgent:
                 }
             )
 
-        # Save semantic analysis to file
         analysis_path = os.path.join(self.dirs["analysis"], f"analysis_{basename}.txt")
         with open(analysis_path, "w", encoding="utf-8") as f:
             f.write(raw_res)
         print(f"[Observer] Semantic analysis saved to: {analysis_path}")
 
-        # --- Enhanced Semantic State ---
-        # We no longer filter out 'irrelevant' widgets here. 
-        # We pass the ENTIRE set to the Orchestrator/Decider, sorted by VLM priority if possible.
         
-        # Extract suggested IDs to put them at the top of the summary for the Decider
         filtered_widgets = final_widget_set[:50]
 
         summary_data = [
@@ -370,7 +343,6 @@ class ObserverAgent:
         ]
         ui_summary_text = compress_and_report(summary_data, "ui_summary", "observer")
 
-        # --- Stagnation Detection ---
         previous_ui = state.get("previous_ui_summary", "")
         prev_count = state.get("stagnation_count", 0)
         if ui_summary_text and ui_summary_text == previous_ui:
@@ -378,20 +350,16 @@ class ObserverAgent:
         else:
             new_stagnation_count = 0
 
-        # Hand control back to the Orchestrator
-        return Command(
-            goto="orchestrator_node",
-            update={
-                "screenshot_path": raw_image_path,
-                "annotated_screenshot_path": annotated_path,
-                "ocr_result": ocr_raw,
-                "detected_elements": cv_raw,
-                "ui_elements_summary": ui_summary_text,
-                "widgets": final_widget_set,
-                "observer_analysis": raw_res,
-                "current_step": state["current_step"] + 1,
-                "sender": "observer",
-                "previous_ui_summary": ui_summary_text,
-                "stagnation_count": new_stagnation_count,
-            },
-        )
+        return {
+            "screenshot_path": raw_image_path,
+            "annotated_screenshot_path": annotated_path,
+            "ocr_result": ocr_raw,
+            "detected_elements": cv_raw,
+            "ui_elements_summary": ui_summary_text,
+            "widgets": final_widget_set,
+            "observer_analysis": raw_res,
+            "current_step": state["current_step"] + 1,
+            "sender": "observer",
+            "previous_ui_summary": ui_summary_text,
+            "stagnation_count": new_stagnation_count,
+        }
