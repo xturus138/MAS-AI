@@ -81,9 +81,9 @@ class DeciderAgent:
         )
         print(f"[Decider] {status}")
 
-        # Hand control back to the Orchestrator
+        # Hand control directly to the Executor to bypass Orchestrator overhead
         return Command(
-            goto="orchestrator_node",
+            goto="executor_node",
             update={
                 "action_plan": plan.model_dump(),
                 "is_completed": plan.is_completed,

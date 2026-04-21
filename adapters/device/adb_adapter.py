@@ -86,3 +86,11 @@ class ADBAdapter(IDeviceClient):
             self.d.wait_idle(timeout=timeout)
         except Exception:
             pass
+
+    def check_keyboard_state(self) -> bool:
+        try:
+            res = self.d.shell("dumpsys input_method | grep mInputShown")
+            return "mInputShown=true" in res.output
+        except Exception as e:
+            print(f"[!] Failed to check keyboard state: {e}")
+            return False

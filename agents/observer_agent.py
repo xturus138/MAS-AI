@@ -17,6 +17,7 @@ class ObserverAgent:
         self.ocr_extract_text = tools[1]
         self.detect_visual_elements = tools[2]
         self.annotate_screenshot = tools[3]
+        self.check_keyboard_state = tools[4]
     
         self.base_output = "outputs"
         self.dirs = {
@@ -99,13 +100,15 @@ class ObserverAgent:
         merged.append(current)
         return merged
 
-    def _group_keyboard_elements(self, elements: list, image_height: int) -> list:
+    def _group_keyboard_elements(self, elements: list, image_height: int, is_kb_shown: bool) -> list:
         """Groups dense clusters of elements in the lower half of the screen into a single Keyboard element."""
+        if not is_kb_shown:
+            return elements
+
         kb_threshold_y = image_height * 0.50
         
         kb_candidates = []
         non_kb_elements = []
-        single_letter_count = 0
         
         for el in elements:
             b = el.get("bounds", [0, 0, 0, 0])
@@ -113,14 +116,11 @@ class ObserverAgent:
             
             if cy > kb_threshold_y:
                 kb_candidates.append(el)
-                text = el.get("text", "").strip()
-                if len(text) == 1 and text.isalpha():
-                    single_letter_count += 1
             else:
                 non_kb_elements.append(el)
                 
-        # Heuristic: A keyboard has many elements AND specifically many single alphabetical letters
-        if len(kb_candidates) > 15 and single_letter_count >= 10:
+        # ADB confirms keyboard is open. Group everything in the bottom half.
+        if kb_candidates:
             all_x1 = min(el["bounds"][0] for el in kb_candidates)
             all_y1 = min(el["bounds"][1] for el in kb_candidates)
             all_x2 = max(el["bounds"][2] for el in kb_candidates)
@@ -133,12 +133,12 @@ class ObserverAgent:
                 "type": "container"
             }
             non_kb_elements.append(keyboard_el)
-            print(f"[Observer] Detected and grouped {len(kb_candidates)} keyboard elements (found {single_letter_count} keys).")
+            print(f"[Observer] ADB confirmed Keyboard is open. Grouped {len(kb_candidates)} bottom-half elements into a single body.")
             return non_kb_elements
             
         return elements
 
-    def _merge_and_filter(self, cv_elements: list, ocr_elements: list, image_height: int) -> list:
+    def _merge_and_filter(self, cv_elements: list, ocr_elements: list, image_height: int, is_kb_shown: bool = False) -> list:
         # Filter out the top status bar only (clock, signal icons - not interactive)
         # We do NOT filter the bottom because the nav bar lives there.
         status_bar_threshold = image_height * 0.05
@@ -242,7 +242,7 @@ class ObserverAgent:
                     "type": "text_stub"
                 })
 
-        merged = self._group_keyboard_elements(merged, image_height)
+        merged = self._group_keyboard_elements(merged, image_height, is_kb_shown)
 
         final_widget_set = []
         for idx, el in enumerate(merged, start=1):
@@ -270,11 +270,18 @@ class ObserverAgent:
         except (json.JSONDecodeError, TypeError):
             ocr_elements, cv_elements = [], []
 
+        print("[Observer] Checking keyboard state via ADB...")
+        kb_resp = self.check_keyboard_state.invoke({})
+        try:
+            is_kb_shown = json.loads(kb_resp).get("is_shown", False)
+        except:
+            is_kb_shown = False
+
         img = cv2.imread(raw_image_path)
         image_height = img.shape[0] if img is not None else 1920
 
         print("[Observer] Merging and filtering visual elements (ScenGen)...")
-        final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height)
+        final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
         print(f"[Observer] Final vision widget count: {len(final_widget_set)}")
 
         # Save merged results for analysis
@@ -316,12 +323,33 @@ class ObserverAgent:
         ])
 
         system_message = SystemMessage(content=system_prompt)
-        llm_response = self.llm.invoke(
-            [system_message, message],
-            config={"tags": ["observer", f"step_{state.get('current_step', 0)}"]}
-        )
-        raw_res = llm_response.content
-        print("[Observer] Full semantic interpretation received.")
+        try:
+            import sys
+            print("[Observer] Translating vision to semantics ", end="", flush=True)
+            chunks = []
+            
+            for chunk in self.llm.stream(
+                [system_message, message],
+                config={
+                    "tags": ["observer", f"step_{state.get('current_step', 0)}"],
+                    "timeout": 45.0
+                }
+            ):
+                print(".", end="", flush=True)
+                chunks.append(chunk.content)
+                
+            raw_res = "".join(chunks)
+            print("\n[Observer] Full semantic interpretation received.")
+        except Exception as e:
+            print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
+            return Command(
+                goto="__end__",
+                update={
+                    "execution_result": f"Fatal failure in Observer: {str(e)}. Exiting system.",
+                    "sender": "observer",
+                    "is_completed": False
+                }
+            )
 
         # Save semantic analysis to file
         analysis_path = os.path.join(self.dirs["analysis"], f"analysis_{basename}.txt")

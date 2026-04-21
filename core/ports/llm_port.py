@@ -11,3 +11,8 @@ class ILLMClient(ABC):
     def with_structured_output(self, schema: Any) -> Any:
         """Return an LLM instance that produces structured output."""
         pass
+
+    @abstractmethod
+    def stream(self, messages: List[Any], **kwargs) -> Any:
+        """Stream the LLM response."""
+        pass

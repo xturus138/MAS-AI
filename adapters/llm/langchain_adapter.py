@@ -34,3 +34,6 @@ class LangChainAdapter(ILLMClient):
 
     def with_structured_output(self, schema: Any) -> Any:
         return self.llm.with_structured_output(schema)
+
+    def stream(self, messages: List[Any], **kwargs) -> Any:
+        return self.llm.stream(messages, **kwargs)
