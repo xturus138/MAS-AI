@@ -1,6 +1,7 @@
 import json
 import os
 import datetime
+import re
 from typing import Any, Dict, List, Optional
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.messages import messages_to_dict
@@ -38,6 +39,9 @@ class LLMJsonLogger(BaseCallbackHandler):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir, exist_ok=True)
 
+    def _sanitize(self, filename: str) -> str:
+        return re.sub(r'[<>:"/\\|?*]', "_", filename)
+
     def on_chat_model_start(
         self,
         serialized: Dict[str, Any],
@@ -51,13 +55,15 @@ class LLMJsonLogger(BaseCallbackHandler):
     ) -> Any:
         agent_name = "unknown_agent"
         if tags:
-            agent_tags = [t for t in tags if t in ["orchestrator", "decider", "observer"]]
+            agent_tags = [t for t in tags if t in ["orchestrator", "decider", "observer", "reflector", "recorder"]]
             if agent_tags:
                 agent_name = agent_tags[0]
             else:
                 agent_name = tags[0]
         elif metadata and "agent" in metadata:
             agent_name = metadata["agent"]
+
+        agent_name = self._sanitize(agent_name)
 
         for i, message_list in enumerate(messages):
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
@@ -79,7 +85,8 @@ class LLMJsonLogger(BaseCallbackHandler):
 
             print(
                 f"{_CYAN}[Token Tracker]{_RESET} "
-                f"{_BOLD}{agent_name.upper()}{_RESET} -> "
+                f"{_BOLD}{agent_name.upper()}{_RESET} | "
+                f"Total Prompt Estimate: "
                 f"{color}{token_count:,} tokens{_RESET}"
                 f"{color}{warning}{_RESET}"
             )

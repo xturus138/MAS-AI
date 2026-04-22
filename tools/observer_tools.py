@@ -3,7 +3,6 @@ import json
 import xml.etree.ElementTree as ET
 import re
 from datetime import datetime
-
 import cv2
 import numpy as np
 import easyocr
@@ -12,45 +11,26 @@ from core.ports.device_port import IDeviceClient
 from shared import config
 
 class ObserverTools:
-    def __init__(self, device_session: IDeviceClient, output_dir: str):
+    def __init__(self, device_session: IDeviceClient):
         self.d = device_session
-        self.output_dir = output_dir
-        
-        self.dirs = {
-            "raw": os.path.join(output_dir, "raw"),
-            "xml": os.path.join(output_dir, "xml"),
-            "json": os.path.join(output_dir, "json"),
-            "annotated": os.path.join(output_dir, "annotated")
-        }
-        
-        for d in self.dirs.values():
-            if not os.path.exists(d):
-                os.makedirs(d)
-
-        # EasyOCR Reader — initialized once, reused across calls.
-        # gpu=True uses CUDA if available, falls back to CPU otherwise.
         self.ocr_model = easyocr.Reader(['en'], gpu=True)
 
     def get_tools(self):
         d = self.d
         ocr_model = self.ocr_model
-        dirs = self.dirs
 
         @tool
-        def take_screenshot() -> str:
-            """Takes a screenshot of the current device screen and returns the local file path."""
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filepath = os.path.join(dirs["raw"], f"raw_{timestamp}.png")
-            d.screenshot(filepath)
-            return filepath
+        def take_screenshot(target_path: str) -> str:
+            """Takes a screenshot of the current device screen and saves it to target_path."""
+            d.screenshot(target_path)
+            return target_path
 
         @tool
-        def ocr_extract_text(image_path: str) -> str:
-            """Performs OCR on the given image path and returns a JSON string of detected text blocks and their bounds."""
+        def ocr_extract_text(image_path: str, save_path: str = "") -> str:
+            """Performs OCR on the image. If save_path is provided, result is saved as JSON."""
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
-            # Load image and resize for speed optimization
             img = cv2.imread(image_path)
             if img is None:
                 return json.dumps({"error": f"Could not read image: {image_path}"})
@@ -63,17 +43,13 @@ class ObserverTools:
                 new_w = int(orig_w * scale)
                 img = cv2.resize(img, (new_w, target_h), interpolation=cv2.INTER_AREA)
 
-            # Run EasyOCR on the (possibly resized) image
-            # Returns list of (bbox_points, text, confidence)
             results = ocr_model.readtext(img)
             extracted = []
 
             for (box_points, text, confidence) in results:
                 if confidence < 0.4:
                     continue
-
-                # box_points is [[x1,y1],[x2,y1],[x2,y2],[x1,y2]]
-                # Rescale coordinates back to original size
+                
                 xs = [pt[0] / scale for pt in box_points]
                 ys = [pt[1] / scale for pt in box_points]
                 x_min, y_min = int(min(xs)), int(min(ys))
@@ -86,17 +62,15 @@ class ObserverTools:
                 })
 
             json_data = json.dumps(extracted)
-            
-            base = os.path.basename(image_path).replace(".png", "")
-            json_path = os.path.join(dirs["json"], f"ocr_{base}.json")
-            with open(json_path, "w", encoding="utf-8") as f:
-                f.write(json_data)
+            if save_path:
+                with open(save_path, "w", encoding="utf-8") as f:
+                    f.write(json_data)
                 
             return json_data
 
         @tool
-        def detect_visual_elements(image_path: str) -> str:
-            """Uses computer vision to detect UI elements like buttons/inputs from a screenshot and returns a JSON string of bounds."""
+        def detect_visual_elements(image_path: str, save_path: str = "") -> str:
+            """Uses CV to detect UI elements. If save_path is provided, result is saved as JSON."""
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
@@ -126,17 +100,15 @@ class ObserverTools:
                 detected.append({"bounds": [x, y, x + w, y + h]})
 
             json_data = json.dumps(detected)
-            
-            base = os.path.basename(image_path).replace(".png", "")
-            json_path = os.path.join(dirs["json"], f"cv_{base}.json")
-            with open(json_path, "w", encoding="utf-8") as f:
-                f.write(json_data)
+            if save_path:
+                with open(save_path, "w", encoding="utf-8") as f:
+                    f.write(json_data)
 
             return json_data
 
         @tool
-        def annotate_screenshot(image_path: str, elements: list) -> str:
-            """Draws bounding boxes and numeric IDs onto a screenshot for visual debugging and returns the path to the annotated image."""
+        def annotate_screenshot(image_path: str, elements: list, save_path: str) -> str:
+            """Draws boxes onto a screenshot and saves result to save_path."""
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
@@ -145,50 +117,37 @@ class ObserverTools:
             for element in elements:
                 el_id = element.get("id", "?")
                 el_type = element.get("type", "container")
-                # Annotation box: prefer cv_bounds (full visual region), fall back to bounds
                 ann_bounds = element.get("cv_bounds") or element.get("bounds", [])
                 click_bounds = element.get("bounds", ann_bounds)
                 if len(ann_bounds) != 4:
                     continue
 
                 x1, y1, x2, y2 = int(ann_bounds[0]), int(ann_bounds[1]), int(ann_bounds[2]), int(ann_bounds[3])
-
-                # Color logic: Red for interactive containers, Blue for static text
                 color = (0, 0, 255) if el_type == "container" else (255, 0, 0)
                 thickness = 2 if el_type == "container" else 1
-
                 cv2.rectangle(img, (x1, y1), (x2, y2), color, thickness)
 
-                # Draw a small green dot at the ACTUAL click center (from precision bounds)
                 if len(click_bounds) == 4:
                     cx = int((click_bounds[0] + click_bounds[2]) / 2)
                     cy = int((click_bounds[1] + click_bounds[3]) / 2)
                     cv2.circle(img, (cx, cy), 4, (0, 220, 0), -1)
-
 
                 label = str(el_id)
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 font_scale = 0.4
                 font_thickness = 1
                 (text_w, text_h), baseline = cv2.getTextSize(label, font, font_scale, font_thickness)
-
-                bg_x1 = x1
-                bg_y1 = y1 - text_h - baseline - 2
-                bg_x2 = x1 + text_w + 4
-                bg_y2 = y1
-
+                bg_x1, bg_y1 = x1, y1 - text_h - baseline - 2
+                bg_x2, bg_y2 = x1 + text_w + 4, y1
                 cv2.rectangle(img, (bg_x1, bg_y1), (bg_x2, bg_y2), color, -1)
                 cv2.putText(img, label, (x1 + 2, y1 - baseline - 1), font, font_scale, (255, 255, 255), font_thickness, cv2.LINE_AA)
 
-            base_name = os.path.basename(image_path)
-            output_path = os.path.join(dirs["annotated"], f"annotated_{base_name}")
-            cv2.imwrite(output_path, img)
-
-            return output_path
+            cv2.imwrite(save_path, img)
+            return save_path
 
         @tool
         def check_keyboard_state() -> str:
-            """Checks if the on-screen keyboard is visible via OS-level state."""
+            """Checks if keyboard is visible."""
             return json.dumps({"is_shown": d.check_keyboard_state()})
 
         return [take_screenshot, ocr_extract_text, detect_visual_elements, annotate_screenshot, check_keyboard_state]

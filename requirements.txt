@@ -11,3 +11,4 @@ Pillow
 python-dotenv
 toons
 tiktoken
+openpyxl
