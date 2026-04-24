@@ -12,3 +12,5 @@ python-dotenv
 toons
 tiktoken
 openpyxl
+mcp
+httpx
