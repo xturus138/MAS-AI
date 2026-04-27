@@ -1,6 +1,6 @@
 # MAS AI — Multi-Agent Android Testing Framework (Modular Research Edition)
 
-A multi-agent system (MAS) for automated Android GUI testing, built with LangGraph. This branch is specifically refactored for **Comparative Thesis Research**, enabling a fair A/B test between human-predefined logic and autonomous AI-driven logic.
+A multi-agent system (MAS) for automated Android GUI testing, built with LangGraph. This branch is specifically refactored for **Comparative Research**, enabling a fair A/B test between human-predefined logic and autonomous AI-driven logic.
 
 ---
 
@@ -37,7 +37,7 @@ This repository is designed for a **Controlled Variable Experiment**. To ensure 
 
 ## Data Collection & Metrics
 
-Every test run automatically generates a **`final_metrics.json`** file in the output directory. This file is designed for direct use in your thesis and includes:
+Every test run automatically generates a **`final_metrics.json`** file in the output directory. This file is designed for automated data collection and includes:
 
 - **Task Success Rate**: Binary result (SUCCESS/FAILED).
 - **Step Efficiency**: Total number of actions taken.
@@ -70,4 +70,4 @@ WORKFLOW_STRATEGY=autonomous   # Runs Mode 2
    ```bash
    python main.py
    ```
-4. Find your research data in: `outputs/<tcs_id>_<timestamp>/final_metrics.json`
+4. Find research data in: `outputs/<tcs_id>_<timestamp>/final_metrics.json`
