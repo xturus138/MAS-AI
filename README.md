@@ -26,7 +26,13 @@ git checkout main
 ### `feature/modular-workflow` ← *Experiment Branch (Permanent, Never Merged)*
 > Multi-module refactor — clean separation of Predefined and Autonomous workflows.
 
-Refactors the mixed codebase into two fully self-contained modules (`predefined/` and `autonomous/`), analogous to Kotlin multi-module clean architecture. This branch exists **solely for experiment comparison** and will never be merged into any timeline branch.
+Refactors the mixed codebase into two fully self-contained modules (`predefined/` and `autonomous/`), analogous to Kotlin multi-module clean architecture.
+
+**Primary Purpose**: Collecting comparative research metrics for thesis justification. Use this branch to measure:
+- **Task Success Rate**: Comparing goal achievement between modes.
+- **Step Efficiency**: Measuring the number of actions to reach the goal.
+- **Token Consumption**: Evaluating the cost-effectiveness of AI-driven planning.
+- **Stagnation Frequency**: Tracking where the autonomous planner gets stuck.
 
 - **`predefined/`** — owns Figma discovery, bridge navigation, step-index orchestration
 - **`autonomous/`** — owns LLM-driven planning, no Figma dependency
@@ -79,3 +85,17 @@ MAS AI/
    python main.py
    ```
 5. Results are saved to `outputs/<tcs_id>_<timestamp>/`.
+
+---
+
+## Experiment Metrics (Data Collection)
+
+Use the table below to record your factual metrics for each scenario:
+
+| Metric | Predefined (Mode 1) | Autonomous (Mode 2) |
+| :--- | :--- | :--- |
+| **Success Rate** | (Target: 100%) | (Target: Variable) |
+| **Step Count** | (Optimal/Fixed) | (Dynamic/Exploratory) |
+| **Token Cost** | (Predictable) | (Dynamic) |
+| **Stagnation** | (Low - Retry Logic) | (High - Planning Loops) |
+| **Visual Accuracy**| (Figma Verified) | (N/A) |
