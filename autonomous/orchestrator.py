@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from core.models.state import AgentState
@@ -23,9 +24,22 @@ class AutonomousPlan(BaseModel):
     )
 
 
-# ---------------------------------------------------------------------------
-# Prompt
-# ---------------------------------------------------------------------------
+class FigmaMappingPlan(BaseModel):
+    node_id: str = Field(
+        description=(
+            "The Figma Node ID (e.g. '10:5') of the frame that best matches "
+            "the given test scenario menu/navigation context. "
+            "Return an empty string if no suitable frame is found."
+        )
+    )
+    frame_name: str = Field(
+        description="The exact name of the matched Figma frame."
+    )
+    reasoning: str = Field(
+        description="Brief explanation of why this frame was chosen."
+    )
+
+
 
 AUTONOMOUS_SYSTEM_PROMPT = """You are the Orchestrator Agent in a MAS AI Android testing framework.
 
@@ -54,7 +68,7 @@ class AutonomousOrchestrator:
         self.llm = llm
         self.figma = figma_adapter
         self._planner_llm = llm.with_structured_output(AutonomousPlan) if llm else None
-        self._mapping_llm = llm.with_structured_output(FigmaMappingPlan) if llm else None # Added
+        self._mapping_llm = llm.with_structured_output(FigmaMappingPlan) if llm else None
 
     def _auto_discover_figma_node(self, menu_name: str, scenario_desc: str) -> Optional[str]:
         """Ask the LLM to match the scenario's menu context to a Figma frame."""
@@ -145,7 +159,6 @@ class AutonomousOrchestrator:
             "figma_end_screenshot_b64": figma_end_screenshot_b64,
             "figma_bridge_steps": [],
         }
-
     def orchestrate(self, state: AgentState) -> dict:
         """LangGraph node: LLM-driven planner that generates the next subgoal."""
         task_goal        = state.get("task_goal", "")

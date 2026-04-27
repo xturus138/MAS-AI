@@ -8,9 +8,6 @@ if TYPE_CHECKING:
     from adapters.figma.figma_adapter import FigmaAdapter
 
 
-# ---------------------------------------------------------------------------
-# Pydantic Models
-# ---------------------------------------------------------------------------
 
 class BridgePlan(BaseModel):
     bridge_steps: list = Field(
@@ -41,9 +38,6 @@ class FigmaMappingPlan(BaseModel):
     )
 
 
-# ---------------------------------------------------------------------------
-# Prompts
-# ---------------------------------------------------------------------------
 
 BRIDGE_SYSTEM_PROMPT = """You are the Orchestrator Agent in a MAS AI Android testing framework.
 
@@ -60,9 +54,6 @@ Be minimal. Generate only what is strictly necessary to reach the target screen.
 """
 
 
-# ---------------------------------------------------------------------------
-# PredefinedOrchestrator
-# ---------------------------------------------------------------------------
 
 class PredefinedOrchestrator:
     """
