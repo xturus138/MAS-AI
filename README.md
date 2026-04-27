@@ -34,13 +34,34 @@ Refactors the mixed codebase into two fully self-contained modules (`predefined/
 - **Token Consumption**: Evaluating the cost-effectiveness of AI-driven planning.
 - **Stagnation Frequency**: Tracking where the autonomous planner gets stuck.
 
-- **`predefined/`** — owns Figma discovery, bridge navigation, step-index orchestration
-- **`autonomous/`** — owns LLM-driven planning, no Figma dependency
-- **`main.py`** — 8-line thin entry point, delegates to the correct module
+- **`predefined/`** — Design-verified workflow using Figma prototypes and Excel scenarios.
+- **`autonomous/`** — Goal-driven exploratory workflow using LLM planning.
 
-```bash
-git checkout feature/modular-workflow
-```
+### Mode 1: Predefined Workflow (Scenario-Based)
+
+| Component | Detail |
+| :--- | :--- |
+| **Agents (6)** | Orchestrator, Observer, Decider, Executor, Reflector, Recorder |
+| **Logic Source** | `scenario.xlsx` (Predefined steps) |
+| **Figma Role** | **Critical**. Maps nodes, traces paths, and provides Gold Standard screenshots. |
+| **Workflow** | **Discovery** (Figma) → **Execution** (Step-by-step) → **Verification** (Visual QA) → **Bridge** (Navigate to next) |
+
+**Key Advantage**: Maximum reliability and pixel-perfect design verification.
+
+---
+
+### Mode 2: Autonomous Workflow (Goal-Based)
+
+| Component | Detail |
+| :--- | :--- |
+| **Agents (6)** | Orchestrator (Planner), Observer, Decider, Executor, Reflector, Recorder |
+| **Logic Source** | Scenario Description (High-level `task_goal`) |
+| **Figma Role** | **None**. Planning is driven entirely by real-time UI analysis. |
+| **Workflow** | **Goal Setting** → **Planning** (Next step) → **Execution** → **Progress Check** → **Re-plan** |
+
+**Key Advantage**: Handles unexpected UI changes and explores undocumented paths.
+
+---
 
 **To switch workflow mode**, edit `.env`:
 ```env
