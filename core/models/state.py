@@ -1,4 +1,4 @@
-from typing import List, TypedDict
+from typing import List, Optional, TypedDict
 
 class AgentState(TypedDict):
     tcs_id: str
@@ -37,3 +37,9 @@ class AgentState(TypedDict):
 
     step_retry_count: int
     last_reflector_passed: bool
+
+    figma_enabled: bool
+    figma_start_node_id: str
+    figma_end_node_id: str
+    figma_end_screenshot_b64: str
+    figma_bridge_steps: List[str]

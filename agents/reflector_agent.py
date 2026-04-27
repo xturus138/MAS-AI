@@ -11,6 +11,7 @@ import cv2
 class ReflectorResult(BaseModel):
     passed: bool = Field(description="True if the action achieved its micro-goal OR if the final expected result is satisfied.")
     reasoning: str = Field(description="Explanation of the visual state vs expectations. Crucial for self-correction retries.")
+    figma_discrepancies: str = Field(default="", description="If Figma Gold Standard was used, describe any layout, color, or structural differences found between the live app and the Figma design. Empty if no Figma comparison was performed.")
 
 class ReflectorAgent:
     def __init__(self, llm):
@@ -56,10 +57,25 @@ class ReflectorAgent:
         )
         
         if is_final_step:
-            system_instruction += (
-                "CRITICAL: This is the FINAL step. You MUST also verify if the screen matches the ultimate Expected Result from the test suite.\n"
-                f"ULTIMATE EXPECTED RESULT: {expected_result}\n"
-            )
+            figma_enabled = state.get("figma_enabled", False)
+            figma_end_b64 = state.get("figma_end_screenshot_b64", "")
+
+            if figma_enabled and figma_end_b64:
+                system_instruction += (
+                    "CRITICAL: This is the FINAL step. Perform a 3-WAY VERIFICATION:\n"
+                    "1. Confirm the LIVE APP SCREENSHOT matches the EXPECTED RESULT from the test suite.\n"
+                    "2. Compare the LIVE APP SCREENSHOT against the FIGMA GOLD STANDARD SCREENSHOT.\n"
+                    "   - Note any layout, color, content, or structural discrepancies.\n"
+                    "   - Minor pixel differences are acceptable. Major missing elements are NOT.\n"
+                    f"ULTIMATE EXPECTED RESULT: {expected_result}\n"
+                )
+                print("[Reflector] FINAL Verification with Figma Gold Standard")
+            else:
+                system_instruction += (
+                    "CRITICAL: This is the FINAL step. You MUST also verify if the screen matches the ultimate Expected Result from the test suite.\n"
+                    f"ULTIMATE EXPECTED RESULT: {expected_result}\n"
+                )
+                print("[Reflector] FINAL Verification (text-only mode)")
         else:
             system_instruction += (
                 "This is an intermediate step. Verify if the UI changed successfully in response to the last action.\n"
@@ -73,10 +89,20 @@ class ReflectorAgent:
                 base64_image = self._encode_image(screenshot_path)
                 content.append({
                     "type": "image_url",
-                    "image_url": {"url": f"data:image/webp;base64,{base64_image}"}
+                    "image_url": {"url": f"data:image/webp;base64,{base64_image}"},
                 })
-            except:
+                content.append({"type": "text", "text": "[Image above: LIVE APP screenshot]"})
+            except Exception:
                 pass
+
+        if is_final_step and state.get("figma_enabled", False):
+            figma_b64 = state.get("figma_end_screenshot_b64", "")
+            if figma_b64:
+                content.append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{figma_b64}"},
+                })
+                content.append({"type": "text", "text": "[Image above: FIGMA GOLD STANDARD - the intended design for this end state]"})
 
         messages = [
             SystemMessage(content=system_instruction),
@@ -89,18 +115,43 @@ class ReflectorAgent:
             result = self.llm.invoke(messages)
             passed = result.passed
             reasoning = result.reasoning
+            figma_discrepancies = getattr(result, "figma_discrepancies", "")
         except Exception as e:
             passed = False
             reasoning = f"Evaluation LLM error: {str(e)}"
+            figma_discrepancies = ""
             
         print(f"[Reflector] Result: {'PASSED' if passed else 'FAILED'} | Reasoning: {reasoning}")
+        if figma_discrepancies:
+            print(f"[Reflector] Figma Discrepancies: {figma_discrepancies}")
         
         output_dir = state.get("output_dir", "")
-        if output_dir:
-            ref_path = os.path.join(output_dir, "reflector_report.json")
+        step_dir = state.get("step_dir", "")
+        save_dir = step_dir if step_dir else output_dir
+        if save_dir:
+            ref_path = os.path.join(save_dir, "reflector_report.json")
             with open(ref_path, "w", encoding="utf-8") as f:
-                json.dump({"passed": passed, "reasoning": reasoning, "step_index": current_idx}, f, indent=4, ensure_ascii=False)
-        
+                json.dump({
+                    "passed": passed,
+                    "reasoning": reasoning,
+                    "step_index": current_idx,
+                    "figma_node_id": state.get("figma_end_node_id", ""),
+                    "figma_enabled": state.get("figma_enabled", False),
+                    "figma_discrepancies": figma_discrepancies,
+                }, f, indent=4, ensure_ascii=False)
+
+            if is_final_step and state.get("figma_enabled", False):
+                comparison_path = os.path.join(save_dir, "figma_comparison_result.json")
+                with open(comparison_path, "w", encoding="utf-8") as f:
+                    json.dump({
+                        "tcs_id": state.get("tcs_id", ""),
+                        "figma_end_node_id": state.get("figma_end_node_id", ""),
+                        "passed": passed,
+                        "figma_discrepancies": figma_discrepancies,
+                        "expected_result": expected_result,
+                    }, f, indent=4, ensure_ascii=False)
+                print(f"[Reflector] Figma comparison result saved to: {comparison_path}")
+
         chat_entry = {
             "agent": "reflector",
             "step": state.get("current_step", 0),

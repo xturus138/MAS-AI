@@ -31,6 +31,14 @@ REFLECTOR_API_KEY  = os.getenv("REFLECTOR_API_KEY", os.getenv("OPENROUTER_API_KE
 REFLECTOR_BASE_URL = os.getenv("REFLECTOR_BASE_URL", PROVIDER_URLS.get(REFLECTOR_PROVIDER, "https://openrouter.ai/api/v1"))
 REFLECTOR_MODEL    = os.getenv("REFLECTOR_MODEL", "qwen/qwen-2.5-72b-instruct")
 
+ORCHESTRATOR_PROVIDER = os.getenv("ORCHESTRATOR_PROVIDER", "blackbox").lower()
+ORCHESTRATOR_API_KEY  = os.getenv("ORCHESTRATOR_API_KEY", os.getenv("OPENROUTER_API_KEY", "none"))
+ORCHESTRATOR_BASE_URL = os.getenv("ORCHESTRATOR_BASE_URL", PROVIDER_URLS.get(ORCHESTRATOR_PROVIDER, "https://openrouter.ai/api/v1"))
+ORCHESTRATOR_MODEL    = os.getenv("ORCHESTRATOR_MODEL", "blackboxai/google/gemini-3.1-flash")
+
+FIGMA_ACCESS_TOKEN = os.getenv("FIGMA_ACCESS_TOKEN", "")
+FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
+
 print(f"[*] Environment Loaded:")
 print(f"    - Observer Model:  {OBSERVER_MODEL}")
 print(f"    - Decider Model:   {DECIDER_MODEL}")

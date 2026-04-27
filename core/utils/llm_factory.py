@@ -22,6 +22,12 @@ class LLMFactory:
             "base_url":  lambda: config.REFLECTOR_BASE_URL,
             "model":     lambda: config.REFLECTOR_MODEL,
         },
+        "orchestrator": {
+            "provider":  lambda: config.ORCHESTRATOR_PROVIDER,
+            "api_key":   lambda: config.ORCHESTRATOR_API_KEY,
+            "base_url":  lambda: config.ORCHESTRATOR_BASE_URL,
+            "model":     lambda: config.ORCHESTRATOR_MODEL,
+        },
     }
 
     @classmethod
