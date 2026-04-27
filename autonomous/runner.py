@@ -6,6 +6,7 @@ from core.models.state import AgentState
 from core.utils.llm_factory import LLMFactory
 from core.utils.xlsx_loader import load_scenarios
 from adapters.device.adb_adapter import ADBAdapter
+from adapters.figma.figma_adapter import build_figma_adapter_from_prompt
 from tools.observer_tools import ObserverTools
 from tools.executor_tools import ExecutorTools
 from agents.observer_agent import ObserverAgent
@@ -21,15 +22,17 @@ def run_autonomous():
     """
     Entry point for the Autonomous (Goal-Based) workflow.
 
-    The scenario description from scenario.xlsx is treated as the high-level
-    task_goal. No Figma integration. No bridge navigation.
-    The orchestrator LLM plans every step in real-time based on the live UI.
+    Fair Experiment:
+    This runner now fetches the Figma Gold Standard context before starting,
+    ensuring that the Autonomous mode has the same 'visual goals' as the 
+    Predefined mode. The only difference is the Orchestrator's internal logic.
     """
     print("[*] Starting AUTONOMOUS Workflow...")
 
     session_id = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
     # --- Infrastructure ---
+    figma_adapter = build_figma_adapter_from_prompt(access_token=config.FIGMA_ACCESS_TOKEN)
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
 
     # --- LLMs ---
@@ -48,8 +51,8 @@ def run_autonomous():
     reflector = ReflectorAgent(reflector_llm)
     recorder  = RecorderAgent()
 
-    # --- Autonomous-specific Orchestrator (no Figma) ---
-    orchestrator = AutonomousOrchestrator(llm=orchestrator_llm)
+    # --- Autonomous-specific Orchestrator (now with Figma adapter) ---
+    orchestrator = AutonomousOrchestrator(llm=orchestrator_llm, figma_adapter=figma_adapter)
 
     # --- Build Graph ---
     app = build_autonomous_graph(observer, decider, executor, reflector, recorder, orchestrator)
@@ -75,6 +78,12 @@ def run_autonomous():
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
+        # Fair Experiment: Fetch Figma context (Gold Standard) even in autonomous mode
+        figma_context = orchestrator.pre_scenario_discovery(
+            scenario=target_scenario,
+            output_dir=output_dir,
+        )
+
         # Use scenario description as the high-level task goal
         task_goal = target_scenario["scenario_desc"]
 
@@ -84,7 +93,7 @@ def run_autonomous():
             "scenario_desc":            target_scenario["scenario_desc"],
             "test_type":                target_scenario["test_type"],
             "user_role":                target_scenario["user_role"],
-            "sub_steps":                [],      # not used in autonomous mode
+            "sub_steps":                target_scenario["sub_steps"], # Keep for parity tracing
             "task_goal":                task_goal,
             "expected_result":          target_scenario["expected_result"],
             "current_sub_step_index":   0,
@@ -111,12 +120,7 @@ def run_autonomous():
             "step_dir":                 "",
             "step_retry_count":         0,
             "last_reflector_passed":    True,
-            # No Figma fields needed
-            "figma_enabled":            False,
-            "figma_start_node_id":      "",
-            "figma_end_node_id":        "",
-            "figma_end_screenshot_b64": "",
-            "figma_bridge_steps":       [],
+            **figma_context,
         }
 
         config_run  = {"recursion_limit": 150}
