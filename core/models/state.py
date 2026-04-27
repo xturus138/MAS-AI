@@ -7,6 +7,7 @@ class AgentState(TypedDict):
     test_type: str
     user_role: str
     sub_steps: List[str]
+    task_goal: str
     expected_result: str
     current_sub_step_index: int
 
