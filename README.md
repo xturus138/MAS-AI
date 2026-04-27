@@ -10,14 +10,12 @@ This repository uses a **multi-branch strategy** where `main` is the **main deve
 The `feature/modular-workflow` branch is a **permanent experiment branch** — it will never be merged back.
 
 ### `main`
-> Stable baseline — AI-Driven workflow with `SupervisorAgent`.
+> Primary Branch — Future-proof MAS AI Framework.
 
-The original autonomous architecture. A single high-level `task_goal` is given and the `SupervisorAgent` decides what to do next at each step.
+The core branch of the MAS AI project. It will eventually host the fully integrated multi-agent system, combining autonomous goal-seeking with design-verified predefined scenarios (Figma integration).
 
-- **Workflow**: `task_goal` → Observer → Decider → Executor → Supervisor (re-plan) → loop
-- **Orchestration**: `SupervisorAgent` dynamically generates subgoals
-- **No** Figma integration
-- **No** scenario file (Excel)
+- **Status**: Active Development.
+- **Goal**: Full integration of all agents and adapters (Figma, ADB, etc.) into a production-ready QA framework.
 
 ```bash
 git checkout main
