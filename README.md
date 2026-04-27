@@ -56,12 +56,10 @@ Refactors the mixed codebase into two fully self-contained modules (`predefined/
 | :--- | :--- |
 | **Agents (6)** | Orchestrator (Planner), Observer, Decider, Executor, Reflector, Recorder |
 | **Logic Source** | Scenario Description (High-level `task_goal`) |
-| **Figma Role** | **None**. Planning is driven entirely by real-time UI analysis. |
-| **Workflow** | **Goal Setting** → **Planning** (Next step) → **Execution** → **Progress Check** → **Re-plan** |
+| **Figma Role** | **Validation Baseline**. Used to fetch the Gold Standard for final visual QA. |
+| **Workflow** | **Discovery** (Figma) → **Planning** (Next step) → **Execution** → **Progress Check** → **Re-plan** |
 
-**Key Advantage**: Handles unexpected UI changes and explores undocumented paths.
-
----
+**Key Advantage**: Uses the **same design context** as Mode 1, but with the freedom to discover the most efficient path dynamically.
 
 **To switch workflow mode**, edit `.env`:
 ```env
@@ -69,12 +67,14 @@ WORKFLOW_STRATEGY=predefined   # uses predefined/ module
 WORKFLOW_STRATEGY=autonomous   # uses autonomous/ module
 ```
 
+---
+
 ### Configuration Distinction
 
 | Variable | Predefined (Mode 1) | Autonomous (Mode 2) |
 | :--- | :--- | :--- |
 | `WORKFLOW_STRATEGY` | Set to `predefined` | Set to `autonomous` |
-| `FIGMA_ACCESS_TOKEN` | **Required** (Path tracing/QA) | Not Used |
+| `FIGMA_ACCESS_TOKEN` | **Required** (Path tracing/QA) | **Required** (Goal Discovery/QA) |
 | `OPENAI_API_KEY` | Used (Discovery/Bridge) | **Critical** (Planning) |
 | `TARGET_DEVICE` | Required (ADB) | Required (ADB) |
 
