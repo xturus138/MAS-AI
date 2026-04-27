@@ -6,7 +6,7 @@ A multi-agent system (MAS) for automated Android GUI testing, built with LangGra
 
 ## Branch Guide
 
-This repository uses a **multi-branch strategy** where `multiagent-workflow` is the **main development timeline**.
+This repository uses a **multi-branch strategy** where `main` is the **main development timeline**.
 The `feature/modular-workflow` branch is a **permanent experiment branch** — it will never be merged back.
 
 ### `main`
