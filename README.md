@@ -1,131 +1,73 @@
-# MAS AI — Multi-Agent Android Testing Framework
+# MAS AI — Multi-Agent Android Testing Framework (Modular Research Edition)
 
-A multi-agent system (MAS) for automated Android GUI testing, built with LangGraph. Agents collaborate to observe, decide, execute, verify, and record test actions on a real Android device.
+A multi-agent system (MAS) for automated Android GUI testing, built with LangGraph. This branch is specifically refactored for **Comparative Thesis Research**, enabling a fair A/B test between human-predefined logic and autonomous AI-driven logic.
 
 ---
 
 ## Branch Guide
 
-This repository uses a **multi-branch strategy** where `main` is the **main development timeline**.
-The `feature/modular-workflow` branch is a **permanent experiment branch** — it will never be merged back.
-
-### `main`
-> Primary Branch — Future-proof MAS AI Framework.
-
-The core branch of the MAS AI project. It will eventually host the fully integrated multi-agent system, combining autonomous goal-seeking with design-verified predefined scenarios (Figma integration).
-
-- **Status**: Active Development.
-- **Goal**: Full integration of all agents and adapters (Figma, ADB, etc.) into a production-ready QA framework.
-
-```bash
-git checkout main
-```
+| Branch | Role | Description |
+| :--- | :--- | :--- |
+| `main` | **Primary** | The future-proof integrated timeline for the entire MAS AI framework. |
+| `feature/modular-workflow` | **Experiment** | **Current Branch.** Self-contained modules for research metrics. *Never merged.* |
 
 ---
 
-### `feature/modular-workflow` ← *Experiment Branch (Permanent, Never Merged)*
-> Multi-module refactor — clean separation of Predefined and Autonomous workflows.
+## Fair Experiment Architecture
 
-Refactors the mixed codebase into two fully self-contained modules (`predefined/` and `autonomous/`), analogous to Kotlin multi-module clean architecture.
+This repository is designed for a **Controlled Variable Experiment**. To ensure scientific rigor, both workflows are given the **exact same information context**:
 
-**Primary Purpose**: Collecting comparative research metrics for thesis justification. Use this branch to measure:
-- **Task Success Rate**: Comparing goal achievement between modes.
-- **Step Efficiency**: Measuring the number of actions to reach the goal.
-- **Token Consumption**: Evaluating the cost-effectiveness of AI-driven planning.
-- **Stagnation Frequency**: Tracking where the autonomous planner gets stuck.
-
-- **`predefined/`** — Design-verified workflow using Figma prototypes and Excel scenarios.
-- **`autonomous/`** — Goal-driven exploratory workflow using LLM planning.
+1.  **Shared Knowledge**: Both modes read the same `scenario.xlsx` and perform the same **Figma Design Discovery** before starting.
+2.  **Shared Validation**: Both modes use the **Figma Gold Standard** screenshot to verify the final result in the Reflector.
+3.  **The Single Variable**: The only difference is the **Orchestration Brain**:
+    *   **Predefined Mode**: Static orchestration following a human-written script.
+    *   **Autonomous Mode**: Dynamic orchestration where the AI plans its own path.
 
 ### Mode 1: Predefined Workflow (Scenario-Based)
-
-| Component | Detail |
-| :--- | :--- |
-| **Agents (6)** | Orchestrator, Observer, Decider, Executor, Reflector, Recorder |
-| **Logic Source** | `scenario.xlsx` (Predefined steps) |
-| **Figma Role** | **Critical**. Maps nodes, traces paths, and provides Gold Standard screenshots. |
-| **Workflow** | **Discovery** (Figma) → **Execution** (Step-by-step) → **Verification** (Visual QA) → **Bridge** (Navigate to next) |
-
-**Key Advantage**: Maximum reliability and pixel-perfect design verification.
-
----
+- **Logic**: Strict index-based execution of sub-steps.
+- **Goal**: High reliability and design fidelity verification.
+- **Workflow**: `Figma Discovery -> Step-by-Step Execution -> Visual QA -> Bridge Navigation`.
 
 ### Mode 2: Autonomous Workflow (Goal-Based)
-
-| Component | Detail |
-| :--- | :--- |
-| **Agents (6)** | Orchestrator (Planner), Observer, Decider, Executor, Reflector, Recorder |
-| **Logic Source** | Scenario Description (High-level `task_goal`) |
-| **Figma Role** | **Validation Baseline**. Used to fetch the Gold Standard for final visual QA. |
-| **Workflow** | **Discovery** (Figma) → **Planning** (Next step) → **Execution** → **Progress Check** → **Re-plan** |
-
-**Key Advantage**: Uses the **same design context** as Mode 1, but with the freedom to discover the most efficient path dynamically.
-
-**To switch workflow mode**, edit `.env`:
-```env
-WORKFLOW_STRATEGY=predefined   # uses predefined/ module
-WORKFLOW_STRATEGY=autonomous   # uses autonomous/ module
-```
+- **Logic**: Real-time planning based on the `task_goal` and live UI state.
+- **Goal**: Robustness and exploratory testing.
+- **Workflow**: `Figma Discovery -> Dynamic Planning -> Execution -> Progress Check -> Re-plan`.
 
 ---
 
-### Configuration Distinction
+## Data Collection & Metrics
 
+Every test run automatically generates a **`final_metrics.json`** file in the output directory. This file is designed for direct use in your thesis and includes:
+
+- **Task Success Rate**: Binary result (SUCCESS/FAILED).
+- **Step Efficiency**: Total number of actions taken.
+- **Stagnation Frequency**: Count of loops or "stuck" states.
+- **Design Fidelity**: Reflector's judgment against the Figma Gold Standard.
+
+---
+
+## Setup & Configuration
+
+### 1. Environment Toggle (`.env`)
+Switch between modes by editing the `WORKFLOW_STRATEGY` variable:
+```env
+WORKFLOW_STRATEGY=predefined   # Runs Mode 1
+WORKFLOW_STRATEGY=autonomous   # Runs Mode 2
+```
+
+### 2. Configuration Distinction
 | Variable | Predefined (Mode 1) | Autonomous (Mode 2) |
 | :--- | :--- | :--- |
-| `WORKFLOW_STRATEGY` | Set to `predefined` | Set to `autonomous` |
-| `FIGMA_ACCESS_TOKEN` | **Required** (Path tracing/QA) | **Required** (Goal Discovery/QA) |
-| `OPENAI_API_KEY` | Used (Discovery/Bridge) | **Critical** (Planning) |
-| `TARGET_DEVICE` | Required (ADB) | Required (ADB) |
-
----
-
-## Project Structure
-
-```
-MAS AI/
-├── predefined/          ← Predefined workflow module
-│   ├── orchestrator.py  ← Figma discovery, bridge, step-manager
-│   ├── graph.py         ← LangGraph builder
-│   └── runner.py        ← run_predefined()
-│
-├── autonomous/          ← Autonomous workflow module
-│   ├── orchestrator.py  ← LLM-driven planner (no Figma)
-│   ├── graph.py         ← LangGraph builder
-│   └── runner.py        ← run_autonomous()
-│
-├── agents/              ← Shared agents (Observer, Decider, Executor, Reflector, Recorder)
-├── adapters/            ← ADB + Figma adapters
-├── core/                ← Shared models (AgentState) and utilities
-├── shared/              ← Config (.env reader)
-├── tools/               ← Observer and Executor tool sets
-├── scenario.xlsx        ← Test scenarios input
-└── main.py              ← Entry point
-```
+| `FIGMA_ACCESS_TOKEN` | **Required** (Path tracing) | **Required** (Goal Discovery) |
+| `ORCHESTRATOR_MODEL` | Used for Mapping/Bridging | **Critical** for Planning |
 
 ---
 
 ## Quick Start
-
-1. Copy `.env.example` to `.env` and fill in your keys.
-2. Set `WORKFLOW_STRATEGY` to `predefined` or `autonomous`.
-3. Connect your Android device via ADB.
-4. Run:
+1. Connect your Android device via ADB.
+2. Ensure `scenario.xlsx` contains your test cases.
+3. Run the entry point:
    ```bash
    python main.py
    ```
-5. Results are saved to `outputs/<tcs_id>_<timestamp>/`.
-
----
-
-## Experiment Metrics (Data Collection)
-
-Use the table below to record your factual metrics for each scenario:
-
-| Metric | Predefined (Mode 1) | Autonomous (Mode 2) |
-| :--- | :--- | :--- |
-| **Success Rate** | (Target: 100%) | (Target: Variable) |
-| **Step Count** | (Optimal/Fixed) | (Dynamic/Exploratory) |
-| **Token Cost** | (Predictable) | (Dynamic) |
-| **Stagnation** | (Low - Retry Logic) | (High - Planning Loops) |
-| **Visual Accuracy**| (Figma Verified) | (N/A) |
+4. Find your research data in: `outputs/<tcs_id>_<timestamp>/final_metrics.json`
