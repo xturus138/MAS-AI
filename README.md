@@ -25,28 +25,10 @@ git checkout main
 
 ---
 
-### `multiagent-workflow`
-> Predefined + Figma workflow — the last clean baseline for metrics collection.
-
-Introduces scenario-based execution from `scenario.xlsx` and full **Figma prototype integration** for visual QA validation. This branch is **preserved as-is** for experiment data collection.
-
-- **Workflow**: Load scenario → Figma discovery → Observer → Decider → Executor → Reflector → Recorder → Orchestrator → loop
-- **Orchestration**: `OrchestratorAgent` manages step index and retries
-- **Figma**: Maps navigation context to Figma frames, traces prototype paths, fetches Gold Standard screenshots
-- **Bridge**: Computes navigation steps between scenarios using Figma + LLM
-
-```bash
-git checkout multiagent-workflow
-```
-
-> ⚠️ This is the **main development timeline**. All production-level changes and future features should be added here.
-
----
-
 ### `feature/modular-workflow` ← *Experiment Branch (Permanent, Never Merged)*
 > Multi-module refactor — clean separation of Predefined and Autonomous workflows.
 
-Refactors the mixed codebase into two fully self-contained modules (`predefined/` and `autonomous/`), analogous to Kotlin multi-module clean architecture. This branch exists **solely for experiment comparison** — it is branched off `multiagent-workflow` and will never be merged into any timeline branch.
+Refactors the mixed codebase into two fully self-contained modules (`predefined/` and `autonomous/`), analogous to Kotlin multi-module clean architecture. This branch exists **solely for experiment comparison** and will never be merged into any timeline branch.
 
 - **`predefined/`** — owns Figma discovery, bridge navigation, step-index orchestration
 - **`autonomous/`** — owns LLM-driven planning, no Figma dependency
