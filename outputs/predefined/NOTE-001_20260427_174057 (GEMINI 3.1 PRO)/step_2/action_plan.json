@@ -1,0 +1,9 @@
+{
+    "action_type": "click",
+    "intent": "Mengklik tombol '+' untuk membuat catatan baru",
+    "target_id": 9,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

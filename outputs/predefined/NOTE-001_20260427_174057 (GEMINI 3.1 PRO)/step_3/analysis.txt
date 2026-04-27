@@ -1,0 +1,14 @@
+SEMANTIC_MAP:
+[1]: Part of the "Mulai tulis" placeholder text for the main note body.
+[2]: Part of the "Mulai tulis" placeholder text for the main note body.
+[3]: Part of the "Mulai tulis" placeholder text for the main note body.
+[4]: Character count indicator showing "0 karakter".
+[5]: Timestamp showing the time of note creation ("17:43").
+[6]: Timestamp showing the date of note creation ("27 April").
+[7]: Text input field for the note's Title ("Judul").
+[8]: Back navigation button to exit the note editor.
+[9]: Redo action button.
+[10]: Undo action button.
+[11]: On-Screen Keyboard for text input.
+
+SUMMARY: The screen is a new note creation interface featuring a title input field, a body text area, top navigation/editing controls, and an active on-screen keyboard for text entry.

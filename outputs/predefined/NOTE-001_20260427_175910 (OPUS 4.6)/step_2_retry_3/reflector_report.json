@@ -1,0 +1,8 @@
+{
+    "passed": false,
+    "reasoning": "Evaluation LLM error: Error code: 400 - {'error': {'message': 'Budget has been exceeded! Current cost: 3.064849376000001, Max budget: 3.0', 'type': 'budget_exceeded', 'param': None, 'code': '400'}}",
+    "step_index": 1,
+    "figma_node_id": "12:471",
+    "figma_enabled": true,
+    "figma_discrepancies": ""
+}

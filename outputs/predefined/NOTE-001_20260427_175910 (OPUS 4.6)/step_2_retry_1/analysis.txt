@@ -1,0 +1,54 @@
+SEMANTIC_MAP:
+
+- [1]: "Kebijakan Privasi" - Privacy Policy menu item label
+- [2]: Empty/decorative element near Privacy Policy
+- [3]: Empty/decorative element near Privacy Policy row
+- [4]: "LAINNYA" - Section header for "Others" settings category
+- [5]: "Jangan ganggu dihidupkan" - Description text indicating Do Not Disturb is enabled
+- [6]: Empty/decorative element in notification settings area
+- [7]: Empty/decorative element in notification settings area
+- [8]: Empty/decorative element (toggle area for sound/mute setting)
+- [9]: Empty/decorative element in notification settings area
+- [10]: "Hening atau Mainkan suara bahkan saat mode" - Description for mute/play sound setting
+- [11]: Empty/decorative element near sound settings
+- [12]: Empty/decorative element near reminder settings
+- [13]: Empty/decorative element near reminder settings
+- [14]: Empty/decorative element near reminder settings
+- [15]: "Pengingat prioritas tinggi" - High priority reminder setting label
+- [16]: Empty/decorative element in reminder section
+- [17]: Empty/decorative element in reminder section
+- [18]: "Pengingat" - Section header for "Reminder" settings
+- [19]: "dimodifikasi" - Sort option label indicating "modified" date
+- [20]: "Per tanggal Urutkan" - Sort by date option label
+- [21]: Empty/decorative element in sort section
+- [22]: Empty/decorative element in sort section
+- [23]: Empty/decorative element (sort dropdown indicator)
+- [24]: "Sedang" - Current font size value indicator ("Medium")
+- [25]: "Ukuran huruf" - Font size setting label
+- [26]: Empty/decorative element near font size
+- [27]: Empty/decorative element near style section
+- [28]: "Gaya" - Section header for "Style" settings
+- [29]: "Catatan terhapus yang berada di cloud" - Deleted notes in cloud setting label
+- [30]: Empty/decorative element near cloud deleted notes
+- [31]: Empty/decorative element near cloud sync
+- [32]: Empty/decorative element near cloud sync
+- [33]: Empty/decorative element near cloud sync toggle
+- [34]: Empty/decorative element near cloud sync
+- [35]: Empty/decorative element near cloud sync
+- [36]: "dan lainnya tugas" - Additional text about tasks in cloud sync description
+- [37]: Empty/decorative element in cloud section
+- [38]: Empty/decorative element in cloud section
+- [39]: "cloud untuk catatan" - Cloud for notes description text
+- [40]: Empty/decorative element in cloud section
+- [41]: Empty/decorative element in cloud section
+- [42]: "Xiaomi Cloud" - Xiaomi Cloud service label
+- [43]: Empty/decorative element near cloud service
+- [44]: Empty/decorative element near cloud service
+- [45]: "Hidupkan sinkronisasi" - Enable sync toggle/button label
+- [46]: Empty/decorative element near cloud service header
+- [47]: "Layanan cloud" - Cloud service section header
+- [48]: Empty/decorative element near page title
+- [49]: "Catatan" - Page title "Notes" (Settings page title)
+- [50]: Back arrow button - navigates back to previous screen
+
+SUMMARY: This is the Notes app Settings page showing cloud sync options (Xiaomi Cloud), style/font size settings, sorting preferences, reminder configurations, and privacy policy access; the back button [50] returns to the main notes list where the "+" button for creating a new note would be located.

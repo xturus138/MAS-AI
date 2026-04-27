@@ -1,0 +1,9 @@
+{
+    "action_type": "click",
+    "intent": "Navigate back to the main notes list to find the correct \"+\" button for creating a new note",
+    "target_id": 50,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

@@ -1,0 +1,9 @@
+{
+    "action_type": "click",
+    "intent": "Click the back button to save the note and return to the home page",
+    "target_id": 15,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

@@ -1,0 +1,21 @@
+{
+    "tcs_id": "NOTE-001",
+    "mode": "predefined",
+    "status": "STAGNATED",
+    "total_cycles": 5,
+    "physical_actions": 5,
+    "stagnation_count": 99,
+    "total_tokens_estimate": 26075,
+    "total_price_usd": 0.240475,
+    "total_duration_seconds": 150.89,
+    "tool_precision_rate": 100.0,
+    "recovery_attempts": 4,
+    "recovery_rate": 100.0,
+    "justification": {
+        "orchestrator_reasoning": "",
+        "reflector_final_judgment": "Evaluation LLM error: Error code: 400 - {'error': {'message': 'Budget has been exceeded! Current cost: 3.064849376000001, Max budget: 3.0', 'type': 'budget_exceeded', 'param': None, 'code': '400'}}"
+    },
+    "figma_verified": true,
+    "last_reflector_passed": false,
+    "timestamp": "2026-04-27 18:02:04"
+}

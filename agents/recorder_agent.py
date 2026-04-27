@@ -57,8 +57,9 @@ class RecorderAgent:
         is_completed = state.get("is_completed", False)
         stagnation = state.get("stagnation_count", 0)
         
-        # 1. Sum up tokens from logs
+        # 1. Sum up tokens and cost from logs
         total_tokens = 0
+        total_cost_usd = 0.0
         if session_id:
             log_dir = os.path.join("outputs", "llm_logs", session_id)
             if os.path.exists(log_dir):
@@ -67,7 +68,13 @@ class RecorderAgent:
                         try:
                             with open(os.path.join(log_dir, filename), "r", encoding="utf-8") as f:
                                 log_data = json.load(f)
-                                total_tokens += log_data.get("token_count_estimate", 0)
+                                # Support both old field name and new
+                                total_tokens += (
+                                    log_data.get("total_tokens")
+                                    or log_data.get("token_count_estimate")
+                                    or 0
+                                )
+                                total_cost_usd += log_data.get("cost_usd", 0.0)
                         except Exception:
                             continue
 
@@ -98,12 +105,13 @@ class RecorderAgent:
 
         metrics = {
             "tcs_id": state.get("tcs_id", "Unknown"),
-            "mode": "autonomous" if "task_goal" in state else "predefined",
+            "mode": "autonomous" if state.get("task_goal") else "predefined",
             "status": status,
             "total_cycles": state.get("current_step", 0),
             "physical_actions": total_actions,
             "stagnation_count": stagnation,
             "total_tokens_estimate": total_tokens,
+            "total_price_usd": round(total_cost_usd, 8),
             "total_duration_seconds": round(duration, 2),
             "tool_precision_rate": tool_precision_rate,
             "recovery_attempts": recovery_attempts,

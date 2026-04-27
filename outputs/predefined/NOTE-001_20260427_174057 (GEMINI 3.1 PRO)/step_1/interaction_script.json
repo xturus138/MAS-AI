@@ -1,0 +1,14 @@
+{
+  "scenario": "Membuat catatan baru",
+  "total_steps": 1,
+  "recording_status": "In Progress/Failed",
+  "actions": [
+    {
+      "s": 1,
+      "a": "start_app",
+      "tid": -1,
+      "why": "Membuka aplikasi Xiaomi Notes",
+      "r": "Started app: com.miui.notes"
+    }
+  ]
+}
