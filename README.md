@@ -6,7 +6,8 @@ A multi-agent system (MAS) for automated Android GUI testing, built with LangGra
 
 ## Branch Guide
 
-This repository uses a **multi-branch strategy** where each branch represents a distinct architectural stage of the research.
+This repository uses a **multi-branch strategy** where `multiagent-workflow` is the **main development timeline**.
+The `feature/modular-workflow` branch is a **permanent experiment branch** — it will never be merged back.
 
 ### `main`
 > Stable baseline — AI-Driven workflow with `SupervisorAgent`.
@@ -38,14 +39,14 @@ Introduces scenario-based execution from `scenario.xlsx` and full **Figma protot
 git checkout multiagent-workflow
 ```
 
-> ⚠️ Do NOT add new commits to this branch. It is frozen for experiment reproducibility.
+> ⚠️ This is the **main development timeline**. All production-level changes and future features should be added here.
 
 ---
 
-### `feature/modular-workflow` ← *Current Active Branch*
+### `feature/modular-workflow` ← *Experiment Branch (Permanent, Never Merged)*
 > Multi-module refactor — clean separation of Predefined and Autonomous workflows.
 
-Refactors the mixed codebase into two fully self-contained modules (`predefined/` and `autonomous/`), analogous to Kotlin multi-module clean architecture. Switch between modes via `.env`.
+Refactors the mixed codebase into two fully self-contained modules (`predefined/` and `autonomous/`), analogous to Kotlin multi-module clean architecture. This branch exists **solely for experiment comparison** — it is branched off `multiagent-workflow` and will never be merged into any timeline branch.
 
 - **`predefined/`** — owns Figma discovery, bridge navigation, step-index orchestration
 - **`autonomous/`** — owns LLM-driven planning, no Figma dependency
