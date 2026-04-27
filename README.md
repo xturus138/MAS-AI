@@ -46,6 +46,32 @@ Every test run automatically generates a **`final_metrics.json`** file in the ou
 
 ---
 
+## Comparative Analysis: Case Study `NOTE-001`
+
+Below are the results of the experiment from both orchestration setups using **identical agent logic** and tools.
+
+| Metric | AI-Driven Workflow (Autonomous) | Predefined Workflow (Scenario-Based) |
+| :--- | :--- | :--- |
+| **Status (Final Goal)** | 🔴 STAGNATED (Looping 7 cycles) | 🟢 **SUCCESS** |
+| **Efficiency (Tokens)** | 9,679 | **6,087** |
+| **Duration (Seconds)** | 265.82 | **218.92** |
+| **Physical Actions** | 3 | **5** |
+| **Stagnation Count** | 3 | **0** |
+
+### How to Replicate
+To replicate these results for your own research:
+1.  **Autonomous Run**: Set `WORKFLOW_STRATEGY=autonomous` in `.env` and run `python main.py`.
+2.  **Predefined Run**: Set `WORKFLOW_STRATEGY=predefined` in `.env` and run `python main.py`.
+3.  **Ensure Consistency**: Use the same `scenario.xlsx` and target device for both runs.
+
+### How to Find Results
+All experiment data is saved in the `outputs/` directory:
+- **Autonomous Results**: `outputs/autonomous/<tcs_id>_<timestamp>/final_metrics.json`
+- **Predefined Results**: `outputs/predefined/<tcs_id>_<timestamp>/final_metrics.json`
+- **Visual Evidence**: Each run directory contains `step_x/` folders with screenshots and `chat_logs.txt`.
+
+---
+
 ## Setup & Configuration
 
 ### 1. Environment Toggle (`.env`)
