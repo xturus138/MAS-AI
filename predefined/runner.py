@@ -122,6 +122,9 @@ def run_predefined():
         config_run  = {"recursion_limit": 150}
         final_state = app.invoke(initial_state, config=config_run)
 
+        # Finalize Metrics for this run (Skripsi Data)
+        recorder.finalize_run_metrics(final_state)
+
         print("\n=== SCENARIO SUMMARY ===")
         print(f"TCS ID : {final_state['tcs_id']}")
         print(f"Status : {'Failed' if final_state.get('stagnation_count', 0) > 3 else 'Finished'}")
