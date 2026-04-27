@@ -48,6 +48,15 @@ WORKFLOW_STRATEGY=predefined   # uses predefined/ module
 WORKFLOW_STRATEGY=autonomous   # uses autonomous/ module
 ```
 
+### Configuration Distinction
+
+| Variable | Predefined (Mode 1) | Autonomous (Mode 2) |
+| :--- | :--- | :--- |
+| `WORKFLOW_STRATEGY` | Set to `predefined` | Set to `autonomous` |
+| `FIGMA_ACCESS_TOKEN` | **Required** (Path tracing/QA) | Not Used |
+| `OPENAI_API_KEY` | Used (Discovery/Bridge) | **Critical** (Planning) |
+| `TARGET_DEVICE` | Required (ADB) | Required (ADB) |
+
 ---
 
 ## Project Structure
