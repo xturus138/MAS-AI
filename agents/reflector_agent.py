@@ -159,9 +159,15 @@ class ReflectorAgent:
         }
         new_chat_logs = state.get("chat_logs", []) + [chat_entry]
 
+        # Track recovery attempts (failed verifications that the system has to recover from)
+        recovery_attempts = state.get("recovery_attempts", 0)
+        if not passed:
+            recovery_attempts += 1
+
         return {
             "reflector_reasoning": reasoning,
             "last_reflector_passed": passed,
             "sender": "reflector",
-            "chat_logs": new_chat_logs
+            "chat_logs": new_chat_logs,
+            "recovery_attempts": recovery_attempts,
         }

@@ -1,0 +1,10 @@
+SEMANTIC_MAP:
+[1, 2, 3, 4, 5, 6, 7, 8]: Note content text area containing the text "Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android."
+[9, 10, 11]: Note metadata indicating the creation/modification date (27 April), time (13:26), and character count (50 karakter).
+[12, 13, 14]: Note title text area containing the text "Rencana Skripsi 2026".
+[15]: Back button to navigate back to the previous screen, likely the notes list or home screen.
+[16]: More options menu button, typically for actions like delete or settings.
+[17]: Share or export note button.
+
+SUMMARY:
+The screen displays an open note titled "Rencana Skripsi 2026" with its body content, offering interactive options to return to the previous screen [15], share the note [17], or open a menu for more actions [16].

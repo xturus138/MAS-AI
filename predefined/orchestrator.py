@@ -107,9 +107,11 @@ class PredefinedOrchestrator:
             HumanMessage(content=human_content),
         ]
 
-        print(f"[Predefined] Auto-discovering Figma node for '{menu_name}'...")
         try:
-            result = self._mapping_llm.invoke(messages)
+            result = self._mapping_llm.invoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=human_content)
+            ])
             if result.node_id:
                 print(f"[Predefined] Auto-discovered: '{result.frame_name}' ({result.node_id}) — {result.reasoning}")
                 return result.node_id
@@ -141,12 +143,8 @@ class PredefinedOrchestrator:
         sub_steps = scenario.get("sub_steps", [])
         scenario_desc = scenario.get("scenario_desc", "")
 
-        # Priority 1: Manual map from figma_map.json
-        figma_start_node_id = self.figma.find_flow_start_node(menu_name)
-
-        # Priority 2: LLM auto-discovery
-        if not figma_start_node_id:
-            figma_start_node_id = self._auto_discover_figma_node(menu_name, scenario_desc)
+        # LLM auto-discovery (The Orchestrator is the judge)
+        figma_start_node_id = self._auto_discover_figma_node(menu_name, scenario_desc)
 
         if not figma_start_node_id:
             print(f"[Predefined][Figma] Could not resolve a node for '{menu_name}'. Falling back to text-only.")

@@ -7,14 +7,7 @@ import requests
 from shared import config
 
 
-FIGMA_MAP_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "shared", "figma_map.json")
 
-def _load_figma_map() -> dict:
-    path = os.path.normpath(FIGMA_MAP_PATH)
-    if not os.path.exists(path):
-        return {}
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def _extract_file_key(url_or_key: str) -> str:
@@ -29,7 +22,6 @@ class FigmaAdapter:
     def __init__(self, file_key: str, access_token: str):
         self.file_key = file_key
         self.access_token = access_token
-        self._figma_map = _load_figma_map()
         self._headers = {"X-FIGMA-TOKEN": self.access_token}
         self._frames_cache: Optional[list] = None
 
@@ -67,12 +59,8 @@ class FigmaAdapter:
             return []
 
     def find_flow_start_node(self, menu_name: str) -> Optional[str]:
-        node_id = self._figma_map.get(menu_name)
-        if node_id:
-            print(f"[Figma] Start node for '{menu_name}': {node_id} (from figma_map.json)")
-        else:
-            print(f"[Figma] No manual mapping for '{menu_name}' — will attempt LLM auto-discovery.")
-        return node_id
+        """Manual mapping is deprecated. Use LLM discovery via Orchestrator."""
+        return None
 
     def get_node_context(self, node_id: str) -> dict:
         try:

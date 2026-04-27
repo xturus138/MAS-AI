@@ -29,6 +29,7 @@ class AgentState(TypedDict):
     chat_logs: List[dict]
     orchestrator_reasoning: str
     sender: str
+    next_agent: str
     stagnation_count: int          
     previous_ui_summary: str
     reflector_reasoning: str
@@ -44,3 +45,8 @@ class AgentState(TypedDict):
     figma_end_node_id: str
     figma_end_screenshot_b64: str
     figma_bridge_steps: List[str]
+    last_agent_calls: List[str]
+    session_id: str
+    start_time: float
+    end_time: float
+    recovery_attempts: int

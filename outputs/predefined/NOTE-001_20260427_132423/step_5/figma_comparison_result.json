@@ -1,0 +1,7 @@
+{
+    "tcs_id": "NOTE-001",
+    "figma_end_node_id": "10:288",
+    "passed": true,
+    "figma_discrepancies": "The provided Figma screenshot shows the note detail screen, whereas the intended end state for this step (and the live app screenshot) is the home screen list. A direct UI visual comparison is not applicable, but the functional requirement is fully met.",
+    "expected_result": "Catatan tersimpan dan terlihat di daftar utama dengan judul \"Rencana Skripsi 2026\"."
+}

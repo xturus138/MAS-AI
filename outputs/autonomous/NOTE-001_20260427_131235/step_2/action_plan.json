@@ -1,0 +1,9 @@
+{
+    "action_type": "click",
+    "intent": "Tap the Floating Action Button to open the new note creation screen",
+    "target_id": 9,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

@@ -1,5 +1,6 @@
 import os
 import datetime
+import time
 
 from shared import config
 from core.models.state import AgentState
@@ -29,33 +30,11 @@ def run_autonomous():
     """
     print("[*] Starting AUTONOMOUS Workflow...")
 
-    session_id = f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
-
-    # --- Infrastructure ---
+    # --- Infrastructure (Once per run) ---
     figma_adapter = build_figma_adapter_from_prompt(access_token=config.FIGMA_ACCESS_TOKEN)
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
-
-    # --- LLMs ---
-    perception_llm   = LLMFactory.create("observer",     session_id=session_id)
-    strategic_llm    = LLMFactory.create("decider",      session_id=session_id)
-    reflector_llm    = LLMFactory.create("reflector",    session_id=session_id)
-    orchestrator_llm = LLMFactory.create("orchestrator", session_id=session_id)
-
-    # --- Shared Agents ---
     obs_tools = ObserverTools(device_adapter)
     exe_tools = ExecutorTools(device_adapter)
-
-    observer  = ObserverAgent(perception_llm, obs_tools.get_tools())
-    decider   = DeciderAgent(strategic_llm)
-    executor  = ExecutorAgent(exe_tools)
-    reflector = ReflectorAgent(reflector_llm)
-    recorder  = RecorderAgent()
-
-    # --- Autonomous-specific Orchestrator (now with Figma adapter) ---
-    orchestrator = AutonomousOrchestrator(llm=orchestrator_llm, figma_adapter=figma_adapter)
-
-    # --- Build Graph ---
-    app = build_autonomous_graph(observer, decider, executor, reflector, recorder, orchestrator)
 
     # --- Load Scenarios ---
     xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
@@ -71,12 +50,32 @@ def run_autonomous():
     # --- Execute Each Scenario ---
     for scenario_index, target_scenario in enumerate(scenarios):
         tcs_id = target_scenario["tcs_id"]
-        print(f"\n[+] Executing Scenario {scenario_index + 1}/{len(scenarios)}: {tcs_id} ({target_scenario['scenario_desc']})")
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Unique session ID for THIS scenario run (for isolated token logs)
+        session_id = f"{tcs_id}_{timestamp}"
+        print(f"\n[+] Executing Scenario {scenario_index + 1}/{len(scenarios)}: {tcs_id} | Session: {session_id}")
 
-        timestamp  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_dir = os.path.join(config.OUTPUT_DIR, f"{tcs_id}_{timestamp}")
+        # --- LLMs (Re-created per scenario for clean context/logs) ---
+        perception_llm   = LLMFactory.create("observer",     session_id=session_id)
+        strategic_llm    = LLMFactory.create("decider",      session_id=session_id)
+        reflector_llm    = LLMFactory.create("reflector",    session_id=session_id)
+        orchestrator_llm = LLMFactory.create("orchestrator", session_id=session_id)
+
+        # --- Agents ---
+        observer  = ObserverAgent(perception_llm, obs_tools.get_tools())
+        decider   = DeciderAgent(strategic_llm)
+        executor  = ExecutorAgent(exe_tools)
+        reflector = ReflectorAgent(reflector_llm)
+        recorder  = RecorderAgent()
+        orchestrator = AutonomousOrchestrator(llm=orchestrator_llm, figma_adapter=figma_adapter)
+
+        # --- Build Graph ---
+        app = build_autonomous_graph(observer, decider, executor, reflector, recorder, orchestrator)
+
+        output_dir = os.path.join(config.OUTPUT_DIR, "autonomous", f"{tcs_id}_{timestamp}")
         if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+            os.makedirs(output_dir, exist_ok=True)
 
         # Fair Experiment: Fetch Figma context (Gold Standard) even in autonomous mode
         figma_context = orchestrator.pre_scenario_discovery(
@@ -84,17 +83,15 @@ def run_autonomous():
             output_dir=output_dir,
         )
 
-        # Use scenario description as the high-level task goal
-        task_goal = target_scenario["scenario_desc"]
-
         initial_state: AgentState = {
             "tcs_id":                   tcs_id,
+            "session_id":               session_id,
             "navigation_context":       target_scenario["navigation_context"],
             "scenario_desc":            target_scenario["scenario_desc"],
             "test_type":                target_scenario["test_type"],
             "user_role":                target_scenario["user_role"],
-            "sub_steps":                target_scenario["sub_steps"], # Keep for parity tracing
-            "task_goal":                task_goal,
+            "sub_steps":                target_scenario["sub_steps"],
+            "task_goal":                target_scenario["scenario_desc"],
             "expected_result":          target_scenario["expected_result"],
             "current_sub_step_index":   0,
             "current_step":             0,
@@ -113,18 +110,29 @@ def run_autonomous():
             "chat_logs":                [],
             "orchestrator_reasoning":   "",
             "sender":                   "START",
+            "next_agent":                "OBSERVE",
             "stagnation_count":         0,
             "previous_ui_summary":      "",
             "reflector_reasoning":      "None",
             "output_dir":               output_dir,
             "step_dir":                 "",
             "step_retry_count":         0,
-            "last_reflector_passed":    True,
+            "last_reflector_passed":    False,
+            "last_agent_calls":         [],
+            "recovery_attempts":         0,
+            "figma_enabled":            figma_context.get("figma_enabled", False),
             **figma_context,
         }
 
         config_run  = {"recursion_limit": 150}
+        
+        # Record Start Time
+        initial_state["start_time"] = time.time()
+        
         final_state = app.invoke(initial_state, config=config_run)
+        
+        # Record End Time
+        final_state["end_time"] = time.time()
 
         # Finalize Metrics for this run (Skripsi Data)
         recorder.finalize_run_metrics(final_state)

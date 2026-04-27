@@ -1,0 +1,211 @@
+[
+    {
+        "bounds": [
+            40,
+            345,
+            164,
+            374
+        ],
+        "cv_bounds": [
+            146,
+            351,
+            165,
+            375
+        ],
+        "text": "Mulai tulis",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            110,
+            348,
+            140,
+            375
+        ],
+        "cv_bounds": [
+            110,
+            348,
+            140,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            346,
+            108,
+            375
+        ],
+        "cv_bounds": [
+            41,
+            346,
+            108,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            232,
+            265,
+            309,
+            288
+        ],
+        "cv_bounds": [
+            212,
+            264,
+            307,
+            287
+        ],
+        "text": "karakter",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            42,
+            265,
+            182,
+            288
+        ],
+        "cv_bounds": [
+            121,
+            264,
+            181,
+            287
+        ],
+        "text": "27 April 13;26",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            263,
+            114,
+            290
+        ],
+        "cv_bounds": [
+            41,
+            263,
+            114,
+            290
+        ],
+        "text": "",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            38,
+            189,
+            145,
+            228
+        ],
+        "cv_bounds": [
+            41,
+            191,
+            141,
+            228
+        ],
+        "text": "Judul",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            50,
+            102,
+            98,
+            138
+        ],
+        "cv_bounds": [
+            50,
+            102,
+            98,
+            138
+        ],
+        "text": "",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            625,
+            99,
+            669,
+            141
+        ],
+        "cv_bounds": [
+            625,
+            99,
+            669,
+            141
+        ],
+        "text": "",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            527,
+            99,
+            571,
+            141
+        ],
+        "cv_bounds": [
+            527,
+            99,
+            571,
+            141
+        ],
+        "text": "",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            20,
+            1009,
+            716,
+            1585
+        ],
+        "cv_bounds": [
+            20,
+            1009,
+            716,
+            1585
+        ],
+        "text": "On-Screen Keyboard",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none"
+    }
+]

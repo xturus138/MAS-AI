@@ -1,5 +1,0 @@
-{
-  "_comment": "Map Excel 'Menu' column values to Figma flow starting point node IDs. Format: 'Menu Name': 'nodeId'. Node IDs are found in the Figma URL when a frame is selected, e.g. node-id=101-23 becomes 101:23",
-  "Login": "10:5",
-  "Xiaomi Notes": "10:5"
-}

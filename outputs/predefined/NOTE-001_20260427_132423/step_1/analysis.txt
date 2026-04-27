@@ -1,0 +1,55 @@
+SEMANTIC_MAP:
+[1]: Text label for Tasks tab
+[2]: Text label for Notes tab
+[3]: Icon for Tasks tab
+[4]: Icon for Notes tab
+[5]: Note date '13 Januari'
+[6]: Note preview text
+[7]: Note preview text
+[8]: Note title 'Djjs'
+[9]: Button to create a new note
+[10]: Note date '23 Maret'
+[11]: Note icon
+[12]: Note preview text
+[13]: Note preview text
+[14]: Note preview text
+[15]: Note title 'Adisya'
+[16]: Note date '27 Maret'
+[17]: Note preview text
+[18]: Note preview text
+[19]: Note preview text
+[20]: Note title 'Zat'
+[21]: Note date '8 April'
+[22]: Note preview text
+[23]: Note preview text
+[24]: Note preview text
+[25]: Note preview text
+[26]: Note preview text
+[27]: Note preview text
+[28]: Note preview text
+[29]: Note preview text
+[30]: Note preview text
+[31]: Note preview text
+[32]: Note preview text
+[33]: Note icon
+[34]: Note date '15 April'
+[35]: Note preview text
+[36]: Note preview text
+[37]: Note preview text
+[38]: Note title 'Jaist'
+[39]: Note title 'Rapat'
+[40]: Note title 'Notulensi'
+[41]: Filter tag icon
+[42]: Filter tag 'Tidak'
+[43]: Filter tag 'suitmedia'
+[44]: Filter tag 'PROKSI'
+[45]: Filter tag 'PKM-KC'
+[46]: Filter tag 'Semua'
+[47]: Search bar text 'catatan'
+[48]: Search bar text 'Cari'
+[49]: Search bar icon
+[50]: App title 'Catatan'
+[51]: Folder view button
+[52]: Settings button
+
+SUMMARY: The screen displays the main list of notes in the Xiaomi Notes app, featuring a search bar, filter tags, existing notes, and a floating action button [9] to create a new note.

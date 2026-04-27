@@ -1,0 +1,35 @@
+{
+  "scenario": "Membuat catatan baru",
+  "total_steps": 4,
+  "recording_status": "In Progress/Failed",
+  "actions": [
+    {
+      "s": 1,
+      "a": "none",
+      "tid": -1,
+      "why": "Step already satisfied",
+      "r": "No Action Required (Step already satisfied)"
+    },
+    {
+      "s": 2,
+      "a": "click",
+      "tid": 9,
+      "why": "Click the '+' floating action button to create a new note",
+      "r": "Clicked (601, 1363)"
+    },
+    {
+      "s": 3,
+      "a": "input",
+      "tid": 7,
+      "why": "Memasukkan judul \"Rencana Skripsi 2026\" ke dalam kolom input judul",
+      "r": "Typed: Rencana Skripsi 2026"
+    },
+    {
+      "s": 4,
+      "a": "input",
+      "tid": 3,
+      "why": "Memasukkan isi catatan: \"Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.\"",
+      "r": "Typed: Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android."
+    }
+  ]
+}

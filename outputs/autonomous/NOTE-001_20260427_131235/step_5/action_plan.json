@@ -1,0 +1,9 @@
+{
+    "action_type": "input",
+    "intent": "Enter the title text \"Rencana Skripsi 2026\" into the title input field",
+    "target_id": 7,
+    "text_payload": "Rencana Skripsi 2026",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

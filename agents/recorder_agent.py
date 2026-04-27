@@ -1,5 +1,6 @@
 import os
 import json
+import datetime
 from core.models.state import AgentState
 
 class RecorderAgent:
@@ -47,24 +48,73 @@ class RecorderAgent:
     def finalize_run_metrics(self, state: AgentState):
         """
         Generates a final metrics summary JSON for the entire test run.
-        This is used for the Skripsi (Thesis) data collection.
         """
         output_dir = state.get("output_dir", "outputs")
         metrics_path = os.path.join(output_dir, "final_metrics.json")
+        session_id = state.get("session_id", "")
         
         history = state.get("action_history", [])
         is_completed = state.get("is_completed", False)
+        stagnation = state.get("stagnation_count", 0)
         
+        # 1. Sum up tokens from logs
+        total_tokens = 0
+        if session_id:
+            log_dir = os.path.join("outputs", "llm_logs", session_id)
+            if os.path.exists(log_dir):
+                for filename in os.listdir(log_dir):
+                    if filename.endswith(".json"):
+                        try:
+                            with open(os.path.join(log_dir, filename), "r", encoding="utf-8") as f:
+                                log_data = json.load(f)
+                                total_tokens += log_data.get("token_count_estimate", 0)
+                        except Exception:
+                            continue
+
+        # 2. Calculate Duration
+        start_time = state.get("start_time", 0)
+        end_time = state.get("end_time", 0)
+        duration = end_time - start_time if end_time > start_time else 0
+
+        # 3. Build Metrics
+        status = "SUCCESS" if is_completed else "FAILED"
+        if stagnation >= 3:
+            status = "STAGNATED"
+
+        # Calculate Tool Precision Rate
+        total_actions = len(history)
+        failed_actions = sum(1 for h in history if str(h.get("r", "")).startswith("ERROR"))
+        successful_actions = total_actions - failed_actions
+        tool_precision_rate = round((successful_actions / total_actions) * 100, 1) if total_actions > 0 else 0.0
+
+        # Calculate Recovery Rate
+        recovery_attempts = state.get("recovery_attempts", 0)
+        if recovery_attempts > 0:
+            # If the run eventually succeeded despite having failures, it recovered
+            successful_recoveries = recovery_attempts - (0 if is_completed else recovery_attempts)
+            recovery_rate = round((successful_recoveries / recovery_attempts) * 100, 1)
+        else:
+            recovery_rate = 100.0 if is_completed else 0.0
+
         metrics = {
             "tcs_id": state.get("tcs_id", "Unknown"),
             "mode": "autonomous" if "task_goal" in state else "predefined",
-            "status": "SUCCESS" if is_completed else "FAILED",
-            "total_steps": len(history),
-            "stagnation_count": state.get("stagnation_count", 0),
-            "reflector_final_judgment": state.get("reflector_reasoning", "No judgment"),
+            "status": status,
+            "total_cycles": state.get("current_step", 0),
+            "physical_actions": total_actions,
+            "stagnation_count": stagnation,
+            "total_tokens_estimate": total_tokens,
+            "total_duration_seconds": round(duration, 2),
+            "tool_precision_rate": tool_precision_rate,
+            "recovery_attempts": recovery_attempts,
+            "recovery_rate": recovery_rate,
+            "justification": {
+                "orchestrator_reasoning": state.get("orchestrator_reasoning", ""),
+                "reflector_final_judgment": state.get("reflector_reasoning", "No judgment"),
+            },
             "figma_verified": state.get("figma_enabled", False),
             "last_reflector_passed": state.get("last_reflector_passed", False),
-            "timestamp": state.get("timestamp", "")
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
         try:

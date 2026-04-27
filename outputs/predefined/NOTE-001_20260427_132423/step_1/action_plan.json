@@ -1,0 +1,9 @@
+{
+    "action_type": "start_app",
+    "intent": "Membuka aplikasi Xiaomi Notes",
+    "target_id": -1,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "com.miui.notes",
+    "is_completed": true
+}

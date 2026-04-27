@@ -58,7 +58,7 @@ test_xlsx.py
 ~$*.pptx
 
 # Project specific outputs
-outputs/
+# outputs/
 output/
 logs/
 *.log

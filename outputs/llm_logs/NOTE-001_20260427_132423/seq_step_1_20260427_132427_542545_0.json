@@ -1,0 +1,86 @@
+{
+  "agent": "seq_step_1",
+  "timestamp": "20260427_132427_542545",
+  "token_count_estimate": 171,
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are the Orchestrator Agent in a MAS AI Android testing framework.\nYour job is to identify which Figma frame corresponds to the starting screen of the given test scenario.\nYou will be given a list of all frames from the Figma file. Select the one whose name best matches the test scenario's menu or navigation context.\nIf no frame is a good match, return an empty string for node_id.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "TEST SCENARIO:\n  Menu / Navigation Context: Xiaomi Notes\n  Description: Membuat catatan baru\n\nAVAILABLE FIGMA FRAMES:\n- Name: 'Homescreen Notes Start', ID: '10:5'\n- Name: 'Homescreen Notes End', ID: '12:471'\n- Name: 'New Notes', ID: '10:288'",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "blackboxai/minimax/minimax-m2.5",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 25000,
+    "ls_integration": "langchain_chat_model"
+  },
+  "tags": [
+    "seq:step:1"
+  ],
+  "kwargs": {
+    "invocation_params": {
+      "model": "blackboxai/minimax/minimax-m2.5",
+      "model_name": "blackboxai/minimax/minimax-m2.5",
+      "stream": false,
+      "max_completion_tokens": 25000,
+      "_type": "openai-chat",
+      "stop": null,
+      "response_format": "<class FigmaMappingPlan>"
+    },
+    "options": {
+      "stop": null,
+      "ls_structured_output_format": {
+        "kwargs": {
+          "method": "json_schema",
+          "strict": null
+        },
+        "schema": {
+          "title": "FigmaMappingPlan",
+          "description": "",
+          "properties": {
+            "node_id": {
+              "description": "The Figma Node ID (e.g. '10:5') of the frame that best matches the given test scenario menu/navigation context. Return an empty string if no suitable frame is found.",
+              "type": "string"
+            },
+            "frame_name": {
+              "description": "The exact name of the matched Figma frame.",
+              "type": "string"
+            },
+            "reasoning": {
+              "description": "Brief explanation of why this frame was chosen.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "node_id",
+            "frame_name",
+            "reasoning"
+          ],
+          "type": "object"
+        }
+      }
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}
