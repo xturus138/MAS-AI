@@ -203,11 +203,17 @@ class PredefinedOrchestrator:
                 "stagnation_count": 99,
             }
 
+        steps_completed_count = state.get("steps_completed_count", 0)
+        if sender in ["reflector", "recorder"] and last_passed:
+            steps_completed_count += 1
+
         update_data = {
             "current_sub_step_index": current_idx,
             "current_step": global_step + 1,
             "step_retry_count": retry_count,
             "sender": "orchestrator",
+            "is_first_verify_attempt": (retry_count == 0),
+            "steps_completed_count": steps_completed_count,
         }
 
         if current_idx < len(sub_steps):
