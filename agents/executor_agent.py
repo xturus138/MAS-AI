@@ -36,6 +36,8 @@ class ExecutorAgent:
                 "execution_result": result,
                 "action_history": new_history,
                 "sender": "executor",
+                "widget_lookup_success": widget_lookup_success,
+                "widget_lookup_fail": widget_lookup_fail,
             }
 
         if action_type in ["click", "long_click", "input"]:

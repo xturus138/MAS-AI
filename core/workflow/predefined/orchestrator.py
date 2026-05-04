@@ -204,7 +204,7 @@ class PredefinedOrchestrator:
             }
 
         steps_completed_count = state.get("steps_completed_count", 0)
-        if sender in ["reflector", "recorder"] and last_passed:
+        if sender == "recorder" and last_passed:
             steps_completed_count += 1
 
         update_data = {
