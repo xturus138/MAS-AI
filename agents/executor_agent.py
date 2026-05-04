@@ -18,6 +18,9 @@ class ExecutorAgent:
         lookup_error = None
         widgets = state.get("widgets", [])
 
+        widget_lookup_success = state.get("widget_lookup_success", 0)
+        widget_lookup_fail = state.get("widget_lookup_fail", 0)
+
         if plan.get("is_completed"):
             result = "No Action Required (Step already satisfied)"
             print(f"[Executor] {result}")
@@ -37,17 +40,19 @@ class ExecutorAgent:
 
         if action_type in ["click", "long_click", "input"]:
             target_id = plan.get("target_id", -1)
-            
+
             target_widget = next((w for w in widgets if w.get("id") == target_id), None)
-            
+
             if target_widget:
                 bounds = target_widget.get("bounds", [0, 0, 0, 0])
                 target_x = (bounds[0] + bounds[2]) // 2
                 target_y = (bounds[1] + bounds[3]) // 2
                 widget_text = target_widget.get("text", "(no text)")
                 print(f"[Executor] Resolved ID {target_id} -> click=({target_x},{target_y}) | widget='{widget_text}'")
+                widget_lookup_success += 1
             else:
                 lookup_error = f"ERROR: Target ID {target_id} not found in current UI state"
+                widget_lookup_fail += 1
 
         try:
             if lookup_error:
@@ -106,4 +111,6 @@ class ExecutorAgent:
             "previous_screenshot_path": current_screenshot,
             "screenshot_path": new_screenshot,
             "sender": "executor",
+            "widget_lookup_success": widget_lookup_success,
+            "widget_lookup_fail": widget_lookup_fail,
         }
