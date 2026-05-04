@@ -2,13 +2,14 @@ import os
 import sys
 import tempfile
 
-sys.path.append(os.getcwd())
+# Ensure project root is in sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
     from shared import config
     from adapters.figma.figma_adapter import FigmaAdapter, _extract_file_key
 except ImportError:
-    print("[-] Error: Could not import project modules. Run from the project root.")
+    print("[-] Error: Could not import project modules. Run from the project root or the test folder.")
     sys.exit(1)
 
 
