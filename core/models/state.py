@@ -55,3 +55,13 @@ class AgentState(TypedDict):
     orchestrator_instruction: str   # Current step instruction set by autonomous orchestrator
     observer_analysis_step: int     # Value of current_step when observer last ran (staleness tracking)
     is_final_step: bool             # Set by orchestrator when dispatching VERIFY for the final goal
+
+    # Research metrics counters
+    steps_completed_count: int          # incremented whenever reflector passed=True and system advances
+    total_reflector_calls: int          # total ReflectorAgent.evaluate() invocations
+    reflector_pass_count: int           # total passes (passed=True)
+    total_first_verify_calls: int       # reflector calls flagged as first-attempt (not recovery retries)
+    reflector_first_pass_count: int     # first-attempt passes
+    is_first_verify_attempt: bool       # set by orchestrator before each reflector dispatch
+    widget_lookup_success: int          # executor resolved widget ID to coordinates
+    widget_lookup_fail: int             # executor could not find widget ID in widget list
