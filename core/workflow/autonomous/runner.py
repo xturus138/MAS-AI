@@ -120,11 +120,14 @@ def run_autonomous():
             "last_reflector_passed":    False,
             "last_agent_calls":         [],
             "recovery_attempts":         0,
+            "orchestrator_instruction": "",
+            "observer_analysis_step":   -1,
+            "is_final_step":            False,
             "figma_enabled":            figma_context.get("figma_enabled", False),
             **figma_context,
         }
 
-        config_run  = {"recursion_limit": 150}
+        config_run  = {"recursion_limit": 300}
         
         # Record Start Time
         initial_state["start_time"] = time.time()

@@ -50,3 +50,8 @@ class AgentState(TypedDict):
     start_time: float
     end_time: float
     recovery_attempts: int
+
+    # Autonomous-mode fields
+    orchestrator_instruction: str   # Current step instruction set by autonomous orchestrator
+    observer_analysis_step: int     # Value of current_step when observer last ran (staleness tracking)
+    is_final_step: bool             # Set by orchestrator when dispatching VERIFY for the final goal

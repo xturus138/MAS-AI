@@ -68,7 +68,10 @@ class DeciderAgent:
         
         current_idx = state.get("current_sub_step_index", 0)
         sub_steps = state.get("sub_steps", [])
-        current_sub_step = sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish Scenario"
+        orchestrator_instruction = state.get("orchestrator_instruction", "")
+        current_sub_step = orchestrator_instruction if orchestrator_instruction else (
+            sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish Scenario"
+        )
 
         messages = self.prompt.format_messages(
             user_role=state.get('user_role', 'N/A'),

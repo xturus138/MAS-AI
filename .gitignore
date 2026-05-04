@@ -62,9 +62,15 @@ outputs/
 output/
 logs/
 *.log
+plan.md
+CLAUDE.md
+GEMINI.md
+chat.txt
 
 # IDEs
 .idea/
+.blackbox/
+.blackboxcli/
 .vscode/
 *.swp
 *.swo
@@ -76,3 +82,4 @@ logs/
 .DS_Store
 Thumbs.db
 Desktop.ini
+.blackboxcli/

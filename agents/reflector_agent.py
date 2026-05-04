@@ -42,9 +42,18 @@ class ReflectorAgent:
         test_type = state.get("test_type", "Pos.")
         sub_steps = state.get("sub_steps", [])
         current_idx = state.get("current_sub_step_index", 0)
-        
-        is_final_step = (current_idx == len(sub_steps) - 1)
-        current_instruction = sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
+
+        # In autonomous mode, orchestrator sets is_final_step explicitly.
+        # In predefined mode, derive it from the step index as before.
+        orchestrator_instruction = state.get("orchestrator_instruction", "")
+        if orchestrator_instruction:
+            # Autonomous mode: trust orchestrator's signal
+            is_final_step = state.get("is_final_step", False)
+            current_instruction = orchestrator_instruction
+        else:
+            # Predefined mode: derive from sub_steps index
+            is_final_step = (current_idx == len(sub_steps) - 1)
+            current_instruction = sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
 
         history = list(state.get("action_history") or [])
         history = prune_history_by_tokens(history, max_tokens=3000)

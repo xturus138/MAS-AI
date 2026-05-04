@@ -280,7 +280,10 @@ class ObserverAgent:
 
         current_idx = state.get("current_sub_step_index", 0)
         sub_steps = state.get("sub_steps", [])
-        current_sub_step = sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
+        orchestrator_instruction = state.get("orchestrator_instruction", "")
+        current_sub_step = orchestrator_instruction if orchestrator_instruction else (
+            sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
+        )
 
         messages = prompt.format_messages(
             scenario_desc=state.get('scenario_desc', 'N/A'),
@@ -344,6 +347,7 @@ class ObserverAgent:
             "ui_elements_summary": ui_summary_text,
             "widgets": final_widget_set,
             "observer_analysis": raw_res,
+            "observer_analysis_step": state.get("current_step", 0),
             "sender": "observer",
             "previous_ui_summary": ui_summary_text,
             "stagnation_count": new_stagnation_count,

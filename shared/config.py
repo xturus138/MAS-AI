@@ -38,6 +38,7 @@ ORCHESTRATOR_MODEL    = os.getenv("ORCHESTRATOR_MODEL", "blackboxai/google/gemin
 
 FIGMA_ACCESS_TOKEN = os.getenv("FIGMA_ACCESS_TOKEN", "")
 FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
+FIGMA_FILE_URL     = os.getenv("FIGMA_URL_QA", "")
 
 print(f"[*] Environment Loaded:")
 print(f"    - Observer Model:  {OBSERVER_MODEL}")

@@ -61,7 +61,7 @@ As the central judge, you decide which agent to invoke next based on their speci
 - 'DECIDE'
     - Purpose: To translate the semantic map into a specific, structured technical plan.
     - IN: `observer_analysis`
-    - OUT: `action_plan`
+    - OUT: `action_plan` (exactly ONE physical action)
 - 'EXECUTE'
     - Purpose: To transform the technical plan into physical interaction with the Android device.
     - IN: `action_plan`
@@ -77,10 +77,18 @@ As the central judge, you decide which agent to invoke next based on their speci
 - 'COMPLETE'
     - Purpose: To signal that the ULTIMATE EXPECTED RESULT has been fully satisfied and finalize the run.
 
-Based on the SENDER and the current state, choose the 'next_agent' and provide instructions.
+MANDATORY DISPATCH RULES — follow these exactly, they override all other reasoning:
+1. SENDER=executor → You MUST dispatch OBSERVE next. NEVER dispatch EXECUTE or DECIDE after EXECUTE without an OBSERVE in between. The screen state has changed and MUST be re-read.
+2. SENDER=observer → You SHOULD dispatch DECIDE next (unless this OBSERVE was a recovery re-check after failed VERIFY, in which case dispatch DECIDE to replan).
+3. SENDER=decider → You SHOULD dispatch EXECUTE next to carry out the action plan.
+4. After a full OBSERVE→DECIDE→EXECUTE→OBSERVE cycle that confirms progress: dispatch VERIFY to validate the result against the ULTIMATE EXPECTED RESULT.
+5. SENDER=reflector AND passed=True → If task is fully complete, dispatch RECORD then COMPLETE. If more sub-tasks remain, dispatch OBSERVE to continue.
+6. SENDER=reflector AND passed=False → dispatch OBSERVE to re-evaluate the screen, then recover.
 
 CRITICAL RULE: If the SENDER is 'reflector' and the Reflector FAILED, you MUST continue the workflow
 to recover — DO NOT dispatch to RECORD or COMPLETE until the ULTIMATE EXPECTED RESULT is met.
+
+IMPORTANT: The DECIDE agent produces exactly ONE physical action per call. Write next_step_instruction as a single atomic action (e.g., "Tap the FAB button"), not a multi-step sequence.
 """
 
 
@@ -176,10 +184,13 @@ class AutonomousOrchestrator:
             return {"figma_enabled": False}
 
         # Even in autonomous, we trace the 'expected' path from the scenario to find the Gold Standard
-        figma_end_node_id = self.figma.trace_prototype_path(figma_start_node_id, sub_steps)
+        # trace_prototype_path returns a list of node IDs — extract the final destination node.
+        path_ids = self.figma.trace_prototype_path(figma_start_node_id, sub_steps)
 
-        if not figma_end_node_id:
+        if not path_ids:
             return {"figma_enabled": False, "figma_start_node_id": figma_start_node_id}
+
+        figma_end_node_id = path_ids[-1]
 
         figma_end_screenshot_b64 = self.figma.get_node_screenshot_b64(figma_end_node_id)
         gold_standard_path = os.path.join(output_dir, "figma_gold_standard.png")
@@ -196,13 +207,22 @@ class AutonomousOrchestrator:
         """LangGraph node: LLM-driven planner that generates the next subgoal."""
         task_goal         = state.get("task_goal", "")
         expected_result   = state.get("expected_result", "")
-        observer_analysis = state.get("observer_analysis", "No analysis yet.")
+        raw_observer_analysis = state.get("observer_analysis", "No analysis yet.")
+        observer_analysis_step = state.get("observer_analysis_step", -1)
         history           = state.get("action_history", [])
         global_step       = state.get("current_step", 0)
         output_dir        = state.get("output_dir", "outputs")
         sender            = state.get("sender", "START")
         last_reflector_passed = state.get("last_reflector_passed", True)
         reflector_reasoning   = state.get("reflector_reasoning", "")
+
+        # Warn orchestrator when screen analysis is from a prior step
+        steps_stale = global_step - observer_analysis_step if observer_analysis_step >= 0 else 0
+        if steps_stale > 1:
+            staleness_label = f"[WARNING: STALE — captured {steps_stale} steps ago. Dispatch OBSERVE first to refresh.]\n"
+        else:
+            staleness_label = ""
+        observer_analysis = staleness_label + raw_observer_analysis
 
         # Fair Experiment: Provide awareness of the Figma Gold Standard if available
         figma_enabled = state.get("figma_enabled", False)
@@ -292,13 +312,15 @@ class AutonomousOrchestrator:
                 )
 
             # Global Step Limit Kill Switch
-            if global_step >= 15:
-                print(f"[Autonomous] KILL SWITCH: Global step limit (15) reached. Stopping.")
+            # Each physical action requires at minimum 3 orchestrator steps (OBSERVE→DECIDE→EXECUTE).
+            # A 5-step scenario needs ~35 orchestrator steps when VERIFY and RECORD are included.
+            if global_step >= 35:
+                print(f"[Autonomous] KILL SWITCH: Global step limit (35) reached. Stopping.")
                 return Command(
                     goto="__end__",
                     update={
                         "is_completed": False,
-                        "orchestrator_reasoning": "Global step limit (15) exceeded. Run aborted for safety.",
+                        "orchestrator_reasoning": "Global step limit (35) exceeded. Run aborted for safety.",
                         "sender": "orchestrator",
                         "stagnation_count": state.get("stagnation_count", 0) + 3
                     }
@@ -306,13 +328,15 @@ class AutonomousOrchestrator:
 
             print(f"[Autonomous] DISPATCHING TO: {target_node}")
 
+            is_final = plan.is_completed or plan.action_type == "COMPLETE"
             return Command(
                 goto=target_node,
                 update={
-                    "sub_steps":             [plan.next_step_instruction],
+                    "orchestrator_instruction": plan.next_step_instruction,
                     "current_sub_step_index": 0,
                     "current_step":          global_step + 1,
-                    "is_completed":          plan.is_completed or plan.action_type == "COMPLETE",
+                    "is_completed":          is_final,
+                    "is_final_step":         is_final,
                     "orchestrator_reasoning": plan.reasoning,
                     "next_agent":            plan.action_type.upper(),
                     "last_agent_calls":      last_calls,
