@@ -117,6 +117,15 @@ def run_predefined():
             "step_retry_count":        0,
             "last_reflector_passed":   True,
             "recovery_attempts":        0,
+            # Research metrics — initialized to zero each scenario run
+            "steps_completed_count":      0,
+            "total_reflector_calls":      0,
+            "reflector_pass_count":       0,
+            "total_first_verify_calls":   0,
+            "reflector_first_pass_count": 0,
+            "is_first_verify_attempt":    True,
+            "widget_lookup_success":      0,
+            "widget_lookup_fail":         0,
             **figma_context,
         }
 

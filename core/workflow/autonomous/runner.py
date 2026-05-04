@@ -124,6 +124,15 @@ def run_autonomous():
             "observer_analysis_step":   -1,
             "is_final_step":            False,
             "figma_enabled":            figma_context.get("figma_enabled", False),
+            # Research metrics — initialized to zero each scenario run
+            "steps_completed_count":      0,
+            "total_reflector_calls":      0,
+            "reflector_pass_count":       0,
+            "total_first_verify_calls":   0,
+            "reflector_first_pass_count": 0,
+            "is_first_verify_attempt":    True,
+            "widget_lookup_success":      0,
+            "widget_lookup_fail":         0,
             **figma_context,
         }
 
