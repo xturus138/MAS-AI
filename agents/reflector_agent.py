@@ -173,10 +173,21 @@ class ReflectorAgent:
         if not passed:
             recovery_attempts += 1
 
+        # Track reflector call and pass counters for Acc_1 and Acc_f metrics
+        total_reflector_calls = state.get("total_reflector_calls", 0) + 1
+        reflector_pass_count = state.get("reflector_pass_count", 0) + (1 if passed else 0)
+        is_first = state.get("is_first_verify_attempt", True)
+        total_first_verify_calls = state.get("total_first_verify_calls", 0) + (1 if is_first else 0)
+        reflector_first_pass_count = state.get("reflector_first_pass_count", 0) + (1 if is_first and passed else 0)
+
         return {
             "reflector_reasoning": reasoning,
             "last_reflector_passed": passed,
             "sender": "reflector",
             "chat_logs": new_chat_logs,
             "recovery_attempts": recovery_attempts,
+            "total_reflector_calls": total_reflector_calls,
+            "reflector_pass_count": reflector_pass_count,
+            "total_first_verify_calls": total_first_verify_calls,
+            "reflector_first_pass_count": reflector_first_pass_count,
         }
