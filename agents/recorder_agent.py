@@ -125,6 +125,29 @@ class RecorderAgent:
             "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
+        # Research metrics block — all 7 comparable metrics in one place
+        sub_steps_total = len(state.get("sub_steps", []))
+        steps_completed = state.get("steps_completed_count", 0)
+        total_ref_calls = state.get("total_reflector_calls", 0)
+        ref_passes = state.get("reflector_pass_count", 0)
+        first_verify_total = state.get("total_first_verify_calls", 0)
+        first_verify_passes = state.get("reflector_first_pass_count", 0)
+        lookup_ok = state.get("widget_lookup_success", 0)
+        lookup_fail = state.get("widget_lookup_fail", 0)
+
+        def _pct(num, den):
+            return round((num / den) * 100, 1) if den > 0 else None
+
+        metrics["research_metrics"] = {
+            "coverage_rate":                     _pct(steps_completed, sub_steps_total),
+            "decision_accuracy_initial_acc1":    _pct(first_verify_passes, first_verify_total),
+            "decision_accuracy_final_accf":      _pct(steps_completed, first_verify_total),
+            "verification_pass_rate":            _pct(ref_passes, total_ref_calls),
+            "widget_localization_effectiveness": _pct(lookup_ok, lookup_ok + lookup_fail),
+            "time_overhead_seconds":             round(duration, 2),
+            "token_consumption":                 total_tokens,
+        }
+
         try:
             with open(metrics_path, "w", encoding="utf-8") as f:
                 json.dump(metrics, f, indent=4)
