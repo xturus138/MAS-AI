@@ -15,8 +15,8 @@ from agents.decider_agent import DeciderAgent
 from agents.executor_agent import ExecutorAgent
 from agents.reflector_agent import ReflectorAgent
 from agents.recorder_agent import RecorderAgent
-from autonomous.orchestrator import AutonomousOrchestrator
-from autonomous.graph import build_autonomous_graph
+from core.workflow.autonomous.orchestrator import AutonomousOrchestrator
+from core.workflow.autonomous.graph import build_autonomous_graph
 
 
 def run_autonomous():

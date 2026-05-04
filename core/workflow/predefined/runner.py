@@ -15,8 +15,8 @@ from agents.decider_agent import DeciderAgent
 from agents.executor_agent import ExecutorAgent
 from agents.reflector_agent import ReflectorAgent
 from agents.recorder_agent import RecorderAgent
-from predefined.orchestrator import PredefinedOrchestrator
-from predefined.graph import build_predefined_graph
+from core.workflow.predefined.orchestrator import PredefinedOrchestrator
+from core.workflow.predefined.graph import build_predefined_graph
 
 
 def run_predefined():
