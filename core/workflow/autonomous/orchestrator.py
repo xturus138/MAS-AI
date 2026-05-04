@@ -194,7 +194,8 @@ class AutonomousOrchestrator:
 
         figma_end_screenshot_b64 = self.figma.get_node_screenshot_b64(figma_end_node_id)
         gold_standard_path = os.path.join(output_dir, "figma_gold_standard.png")
-        self.figma.save_screenshot_to_file(figma_end_node_id, gold_standard_path)
+        self.figma.save_composite_gold_standard(path_ids, gold_standard_path)
+
 
         return {
             "figma_enabled": True,
