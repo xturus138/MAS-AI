@@ -1,2 +1,0 @@
-SEMANTIC_MAP: [[1]: Note body input field with placeholder text, [2]: Note body input field, [3]: Note body input field, [4]: Character count indicator, [5]: Date and time indicator, [6]: Date indicator, [7]: Note title input field containing 'Rencana Skripsi 2026', [8]: Part of note title input field, [9]: Part of note title input field, [10]: Back button to exit the note, [11]: Save or Done button to save the note]
-SUMMARY: The screen displays a note-editing interface allowing the user to enter a title and body text, view the character count, and save or discard the note.

@@ -1,9 +1,0 @@
-{
-    "action_type": "click",
-    "intent": "Click the '+' floating action button to create a new note",
-    "target_id": 9,
-    "text_payload": "",
-    "scroll_direction": "",
-    "app_package": "",
-    "is_completed": false
-}

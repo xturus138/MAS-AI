@@ -1,9 +1,0 @@
-{
-    "action_type": "click",
-    "intent": "Click back button to navigate to home screen and verify note is saved",
-    "target_id": 15,
-    "text_payload": "",
-    "scroll_direction": "",
-    "app_package": "",
-    "is_completed": false
-}

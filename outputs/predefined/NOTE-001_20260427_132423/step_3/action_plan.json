@@ -1,9 +1,0 @@
-{
-    "action_type": "input",
-    "intent": "Memasukkan judul \"Rencana Skripsi 2026\" ke dalam kolom input judul",
-    "target_id": 7,
-    "text_payload": "Rencana Skripsi 2026",
-    "scroll_direction": "",
-    "app_package": "",
-    "is_completed": false
-}

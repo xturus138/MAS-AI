@@ -1,9 +1,0 @@
-{
-    "action_type": "click",
-    "intent": "The Xiaomi Notes app is already open and displaying the main notes list view. The step instruction to open the app is already completed.",
-    "target_id": -1,
-    "text_payload": "",
-    "scroll_direction": "",
-    "app_package": "",
-    "is_completed": true
-}

@@ -1,9 +1,0 @@
-{
-    "action_type": "click",
-    "intent": "Navigate back to the main notes list where the \"+\" button is located",
-    "target_id": 50,
-    "text_payload": "",
-    "scroll_direction": "",
-    "app_package": "",
-    "is_completed": false
-}
