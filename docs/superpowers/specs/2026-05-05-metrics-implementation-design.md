@@ -21,8 +21,10 @@ All five metrics are emitted under a `"research_metrics"` key inside `final_metr
 | Decision Accuracy Final (Acc_f) | `steps_completed_count / total_first_verify_calls × 100` | % |
 | Verification Pass Rate | `reflector_pass_count / total_reflector_calls × 100` | % |
 | Widget Localization Effectiveness | `widget_lookup_success / (widget_lookup_success + widget_lookup_fail) × 100` | % |
+| Time Overhead | `end_time − start_time` | seconds |
+| Token Consumption | summed from LLM session log files | tokens |
 
-**Time Overhead** (`total_duration_seconds`) and **Token Consumption** (`total_tokens_estimate`) already exist and are unchanged.
+All seven metrics are emitted together under `"research_metrics"` in `final_metrics.json`.
 
 ---
 
@@ -138,20 +140,32 @@ first_verify_total = state.get("total_first_verify_calls", 0)
 first_verify_passes = state.get("reflector_first_pass_count", 0)
 lookup_ok = state.get("widget_lookup_success", 0)
 lookup_fail = state.get("widget_lookup_fail", 0)
+start_time = state.get("start_time", 0)
+end_time = state.get("end_time", 0)
+duration = round(end_time - start_time, 2) if end_time > start_time else 0
+
+# Token consumption: reuse the existing session-log summation logic
+total_tokens = 0
+total_cost_usd = 0.0
+# (same log-scanning loop already in finalize_run_metrics)
 
 def pct(num, den):
     return round((num / den) * 100, 1) if den > 0 else None
 
 research_metrics = {
-    "coverage_rate":                    pct(steps_completed, sub_steps_total),
-    "decision_accuracy_initial_acc1":   pct(first_verify_passes, first_verify_total),
-    "decision_accuracy_final_accf":     pct(steps_completed, first_verify_total),
-    "verification_pass_rate":           pct(reflector_passes, total_reflector),
+    "coverage_rate":                     pct(steps_completed, sub_steps_total),
+    "decision_accuracy_initial_acc1":    pct(first_verify_passes, first_verify_total),
+    "decision_accuracy_final_accf":      pct(steps_completed, first_verify_total),
+    "verification_pass_rate":            pct(reflector_passes, total_reflector),
     "widget_localization_effectiveness": pct(lookup_ok, lookup_ok + lookup_fail),
+    "time_overhead_seconds":             duration,
+    "token_consumption":                 total_tokens,
 }
 ```
 
 `None` is emitted when denominator is zero (e.g., no widget-ID actions taken), making missing data explicit rather than a misleading 0%.
+
+Token and duration values are the same computed values already used at the top-level of `final_metrics.json` — no double-computation, just referenced together in the `research_metrics` block.
 
 ---
 
@@ -184,6 +198,12 @@ Sanity check: monitors raw reflector reliability across all calls including retr
 
 **Widget Localization Effectiveness**
 Only `click`, `long_click`, `input` actions contribute. A lower value in autonomous mode indicates the planner is referencing widget IDs that the Observer didn't detect — a cross-agent coordination failure specific to LLM-driven planning.
+
+**Time Overhead**
+Wall-clock seconds from `start_time` to `end_time`. Direct proxy for tester productivity impact. Compare against the 3.82-hour manual QA baseline cited in the research context.
+
+**Token Consumption**
+Summed from all per-agent LLM session log files under `outputs/llm_logs/{session_id}/`. Measures the API cost of one full scenario run. Expected to be substantially higher in autonomous mode due to the additional orchestrator planning calls.
 
 ---
 
