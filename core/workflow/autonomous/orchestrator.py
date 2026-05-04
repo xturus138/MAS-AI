@@ -217,6 +217,10 @@ class AutonomousOrchestrator:
         last_reflector_passed = state.get("last_reflector_passed", True)
         reflector_reasoning   = state.get("reflector_reasoning", "")
 
+        steps_completed_count = state.get("steps_completed_count", 0)
+        if sender == "reflector" and last_reflector_passed:
+            steps_completed_count += 1
+
         # Warn orchestrator when screen analysis is from a prior step
         steps_stale = global_step - observer_analysis_step if observer_analysis_step >= 0 else 0
         if steps_stale > 1:
@@ -287,6 +291,10 @@ class AutonomousOrchestrator:
                 "RECORD":  "recorder_node",
             }
             target_node = node_map.get(plan.action_type.upper(), "observer_node")
+
+            # First attempt: True unless this is a recovery VERIFY after a failed reflector
+            is_first_verify = not (sender == "reflector" and not last_reflector_passed)
+
             if plan.is_completed or plan.action_type == "COMPLETE":
                 target_node = "__end__"
 
@@ -343,6 +351,8 @@ class AutonomousOrchestrator:
                     "last_agent_calls":      last_calls,
                     "step_dir":              step_dir,
                     "sender":                "orchestrator",
+                    "is_first_verify_attempt": is_first_verify,
+                    "steps_completed_count": steps_completed_count,
                 }
             )
         except Exception as e:
