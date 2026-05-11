@@ -67,6 +67,12 @@ CLAUDE.md
 GEMINI.md
 chat.txt
 test/output_test
+metrics.md
+council-report-*.html
+council-transcript-*.md
+
+# Research Reference Papers
+*.pdf
 
 # IDEs
 .idea/
@@ -84,3 +90,4 @@ test/output_test
 Thumbs.db
 Desktop.ini
 .blackboxcli/
+docs/superpowers/specs/2026-05-05-metrics-implementation-design.md

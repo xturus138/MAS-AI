@@ -28,7 +28,7 @@ class FigmaAdapter:
 
     def _get(self, path: str, params: dict = None) -> dict:
         url = f"{config.FIGMA_API_BASE}{path}"
-        response = requests.get(url, headers=self._headers, params=params or {}, timeout=30)
+        response = requests.get(url, headers=self._headers, params=params or {}, timeout=60)
         response.raise_for_status()
         return response.json()
 
@@ -154,9 +154,20 @@ class FigmaAdapter:
             if not image_url:
                 print(f"[Figma] WARN: No image URL returned for node {node_id}")
                 return ""
-            img_resp = requests.get(image_url, timeout=30)
-            img_resp.raise_for_status()
-            return base64.b64encode(img_resp.content).decode("utf-8")
+            
+            # S3 downloads can be slow or fail intermittently; retry up to 3 times
+            import time
+            for attempt in range(3):
+                try:
+                    img_resp = requests.get(image_url, timeout=120)
+                    img_resp.raise_for_status()
+                    return base64.b64encode(img_resp.content).decode("utf-8")
+                except Exception as e:
+                    if attempt < 2:
+                        print(f"[Figma] WARN: Image download failed (attempt {attempt+1}/3), retrying in 2s... {e}")
+                        time.sleep(2)
+                    else:
+                        raise e
         except Exception as e:
             print(f"[Figma] WARN: Could not get screenshot for node {node_id}: {e}")
             return ""

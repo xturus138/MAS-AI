@@ -138,8 +138,15 @@ class RecorderAgent:
         def _pct(num, den):
             return round((num / den) * 100, 1) if den > 0 else None
 
+        # Autonomous = binary goal achievement; predefined = granular step-completion ratio
+        mode = metrics["mode"]
+        if mode == "autonomous":
+            coverage_rate = 100.0 if is_completed else 0.0
+        else:
+            coverage_rate = _pct(steps_completed, sub_steps_total)
+
         metrics["research_metrics"] = {
-            "coverage_rate":                     _pct(steps_completed, sub_steps_total),
+            "coverage_rate":                     coverage_rate,
             "decision_accuracy_initial_acc1":    _pct(first_verify_passes, first_verify_total),
             "decision_accuracy_final_accf":      _pct(steps_completed, first_verify_total),
             "verification_pass_rate":            _pct(ref_passes, total_ref_calls),

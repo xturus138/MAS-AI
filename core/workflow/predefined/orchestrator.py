@@ -229,6 +229,9 @@ class PredefinedOrchestrator:
             print(f"[Predefined] Dispatching: {sub_steps[current_idx]}")
         else:
             update_data["is_completed"] = True
+            update_data["orchestrator_reasoning"] = (
+                f"All {len(sub_steps)} predefined sub-steps completed and verified successfully."
+            )
             print("[Predefined] All steps verified. Scenario success.")
 
         return update_data

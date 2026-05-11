@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.types import Command
@@ -28,19 +27,16 @@ class AutonomousPlan(BaseModel):
     )
 
 
-class FigmaMappingPlan(BaseModel):
-    node_id: str = Field(
+class FigmaFlowPlan(BaseModel):
+    path_ids: list = Field(
         description=(
-            "The Figma Node ID (e.g. '10:5') of the frame that best matches "
-            "the given test scenario menu/navigation context. "
-            "Return an empty string if no suitable frame is found."
+            "The ordered list of Figma Node IDs (e.g. ['10:5', '12:1']) that represent "
+            "the full prototype flow from the start screen to the expected end screen "
+            "for this scenario. Return an empty list if no path can be resolved."
         )
     )
-    frame_name: str = Field(
-        description="The exact name of the matched Figma frame."
-    )
     reasoning: str = Field(
-        description="Brief explanation of why this frame was chosen."
+        description="Brief explanation of why this start screen and flow were chosen."
     )
 
 
@@ -110,57 +106,13 @@ class AutonomousOrchestrator:
         self.llm = llm
         self.figma = figma_adapter
         self._planner_llm = llm.with_structured_output(AutonomousPlan) if llm else None
-        self._mapping_llm = llm.with_structured_output(FigmaMappingPlan) if llm else None
-
-    def _auto_discover_figma_node(self, menu_name: str, scenario_desc: str) -> Optional[str]:
-        """Ask the LLM to match the scenario's menu context to a Figma frame."""
-        if not self.figma or not self._mapping_llm:
-            return None
-
-        frames = self.figma.get_all_frames()
-        if not frames:
-            print("[Autonomous] No frames returned from Figma, cannot auto-discover.")
-            return None
-
-        frames_list = "\n".join([f"- Name: '{f['name']}', ID: '{f['id']}'" for f in frames])
-
-        system_prompt = (
-            "You are the Orchestrator Agent in a MAS AI Android testing framework.\n"
-            "Your job is to identify which Figma frame corresponds to the starting screen "
-            "of the given test scenario.\n"
-            "You will be given a list of all frames from the Figma file. "
-            "Select the one whose name best matches the test scenario's menu or navigation context.\n"
-            "If no frame is a good match, return an empty string for node_id."
-        )
-        human_content = (
-            f"TEST SCENARIO:\n"
-            f"  Menu / Navigation Context: {menu_name}\n"
-            f"  Description: {scenario_desc}\n\n"
-            f"AVAILABLE FIGMA FRAMES:\n{frames_list}"
-        )
-
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=human_content),
-        ]
-
-        try:
-            print(f"[Autonomous] Auto-discovering Figma node for '{menu_name}'...")
-            result = self._mapping_llm.invoke(messages)
-            if result.node_id:
-                print(f"[Autonomous] Auto-discovered: '{result.frame_name}' ({result.node_id}) — {result.reasoning}")
-                return result.node_id
-            else:
-                print(f"[Autonomous] LLM could not find a matching frame for '{menu_name}'.")
-                return None
-        except Exception as e:
-            print(f"[Autonomous] Auto-discovery failed: {e}")
-            return None
+        self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
 
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """
-        Fair Experiment: Provide Autonomous mode with the same Figma Gold Standard 
-        as the Predefined mode.
+        Fair Experiment: Provide Autonomous mode with the same Figma Gold Standard
+        as Predefined mode — using the full prototype graph so the LLM can reason
+        about the complete path from start to end, not just find the start frame.
         """
         figma_enabled = self.figma is not None
 
@@ -174,36 +126,59 @@ class AutonomousOrchestrator:
             }
 
         menu_name = scenario.get("navigation_context", "")
-        sub_steps = scenario.get("sub_steps", []) # Optional for autonomous, but helps tracing end node
         scenario_desc = scenario.get("scenario_desc", "")
+        sub_steps_raw = "\n".join([f"- {s}" for s in scenario.get("sub_steps", [])])
 
-        # LLM auto-discovery (The Orchestrator is the judge)
-        figma_start_node_id = self._auto_discover_figma_node(menu_name, scenario_desc)
+        flow_summary = self.figma.get_flow_summary()
 
-        if not figma_start_node_id:
+        system_prompt = (
+            "You are the Orchestrator Agent in a MAS AI Android testing framework.\n"
+            "Your task is to analyze a Figma prototype flow and a test scenario to "
+            "determine the correct sequence of screens (frames) the app should pass through.\n\n"
+            "RULES:\n"
+            "1. Identify the 'Start' frame that matches the scenario's menu context.\n"
+            "2. Follow the connections (transitions) in the Figma file to reach the 'End' frame "
+            "that fulfills the scenario's expected result.\n"
+            "3. Return the full path of Node IDs in chronological order."
+        )
+        human_content = (
+            f"TEST SCENARIO:\n"
+            f"  Menu Context: {menu_name}\n"
+            f"  Description: {scenario_desc}\n"
+            f"  Test Steps:\n{sub_steps_raw}\n\n"
+            f"FIGMA PROTOTYPE GRAPH:\n{flow_summary}"
+        )
+
+        print(f"[Autonomous] Planning Figma flow for '{menu_name}'...")
+        try:
+            result = self._mapping_llm.invoke([
+                SystemMessage(content=system_prompt),
+                HumanMessage(content=human_content)
+            ])
+
+            if not result.path_ids:
+                print("[Autonomous] LLM could not resolve a Figma path. Falling back to text-only.")
+                return {"figma_enabled": False}
+
+            start_id = result.path_ids[0]
+            end_id = result.path_ids[-1]
+            print(f"[Autonomous] Flow Planned: {result.path_ids} ({result.reasoning})")
+
+            figma_end_screenshot_b64 = self.figma.get_node_screenshot_b64(end_id)
+            gold_standard_path = os.path.join(output_dir, "figma_gold_standard.png")
+            self.figma.save_composite_gold_standard(result.path_ids, gold_standard_path)
+
+            return {
+                "figma_enabled": True,
+                "figma_start_node_id": start_id,
+                "figma_end_node_id": end_id,
+                "figma_end_screenshot_b64": figma_end_screenshot_b64,
+                "figma_bridge_steps": [],
+            }
+        except Exception as e:
+            print(f"[Autonomous] Figma flow planning failed: {e}")
             return {"figma_enabled": False}
 
-        # Even in autonomous, we trace the 'expected' path from the scenario to find the Gold Standard
-        # trace_prototype_path returns a list of node IDs — extract the final destination node.
-        path_ids = self.figma.trace_prototype_path(figma_start_node_id, sub_steps)
-
-        if not path_ids:
-            return {"figma_enabled": False, "figma_start_node_id": figma_start_node_id}
-
-        figma_end_node_id = path_ids[-1]
-
-        figma_end_screenshot_b64 = self.figma.get_node_screenshot_b64(figma_end_node_id)
-        gold_standard_path = os.path.join(output_dir, "figma_gold_standard.png")
-        self.figma.save_composite_gold_standard(path_ids, gold_standard_path)
-
-
-        return {
-            "figma_enabled": True,
-            "figma_start_node_id": figma_start_node_id,
-            "figma_end_node_id": figma_end_node_id,
-            "figma_end_screenshot_b64": figma_end_screenshot_b64,
-            "figma_bridge_steps": [],
-        }
     def orchestrate(self, state: AgentState) -> dict:
         """LangGraph node: LLM-driven planner that generates the next subgoal."""
         task_goal         = state.get("task_goal", "")
