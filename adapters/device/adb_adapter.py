@@ -23,12 +23,12 @@ class ADBAdapter(IDeviceClient):
         """
         print("[*] Calibrating coordinate scaling...")
         try:
-            # Take a test screenshot to find native pixel resolution
+            
             img = self.d.screenshot(format='opencv')
             if img is not None:
                 native_h, native_w = img.shape[:2]
                 
-                # Get device reported logical resolution
+                
                 logical_w = self.d.info.get('displayWidth')
                 logical_h = self.d.info.get('displayHeight')
                 

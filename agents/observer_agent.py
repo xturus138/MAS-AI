@@ -7,7 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.types import Command
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
-from core.utils.toons_helper import compress_and_report
+from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 
 
 class ObserverAgent:
@@ -18,23 +18,8 @@ class ObserverAgent:
         self.detect_visual_elements = tools[2]
         self.annotate_screenshot = tools[3]
         self.check_keyboard_state = tools[4]
-    
-        self.base_output = "outputs"
-        self.dirs = {
-            "crops": os.path.join(self.base_output, "crops"),
-            "analysis": os.path.join(self.base_output, "analysis"),
-            "json": os.path.join(self.base_output, "json"),
-            "merged": os.path.join(self.base_output, "merged")
-        }
-        for d in self.dirs.values():
-            if not os.path.exists(d):
-                os.makedirs(d)
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
-        """
-        Reads an image, resizes it to a maximum height (720px) and encodes it
-        as WebP at 70% quality to minimize base64 token usage.
-        """
         img = cv2.imread(image_path)
         if img is None:
             return ""
@@ -54,10 +39,6 @@ class ObserverAgent:
         return base64.b64encode(buffer).decode("utf-8")
 
     def _merge_ocr_blocks(self, ocr_elements: list) -> list:
-        """
-        Merges OCR text blocks that are on the same line and close to each other horizontally.
-        This prevents splitting a single label into multiple widgets.
-        """
         if not ocr_elements:
             return []
         
@@ -93,7 +74,6 @@ class ObserverAgent:
         return merged
 
     def _group_keyboard_elements(self, elements: list, image_height: int, is_kb_shown: bool) -> list:
-        """Groups dense clusters of elements in the lower half of the screen into a single Keyboard element."""
         if not is_kb_shown:
             return elements
 
@@ -124,7 +104,6 @@ class ObserverAgent:
                 "type": "container"
             }
             non_kb_elements.append(keyboard_el)
-            print(f"[Observer] ADB confirmed Keyboard is open. Grouped {len(kb_candidates)} bottom-half elements into a single body.")
             return non_kb_elements
             
         return elements
@@ -235,15 +214,22 @@ class ObserverAgent:
         return final_widget_set
 
     def analyze(self, state: AgentState) -> Command:
-        print(f"\n--- CYCLE {state['current_step'] + 1} | [Observer] Starting Pure Vision Perception... ---")
+        print(f"\n--- CYCLE {state.get('current_step', 0)} | [Observer] Starting Pure Vision Perception... ---")
+        
+        step_dir = state.get("step_dir", "outputs")
+        raw_path = os.path.join(step_dir, "raw.png")
+        ocr_path = os.path.join(step_dir, "ocr.json")
+        cv_path = os.path.join(step_dir, "cv.json")
+        merged_path = os.path.join(step_dir, "merged.json")
+        annotated_path = os.path.join(step_dir, "annotated.png")
+        analysis_path = os.path.join(step_dir, "analysis.txt")
 
         print("[Observer] Taking screenshot...")
-        raw_image_path = self.take_screenshot.invoke({})
-        basename = os.path.basename(raw_image_path).replace(".png", "")
+        self.take_screenshot.invoke({"target_path": raw_path})
 
         print("[Observer] Running Vision Pipeline (OCR + CV)...")
-        ocr_raw = self.ocr_extract_text.invoke({"image_path": raw_image_path})
-        cv_raw = self.detect_visual_elements.invoke({"image_path": raw_image_path})
+        ocr_raw = self.ocr_extract_text.invoke({"image_path": raw_path, "save_path": ocr_path})
+        cv_raw = self.detect_visual_elements.invoke({"image_path": raw_path, "save_path": cv_path})
 
         try:
             ocr_elements = json.loads(ocr_raw)
@@ -258,22 +244,20 @@ class ObserverAgent:
         except:
             is_kb_shown = False
 
-        img = cv2.imread(raw_image_path)
+        img = cv2.imread(raw_path)
         image_height = img.shape[0] if img is not None else 1920
 
-        print("[Observer] Merging and filtering visual elements (ScenGen)...")
+        print("[Observer] Merging and filtering visual elements...")
         final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
-        print(f"[Observer] Final vision widget count: {len(final_widget_set)}")
-
-        merged_json_path = os.path.join(self.dirs["merged"], f"merged_{basename}.json")
-        with open(merged_json_path, "w", encoding="utf-8") as f:
+        
+        with open(merged_path, "w", encoding="utf-8") as f:
             json.dump(final_widget_set, f, indent=4, ensure_ascii=False)
-        print(f"[Observer] Merged results saved to: {merged_json_path}")
 
         print("[Observer] Annotating screenshot...")
-        annotated_path = self.annotate_screenshot.invoke({
-            "image_path": raw_image_path,
-            "elements": final_widget_set
+        self.annotate_screenshot.invoke({
+            "image_path": raw_path,
+            "elements": final_widget_set,
+            "save_path": annotated_path
         })
 
         print("[Observer] Calling multimodal LLM for semantic interpretation...")
@@ -284,28 +268,32 @@ class ObserverAgent:
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", "You are a Perception Agent. Analyze an annotated Android screenshot and map every visible ID to its UI function.\n"
-                       "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys (A, B, C, Enter, etc.).\n"
+                       "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys.\n"
                        "OUTPUT FORMAT (strict):\n"
                        "SEMANTIC_MAP: [[ID]: Description, ...]\n"
                        "SUMMARY: One sentence describing the screen and key actions available."),
             ("human", [
-                {"type": "text", "text": "Goal: {task_goal}\nSubgoal: {subgoal}\nElements: {elements_json}\n\nMap every ID in the screenshot to its function. Identify interactive elements (buttons, inputs, nav icons) precisely. Skip interpreting individual keyboard keys if they appear."},
+                {"type": "text", "text": "Scenario: {scenario_desc}\nCurrent Instruction: {current_sub_step}\nElements: {elements_json}\n\nMap every ID in the screenshot to its function. Identify interactive elements precisely."},
                 {"type": "image_url", "image_url": {"url": "data:image/webp;base64,{img_b64}"}}
             ])
         ])
 
+        current_idx = state.get("current_sub_step_index", 0)
+        sub_steps = state.get("sub_steps", [])
+        orchestrator_instruction = state.get("orchestrator_instruction", "")
+        current_sub_step = orchestrator_instruction if orchestrator_instruction else (
+            sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
+        )
+
         messages = prompt.format_messages(
-            task_goal=state['task_goal'],
-            subgoal=state.get('current_subgoal', ''),
+            scenario_desc=state.get('scenario_desc', 'N/A'),
+            current_sub_step=current_sub_step,
             elements_json=elements_json,
             img_b64=img_b64
         )
 
         try:
-            import sys
-            print("[Observer] Translating vision to semantics ", end="", flush=True)
             chunks = []
-            
             for chunk in self.llm.stream(
                 messages,
                 config={
@@ -313,11 +301,9 @@ class ObserverAgent:
                     "timeout": 45.0
                 }
             ):
-                print(".", end="", flush=True)
                 chunks.append(chunk.content)
                 
             raw_res = "".join(chunks)
-            print("\n[Observer] Full semantic interpretation received.")
         except Exception as e:
             print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
             return Command(
@@ -329,14 +315,10 @@ class ObserverAgent:
                 }
             )
 
-        analysis_path = os.path.join(self.dirs["analysis"], f"analysis_{basename}.txt")
         with open(analysis_path, "w", encoding="utf-8") as f:
             f.write(raw_res)
-        print(f"[Observer] Semantic analysis saved to: {analysis_path}")
 
-        
         filtered_widgets = final_widget_set[:50]
-
         summary_data = [
             {"id": el.get("id", "?"), "cls": el.get("class", "Widget"), "text": el.get("text", "")}
             for el in filtered_widgets
@@ -350,16 +332,24 @@ class ObserverAgent:
         else:
             new_stagnation_count = 0
 
+        chat_entry = {
+            "agent": "observer",
+            "step": state.get("current_step", 0),
+            "content": f"RESPONSE:\n{raw_res}"
+        }
+        new_chat_logs = state.get("chat_logs", []) + [chat_entry]
+
         return {
-            "screenshot_path": raw_image_path,
+            "screenshot_path": raw_path,
             "annotated_screenshot_path": annotated_path,
             "ocr_result": ocr_raw,
             "detected_elements": cv_raw,
             "ui_elements_summary": ui_summary_text,
             "widgets": final_widget_set,
             "observer_analysis": raw_res,
-            "current_step": state["current_step"] + 1,
+            "observer_analysis_step": state.get("current_step", 0),
             "sender": "observer",
             "previous_ui_summary": ui_summary_text,
             "stagnation_count": new_stagnation_count,
+            "chat_logs": new_chat_logs,
         }

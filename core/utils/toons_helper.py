@@ -26,3 +26,16 @@ def compress_and_report(data, label: str, agent: str) -> str:
         )
 
     return compressed_str
+
+def prune_history_by_tokens(history: list, max_tokens: int = 5000) -> list:
+    if not history:
+        return []
+    
+    current_history = list(history)
+    while current_history:
+        history_str = json.dumps(current_history)
+        if count_tokens_in_text(history_str) <= max_tokens:
+            break
+        current_history.pop(0)
+        
+    return current_history

@@ -1,31 +1,65 @@
 # MAS AI — Multi-Agent Android Testing Framework
 
-A multi-agent system (MAS) for automated Android GUI testing, built with LangGraph. Agents collaborate to observe, decide, execute, verify, and record test actions on a real Android device.
+A multi-agent system (MAS) for automated Android GUI testing, built with LangGraph. This framework supports fair comparative orchestration, enabling robust evaluation between predefined scripts and autonomous, LLM-driven task completion.
 
 ---
 
-## Primary Branch
+## Architecture & Modes
 
-This is the **main development timeline** of the MAS AI project. It is currently being evolved to host a fully integrated multi-agent system that combines:
+This framework operates on a **Shared Variable Experiment Model**, giving both workflows the exact same visual context and data baseline to perform operations.
 
-1.  **Autonomous Goal-Seeking**: The agent can navigate and interact with the app purely based on high-level goals.
-2.  **Design-Verified Scenarios**: Full integration with **Figma Prototypes** to ensure the app matches the intended design ("Gold Standard").
-3.  **Comprehensive Toolset**: Built-in ADB adapters, OCR/CV perception, and session recording.
+### 1. Predefined Workflow (Scenario-Based)
+- **Logic**: Strict index-based execution of sub-steps defined in `scenario.xlsx`.
+- **Goal**: High reliability and precise regression verification against designers' intent.
+- **Key Flow**: `Figma Discovery -> Step-by-Step Execution -> Visual QA -> Bridge Navigation`.
+
+### 2. Autonomous Workflow (Goal-Based)
+- **Logic**: Dynamic real-time planning based purely on the `task_goal` and live UI analysis.
+- **Goal**: Robustness and unstructured exploratory testing.
+- **Key Flow**: `Figma Discovery -> Dynamic Planning -> Execution -> Progress Check -> Re-plan`.
 
 ---
 
-## Project Status
+## Core Features
 
-- **Figma Integration**: [In Progress] Migrating from `multiagent-workflow` branch.
-- **Modular Architecture**: [Experimental] See `feature/modular-workflow` for comparison testing.
+- **Figma Integration**: Automatically pulls prototype transitions to synthesize a "Gold Standard" screenshot used for truth verification.
+- **Smart Re-Routing (Bridge)**: Dynamically computes navigation steps to bridge the app from its current state to the start state of the next scenario.
+- **Self-Correction**: The **Reflector Agent** sanity-checks results after every step, triggering iterative recovery if a navigation fails.
+- **Cost Observability**: Real-time dollar cost tracking for multi-provider LLM payloads (Google, Anthropic, OpenAI, DeepSeek, etc.).
 
 ---
 
-## Quick Start
+## Data Collection & Metrics
 
-1. Copy `.env.example` to `.env` and fill in your keys.
-2. Connect your Android device via ADB.
-3. Run:
-   ```bash
-   python main.py
-   ```
+Every test run generates highly granular diagnostic payloads in the output directory, including:
+
+- **`final_metrics.json`**: Captures success status, efficiency metrics (steps, tokens elapsed), and design fidelity.
+- **Execution Artifacts**: Snapshots, OCR readouts, `chat_logs.txt`, and individual tool output directories.
+
+---
+
+## Setup & Quick Start
+
+### 1. Pre-requisites
+1. Connect your physical Android device or emulator via ADB.
+2. Ensure USB debugging is permitted.
+
+### 2. Environment
+Copy the configuration template and configure your models and keys:
+```bash
+cp .env.example .env
+```
+
+### 3. Toggle Execution Mode
+Switch between strategies by updating `WORKFLOW_STRATEGY` in `.env`:
+```env
+WORKFLOW_STRATEGY=predefined   # Scenario-based execution
+WORKFLOW_STRATEGY=autonomous   # Goal-driven exploration
+```
+
+### 4. Launch
+Run the framework router:
+```bash
+python main.py
+```
+Find all results, screenshots, and metrics in the `outputs/` directory structure.

@@ -44,7 +44,7 @@ class ExecutorTools:
 
     def start_app(self, package_name: str) -> str:
         self.d.app_start(package_name)
-        time.sleep(4) # Wait a bit longer for app to fully start
+        time.sleep(4) 
         self.d.wait_idle(timeout=10.0)
         time.sleep(1)
         return f"Started app: {package_name}"

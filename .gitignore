@@ -14,37 +14,80 @@ eggs/
 lib/
 lib64/
 parts/
-sdist/
 var/
 wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 
 # Virtual Environment
 venv/
 .venv/
 ENV/
+env.bak/
+venv.bak/
 
 # Configuration and Secrets
-/config.py
 .env
+.env.*
+!.env.example
+config.py
 .flaskenv
 
 # Temporary and local files
 tmp_xml.xml
+scratch/
+check_models.py
+clean_outputs.py
+test_xlsx.py
+
+# Excel/Office relative temporary files
+~$*.xlsx
+~$*.docx
+~$*.pptx
 
 # Project specific outputs
 outputs/
 output/
 logs/
 *.log
+plan.md
+CLAUDE.md
+GEMINI.md
+chat.txt
+test/output_test
+metrics.md
+council-report-*.html
+council-transcript-*.md
+
+# Research Reference Papers
+*.pdf
 
 # IDEs
 .idea/
+.blackbox/
+.blackboxcli/
+.vscode/
 *.swp
 *.swo
+.project
+.pydevproject
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+.blackboxcli/
+docs/superpowers/specs/2026-05-05-metrics-implementation-design.md
