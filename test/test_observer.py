@@ -4,11 +4,8 @@ import glob
 import json
 import cv2
 
-# Ensure project root is in sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# ── Only depends on observer_tools.py ────────────────────────────────────────
-# Any changes made to tools/observer_tools.py are automatically picked up here.
 from tools.observer_tools import ObserverTools
 
 

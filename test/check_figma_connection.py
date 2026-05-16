@@ -2,7 +2,6 @@ import os
 import sys
 import tempfile
 
-# Ensure project root is in sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 try:
@@ -41,9 +40,7 @@ def _build_adapter() -> FigmaAdapter | None:
     return FigmaAdapter(file_key=file_key, access_token=token)
 
 
-# ---------------------------------------------------------------------------
-# Shared / Auth check
-# ---------------------------------------------------------------------------
+
 
 def check_auth() -> bool:
     import requests
@@ -70,15 +67,6 @@ def check_auth() -> bool:
     return False
 
 
-# ---------------------------------------------------------------------------
-# Predefined-mode checks
-# Predefined orchestrator calls:
-#   figma.get_flow_summary()
-#   figma.get_all_frames()
-#   figma.get_node_screenshot_b64(end_id)
-#   figma.save_composite_gold_standard(path_ids, output_path)
-#   figma.get_node_context(node_id)           ← bridge computation
-# ---------------------------------------------------------------------------
 
 def check_predefined_mode(adapter: FigmaAdapter) -> bool:
     print("\n" + "=" * 55)
@@ -86,7 +74,6 @@ def check_predefined_mode(adapter: FigmaAdapter) -> bool:
     print("=" * 55)
     all_passed = True
 
-    # 1. get_all_frames — needed for flow mapping LLM prompt
     print("\n[1] get_all_frames() ...")
     frames = adapter.get_all_frames()
     if frames:
@@ -95,7 +82,6 @@ def check_predefined_mode(adapter: FigmaAdapter) -> bool:
         print(f"{FAIL} No frames returned. Check the file key and token scopes.")
         all_passed = False
 
-    # 2. get_flow_summary — fed to the mapping LLM as the prototype graph
     print("\n[2] get_flow_summary() ...")
     summary = adapter.get_flow_summary()
     if summary and "No Figma frames" not in summary:
@@ -111,7 +97,6 @@ def check_predefined_mode(adapter: FigmaAdapter) -> bool:
 
     first_id = frames[0]["id"]
 
-    # 3. get_node_context — used by bridge computation to get next-screen name
     print(f"\n[3] get_node_context({first_id!r}) ...")
     context = adapter.get_node_context(first_id)
     if context:
@@ -121,7 +106,6 @@ def check_predefined_mode(adapter: FigmaAdapter) -> bool:
         print(f"{FAIL} Empty context returned for node {first_id!r}")
         all_passed = False
 
-    # 4. get_node_screenshot_b64 — fetches end-state Gold Standard for Reflector
     print(f"\n[4] get_node_screenshot_b64({first_id!r}) ...")
     b64 = adapter.get_node_screenshot_b64(first_id)
     if b64:
@@ -130,7 +114,6 @@ def check_predefined_mode(adapter: FigmaAdapter) -> bool:
         print(f"{FAIL} No screenshot returned for node {first_id!r}")
         all_passed = False
 
-    # 5. save_composite_gold_standard — builds the side-by-side composite image
     print(f"\n[5] save_composite_gold_standard([{first_id!r}]) ...")
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         tmp_path = tmp.name
@@ -151,14 +134,7 @@ def check_predefined_mode(adapter: FigmaAdapter) -> bool:
     return all_passed
 
 
-# ---------------------------------------------------------------------------
-# Autonomous-mode checks
-# Autonomous orchestrator calls:
-#   figma.get_all_frames()                            ← LLM auto-discovery
-#   figma.trace_prototype_path(start_id, sub_steps)  ← find end node
-#   figma.get_node_screenshot_b64(end_id)             ← Gold Standard
-#   figma.save_screenshot_to_file(end_id, path)       ← save Gold Standard
-# ---------------------------------------------------------------------------
+
 
 def check_autonomous_mode(adapter: FigmaAdapter) -> bool:
     print("\n" + "=" * 55)
@@ -166,7 +142,6 @@ def check_autonomous_mode(adapter: FigmaAdapter) -> bool:
     print("=" * 55)
     all_passed = True
 
-    # 1. get_all_frames — used by LLM to pick the starting Figma frame
     print("\n[1] get_all_frames() ...")
     frames = adapter.get_all_frames()
     if frames:
@@ -181,7 +156,6 @@ def check_autonomous_mode(adapter: FigmaAdapter) -> bool:
 
     start_id = frames[0]["id"]
 
-    # 2. trace_prototype_path — resolves the expected navigation path to find end node
     print(f"\n[2] trace_prototype_path({start_id!r}, dummy_steps=[]) ...")
     try:
         path = adapter.trace_prototype_path(start_id, [])
@@ -194,7 +168,6 @@ def check_autonomous_mode(adapter: FigmaAdapter) -> bool:
         print(f"{FAIL} trace_prototype_path raised: {e}")
         all_passed = False
 
-    # 3. get_node_screenshot_b64 — fetches Gold Standard for Reflector comparison
     print(f"\n[3] get_node_screenshot_b64({start_id!r}) ...")
     b64 = adapter.get_node_screenshot_b64(start_id)
     if b64:
@@ -203,7 +176,6 @@ def check_autonomous_mode(adapter: FigmaAdapter) -> bool:
         print(f"{FAIL} No screenshot returned.")
         all_passed = False
 
-    # 4. save_screenshot_to_file — saves Gold Standard PNG to disk
     print(f"\n[4] save_screenshot_to_file({start_id!r}) ...")
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         tmp_path = tmp.name
@@ -224,9 +196,6 @@ def check_autonomous_mode(adapter: FigmaAdapter) -> bool:
     return all_passed
 
 
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     print("=" * 55)

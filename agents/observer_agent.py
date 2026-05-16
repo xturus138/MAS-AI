@@ -267,27 +267,21 @@ class ObserverAgent:
         elements_json = compress_and_report(elements_data, "elements", "observer")
 
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a Perception Agent. Analyze an annotated Android screenshot and map every visible ID to its UI function.\n"
+            ("system", "You are a Perception Agent. Your ONLY job is to describe what is visible on the screen. "
+                       "Do NOT assume what the user wants to do. Do NOT bias your descriptions toward any goal.\n"
                        "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys.\n"
                        "OUTPUT FORMAT (strict):\n"
                        "SEMANTIC_MAP: [[ID]: Description, ...]\n"
                        "SUMMARY: One sentence describing the screen and key actions available."),
             ("human", [
-                {"type": "text", "text": "Scenario: {scenario_desc}\nCurrent Instruction: {current_sub_step}\nElements: {elements_json}\n\nMap every ID in the screenshot to its function. Identify interactive elements precisely."},
+                {"type": "text", "text": "App Context: {scenario_desc}\nNavigation Path: {navigation_context}\nElements: {elements_json}\n\nMap every ID in the screenshot to its generic UI function. Be objective. Do not reference any task or goal."},
                 {"type": "image_url", "image_url": {"url": "data:image/webp;base64,{img_b64}"}}
             ])
         ])
 
-        current_idx = state.get("current_sub_step_index", 0)
-        sub_steps = state.get("sub_steps", [])
-        orchestrator_instruction = state.get("orchestrator_instruction", "")
-        current_sub_step = orchestrator_instruction if orchestrator_instruction else (
-            sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
-        )
-
         messages = prompt.format_messages(
             scenario_desc=state.get('scenario_desc', 'N/A'),
-            current_sub_step=current_sub_step,
+            navigation_context=state.get('navigation_context', 'N/A'),
             elements_json=elements_json,
             img_b64=img_b64
         )

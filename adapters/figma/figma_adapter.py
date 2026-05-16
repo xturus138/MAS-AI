@@ -7,9 +7,6 @@ import requests
 from shared import config
 
 
-
-
-
 def _extract_file_key(url_or_key: str) -> str:
     pattern = r"figma\.com/(?:design|file|proto)/([A-Za-z0-9_-]+)"
     match = re.search(pattern, url_or_key)
@@ -42,7 +39,6 @@ class FigmaAdapter:
             frames = []
             flow_points = []
 
-            # Extract named Flow Starting Points from the page level
             def _extract_flow_points(node: dict):
                 if "flowStartingPoints" in node:
                     for fp in node["flowStartingPoints"]:
@@ -69,7 +65,6 @@ class FigmaAdapter:
 
             def _walk(node: dict, depth: int = 0):
                 if depth == 2 and node.get("type") == "FRAME":
-                    # Check if this frame is a named starting point
                     is_start_point = False
                     start_point_name = ""
                     for fp in self._flow_starting_points:
@@ -155,7 +150,6 @@ class FigmaAdapter:
                 print(f"[Figma] WARN: No image URL returned for node {node_id}")
                 return ""
             
-            # S3 downloads can be slow or fail intermittently; retry up to 3 times
             import time
             for attempt in range(3):
                 try:
@@ -191,7 +185,6 @@ class FigmaAdapter:
                         context = self.get_node_context(current_node_id)
                         transitions = self._extract_transitions(context)
                 else:
-                    # Check if we are already at the end of a chain or if we should skip logging stay-on
                     pass
 
             print(f"[Figma] Resolved path with {len(path_ids)} frame(s).")
@@ -243,7 +236,6 @@ class FigmaAdapter:
         images = []
         titles = []
         
-        # Limit to 3 frames to match user's UI layout (Start, Middle, End)
         target_ids = node_ids
         if len(node_ids) > 3:
             target_ids = [node_ids[0], node_ids[len(node_ids)//2], node_ids[-1]]
@@ -255,7 +247,6 @@ class FigmaAdapter:
             img = Image.open(io.BytesIO(base64.b64decode(b64)))
             images.append(img)
             
-            # Get frame name for title
             context = self.get_node_context(nid)
             name = context.get("document", {}).get("name", f"Frame {nid}")
             titles.append(name)
@@ -263,7 +254,6 @@ class FigmaAdapter:
         if not images:
             return
 
-        # Calculate canvas size
         padding = 40
         title_height = 80
         max_w = sum(img.width for img in images) + (padding * (len(images) + 1))
@@ -272,7 +262,6 @@ class FigmaAdapter:
         canvas = Image.new("RGB", (max_w, max_h), (245, 245, 245))
         draw = ImageDraw.Draw(canvas)
         
-        # Try to load a font, fallback to default
         try:
             font = ImageFont.truetype("arial.ttf", 32)
         except:
@@ -280,9 +269,7 @@ class FigmaAdapter:
 
         curr_x = padding
         for img, title in zip(images, titles):
-            # Draw title
             draw.text((curr_x, 20), title, fill=(100, 100, 100), font=font)
-            # Paste image
             canvas.paste(img, (curr_x, title_height))
             curr_x += img.width + padding
 
