@@ -51,3 +51,16 @@ class IDeviceClient(ABC):
     def check_keyboard_state(self) -> bool:
         """Check if the on-screen keyboard is currently visible."""
         pass
+
+    def shell(self, cmd: str) -> str:
+        """Run an ADB shell command and return stdout as a string.
+        Default returns empty string — override in real device adapters.
+        """
+        return ""
+
+    def check_crash(self, lines: int = 50) -> str:
+        """Scan the last `lines` logcat error entries for crash signatures.
+        Returns the first matching line (max 200 chars) or '' if clean.
+        Override in real device adapters.
+        """
+        return ""

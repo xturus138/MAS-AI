@@ -3,6 +3,15 @@ import cv2
 import numpy as np
 from core.ports.device_port import IDeviceClient
 
+_CRASH_KEYWORDS = [
+    "FATAL EXCEPTION",
+    "ANR in",
+    "java.lang.",
+    "has stopped",
+    "NullPointerException",
+    "Force close",
+]
+
 class ADBAdapter(IDeviceClient):
     def __init__(self, device_ip):
         self.device_ip = device_ip
@@ -94,3 +103,24 @@ class ADBAdapter(IDeviceClient):
         except Exception as e:
             print(f"[!] Failed to check keyboard state: {e}")
             return False
+
+    def shell(self, cmd: str) -> str:
+        """Run a shell command via uiautomator2 and return stdout."""
+        try:
+            res = self.d.shell(cmd)
+            return res.output if hasattr(res, "output") else str(res)
+        except Exception:
+            return ""
+
+    def check_crash(self, lines: int = 50) -> str:
+        """Scan last `lines` logcat *:E entries for crash signatures.
+        Returns first matching line (max 200 chars) or '' if clean.
+        """
+        try:
+            output = self.shell(f"logcat -d -t {lines} *:E")
+            for line in output.splitlines():
+                if any(kw in line for kw in _CRASH_KEYWORDS):
+                    return line.strip()[:200]
+            return ""
+        except Exception:
+            return ""
