@@ -28,6 +28,9 @@ class RecorderAgent:
           Time Testing, Testing Status, Updated At, Testing By, OK Evid., Issue Status
         Additional columns appended if not already present:
           Actual Result, Steps Taken, Tokens Used, Stagnation Count
+
+        Note: writes back to the original scenario.xlsx in-place (accumulates across runs).
+        Not safe for concurrent execution of multiple scenarios.
         """
         import shutil
         import openpyxl
@@ -52,7 +55,9 @@ class RecorderAgent:
                     header_row_idx = row_idx
                     for col_idx, cell in enumerate(row, start=1):
                         if cell.value:
-                            col_map[str(cell.value).strip()] = col_idx
+                            name = str(cell.value).strip()
+                            if name not in col_map:  # first occurrence wins — avoid duplicate header collision
+                                col_map[name] = col_idx
                     break
 
             if header_row_idx is None:
@@ -100,12 +105,14 @@ class RecorderAgent:
             duration_str = f"{mins}m {secs}s"
 
             status         = metrics.get("status", "FAILED")
+            # status is "SUCCESS" / "STAGNATED" / "FAILED" as produced by finalize_run_metrics
             testing_status = "OK" if status == "SUCCESS" else "NG"
 
             judgment = (
                 metrics.get("justification", {}).get("reflector_final_judgment", "") or ""
             )
 
+            # "Time Testing" intentionally replaces any placeholder formula with the actual measured duration
             values = {
                 "Time Testing":     duration_str,
                 "Testing Status":   testing_status,
