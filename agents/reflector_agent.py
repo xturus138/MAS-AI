@@ -50,11 +50,14 @@ class ReflectorAgent:
 
         return base64.b64encode(buffer).decode("utf-8")
 
-    def _capture_post_action(self, step_dir: str) -> Optional[str]:
+    def _capture_post_action(self, step_dir: str, output_dir: str = "") -> Optional[str]:
         """Take a fresh screenshot on the device. Returns saved path or None on failure."""
-        if self.device is None or not step_dir:
+        if self.device is None:
             return None
-        post_action_path = os.path.join(step_dir, "post_action.png")
+        save_dir = step_dir if step_dir else output_dir
+        if not save_dir:
+            return None
+        post_action_path = os.path.join(save_dir, "post_action.png")
         try:
             self.device.screenshot(post_action_path)
             self._log("Post-action screenshot captured", post_action_path)
@@ -91,7 +94,7 @@ class ReflectorAgent:
         self._log(f"Step {current_step} — Verification started")
 
         # ── 1. Capture post-action screenshot ────────────────────────────────
-        post_action_path = self._capture_post_action(step_dir)
+        post_action_path = self._capture_post_action(step_dir, output_dir)
         # Fall back to pre-action path so LLM still gets *something* to look at
         screenshot_path = post_action_path if post_action_path else pre_action_path
 
@@ -130,7 +133,7 @@ class ReflectorAgent:
                 f"threshold={_PIXEL_DIFF_THRESHOLD}  short_circuit={'YES' if diff_ratio < _PIXEL_DIFF_THRESHOLD else 'NO'}"
             )
             if diff_ratio < _PIXEL_DIFF_THRESHOLD:
-                print(f"[Reflector] ⚡ Pixel-diff {diff_ratio:.4f} < {_PIXEL_DIFF_THRESHOLD} — UI unchanged, skipping LLM")
+                print(f"[Reflector] [SKIP] Pixel-diff {diff_ratio:.4f} < {_PIXEL_DIFF_THRESHOLD} - UI unchanged, skipping LLM")
                 self._log("Short-circuit: UI unchanged", f"diff_ratio={diff_ratio:.4f}")
 
                 # Update MIRIX resource for the new screenshot
@@ -141,6 +144,13 @@ class ReflectorAgent:
                             "summary": f"Post-action screenshot (stagnant) after step {current_step}",
                             "resource_type": "screenshot",
                             "path": post_action_path,
+                            "step": current_step,
+                        },
+                        "episodic": {
+                            "event_type": "reflector_evaluation",
+                            "summary": f"SKIPPED (pixel-diff stagnant): diff_ratio={diff_ratio:.4f}",
+                            "details": f"UI unchanged, LLM skipped at step {current_step}",
+                            "actor": "reflector",
                             "step": current_step,
                         }
                     })
@@ -173,7 +183,7 @@ class ReflectorAgent:
                 return {
                     "last_reflector_passed":       False,
                     "screenshot_path":             screenshot_path,
-                    "memory_context":              "",
+                    "memory_context":              state.get("memory_context", ""),
                     "sender":                      "reflector",
                     "recovery_attempts":           recovery_attempts,
                     "total_reflector_calls":       total_reflector_calls,
