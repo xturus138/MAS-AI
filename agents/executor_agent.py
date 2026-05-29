@@ -1,5 +1,3 @@
-import json
-import os
 import time
 from typing import Optional
 from langgraph.types import Command
@@ -165,6 +163,9 @@ class ExecutorAgent:
                 result = f"[CRASH] {crash_line} | original: {result}"
                 print(f"[Executor] ⚠️  CRASH DETECTED: {crash_line}")
                 self._log("CRASH detected in logcat", crash_line)
+
+        # Recompute after potential crash mutation
+        is_error = str(result).startswith("ERROR") or str(result).startswith("[CRASH]")
 
         # ── Memory Update ─────────────────────────────────────────────────────
         if self.memory is not None:
