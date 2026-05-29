@@ -1,6 +1,7 @@
 import json
 import os
 import time
+from typing import Optional
 from langgraph.types import Command
 from core.models.state import AgentState
 from tools.executor_tools import ExecutorTools
@@ -16,6 +17,32 @@ class ExecutorAgent:
         if self.logger is not None:
             self.logger.log("EXECUTOR", msg, detail)
 
+    # ── Text-Match Fallback ───────────────────────────────────────────────────
+    def _text_match_fallback(self, widgets: list, plan: dict) -> Optional[dict]:
+        """Find a widget by keyword match when target_id lookup fails.
+
+        Extracts tokens (>3 chars) from intent + text_payload, then scores
+        each widget by how many keywords appear in its text field.
+        Returns the highest-scoring widget, or None if no match.
+        """
+        raw = (plan.get("intent") or "") + " " + (plan.get("text_payload") or "")
+        keywords = [w.lower() for w in raw.split() if len(w) > 3]
+        if not keywords:
+            return None
+
+        best: Optional[dict] = None
+        best_score = 0
+        for widget in widgets:
+            widget_text = (widget.get("text") or "").lower()
+            if not widget_text:
+                continue
+            score = sum(1 for kw in keywords if kw in widget_text)
+            if score > best_score:
+                best_score = score
+                best = widget
+
+        return best if best_score > 0 else None
+
     def execute(self, state: AgentState) -> Command:
         plan = state["action_plan"]
         action_type = plan["action_type"]
@@ -26,7 +53,8 @@ class ExecutorAgent:
         widgets = state.get("widgets", [])
 
         widget_lookup_success = state.get("widget_lookup_success", 0)
-        widget_lookup_fail = state.get("widget_lookup_fail", 0)
+        widget_lookup_fail    = state.get("widget_lookup_fail", 0)
+        widget_text_fallback  = state.get("widget_text_fallback_count", 0)
 
         self._log(
             f"Step {current_step} — Executing: {action_type}",
@@ -57,6 +85,7 @@ class ExecutorAgent:
                 "sender": "executor",
                 "widget_lookup_success": widget_lookup_success,
                 "widget_lookup_fail": widget_lookup_fail,
+                "widget_text_fallback_count": widget_text_fallback,
             }
 
         if action_type in ["click", "long_click", "input"]:
@@ -75,9 +104,24 @@ class ExecutorAgent:
                 )
                 widget_lookup_success += 1
             else:
-                lookup_error = f"ERROR: Target ID {target_id} not found in current UI state"
-                self._log(f"Widget lookup FAILED: ID {target_id} not found in {len(widgets)} widgets")
-                widget_lookup_fail += 1
+                # ── Text-match fallback: try keyword match before declaring failure ──
+                fallback_widget = self._text_match_fallback(widgets, plan)
+                if fallback_widget:
+                    bounds = fallback_widget.get("bounds", [0, 0, 0, 0])
+                    target_x = (bounds[0] + bounds[2]) // 2
+                    target_y = (bounds[1] + bounds[3]) // 2
+                    widget_text = fallback_widget.get("text", "(no text)")
+                    print(f"[Executor] [FALLBACK] ID {target_id} not found — text-match → widget='{widget_text}' ({target_x},{target_y})")
+                    self._log(
+                        f"Widget text-match fallback: ID {target_id} → '{widget_text}' ({target_x},{target_y})",
+                        f"bounds={bounds}"
+                    )
+                    widget_text_fallback += 1
+                    widget_lookup_success += 1
+                else:
+                    lookup_error = f"ERROR: Target ID {target_id} not found in current UI state"
+                    self._log(f"Widget lookup FAILED: ID {target_id} not found in {len(widgets)} widgets")
+                    widget_lookup_fail += 1
 
         try:
             if lookup_error:
@@ -114,19 +158,13 @@ class ExecutorAgent:
         # ScenGen pattern: explicit delay for UI rendering (e.g. Activity transitions)
         time.sleep(3)
 
-        # ScenGen pattern: explicit State Transition Management
-        current_screenshot = state.get("screenshot_path", "")
-        step_dir = state.get("step_dir", "outputs")
-        post_action_path = os.path.join(step_dir, "post_action.png")
-
-        try:
-            self.tools.d.screenshot(post_action_path)
-            new_screenshot = post_action_path
-            self._log("Post-action screenshot captured", post_action_path)
-        except Exception as e:
-            print(f"[Executor] Failed to capture post-action UI state: {e}")
-            self._log("Post-action screenshot FAILED", str(e))
-            new_screenshot = current_screenshot
+        # ── ADB crash detection (ScenGen pattern: post-action logcat check) ────
+        if not is_error:
+            crash_line = self.tools.check_crash(lines=50)
+            if crash_line:
+                result = f"[CRASH] {crash_line} | original: {result}"
+                print(f"[Executor] ⚠️  CRASH DETECTED: {crash_line}")
+                self._log("CRASH detected in logcat", crash_line)
 
         # ── Memory Update ─────────────────────────────────────────────────────
         if self.memory is not None:
@@ -138,13 +176,6 @@ class ExecutorAgent:
                     "actor": "executor",
                     "step": current_step,
                 },
-                "resource": {
-                    "title": f"post_action_step_{current_step}",
-                    "summary": f"Post-action screenshot after {action_type}",
-                    "resource_type": "screenshot",
-                    "path": new_screenshot,
-                    "step": current_step,
-                },
             })
 
         if self.logger is not None:
@@ -152,8 +183,8 @@ class ExecutorAgent:
 
         return {
             "execution_result": result,
-            "screenshot_path": new_screenshot,
             "sender": "executor",
             "widget_lookup_success": widget_lookup_success,
             "widget_lookup_fail": widget_lookup_fail,
+            "widget_text_fallback_count": widget_text_fallback,
         }
