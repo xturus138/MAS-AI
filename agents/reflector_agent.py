@@ -1,12 +1,17 @@
 import base64
 import json
 import os
+from typing import Optional
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from core.models.state import AgentState
 from core.utils.toons_helper import compress_and_report
 
 import cv2
+
+# Fraction of pixels that must change for a step to be considered non-stagnant.
+# Below this threshold on an intermediate step the LLM call is skipped entirely.
+_PIXEL_DIFF_THRESHOLD = 0.02  # 2 %
 
 
 class ReflectorResult(BaseModel):
@@ -16,10 +21,11 @@ class ReflectorResult(BaseModel):
 
 
 class ReflectorAgent:
-    def __init__(self, llm, memory=None, logger=None):
+    def __init__(self, llm, memory=None, logger=None, device=None):
         self.llm = llm.with_structured_output(ReflectorResult)
         self.logger = logger
         self.memory = memory
+        self.device = device   # IDeviceClient — used to capture post-action screenshot
 
     def _log(self, msg: str, detail: str = ""):
         if self.logger is not None:
@@ -44,38 +50,139 @@ class ReflectorAgent:
 
         return base64.b64encode(buffer).decode("utf-8")
 
+    def _capture_post_action(self, step_dir: str) -> Optional[str]:
+        """Take a fresh screenshot on the device. Returns saved path or None on failure."""
+        if self.device is None or not step_dir:
+            return None
+        post_action_path = os.path.join(step_dir, "post_action.png")
+        try:
+            self.device.screenshot(post_action_path)
+            self._log("Post-action screenshot captured", post_action_path)
+            return post_action_path
+        except Exception as e:
+            self._log("Post-action screenshot FAILED", str(e))
+            print(f"[Reflector] Failed to capture post-action screenshot: {e}")
+            return None
+
+    def _pixel_diff_ratio(self, before_path: str, after_path: str) -> float:
+        """Fraction of pixels that changed between two screenshots (0.0=identical, 1.0=all different).
+        Returns 1.0 on any error so the LLM call is never skipped due to a load failure.
+        """
+        try:
+            before = cv2.imread(before_path)
+            after  = cv2.imread(after_path)
+            if before is None or after is None:
+                return 1.0
+            if before.shape != after.shape:
+                after = cv2.resize(after, (before.shape[1], before.shape[0]))
+            diff  = cv2.absdiff(before, after)
+            gray  = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
+            total = gray.shape[0] * gray.shape[1]
+            return cv2.countNonZero(gray) / total if total > 0 else 0.0
+        except Exception:
+            return 1.0
+
     def evaluate(self, state: AgentState) -> dict:
-        screenshot_path = state.get("screenshot_path", "")
-        current_step = state.get("current_step", 0)
-        tcs_id = state.get("tcs_id", "")
+        pre_action_path = state.get("screenshot_path", "")   # Observer's screenshot (before action)
+        current_step    = state.get("current_step", 0)
+        tcs_id          = state.get("tcs_id", "")
+        step_dir        = state.get("step_dir", "")
+        output_dir      = state.get("output_dir", "")
         self._log(f"Step {current_step} — Verification started")
 
-        # ── Resolve context from MIRIX memory (fallback to state for non-MIRIX callers) ──
+        # ── 1. Capture post-action screenshot ────────────────────────────────
+        post_action_path = self._capture_post_action(step_dir)
+        # Fall back to pre-action path so LLM still gets *something* to look at
+        screenshot_path = post_action_path if post_action_path else pre_action_path
+
+        # ── 2. Resolve context from MIRIX memory ──────────────────────────────
         if self.memory is not None:
             expected_result = self.memory.core.get("expected_result") or ""
-            test_type = self.memory.core.get("test_type") or "Pos."
-            figma_enabled = (self.memory.core.get("figma_enabled") or "False") == "True"
-            figma_b64 = self.memory.resource.get_figma_gold_b64() if figma_enabled else ""
-            sub_steps = self.memory.procedural.get_steps(tcs_id, "workflow")
+            test_type       = self.memory.core.get("test_type") or "Pos."
+            figma_enabled   = (self.memory.core.get("figma_enabled") or "False") == "True"
+            figma_b64       = self.memory.resource.get_figma_gold_b64() if figma_enabled else ""
+            sub_steps       = self.memory.procedural.get_steps(tcs_id, "workflow")
         else:
             expected_result = ""
-            test_type = "Pos."
-            figma_enabled = False
-            figma_b64 = ""
-            sub_steps = []
+            test_type       = "Pos."
+            figma_enabled   = False
+            figma_b64       = ""
+            sub_steps       = []
 
-        current_idx = state.get("current_sub_step_index", 0)
+        current_idx              = state.get("current_sub_step_index", 0)
         orchestrator_instruction = state.get("orchestrator_instruction", "")
 
-        # Autonomous mode trusts orchestrator's is_final_step signal.
-        # Predefined mode derives it from the sub_steps index.
         if orchestrator_instruction:
-            is_final_step = state.get("is_final_step", False)
+            is_final_step       = state.get("is_final_step", False)
             current_instruction = orchestrator_instruction
         else:
-            is_final_step = (current_idx == len(sub_steps) - 1) if sub_steps else False
+            is_final_step       = (current_idx == len(sub_steps) - 1) if sub_steps else False
             current_instruction = sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
 
+        # ── 3. Pixel-diff short-circuit (intermediate steps only) ─────────────
+        if (not is_final_step
+                and pre_action_path
+                and post_action_path
+                and pre_action_path != post_action_path):
+            diff_ratio = self._pixel_diff_ratio(pre_action_path, post_action_path)
+            self._log(
+                f"Pixel-diff ratio: {diff_ratio:.4f}",
+                f"threshold={_PIXEL_DIFF_THRESHOLD}  short_circuit={'YES' if diff_ratio < _PIXEL_DIFF_THRESHOLD else 'NO'}"
+            )
+            if diff_ratio < _PIXEL_DIFF_THRESHOLD:
+                print(f"[Reflector] ⚡ Pixel-diff {diff_ratio:.4f} < {_PIXEL_DIFF_THRESHOLD} — UI unchanged, skipping LLM")
+                self._log("Short-circuit: UI unchanged", f"diff_ratio={diff_ratio:.4f}")
+
+                # Update MIRIX resource for the new screenshot
+                if self.memory is not None and post_action_path:
+                    self.memory.update({
+                        "resource": {
+                            "title": f"post_action_step_{current_step}",
+                            "summary": f"Post-action screenshot (stagnant) after step {current_step}",
+                            "resource_type": "screenshot",
+                            "path": post_action_path,
+                            "step": current_step,
+                        }
+                    })
+
+                recovery_attempts          = state.get("recovery_attempts", 0) + 1
+                total_reflector_calls      = state.get("total_reflector_calls", 0) + 1
+                reflector_pass_count       = state.get("reflector_pass_count", 0)
+                is_first                   = state.get("is_first_verify_attempt", True)
+                total_first_verify_calls   = state.get("total_first_verify_calls", 0) + (1 if is_first else 0)
+                reflector_first_pass_count = state.get("reflector_first_pass_count", 0)
+
+                # Save report to disk
+                save_dir = step_dir if step_dir else output_dir
+                if save_dir:
+                    ref_path = os.path.join(save_dir, "reflector_report.json")
+                    with open(ref_path, "w", encoding="utf-8") as f:
+                        json.dump({
+                            "passed": False,
+                            "reasoning": f"Pixel-diff {diff_ratio:.4f} below threshold {_PIXEL_DIFF_THRESHOLD} — UI did not change.",
+                            "step_index": current_idx,
+                            "figma_enabled": figma_enabled,
+                            "figma_discrepancies": "",
+                            "pixel_diff_ratio": diff_ratio,
+                            "short_circuit": True,
+                        }, f, indent=4, ensure_ascii=False)
+
+                if self.logger is not None:
+                    self.logger.separator()
+
+                return {
+                    "last_reflector_passed":       False,
+                    "screenshot_path":             screenshot_path,
+                    "memory_context":              "",
+                    "sender":                      "reflector",
+                    "recovery_attempts":           recovery_attempts,
+                    "total_reflector_calls":       total_reflector_calls,
+                    "reflector_pass_count":        reflector_pass_count,
+                    "total_first_verify_calls":    total_first_verify_calls,
+                    "reflector_first_pass_count":  reflector_first_pass_count,
+                }
+
+        # ── 4. Full LLM verification ──────────────────────────────────────────
         system_instruction = (
             "You are the Reflector Agent in a self-correcting MAS AI framework.\n"
             "Your task is to verify if the UI state matches the intended outcome of the current test step.\n\n"
@@ -119,7 +226,7 @@ class ReflectorAgent:
                     "type": "image_url",
                     "image_url": {"url": f"data:image/webp;base64,{base64_image}"},
                 })
-                content.append({"type": "text", "text": "[Image above: LIVE APP screenshot]"})
+                content.append({"type": "text", "text": "[Image above: LIVE APP screenshot (post-action)]"})
             except Exception:
                 pass
 
@@ -135,7 +242,7 @@ class ReflectorAgent:
             HumanMessage(content=content)
         ]
 
-        mode_label = "FINAL" if is_final_step else "STEP"
+        mode_label  = "FINAL" if is_final_step else "STEP"
         figma_label = " + Figma Gold Standard" if (is_final_step and figma_enabled and figma_b64) else ""
         self._log(
             f"LLM call started ({mode_label} verification{figma_label})",
@@ -144,13 +251,13 @@ class ReflectorAgent:
         print(f"[Reflector] {mode_label} Verification starting...")
 
         try:
-            result = self.llm.invoke(messages)
-            passed = result.passed
-            reasoning = result.reasoning
+            result              = self.llm.invoke(messages)
+            passed              = result.passed
+            reasoning           = result.reasoning
             figma_discrepancies = getattr(result, "figma_discrepancies", "")
         except Exception as e:
-            passed = False
-            reasoning = f"Evaluation LLM error: {str(e)}"
+            passed              = False
+            reasoning           = f"Evaluation LLM error: {str(e)}"
             figma_discrepancies = ""
 
         verdict = "PASSED" if passed else "FAILED"
@@ -163,8 +270,6 @@ class ReflectorAgent:
             print(f"[Reflector] Figma Discrepancies: {figma_discrepancies}")
 
         # ── Persist report to disk ─────────────────────────────────────────────
-        output_dir = state.get("output_dir", "")
-        step_dir = state.get("step_dir", "")
         save_dir = step_dir if step_dir else output_dir
         if save_dir:
             ref_path = os.path.join(save_dir, "reflector_report.json")
@@ -188,8 +293,25 @@ class ReflectorAgent:
                     }, f, indent=4, ensure_ascii=False)
                 print(f"[Reflector] Figma comparison result saved to: {comparison_path}")
 
-        # ── Memory Update ─────────────────────────────────────────────────────
-        if self.memory is not None:
+        # ── Update MIRIX resource + episodic for the post-action screenshot ───
+        if self.memory is not None and post_action_path:
+            self.memory.update({
+                "resource": {
+                    "title": f"post_action_step_{current_step}",
+                    "summary": f"Post-action screenshot after step {current_step}",
+                    "resource_type": "screenshot",
+                    "path": post_action_path,
+                    "step": current_step,
+                },
+                "episodic": {
+                    "event_type": "reflector_evaluation",
+                    "summary": f"{'PASSED' if passed else 'FAILED'}: {reasoning[:150]}",
+                    "details": reasoning,
+                    "actor": "reflector",
+                    "step": current_step,
+                }
+            })
+        elif self.memory is not None:
             self.memory.update({
                 "episodic": {
                     "event_type": "reflector_evaluation",
@@ -201,26 +323,27 @@ class ReflectorAgent:
             })
 
         # ── Metric tracking ───────────────────────────────────────────────────
-        recovery_attempts = state.get("recovery_attempts", 0)
+        recovery_attempts  = state.get("recovery_attempts", 0)
         if not passed:
             recovery_attempts += 1
 
-        total_reflector_calls = state.get("total_reflector_calls", 0) + 1
-        reflector_pass_count = state.get("reflector_pass_count", 0) + (1 if passed else 0)
-        is_first = state.get("is_first_verify_attempt", True)
-        total_first_verify_calls = state.get("total_first_verify_calls", 0) + (1 if is_first else 0)
+        total_reflector_calls      = state.get("total_reflector_calls", 0) + 1
+        reflector_pass_count       = state.get("reflector_pass_count", 0) + (1 if passed else 0)
+        is_first                   = state.get("is_first_verify_attempt", True)
+        total_first_verify_calls   = state.get("total_first_verify_calls", 0) + (1 if is_first else 0)
         reflector_first_pass_count = state.get("reflector_first_pass_count", 0) + (1 if is_first and passed else 0)
 
         if self.logger is not None:
             self.logger.separator()
 
         return {
-            "last_reflector_passed": passed,
-            "memory_context": memory_context,
-            "sender": "reflector",
-            "recovery_attempts": recovery_attempts,
-            "total_reflector_calls": total_reflector_calls,
-            "reflector_pass_count": reflector_pass_count,
-            "total_first_verify_calls": total_first_verify_calls,
-            "reflector_first_pass_count": reflector_first_pass_count,
+            "last_reflector_passed":       passed,
+            "screenshot_path":             screenshot_path,
+            "memory_context":              memory_context,
+            "sender":                      "reflector",
+            "recovery_attempts":           recovery_attempts,
+            "total_reflector_calls":       total_reflector_calls,
+            "reflector_pass_count":        reflector_pass_count,
+            "total_first_verify_calls":    total_first_verify_calls,
+            "reflector_first_pass_count":  reflector_first_pass_count,
         }
