@@ -17,6 +17,8 @@ class ObserverAgent:
         self.detect_visual_elements = tools[2]
         self.annotate_screenshot = tools[3]
         self.check_keyboard_state = tools[4]
+        # Optional: OmniParser unified vision backend (index 5)
+        self.parse_screen_omniparser = tools[5] if len(tools) > 5 else None
         self.memory = memory
         self.logger = logger
 
@@ -232,6 +234,28 @@ class ObserverAgent:
         if self.logger is not None:
             self.logger.log("OBSERVER", msg, detail)
 
+    def _run_canny_pipeline(
+        self,
+        raw_path: str,
+        ocr_path: str,
+        cv_path: str,
+        image_height: int,
+        is_kb_shown: bool,
+    ) -> list:
+        """Run the classic Canny edge detection + EasyOCR vision pipeline."""
+        ocr_raw = self.ocr_extract_text.invoke({"image_path": raw_path, "save_path": ocr_path})
+        cv_raw = self.detect_visual_elements.invoke({"image_path": raw_path, "save_path": cv_path})
+        try:
+            ocr_elements = json.loads(ocr_raw)
+            cv_elements = json.loads(cv_raw)
+        except (json.JSONDecodeError, TypeError):
+            ocr_elements, cv_elements = [], []
+        self._log(
+            "Canny+OCR pipeline complete",
+            f"ocr_elements={len(ocr_elements)}  cv_elements={len(cv_elements)}"
+        )
+        return self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
+
     def analyze(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
         print(f"\n--- CYCLE {current_step} | [Observer] Starting Pure Vision Perception... ---")
@@ -259,21 +283,6 @@ class ObserverAgent:
         self.take_screenshot.invoke({"target_path": raw_path})
         self._log("Screenshot captured", raw_path)
 
-        print("[Observer] Running Vision Pipeline (OCR + CV)...")
-        ocr_raw = self.ocr_extract_text.invoke({"image_path": raw_path, "save_path": ocr_path})
-        cv_raw = self.detect_visual_elements.invoke({"image_path": raw_path, "save_path": cv_path})
-
-        try:
-            ocr_elements = json.loads(ocr_raw)
-            cv_elements = json.loads(cv_raw)
-        except (json.JSONDecodeError, TypeError):
-            ocr_elements, cv_elements = [], []
-
-        self._log(
-            "Vision pipeline complete",
-            f"ocr_elements={len(ocr_elements)}  cv_elements={len(cv_elements)}"
-        )
-
         print("[Observer] Checking keyboard state via ADB...")
         kb_resp = self.check_keyboard_state.invoke({})
         try:
@@ -284,9 +293,43 @@ class ObserverAgent:
         img = cv2.imread(raw_path)
         image_height = img.shape[0] if img is not None else 1920
 
-        print("[Observer] Merging and filtering visual elements...")
-        final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
-        self._log(f"Widget set built: {len(final_widget_set)} widgets  keyboard={'shown' if is_kb_shown else 'hidden'}")
+        if self.parse_screen_omniparser is not None:
+            # ── OmniParser path: unified YOLO + Florence-2 + OCR pipeline ────
+            print("[Observer] Running OmniParser unified vision pipeline (YOLO + Florence-2 + OCR)...")
+            self._log("Vision pipeline: OmniParser")
+            omni_raw = self.parse_screen_omniparser.invoke({
+                "image_path": raw_path,
+                "save_path": cv_path,
+            })
+            try:
+                omni_elements = json.loads(omni_raw)
+                if isinstance(omni_elements, dict) and "error" in omni_elements:
+                    raise ValueError(omni_elements["error"])
+            except Exception as exc:
+                print(f"[Observer] OmniParser failed ({exc}), falling back to Canny pipeline.")
+                self._log("OmniParser FAILED — falling back to Canny+OCR", str(exc))
+                omni_elements = None
+
+            if omni_elements is not None:
+                # OmniParser already fuses OCR + CV + icon captions; skip merge step.
+                grouped = self._group_keyboard_elements(omni_elements, image_height, is_kb_shown)
+                final_widget_set = []
+                for idx, el in enumerate(grouped, start=1):
+                    el["id"] = idx
+                    el["class"] = "Interactive" if el["type"] == "container" else "StaticText"
+                    el["resource_id"] = "none"
+                    final_widget_set.append(el)
+                self._log(
+                    "OmniParser pipeline complete",
+                    f"widgets={len(final_widget_set)}  keyboard={'shown' if is_kb_shown else 'hidden'}"
+                )
+            else:
+                # Fallback triggered inside the OmniParser branch
+                final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
+        else:
+            # ── Canny + EasyOCR fallback ──────────────────────────────────────
+            print("[Observer] Running Canny+OCR vision pipeline...")
+            final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
 
         with open(merged_path, "w", encoding="utf-8") as f:
             json.dump(final_widget_set, f, indent=4, ensure_ascii=False)

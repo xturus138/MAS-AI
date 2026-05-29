@@ -56,6 +56,13 @@ FIGMA_ACCESS_TOKEN = os.getenv("FIGMA_ACCESS_TOKEN", "")
 FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
 FIGMA_FILE_URL     = os.getenv("FIGMA_URL_QA", "")
 
+# OmniParser Vision Backend
+# Set OMNIPARSER_ENABLED=true once model weights are downloaded.
+OMNIPARSER_ENABLED       = os.getenv("OMNIPARSER_ENABLED", "false").lower() == "true"
+OMNIPARSER_PROJECT_DIR   = os.getenv("OMNIPARSER_PROJECT_DIR", "")
+OMNIPARSER_WEIGHTS_DIR   = os.getenv("OMNIPARSER_WEIGHTS_DIR", "")
+OMNIPARSER_BOX_THRESHOLD = float(os.getenv("OMNIPARSER_BOX_THRESHOLD", "0.05"))
+
 print(f"[*] Environment Loaded:")
 print(f"    - Observer Model:     {OBSERVER_MODEL}")
 print(f"    - Decider Model:      {DECIDER_MODEL}")
