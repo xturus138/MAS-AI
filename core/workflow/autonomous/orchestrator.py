@@ -1,17 +1,17 @@
 import os
+from typing import Optional, TYPE_CHECKING
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.types import Command
 from core.models.state import AgentState
 
+if TYPE_CHECKING:
+    from memory.meta_manager import MIRIXMemorySystem
 
-# ---------------------------------------------------------------------------
-# Pydantic Model
-# ---------------------------------------------------------------------------
 
 class AutonomousPlan(BaseModel):
     action_type: str = Field(
-        description="The judge's decision: 'OBSERVE', 'DECIDE', 'EXECUTE', 'VERIFY', 'RECORD', or 'COMPLETE'."
+        description="The judge's decision: 'OBSERVE', 'DECIDE', 'EXECUTE', 'VERIFY', or 'COMPLETE'."
     )
     next_step_instruction: str = Field(
         description=(
@@ -40,7 +40,6 @@ class FigmaFlowPlan(BaseModel):
     )
 
 
-
 AUTONOMOUS_SYSTEM_PROMPT = """You are the Orchestrator Agent in a MAS AI Android testing framework.
 
 Your goal is to achieve the following TASK: "{task_goal}"
@@ -65,11 +64,7 @@ As the central judge, you decide which agent to invoke next based on their speci
 - 'VERIFY'
     - Purpose: To critique the `execution_result` against the `task_goal` AND the ULTIMATE EXPECTED RESULT.
     - IN: `execution_result`
-    - OUT: `reflector_reasoning`
-- 'RECORD'
-    - Purpose: To save the current `action_history` and dialogue into persistent report files.
-    - IN: `action_history`
-    - OUT: Interaction script and chat logs
+    - OUT: verification judgment
 - 'COMPLETE'
     - Purpose: To signal that the ULTIMATE EXPECTED RESULT has been fully satisfied and finalize the run.
 
@@ -78,41 +73,40 @@ MANDATORY DISPATCH RULES — follow these exactly, they override all other reaso
 2. SENDER=observer → You SHOULD dispatch DECIDE next (unless this OBSERVE was a recovery re-check after failed VERIFY, in which case dispatch DECIDE to replan).
 3. SENDER=decider → You SHOULD dispatch EXECUTE next to carry out the action plan.
 4. After a full OBSERVE→DECIDE→EXECUTE→OBSERVE cycle that confirms progress: dispatch VERIFY to validate the result against the ULTIMATE EXPECTED RESULT.
-5. SENDER=reflector AND passed=True → If task is fully complete, dispatch RECORD then COMPLETE. If more sub-tasks remain, dispatch OBSERVE to continue.
+5. SENDER=reflector AND passed=True → If task is fully complete, dispatch COMPLETE. If more sub-tasks remain, dispatch OBSERVE to continue.
 6. SENDER=reflector AND passed=False → dispatch OBSERVE to re-evaluate the screen, then recover.
 
 CRITICAL RULE: If the SENDER is 'reflector' and the Reflector FAILED, you MUST continue the workflow
-to recover — DO NOT dispatch to RECORD or COMPLETE until the ULTIMATE EXPECTED RESULT is met.
+to recover — DO NOT dispatch COMPLETE until the ULTIMATE EXPECTED RESULT is met.
 
 IMPORTANT: The DECIDE agent produces exactly ONE physical action per call. Write next_step_instruction as a single atomic action (e.g., "Tap the FAB button"), not a multi-step sequence.
 """
 
-
-# ---------------------------------------------------------------------------
-# AutonomousOrchestrator
-# ---------------------------------------------------------------------------
 
 class AutonomousOrchestrator:
     """
     Orchestrator for the Autonomous (Goal-Based) workflow.
 
     Responsibilities:
-    - Use an LLM to plan the next step based on the current screen, history, 
+    - Use an LLM to plan the next step based on the current screen, history,
       and optionally the Figma Gold Standard.
     - Discover Figma nodes before each scenario to provide a visual baseline.
     """
 
-    def __init__(self, llm=None, figma_adapter=None):
+    def __init__(self, llm=None, figma_adapter=None, memory=None):
         self.llm = llm
         self.figma = figma_adapter
+        self.memory: Optional["MIRIXMemorySystem"] = memory
         self._planner_llm = llm.with_structured_output(AutonomousPlan) if llm else None
         self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
 
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """
         Fair Experiment: Provide Autonomous mode with the same Figma Gold Standard
-        as Predefined mode — using the full prototype graph so the LLM can reason
-        about the complete path from start to end, not just find the start frame.
+        as Predefined mode.
+
+        Returns figma_context dict passed to memory.init_session().
+        The figma_end_screenshot_b64 is stored in Resource Memory, not AgentState.
         """
         figma_enabled = self.figma is not None
 
@@ -122,7 +116,6 @@ class AutonomousOrchestrator:
                 "figma_start_node_id": "",
                 "figma_end_node_id": "",
                 "figma_end_screenshot_b64": "",
-                "figma_bridge_steps": [],
             }
 
         menu_name = scenario.get("navigation_context", "")
@@ -158,7 +151,7 @@ class AutonomousOrchestrator:
 
             if not result.path_ids:
                 print("[Autonomous] LLM could not resolve a Figma path. Falling back to text-only.")
-                return {"figma_enabled": False}
+                return {"figma_enabled": False, "figma_start_node_id": "", "figma_end_node_id": "", "figma_end_screenshot_b64": ""}
 
             start_id = result.path_ids[0]
             end_id = result.path_ids[-1]
@@ -173,30 +166,69 @@ class AutonomousOrchestrator:
                 "figma_start_node_id": start_id,
                 "figma_end_node_id": end_id,
                 "figma_end_screenshot_b64": figma_end_screenshot_b64,
-                "figma_bridge_steps": [],
             }
         except Exception as e:
             print(f"[Autonomous] Figma flow planning failed: {e}")
-            return {"figma_enabled": False}
+            return {"figma_enabled": False, "figma_start_node_id": "", "figma_end_node_id": "", "figma_end_screenshot_b64": ""}
 
     def orchestrate(self, state: AgentState) -> dict:
         """LangGraph node: LLM-driven planner that generates the next subgoal."""
-        task_goal         = state.get("task_goal", "")
-        expected_result   = state.get("expected_result", "")
-        raw_observer_analysis = state.get("observer_analysis", "No analysis yet.")
-        observer_analysis_step = state.get("observer_analysis_step", -1)
-        history           = state.get("action_history", [])
-        global_step       = state.get("current_step", 0)
-        output_dir        = state.get("output_dir", "outputs")
-        sender            = state.get("sender", "START")
+        tcs_id = state.get("tcs_id", "")
+        global_step = state.get("current_step", 0)
+        output_dir = state.get("output_dir", "outputs")
+        sender = state.get("sender", "START")
         last_reflector_passed = state.get("last_reflector_passed", True)
-        reflector_reasoning   = state.get("reflector_reasoning", "")
 
         steps_completed_count = state.get("steps_completed_count", 0)
         if sender == "reflector" and last_reflector_passed:
             steps_completed_count += 1
 
-        # Warn orchestrator when screen analysis is from a prior step
+        # ── Active Retrieval: get scenario context and recent history ─────────
+        task_goal = ""
+        expected_result = ""
+        figma_info = ""
+        reference_path = ""
+        reflector_feedback = ""
+        recent_episodes_str = "None"
+
+        if self.memory is not None:
+            task_goal = self.memory.core.get("task_goal") or self.memory.core.get("scenario_desc") or ""
+            expected_result = self.memory.core.get("expected_result") or ""
+            figma_enabled = (self.memory.core.get("figma_enabled") or "False") == "True"
+
+            if figma_enabled:
+                figma_info = f"\nFIGMA DESIGN AWARENESS: You have a Gold Standard screenshot for the final goal state."
+
+            sub_steps = self.memory.procedural.get_steps(tcs_id, "workflow")
+            if sub_steps:
+                numbered = "\n".join([f"  {i+1}. {s}" for i, s in enumerate(sub_steps)])
+                reference_path = (
+                    f"\nREFERENCE TEST PATH (defined by the test designer):\n{numbered}\n"
+                    f"These steps describe the expected human tester behavior for this scenario. "
+                    f"You are not required to follow them."
+                )
+
+            # Get last reflector judgment for failure feedback
+            if sender == "reflector" and not last_reflector_passed:
+                last_ref = self.memory.episodic.last_by_actor("reflector")
+                if last_ref:
+                    reflector_feedback = (
+                        f"\n\n[!] REFLECTOR FEEDBACK — VERIFICATION FAILED:\n"
+                        f"{last_ref.details or last_ref.summary}\n"
+                        f"You MUST continue the workflow to recover. Do NOT dispatch COMPLETE yet."
+                    )
+
+            # Recent action history from episodic memory (last 5 executor episodes)
+            recent = self.memory.episodic.last(10)
+            if recent:
+                exec_eps = [ep for ep in recent if ep.actor in ("executor", "reflector")][-5:]
+                if exec_eps:
+                    lines = [f"  step={ep.step} [{ep.actor}] {ep.event_type}: {ep.summary}" for ep in exec_eps]
+                    recent_episodes_str = "\n".join(lines)
+
+        raw_observer_analysis = state.get("observer_analysis", "No analysis yet.")
+        observer_analysis_step = state.get("observer_analysis_step", -1)
+
         steps_stale = global_step - observer_analysis_step if observer_analysis_step >= 0 else 0
         if steps_stale > 1:
             staleness_label = f"[WARNING: STALE — captured {steps_stale} steps ago. Dispatch OBSERVE first to refresh.]\n"
@@ -204,37 +236,12 @@ class AutonomousOrchestrator:
             staleness_label = ""
         observer_analysis = staleness_label + raw_observer_analysis
 
-        # Fair Experiment: Provide awareness of the Figma Gold Standard if available
-        figma_enabled = state.get("figma_enabled", False)
-        figma_info = ""
-        if figma_enabled:
-            figma_info = f"\nFIGMA DESIGN AWARENESS: You have a Gold Standard screenshot for the final goal state."
-
-        sub_steps = state.get("sub_steps", [])
-        reference_path = ""
-        if sub_steps:
-            numbered = "\n".join([f"  {i+1}. {s}" for i, s in enumerate(sub_steps)])
-            reference_path = (
-                f"\nREFERENCE TEST PATH (defined by the test designer):\n{numbered}\n"
-                f"These steps describe the expected human tester behavior for this scenario. "
-                f"You are not required to follow them."
-            )
-
-        # Inject Reflector failure feedback when self-correction is needed
-        reflector_feedback = ""
-        if sender == "reflector" and not last_reflector_passed and reflector_reasoning:
-            reflector_feedback = (
-                f"\n\n[!] REFLECTOR FEEDBACK — VERIFICATION FAILED:\n"
-                f"{reflector_reasoning}\n"
-                f"You MUST continue the workflow to recover. Do NOT dispatch RECORD or COMPLETE yet."
-            )
-
         human_content = (
             f"SENDER (Agent who just finished): {sender}\n"
             f"TASK GOAL: {task_goal}{reference_path}{figma_info}"
             f"{reflector_feedback}\n\n"
             f"CURRENT SCREEN ANALYSIS:\n{observer_analysis}\n\n"
-            f"ACTION HISTORY (last 5):\n{history[-5:] if history else 'None'}"
+            f"RECENT ACTION HISTORY (last 5):\n{recent_episodes_str}"
         )
 
         messages = [
@@ -256,21 +263,18 @@ class AutonomousOrchestrator:
             print(f"[Autonomous] JUDGMENT: {plan.action_type.upper()}")
             print(f"[Autonomous] Plan: '{plan.next_step_instruction}' | Completed: {plan.is_completed}")
 
-            # Map action_type to target graph nodes
             node_map = {
                 "OBSERVE": "observer_node",
                 "DECIDE":  "decider_node",
                 "EXECUTE": "executor_node",
                 "ACT":     "executor_node",
                 "VERIFY":  "reflector_node",
-                "RECORD":  "recorder_node",
             }
             target_node = node_map.get(plan.action_type.upper(), "observer_node")
 
-            # First attempt: True unless this is a recovery VERIFY after a failed reflector
             is_first_verify = not (sender == "reflector" and not last_reflector_passed)
 
-            if plan.is_completed or plan.action_type == "COMPLETE":
+            if plan.is_completed or plan.action_type.upper() == "COMPLETE":
                 target_node = "__end__"
 
             # Loop Detection Kill Switch
@@ -278,56 +282,73 @@ class AutonomousOrchestrator:
             last_calls.append(plan.action_type.upper())
             last_calls = last_calls[-5:]
 
-            is_looping = False
-            if len(last_calls) >= 3:
-                if last_calls[-1] == last_calls[-2] == last_calls[-3]:
-                    is_looping = True
+            is_looping = (
+                len(last_calls) >= 3 and
+                last_calls[-1] == last_calls[-2] == last_calls[-3]
+            )
 
             if is_looping:
                 print(f"[Autonomous] KILL SWITCH: Detected loop of 3 {plan.action_type.upper()} calls. Stopping.")
+                if self.memory is not None:
+                    self.memory.update({
+                        "episodic": {
+                            "event_type": "orchestrator_decision",
+                            "summary": f"KILL SWITCH: Loop of 3 {plan.action_type.upper()} calls.",
+                            "details": "",
+                            "actor": "orchestrator",
+                            "step": global_step,
+                        }
+                    })
                 return Command(
                     goto="__end__",
                     update={
                         "is_completed": False,
-                        "orchestrator_reasoning": f"Stagnation detected: Loop of 3 {plan.action_type.upper()} calls.",
                         "sender": "orchestrator",
-                        "stagnation_count": state.get("stagnation_count", 0) + 3
+                        "stagnation_count": state.get("stagnation_count", 0) + 3,
                     }
                 )
 
             # Global Step Limit Kill Switch
-            # Each physical action requires at minimum 3 orchestrator steps (OBSERVE→DECIDE→EXECUTE).
-            # A 5-step scenario needs ~35 orchestrator steps when VERIFY and RECORD are included.
             if global_step >= 35:
                 print(f"[Autonomous] KILL SWITCH: Global step limit (35) reached. Stopping.")
                 return Command(
                     goto="__end__",
                     update={
                         "is_completed": False,
-                        "orchestrator_reasoning": "Global step limit (35) exceeded. Run aborted for safety.",
                         "sender": "orchestrator",
-                        "stagnation_count": state.get("stagnation_count", 0) + 3
+                        "stagnation_count": state.get("stagnation_count", 0) + 3,
                     }
                 )
 
             print(f"[Autonomous] DISPATCHING TO: {target_node}")
 
-            is_final = plan.is_completed or plan.action_type == "COMPLETE"
+            # ── Memory Update ─────────────────────────────────────────────────
+            if self.memory is not None:
+                self.memory.update({
+                    "episodic": {
+                        "event_type": "orchestrator_decision",
+                        "summary": f"Dispatch {plan.action_type.upper()}: {plan.next_step_instruction[:120]}",
+                        "details": plan.reasoning,
+                        "actor": "orchestrator",
+                        "step": global_step + 1,
+                    }
+                })
+
+            is_final = plan.is_completed or plan.action_type.upper() == "COMPLETE"
             return Command(
                 goto=target_node,
                 update={
                     "orchestrator_instruction": plan.next_step_instruction,
                     "current_sub_step_index": 0,
-                    "current_step":          global_step + 1,
-                    "is_completed":          is_final,
-                    "is_final_step":         is_final,
-                    "orchestrator_reasoning": plan.reasoning,
-                    "next_agent":            plan.action_type.upper(),
-                    "last_agent_calls":      last_calls,
-                    "step_dir":              step_dir,
-                    "sender":                "orchestrator",
+                    "current_step":           global_step + 1,
+                    "is_completed":           is_final,
+                    "is_final_step":          is_final,
+                    "next_agent":             plan.action_type.upper(),
+                    "last_agent_calls":       last_calls,
+                    "step_dir":               step_dir,
+                    "sender":                 "orchestrator",
                     "is_first_verify_attempt": is_first_verify,
-                    "steps_completed_count": steps_completed_count,
+                    "steps_completed_count":  steps_completed_count,
                 }
             )
         except Exception as e:
@@ -335,8 +356,7 @@ class AutonomousOrchestrator:
             return Command(
                 goto="__end__",
                 update={
-                    "is_completed": True, 
-                    "orchestrator_reasoning": f"Planning failed: {str(e)}",
-                    "sender": "orchestrator"
+                    "is_completed": True,
+                    "sender": "orchestrator",
                 }
             )

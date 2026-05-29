@@ -15,6 +15,7 @@ from agents.decider_agent import DeciderAgent
 from agents.executor_agent import ExecutorAgent
 from agents.reflector_agent import ReflectorAgent
 from agents.recorder_agent import RecorderAgent
+from memory.meta_manager import MIRIXMemorySystem
 from core.workflow.predefined.orchestrator import PredefinedOrchestrator
 from core.workflow.predefined.graph import build_predefined_graph
 
@@ -24,18 +25,19 @@ def run_predefined():
     Entry point for the Predefined (Scenario-Based) workflow.
 
     Flow per scenario:
-      1. Figma discovery  →  2. Build initial state  →  3. Run graph loop
-      4. Bridge navigation to next scenario (if any)
+      1. MIRIXMemorySystem init  →  2. Figma discovery  →  3. memory.init_session()
+      4. Build graph  →  5. Run graph loop  →  6. finalize_run_metrics()
+      7. Bridge navigation to next scenario (if any)
     """
     print("[*] Starting PREDEFINED Workflow...")
 
-    # --- Infrastructure (Once per run) ---
+    # ── Infrastructure (Once per run) ─────────────────────────────────────────
     figma_adapter = build_figma_adapter_from_prompt(access_token=config.FIGMA_ACCESS_TOKEN)
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
     obs_tools = ObserverTools(device_adapter)
     exe_tools = ExecutorTools(device_adapter)
 
-    # --- Load Scenarios ---
+    # ── Load Scenarios ────────────────────────────────────────────────────────
     xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
     if not os.path.exists(xlsx_path):
         print(f"[-] Excel file not found at {xlsx_path}.")
@@ -46,109 +48,112 @@ def run_predefined():
         print("[-] No valid scenarios extracted.")
         return
 
-    # --- Execute Each Scenario ---
+    # ── Execute Each Scenario ─────────────────────────────────────────────────
     for scenario_index, target_scenario in enumerate(scenarios):
         tcs_id = target_scenario["tcs_id"]
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # Unique session ID for THIS scenario run (for isolated token logs)
         session_id = f"{tcs_id}_{timestamp}"
         print(f"\n[+] Executing Scenario {scenario_index + 1}/{len(scenarios)}: {tcs_id} | Session: {session_id}")
 
-        # --- LLMs (Re-created per scenario) ---
+        output_dir = os.path.join(config.OUTPUT_DIR, "predefined", f"{tcs_id}_{timestamp}")
+        os.makedirs(output_dir, exist_ok=True)
+
+        # ── MIRIX Memory System (one per scenario) ────────────────────────────
+        memory = MIRIXMemorySystem(session_id=session_id, output_dir=output_dir)
+
+        # ── LLMs ──────────────────────────────────────────────────────────────
         perception_llm   = LLMFactory.create("observer",      session_id=session_id)
         strategic_llm    = LLMFactory.create("decider",       session_id=session_id)
         reflector_llm    = LLMFactory.create("reflector",     session_id=session_id)
         orchestrator_llm = LLMFactory.create("orchestrator",  session_id=session_id)
 
-        # --- Agents ---
-        observer  = ObserverAgent(perception_llm, obs_tools.get_tools())
-        decider   = DeciderAgent(strategic_llm)
-        executor  = ExecutorAgent(exe_tools)
-        reflector = ReflectorAgent(reflector_llm)
-        recorder  = RecorderAgent()
-        orchestrator = PredefinedOrchestrator(llm=orchestrator_llm, figma_adapter=figma_adapter)
+        # ── Agents (all receive the shared memory instance) ───────────────────
+        orchestrator = PredefinedOrchestrator(
+            llm=orchestrator_llm, figma_adapter=figma_adapter, memory=memory
+        )
+        observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory)
+        decider   = DeciderAgent(strategic_llm, memory=memory)
+        executor  = ExecutorAgent(exe_tools, memory=memory)
+        reflector = ReflectorAgent(reflector_llm, memory=memory)
+        recorder  = RecorderAgent(memory=memory)
 
-        # --- Build Graph ---
-        app = build_predefined_graph(observer, decider, executor, reflector, recorder, orchestrator)
-
-        output_dir = os.path.join(config.OUTPUT_DIR, "predefined", f"{tcs_id}_{timestamp}")
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir, exist_ok=True)
-
-        # Figma discovery before running
+        # ── Figma Discovery ───────────────────────────────────────────────────
         figma_context = orchestrator.pre_scenario_discovery(
             scenario=target_scenario,
             output_dir=output_dir,
         )
 
+        # ── Bootstrap MIRIX Memory from scenario + figma context ──────────────
+        memory.init_session(
+            scenario=target_scenario,
+            tcs_id=tcs_id,
+            figma_context=figma_context,
+        )
+
+        # ── Build Graph ───────────────────────────────────────────────────────
+        app = build_predefined_graph(observer, decider, executor, reflector, orchestrator)
+
+        # ── Initial AgentState (slim working-memory only) ─────────────────────
         initial_state: AgentState = {
-            "tcs_id":                  tcs_id,
-            "session_id":              session_id,
-            "navigation_context":      target_scenario["navigation_context"],
-            "scenario_desc":           target_scenario["scenario_desc"],
-            "test_type":               target_scenario["test_type"],
-            "user_role":               target_scenario["user_role"],
-            "sub_steps":               target_scenario["sub_steps"],
-            "task_goal":               "",
-            "expected_result":         target_scenario["expected_result"],
-            "current_sub_step_index":  0,
-            "current_step":            0,
-            "screenshot_path":         "",
-            "previous_screenshot_path": "",
-            "annotated_screenshot_path": "",
-            "ui_elements_summary":     "",
-            "ocr_result":              "",
-            "detected_elements":       "",
-            "observer_analysis":       "",
-            "widgets":                 [],
-            "action_plan":             {},
-            "execution_result":        "",
-            "is_completed":            False,
-            "action_history":          [],
-            "chat_logs":               [],
-            "orchestrator_reasoning":  "",
-            "sender":                  "START",
-            "stagnation_count":        0,
-            "previous_ui_summary":     "",
-            "reflector_reasoning":     "None",
-            "output_dir":              output_dir,
-            "step_dir":                "",
-            "step_retry_count":        0,
-            "last_reflector_passed":   True,
+            # Control
+            "tcs_id":                   tcs_id,
+            "session_id":               session_id,
+            "sender":                   "START",
+            "next_agent":               "",
+            "current_step":             0,
+            "is_completed":             False,
+            # Current-step working memory
+            "screenshot_path":          "",
+            "output_dir":               output_dir,
+            "step_dir":                 "",
+            "action_plan":              {},
+            "execution_result":         "",
+            "last_reflector_passed":    True,
+            # Observer output
+            "observer_analysis":        "",
+            "observer_analysis_step":   -1,
+            "widgets":                  [],
+            # MIRIX
+            "memory_context":           "",
+            # Orchestrator control
+            "current_sub_step_index":   0,
+            "orchestrator_instruction": "",
+            "is_final_step":            False,
+            "is_first_verify_attempt":  True,
+            "step_retry_count":         0,
+            # Stagnation / recovery
+            "stagnation_count":         0,
             "recovery_attempts":        0,
-            # Research metrics — initialized to zero each scenario run
-            "steps_completed_count":      0,
-            "total_reflector_calls":      0,
-            "reflector_pass_count":       0,
-            "total_first_verify_calls":   0,
+            "last_agent_calls":         [],
+            # Research metrics
+            "start_time":               0.0,
+            "end_time":                 0.0,
+            "steps_completed_count":    0,
+            "total_reflector_calls":    0,
+            "reflector_pass_count":     0,
+            "total_first_verify_calls": 0,
             "reflector_first_pass_count": 0,
-            "is_first_verify_attempt":    True,
-            "widget_lookup_success":      0,
-            "widget_lookup_fail":         0,
-            **figma_context,
+            "widget_lookup_success":    0,
+            "widget_lookup_fail":       0,
         }
 
-        config_run  = {"recursion_limit": 150}
-        
-        # Record Start Time
+        config_run = {"recursion_limit": 150}
         initial_state["start_time"] = time.time()
-        
+
         final_state = app.invoke(initial_state, config=config_run)
-        
-        # Record End Time
         final_state["end_time"] = time.time()
 
-        # Finalize Metrics for this run (Skripsi Data)
+        # ── Finalize: write metrics + episodic history to disk ────────────────
         recorder.finalize_run_metrics(final_state)
+        memory.close()
 
         print("\n=== SCENARIO SUMMARY ===")
         print(f"TCS ID : {final_state['tcs_id']}")
-        print(f"Status : {'Failed' if final_state.get('stagnation_count', 0) > 3 else 'Finished'}")
-        print(f"Figma  : {'Enabled' if final_state.get('figma_enabled') else 'Text-only fallback'}")
+        print(f"Status : {'Stagnated' if final_state.get('stagnation_count', 0) > 3 else 'Finished'}")
+        print(f"Figma  : {'Enabled' if figma_context.get('figma_enabled') else 'Text-only fallback'}")
         print(f"Results: {output_dir}")
 
-        # Bridge navigation to the next scenario
+        # ── Bridge navigation to next scenario ────────────────────────────────
         if scenario_index < len(scenarios) - 1 and figma_adapter:
             next_scenario   = scenarios[scenario_index + 1]
             next_menu       = next_scenario.get("navigation_context", "")
@@ -156,7 +161,7 @@ def run_predefined():
 
             if next_start_node:
                 current_screen_desc = final_state.get("observer_analysis", "Unknown screen")
-                bridge_steps        = orchestrator.compute_bridge(current_screen_desc, next_start_node)
+                bridge_steps = orchestrator.compute_bridge(current_screen_desc, next_start_node)
 
                 if bridge_steps:
                     print(f"[Predefined] Injecting {len(bridge_steps)} bridge step(s) into next scenario")

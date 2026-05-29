@@ -6,7 +6,7 @@ from core.models.state import AgentState
 
 if TYPE_CHECKING:
     from adapters.figma.figma_adapter import FigmaAdapter
-
+    from memory.meta_manager import MIRIXMemorySystem
 
 
 class BridgePlan(BaseModel):
@@ -35,7 +35,6 @@ class FigmaFlowPlan(BaseModel):
     )
 
 
-
 BRIDGE_SYSTEM_PROMPT = """You are the Orchestrator Agent in a MAS AI Android testing framework.
 
 Your task is to generate a short sequence of navigation steps to transition the app
@@ -51,7 +50,6 @@ Be minimal. Generate only what is strictly necessary to reach the target screen.
 """
 
 
-
 class PredefinedOrchestrator:
     """
     Orchestrator for the Predefined (Scenario-Based) workflow.
@@ -62,15 +60,20 @@ class PredefinedOrchestrator:
     - Compute bridge navigation steps between consecutive scenarios.
     """
 
-    def __init__(self, llm=None, figma_adapter=None):
+    def __init__(self, llm=None, figma_adapter=None, memory=None):
         self.llm = llm
         self.figma: Optional["FigmaAdapter"] = figma_adapter
+        self.memory: Optional["MIRIXMemorySystem"] = memory
         self._bridge_llm = llm.with_structured_output(BridgePlan) if llm else None
         self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
+
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """
         Analyzes the Figma prototype flow and test scenario to determine
         the start screen and the expected path.
+
+        Returns figma_context dict that is passed to memory.init_session().
+        The figma_end_screenshot_b64 is stored in Resource Memory, not AgentState.
         """
         figma_enabled = self.figma is not None
         if not figma_enabled:
@@ -79,7 +82,6 @@ class PredefinedOrchestrator:
                 "figma_start_node_id": "",
                 "figma_end_node_id": "",
                 "figma_end_screenshot_b64": "",
-                "figma_bridge_steps": [],
             }
 
         menu_name = scenario.get("navigation_context", "")
@@ -113,19 +115,17 @@ class PredefinedOrchestrator:
                 SystemMessage(content=system_prompt),
                 HumanMessage(content=human_content)
             ])
-            
+
             if not result.path_ids:
                 print("[Predefined] LLM could not resolve a Figma path. Falling back to text-only.")
-                return {"figma_enabled": False}
+                return {"figma_enabled": False, "figma_start_node_id": "", "figma_end_node_id": "", "figma_end_screenshot_b64": ""}
 
             start_id = result.path_ids[0]
             end_id = result.path_ids[-1]
             print(f"[Predefined] Flow Planned: {result.path_ids} ({result.reasoning})")
 
-            # Capture the end-state screenshot for the Reflector
             figma_end_screenshot_b64 = self.figma.get_node_screenshot_b64(end_id)
 
-            # Generate the composite "Gold Standard" image
             gold_standard_path = os.path.join(output_dir, "figma_gold_standard.png")
             self.figma.save_composite_gold_standard(result.path_ids, gold_standard_path)
 
@@ -134,15 +134,12 @@ class PredefinedOrchestrator:
                 "figma_start_node_id": start_id,
                 "figma_end_node_id": end_id,
                 "figma_end_screenshot_b64": figma_end_screenshot_b64,
-                "figma_bridge_steps": [],
             }
         except Exception as e:
             print(f"[Predefined] Figma flow planning failed: {e}")
-            return {"figma_enabled": False}
+            return {"figma_enabled": False, "figma_start_node_id": "", "figma_end_node_id": "", "figma_end_screenshot_b64": ""}
 
-    # ------------------------------------------------------------------
-    # Bridge Navigation
-    # ------------------------------------------------------------------
+    # ── Bridge Navigation ─────────────────────────────────────────────────────
 
     def compute_bridge(self, current_screen_description: str, next_start_node_id: str) -> list:
         """Compute minimal navigation steps from the current screen to the next scenario's start."""
@@ -172,13 +169,11 @@ class PredefinedOrchestrator:
             print(f"[Predefined] Bridge computation failed: {e}")
             return []
 
-    # ------------------------------------------------------------------
-    # LangGraph Node
-    # ------------------------------------------------------------------
+    # ── LangGraph Node ────────────────────────────────────────────────────────
 
     def orchestrate(self, state: AgentState) -> dict:
         """LangGraph node: index-manager that advances or retries sub-steps."""
-        sub_steps = state.get("sub_steps", [])
+        tcs_id = state.get("tcs_id", "")
         current_idx = state.get("current_sub_step_index", 0)
         global_step = state.get("current_step", 0)
         output_dir = state.get("output_dir", "outputs")
@@ -187,7 +182,8 @@ class PredefinedOrchestrator:
         last_passed = state.get("last_reflector_passed", True)
         sender = state.get("sender", "START")
 
-        if sender in ["reflector", "recorder"]:
+        # Advance or retry based on reflector outcome
+        if sender == "reflector":
             if last_passed:
                 current_idx += 1
                 retry_count = 0
@@ -197,6 +193,16 @@ class PredefinedOrchestrator:
 
         if retry_count > 3:
             print("[Predefined] Maximum retries exceeded. Aborting scenario.")
+            if self.memory is not None:
+                self.memory.update({
+                    "episodic": {
+                        "event_type": "orchestrator_decision",
+                        "summary": "Maximum retries exceeded. Aborting scenario.",
+                        "details": "",
+                        "actor": "orchestrator",
+                        "step": global_step,
+                    }
+                })
             return {
                 "is_completed": True,
                 "sender": "orchestrator",
@@ -204,8 +210,13 @@ class PredefinedOrchestrator:
             }
 
         steps_completed_count = state.get("steps_completed_count", 0)
-        if sender == "recorder" and last_passed:
+        if sender == "reflector" and last_passed:
             steps_completed_count += 1
+
+        # Read sub_steps from Procedural Memory
+        sub_steps = []
+        if self.memory is not None:
+            sub_steps = self.memory.procedural.get_steps(tcs_id, "workflow")
 
         update_data = {
             "current_sub_step_index": current_idx,
@@ -227,11 +238,31 @@ class PredefinedOrchestrator:
             update_data["step_dir"] = step_dir
             update_data["is_completed"] = False
             print(f"[Predefined] Dispatching: {sub_steps[current_idx]}")
+
+            if self.memory is not None:
+                self.memory.update({
+                    "episodic": {
+                        "event_type": "orchestrator_decision",
+                        "summary": f"Dispatching step {current_idx + 1}: {sub_steps[current_idx]}",
+                        "details": "",
+                        "actor": "orchestrator",
+                        "step": global_step + 1,
+                    }
+                })
         else:
+            completion_msg = f"All {len(sub_steps)} predefined sub-steps completed and verified successfully."
             update_data["is_completed"] = True
-            update_data["orchestrator_reasoning"] = (
-                f"All {len(sub_steps)} predefined sub-steps completed and verified successfully."
-            )
             print("[Predefined] All steps verified. Scenario success.")
+
+            if self.memory is not None:
+                self.memory.update({
+                    "episodic": {
+                        "event_type": "orchestrator_decision",
+                        "summary": completion_msg,
+                        "details": "",
+                        "actor": "orchestrator",
+                        "step": global_step + 1,
+                    }
+                })
 
         return update_data
