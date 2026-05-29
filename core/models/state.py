@@ -48,3 +48,4 @@ class AgentState(TypedDict):
     reflector_first_pass_count: int
     widget_lookup_success: int
     widget_lookup_fail: int
+    widget_text_fallback_count: int     # fallback recoveries via text-match (subset of widget_lookup_success)

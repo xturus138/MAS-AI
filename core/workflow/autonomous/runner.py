@@ -156,6 +156,7 @@ def run_autonomous():
             "reflector_first_pass_count": 0,
             "widget_lookup_success":    0,
             "widget_lookup_fail":       0,
+            "widget_text_fallback_count": 0,
         }
 
         config_run = {"recursion_limit": 300}
