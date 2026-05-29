@@ -73,3 +73,7 @@ class ExecutorTools:
         self.d.wait_idle(timeout=5.0)
         time.sleep(1)
         return "Pressed enter"
+
+    def check_crash(self, lines: int = 50) -> str:
+        """Delegate to device's crash check. Returns '' if no crash or device doesn't support it."""
+        return self.d.check_crash(lines)
