@@ -85,7 +85,7 @@ def run_autonomous():
         observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory, logger=logger)
         decider   = DeciderAgent(strategic_llm, memory=memory, logger=logger)
         executor  = ExecutorAgent(exe_tools, memory=memory, logger=logger)
-        reflector = ReflectorAgent(reflector_llm, memory=memory, logger=logger)
+        reflector = ReflectorAgent(reflector_llm, memory=memory, logger=logger, device=device_adapter)
         recorder  = RecorderAgent(memory=memory, logger=logger)
 
         # ── Fair Experiment: Figma Gold Standard discovery ────────────────────
