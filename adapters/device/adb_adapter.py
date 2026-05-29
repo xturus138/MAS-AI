@@ -112,6 +112,13 @@ class ADBAdapter(IDeviceClient):
         except Exception:
             return ""
 
+    def get_current_app(self) -> str:
+        try:
+            info = self.d.app_current()
+            return info.get("package", "")
+        except Exception:
+            return ""
+
     def check_crash(self, lines: int = 50) -> str:
         """Scan last `lines` logcat *:E entries for crash signatures.
         Returns first matching line (max 200 chars) or '' if clean.

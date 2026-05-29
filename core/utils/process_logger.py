@@ -26,11 +26,11 @@ class ProcessLogger:
         os.makedirs(output_dir, exist_ok=True)
         # Write header so the file exists immediately when the runner starts
         self._write_raw(
-            "=" * 80 + "\n"
+            f"{'=' * 80}\n"
             f"  MAS AI — Process Log\n"
             f"  Output: {output_dir}\n"
             f"  Started: {self._ts()}\n"
-            "=" * 80 + "\n\n"
+            f"{'=' * 80}\n\n"
         )
 
     # ── Public API ────────────────────────────────────────────────────────────
@@ -57,9 +57,9 @@ class ProcessLogger:
     def section(self, title: str):
         """Bold section header, e.g. 'CYCLE 3'."""
         self._write_raw(
-            "\n" + "━" * 80 + "\n"
+            f"\n{'━' * 80}\n"
             f"  {title}\n"
-            "━" * 80 + "\n"
+            f"{'━' * 80}\n"
         )
 
     def close(self):

@@ -64,3 +64,9 @@ class IDeviceClient(ABC):
         Override in real device adapters.
         """
         return ""
+
+    def get_current_app(self) -> str:
+        """Return the package name of the currently foregrounded app, or '' on failure.
+        Override in real device adapters.
+        """
+        return ""

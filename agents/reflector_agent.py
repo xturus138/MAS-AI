@@ -122,11 +122,79 @@ class ReflectorAgent:
             is_final_step       = (current_idx == len(sub_steps) - 1) if sub_steps else False
             current_instruction = sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
 
-        # ── 3. Pixel-diff short-circuit (intermediate steps only) ─────────────
+        # ── 3a. start_app: verify foreground package via ADB (no pixel-diff/LLM) ─
+        action_plan = state.get("action_plan", {}) or {}
+        action_type = action_plan.get("action_type", "")
+        if action_type == "start_app" and self.device is not None:
+            expected_pkg = action_plan.get("app_package", "")
+            current_pkg  = self.device.get_current_app()
+            passed        = bool(expected_pkg and expected_pkg in current_pkg)
+            reasoning     = (
+                f"ADB foreground check: current='{current_pkg}' expected='{expected_pkg}' → {'PASS' if passed else 'FAIL'}"
+            )
+            verdict = "PASSED" if passed else "FAILED"
+            print(f"[Reflector] [start_app] {reasoning}")
+            self._log(f"start_app foreground check: {verdict}", reasoning)
+
+            if not passed:
+                recovery_attempts = state.get("recovery_attempts", 0) + 1
+            else:
+                recovery_attempts = state.get("recovery_attempts", 0)
+
+            total_reflector_calls      = state.get("total_reflector_calls", 0) + 1
+            reflector_pass_count       = state.get("reflector_pass_count", 0) + (1 if passed else 0)
+            is_first                   = state.get("is_first_verify_attempt", True)
+            total_first_verify_calls   = state.get("total_first_verify_calls", 0) + (1 if is_first else 0)
+            reflector_first_pass_count = state.get("reflector_first_pass_count", 0) + (1 if is_first and passed else 0)
+
+            save_dir = step_dir if step_dir else output_dir
+            if save_dir:
+                ref_path = os.path.join(save_dir, "reflector_report.json")
+                with open(ref_path, "w", encoding="utf-8") as f:
+                    json.dump({
+                        "passed": passed,
+                        "reasoning": reasoning,
+                        "step_index": current_idx,
+                        "figma_enabled": False,
+                        "figma_discrepancies": "",
+                        "start_app_check": True,
+                        "expected_package": expected_pkg,
+                        "current_package": current_pkg,
+                    }, f, indent=4, ensure_ascii=False)
+
+            if self.memory is not None:
+                self.memory.update({
+                    "episodic": {
+                        "event_type": "reflector_evaluation",
+                        "summary": f"start_app ADB check {verdict}: {reasoning[:150]}",
+                        "details": reasoning,
+                        "actor": "reflector",
+                        "step": current_step,
+                    }
+                })
+
+            if self.logger is not None:
+                self.logger.separator()
+
+            return {
+                "last_reflector_passed":       passed,
+                "screenshot_path":             screenshot_path,
+                "memory_context":              state.get("memory_context", ""),
+                "sender":                      "reflector",
+                "recovery_attempts":           recovery_attempts,
+                "total_reflector_calls":       total_reflector_calls,
+                "reflector_pass_count":        reflector_pass_count,
+                "total_first_verify_calls":    total_first_verify_calls,
+                "reflector_first_pass_count":  reflector_first_pass_count,
+            }
+
+        # ── 3b. Pixel-diff short-circuit (intermediate steps only) ────────────
+        # Skip for `input`: typing text may change < 2% of pixels but still succeeded.
         if (not is_final_step
                 and pre_action_path
                 and post_action_path
-                and pre_action_path != post_action_path):
+                and pre_action_path != post_action_path
+                and action_type != "input"):
             diff_ratio = self._pixel_diff_ratio(pre_action_path, post_action_path)
             self._log(
                 f"Pixel-diff ratio: {diff_ratio:.4f}",

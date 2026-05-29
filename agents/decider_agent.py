@@ -43,7 +43,8 @@ Your task: translate the given step instruction into exactly ONE ActionPlan.
 
 RULES:
 - target_id MUST be an integer ID from the SEMANTIC_MAP, or -1.
-- PREFER 'input' for typing. Set text_payload and target_id to the input field's ID.
+- For typing text into any field: ALWAYS use 'input' directly. The executor internally clicks/focuses the widget before typing — NEVER issue a separate 'click' to focus before 'input'. One action only.
+- Set text_payload to the exact text to type and target_id to the input field's widget ID.
 - For 'scroll': set scroll_direction, target_id = -1.
 - Set is_completed=True ONLY when the STEP INSTRUCTION cannot be mapped to any actions."""
 

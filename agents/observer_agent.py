@@ -230,6 +230,80 @@ class ObserverAgent:
             return prev_stagnation + 1
         return 0
 
+    def _filter_omniparser_widgets(self, elements: list, image_width: int, image_height: int) -> list:
+        """
+        Post-process OmniParser output to remove card-container background boxes
+        and merge horizontally fragmented text elements.
+
+        Two passes:
+        1. Drop any element whose area exceeds MAX_AREA_RATIO of the screen AND
+           has at least MIN_CHILDREN smaller elements contained within it — these
+           are YOLO-detected card/container backgrounds, not actionable items.
+        2. Merge text_stub elements that sit on the same row and are horizontally
+           close, so split tokens like ["Notulensi Rapat", "Jaist"] become one.
+        """
+        if not elements:
+            return elements
+
+        total_area = image_width * image_height
+        MAX_AREA_RATIO = 0.12   # card containers are typically 9-11 % of screen
+        MIN_CHILDREN   = 1      # drop the large box only if ≥1 smaller box is inside
+
+        def _area(b):
+            return max(0, b[2] - b[0]) * max(0, b[3] - b[1])
+
+        def _contained(inner, outer, margin=15):
+            return (inner[0] >= outer[0] - margin and
+                    inner[1] >= outer[1] - margin and
+                    inner[2] <= outer[2] + margin and
+                    inner[3] <= outer[3] + margin)
+
+        # ── Pass 1: remove large card-container backgrounds ───────────────────
+        big, normal = [], []
+        for el in elements:
+            b = el.get("bounds", [0, 0, 0, 0])
+            if _area(b) / total_area > MAX_AREA_RATIO:
+                big.append(el)
+            else:
+                normal.append(el)
+
+        kept = list(normal)
+        for big_el in big:
+            big_b = big_el.get("bounds", [0, 0, 0, 0])
+            children = sum(1 for el in normal if _contained(el.get("bounds", [0,0,0,0]), big_b))
+            if children < MIN_CHILDREN:
+                kept.append(big_el)  # no children → might be a real large widget, keep it
+
+        # ── Pass 2: merge horizontally adjacent text_stub elements ────────────
+        text_stubs   = [el for el in kept if el.get("type") == "text_stub"]
+        other_els    = [el for el in kept if el.get("type") != "text_stub"]
+
+        text_stubs.sort(key=lambda e: (e["bounds"][1], e["bounds"][0]))
+
+        merged_stubs = []
+        if text_stubs:
+            cur = dict(text_stubs[0])
+            for nxt in text_stubs[1:]:
+                cb, nb = cur["bounds"], nxt["bounds"]
+                cur_h       = cb[3] - cb[1]
+                y_overlap   = min(cb[3], nb[3]) - max(cb[1], nb[1])
+                h_gap       = nb[0] - cb[2]    # horizontal gap between boxes
+                same_row    = y_overlap > cur_h * 0.4
+                close_enough = h_gap < 40
+                if same_row and close_enough:
+                    cur["bounds"] = [
+                        min(cb[0], nb[0]), min(cb[1], nb[1]),
+                        max(cb[2], nb[2]), max(cb[3], nb[3]),
+                    ]
+                    cur["cv_bounds"] = cur["bounds"]
+                    cur["text"] = (cur.get("text", "") + " " + nxt.get("text", "")).strip()
+                else:
+                    merged_stubs.append(cur)
+                    cur = dict(nxt)
+            merged_stubs.append(cur)
+
+        return other_els + merged_stubs
+
     def _log(self, msg: str, detail: str = ""):
         if self.logger is not None:
             self.logger.log("OBSERVER", msg, detail)
@@ -292,6 +366,7 @@ class ObserverAgent:
 
         img = cv2.imread(raw_path)
         image_height = img.shape[0] if img is not None else 1920
+        image_width  = img.shape[1] if img is not None else 1080
 
         if self.parse_screen_omniparser is not None:
             # ── OmniParser path: unified YOLO + Florence-2 + OCR pipeline ────
@@ -311,7 +386,13 @@ class ObserverAgent:
                 omni_elements = None
 
             if omni_elements is not None:
-                # OmniParser already fuses OCR + CV + icon captions; skip merge step.
+                # Post-process: remove card-container backgrounds and merge split text.
+                before_count = len(omni_elements)
+                omni_elements = self._filter_omniparser_widgets(omni_elements, image_width, image_height)
+                after_count = len(omni_elements)
+                if before_count != after_count:
+                    print(f"[Observer] OmniParser post-filter: {before_count} → {after_count} elements")
+
                 grouped = self._group_keyboard_elements(omni_elements, image_height, is_kb_shown)
                 final_widget_set = []
                 for idx, el in enumerate(grouped, start=1):

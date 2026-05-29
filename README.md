@@ -9,11 +9,13 @@ A multi-agent system (MAS) for automated Android GUI testing, built with LangGra
 This framework operates on a **Shared Variable Experiment Model**, giving both workflows the exact same visual context and data baseline to perform operations.
 
 ### 1. Predefined Workflow (Scenario-Based)
+
 - **Logic**: Strict index-based execution of sub-steps defined in `scenario.xlsx`.
 - **Goal**: High reliability and precise regression verification against designers' intent.
 - **Key Flow**: `Figma Discovery → Step-by-Step Execution → Visual QA → Bridge Navigation`.
 
 ### 2. Autonomous Workflow (Goal-Based)
+
 - **Logic**: Dynamic real-time planning based purely on the `task_goal` and live UI analysis.
 - **Goal**: Robustness and unstructured exploratory testing.
 - **Key Flow**: `Figma Discovery → Dynamic Planning → Execution → Progress Check → Re-plan`.
@@ -32,20 +34,21 @@ Rather than storing context in the LangGraph state (which inflates every message
 
 MIRIX is composed of six specialized stores managed by a single `MIRIXMemorySystem` meta-manager:
 
-| Store | Backend | What It Holds |
-|---|---|---|
-| **Core Memory** | JSON file | Session identity, scenario goal, expected result, test type, Figma flags — the immutable facts of a run |
-| **Episodic Memory** | SQLite + FTS5 | Timestamped event log of every agent action (observer analysis, executor result, reflector verdict, orchestrator decision) — queryable by actor, step, or keyword |
-| **Semantic Memory** | SQLite + FTS5 | Extracted UI concepts and widget descriptions stored as embedding-free semantic facts — used for cross-step UI recall |
-| **Procedural Memory** | JSON file | Ordered sub-step sequences loaded from `scenario.xlsx` — the "how to" knowledge for predefined mode |
-| **Resource Memory** | JSON + disk | Binary and path-indexed assets (Figma gold standard screenshot, annotated screenshots) — decouples large data from the state graph |
-| **Knowledge Vault** | JSON file | Domain-level heuristics and test patterns accumulated across runs — currently populated from scenario metadata |
+| Store                       | Backend       | What It Holds                                                                                                                                                      |
+| --------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Core Memory**       | JSON file     | Session identity, scenario goal, expected result, test type, Figma flags — the immutable facts of a run                                                           |
+| **Episodic Memory**   | SQLite + FTS5 | Timestamped event log of every agent action (observer analysis, executor result, reflector verdict, orchestrator decision) — queryable by actor, step, or keyword |
+| **Semantic Memory**   | SQLite + FTS5 | Extracted UI concepts and widget descriptions stored as embedding-free semantic facts — used for cross-step UI recall                                             |
+| **Procedural Memory** | JSON file     | Ordered sub-step sequences loaded from `scenario.xlsx` — the "how to" knowledge for predefined mode                                                             |
+| **Resource Memory**   | JSON + disk   | Binary and path-indexed assets (Figma gold standard screenshot, annotated screenshots) — decouples large data from the state graph                                |
+| **Knowledge Vault**   | JSON file     | Domain-level heuristics and test patterns accumulated across runs — currently populated from scenario metadata                                                    |
 
 ### How It Works
 
 #### Initialization (`memory.init_session`)
 
 At the start of every scenario, the runner calls `memory.init_session(scenario, tcs_id, figma_context)`. This:
+
 1. Writes immutable facts to **Core Memory** (`task_goal`, `expected_result`, `test_type`, `figma_enabled`, etc.).
 2. Writes the ordered test steps to **Procedural Memory** under the `tcs_id` key.
 3. Decodes and saves the Figma Gold Standard image to **Resource Memory** on disk.
@@ -107,16 +110,16 @@ Prior to MIRIX, all shared context was carried **directly in `AgentState`** — 
 
 ### Impact Summary
 
-| Dimension | Before | After |
-|---|---|---|
-| `AgentState` field count | ~60 | ~30 |
-| Scenario context in state | Yes — repeated every cycle | No — stored once in MIRIX |
-| Action history in state | Yes — grows unbounded | No — queried from Episodic store |
-| Figma image in state | Yes — base64 string in state | No — file on disk, fetched by reflector |
-| RecorderAgent position | Mid-cycle graph node | Post-run function call |
-| Cross-step recall mechanism | Re-passing stale state fields | Active retrieval via `memory.retrieve()` |
-| Memory coupling | Agents read directly from state | Agents read from MIRIX, write update packets |
-| Process observability | `print()` statements only | Structured `process.log` per scenario |
+| Dimension                   | Before                          | After                                        |
+| --------------------------- | ------------------------------- | -------------------------------------------- |
+| `AgentState` field count  | ~60                             | ~30                                          |
+| Scenario context in state   | Yes — repeated every cycle     | No — stored once in MIRIX                   |
+| Action history in state     | Yes — grows unbounded          | No — queried from Episodic store            |
+| Figma image in state        | Yes — base64 string in state   | No — file on disk, fetched by reflector     |
+| RecorderAgent position      | Mid-cycle graph node            | Post-run function call                       |
+| Cross-step recall mechanism | Re-passing stale state fields   | Active retrieval via `memory.retrieve()`   |
+| Memory coupling             | Agents read directly from state | Agents read from MIRIX, write update packets |
+| Process observability       | `print()` statements only     | Structured `process.log` per scenario      |
 
 ---
 
@@ -148,15 +151,15 @@ Each entry follows a fixed-width timestamped format:
 
 ### What Gets Logged Per Component
 
-| Component | Events Captured |
-|---|---|
-| **Runner** | Scenario start (tcs_id, session_id, mode), Figma discovery start/complete (node IDs), graph start, graph end (status, cycles, stagnation count) |
-| **Orchestrator** | `━━ CYCLE N ━━` section header, sender context, step dispatch instruction (predefined) or LLM judgment (autonomous), retry/abort/kill-switch decisions |
-| **Observer** | Memory retrieval result, screenshot captured, vision pipeline element counts, widget set size, annotated screenshot path, LLM call start + first 500 chars of analysis, stagnation detection outcome |
-| **Decider** | Current instruction, memory context retrieved, LLM call start, resolved action plan (type, intent, target widget, text payload) |
-| **Executor** | Action type/intent/target_id, widget coordinate resolution, widget lookup failures, ADB result (OK/FAIL), post-action screenshot path |
-| **Reflector** | Verification mode (STEP or FINAL + Figma label), instruction + expected result, verdict (PASSED/FAILED), full reasoning, Figma discrepancies |
-| **Recorder** | Final metrics snapshot (status, cycles, physical actions, tokens, duration, tool precision rate), log file closed |
+| Component              | Events Captured                                                                                                                                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Runner**       | Scenario start (tcs_id, session_id, mode), Figma discovery start/complete (node IDs), graph start, graph end (status, cycles, stagnation count)                                                      |
+| **Orchestrator** | `━━ CYCLE N ━━` section header, sender context, step dispatch instruction (predefined) or LLM judgment (autonomous), retry/abort/kill-switch decisions                                         |
+| **Observer**     | Memory retrieval result, screenshot captured, vision pipeline element counts, widget set size, annotated screenshot path, LLM call start + first 500 chars of analysis, stagnation detection outcome |
+| **Decider**      | Current instruction, memory context retrieved, LLM call start, resolved action plan (type, intent, target widget, text payload)                                                                      |
+| **Executor**     | Action type/intent/target_id, widget coordinate resolution, widget lookup failures, ADB result (OK/FAIL), post-action screenshot path                                                                |
+| **Reflector**    | Verification mode (STEP or FINAL + Figma label), instruction + expected result, verdict (PASSED/FAILED), full reasoning, Figma discrepancies                                                         |
+| **Recorder**     | Final metrics snapshot (status, cycles, physical actions, tokens, duration, tool precision rate), log file closed                                                                                    |
 
 ---
 
@@ -165,6 +168,7 @@ Each entry follows a fixed-width timestamped format:
 The following describes the complete execution sequence after MIRIX integration for a single scenario.
 
 ### Startup (Once Per Run)
+
 1. `ADBAdapter` connects to the target device.
 2. `ObserverTools` and `ExecutorTools` wrap the device adapter for agent use.
 3. `FigmaAdapter` is constructed from the Figma access token (optional — degrades gracefully if unavailable).
@@ -173,17 +177,20 @@ The following describes the complete execution sequence after MIRIX integration 
 ### Per-Scenario Loop
 
 **Step 1 — Bootstrap**
+
 - `MIRIXMemorySystem` is instantiated with a unique `session_id` and `output_dir`.
 - `ProcessLogger` is instantiated; writes a header and scenario-start entry to `process.log`.
 - LLM clients are created per role via `LLMFactory` (observer, decider, reflector, orchestrator).
 - All agents are constructed, each receiving both `memory` and `logger`.
 
 **Step 2 — Figma Discovery**
+
 - The Orchestrator calls `pre_scenario_discovery()`, which uses an LLM to trace the expected path through the Figma prototype graph.
 - Returns a `figma_context` dict: `figma_enabled`, `figma_start_node_id`, `figma_end_node_id`, `figma_end_screenshot_b64`.
 - The composite Gold Standard image is saved to `output_dir/figma_gold_standard.png`.
 
 **Step 3 — Memory Initialization**
+
 - `memory.init_session(scenario, tcs_id, figma_context)` writes all immutable facts to MIRIX stores.
 - Figma Gold Standard base64 is decoded and saved to `output_dir/memory/figma_end.png` by Resource Memory.
 
@@ -224,6 +231,7 @@ START
 - **Autonomous mode**: Orchestrator LLM judges next action (`OBSERVE / DECIDE / EXECUTE / VERIFY / COMPLETE`) using real-time episodic history and optional Figma reference. Kill switches stop loops of 3 identical calls or runs exceeding 35 cycles.
 
 **Step 5 — Finalization**
+
 - `recorder.finalize_run_metrics(final_state)` is called once after the graph exits.
 - Writes `final_metrics.json`, `chat_logs.txt`, and `interaction_script.json` to `output_dir`.
 - Reads token/cost totals from LLM log files under `outputs/llm_logs/{session_id}/`.
@@ -240,6 +248,10 @@ START
 - **MIRIX Memory**: Structured 6-store memory system separating episodic, semantic, procedural, resource, core, and knowledge vault concerns — enables active retrieval without bloating the LangGraph state.
 - **Process Logging**: Full structured execution trace written to `process.log` in every scenario output directory.
 - **Cost Observability**: Real-time dollar cost tracking for multi-provider LLM payloads (Google, Anthropic, OpenAI, DeepSeek, etc.).
+- **ADB Crash Detection**: Automatic post-action checking of logcat error logs for crash/ANR signatures (e.g., Fatal Exception, NullPointerException, ANR in), flagging runs with precise crash context.
+- **Pixel-Diff Stagnation Mitigation**: Reflector-owned post-action screenshot capture and OpenCV-based pixel-diff comparison. If less than 2% of the screen changes on an intermediate step, the evaluation skips the LLM call entirely to save tokens and avoid redundant verification.
+- **Text-Match Widget Fallback**: A zero-cost recovery path in the Executor that performs keyword-token matching against widget text labels when the target ID is not found.
+- **Auto Excel Test Reporting**: Recorder-owned automatic update of results (Time Testing, Testing Status, OK Evid., Issue Status) and research metrics back into the main `scenario.xlsx` file in-place, exporting a local `test_report.xlsx` copy to the scenario's output folder.
 
 ---
 
@@ -271,49 +283,59 @@ outputs/{mode}/{tcs_id}_{timestamp}/
 
 ### Research Metrics (`final_metrics.json`)
 
-| Metric | Description |
-|---|---|
-| `status` | `SUCCESS`, `FAILED`, or `STAGNATED` |
-| `total_cycles` | Total LangGraph steps executed |
-| `physical_actions` | Number of actual ADB interactions (tap, swipe, type) |
-| `tool_precision_rate` | Ratio of successful executor actions to total |
-| `total_tokens_estimate` | Cumulative LLM token usage across all agents |
-| `total_price_usd` | Total LLM cost in USD |
-| `total_duration_seconds` | Wall-clock run time |
-| `figma_verified` | Whether Figma Gold Standard was used for final verification |
-| `research_metrics.coverage_rate` | Steps completed / total defined steps (predefined) |
-| `research_metrics.decision_accuracy_initial_acc1` | First-attempt verification pass rate |
-| `research_metrics.widget_localization_effectiveness` | Widget ID → coordinate resolution success rate |
+| Metric                                                 | Description                                                       |
+| ------------------------------------------------------ | ----------------------------------------------------------------- |
+| `status`                                             | `SUCCESS`, `FAILED`, or `STAGNATED`                         |
+| `total_cycles`                                       | Total LangGraph steps executed                                    |
+| `physical_actions`                                   | Number of actual ADB interactions (tap, swipe, type)              |
+| `tool_precision_rate`                                | Ratio of successful executor actions to total                     |
+| `total_tokens_estimate`                              | Cumulative LLM token usage across all agents                      |
+| `total_price_usd`                                    | Total LLM cost in USD                                             |
+| `total_duration_seconds`                             | Wall-clock run time                                               |
+| `figma_verified`                                     | Whether Figma Gold Standard was used for final verification       |
+| `research_metrics.coverage_rate`                     | Steps completed / total defined steps (predefined)                |
+| `research_metrics.decision_accuracy_initial_acc1`    | First-attempt verification pass rate                              |
+| `research_metrics.widget_localization_effectiveness` | Widget ID → coordinate resolution success rate                   |
+| `research_metrics.widget_text_fallback_recoveries`   | Count of successful widget resolution fallbacks via text matching |
 
 ---
 
 ## Setup & Quick Start
 
 ### 1. Pre-requisites
+
 1. Connect your physical Android device or emulator via ADB.
 2. Ensure USB debugging is permitted.
 
 ### 2. Environment
+
 Copy the configuration template and configure your models and keys:
+
 ```bash
 cp .env.example .env
 ```
 
 ### 3. Toggle Execution Mode
+
 Switch between strategies by updating `WORKFLOW_STRATEGY` in `.env`:
+
 ```env
 WORKFLOW_STRATEGY=predefined   # Scenario-based execution
 WORKFLOW_STRATEGY=autonomous   # Goal-driven exploration
 ```
 
 ### 4. Launch
+
 Run the framework router:
+
 ```bash
 python main.py
 ```
+
 Find all results, screenshots, and metrics in the `outputs/` directory structure.
 
 ### 5. Diagnostics
+
 ```bash
 python check_figma_connection.py   # Test Figma API connectivity
 python check_models.py             # Verify LLM provider connectivity

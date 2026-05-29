@@ -247,8 +247,17 @@ class FigmaAdapter:
             img = Image.open(io.BytesIO(base64.b64decode(b64)))
             images.append(img)
             
-            context = self.get_node_context(nid)
-            name = context.get("document", {}).get("name", f"Frame {nid}")
+            # Try to get frame name from self._frames_cache first to avoid redundant API request
+            name = f"Frame {nid}"
+            if self._frames_cache:
+                for f in self._frames_cache:
+                    if f["id"] == nid:
+                        name = f["name"]
+                        break
+            else:
+                context = self.get_node_context(nid)
+                if context:
+                    name = context.get("document", {}).get("name", name)
             titles.append(name)
 
         if not images:
@@ -278,9 +287,17 @@ class FigmaAdapter:
 
 
 def build_figma_adapter_from_prompt(access_token: str) -> Optional[FigmaAdapter]:
+    if config.FIGMA_FILE_URL:
+        file_key = _extract_file_key(config.FIGMA_FILE_URL)
+        print(f"[Figma] File key auto-loaded from config: {file_key}")
+        return FigmaAdapter(file_key=file_key, access_token=access_token)
+
     print("\n[*] MAS AI - Figma Visual Integration Setup")
     print("    Enter Figma file URL (or press Enter to skip visual validation): ", end="", flush=True)
-    raw_input = input().strip()
+    try:
+        raw_input = input().strip()
+    except (IOError, EOFError):
+        raw_input = ""
 
     if not raw_input:
         print("[Figma] Skipping Figma integration. Running in text-only validation mode.")
@@ -289,3 +306,4 @@ def build_figma_adapter_from_prompt(access_token: str) -> Optional[FigmaAdapter]
     file_key = _extract_file_key(raw_input)
     print(f"[Figma] File key extracted: {file_key}")
     return FigmaAdapter(file_key=file_key, access_token=access_token)
+

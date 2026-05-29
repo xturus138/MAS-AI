@@ -90,4 +90,9 @@ council-transcript-*.md
 Thumbs.db
 Desktop.ini
 .blackboxcli/
-docs/superpowers/specs/2026-05-05-metrics-implementation-design.md
+# Claude Code local session data and skill artifacts
+.claude/
+docs/superpowers/
+
+# Temp Python libs accidentally dumped into project root by PDF tool
+UsersraditAppDataLocalTemppdflibs/
