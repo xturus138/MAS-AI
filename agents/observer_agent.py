@@ -1,6 +1,5 @@
 import base64
 import json
-import re
 import os
 import cv2
 from langchain_core.prompts import ChatPromptTemplate
@@ -11,13 +10,14 @@ from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 
 
 class ObserverAgent:
-    def __init__(self, llm: ILLMClient, tools: list):
+    def __init__(self, llm: ILLMClient, tools: list, memory=None):
         self.llm = llm
         self.take_screenshot = tools[0]
         self.ocr_extract_text = tools[1]
         self.detect_visual_elements = tools[2]
         self.annotate_screenshot = tools[3]
         self.check_keyboard_state = tools[4]
+        self.memory = memory
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
         img = cv2.imread(image_path)
@@ -35,28 +35,28 @@ class ObserverAgent:
             success, buffer = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
         if not success:
             return ""
-            
+
         return base64.b64encode(buffer).decode("utf-8")
 
     def _merge_ocr_blocks(self, ocr_elements: list) -> list:
         if not ocr_elements:
             return []
-        
+
         sorted_ocr = sorted(ocr_elements, key=lambda x: (x["bounds"][1], x["bounds"][0]))
-        
+
         merged = []
         if not sorted_ocr:
             return []
-            
+
         current = sorted_ocr[0]
-        
+
         for next_el in sorted_ocr[1:]:
             curr_b = current["bounds"]
             next_b = next_el["bounds"]
-            
+
             y_overlap = min(curr_b[3], next_b[3]) - max(curr_b[1], next_b[1])
             h_dist = next_b[0] - curr_b[2]
-            
+
             height = curr_b[3] - curr_b[1]
             if y_overlap > height * 0.5 and h_dist < 40:
                 current["bounds"] = [
@@ -69,7 +69,7 @@ class ObserverAgent:
             else:
                 merged.append(current)
                 current = next_el
-        
+
         merged.append(current)
         return merged
 
@@ -78,25 +78,25 @@ class ObserverAgent:
             return elements
 
         kb_threshold_y = image_height * 0.50
-        
+
         kb_candidates = []
         non_kb_elements = []
-        
+
         for el in elements:
             b = el.get("bounds", [0, 0, 0, 0])
             cy = (b[1] + b[3]) / 2
-            
+
             if cy > kb_threshold_y:
                 kb_candidates.append(el)
             else:
                 non_kb_elements.append(el)
-                
+
         if kb_candidates:
             all_x1 = min(el["bounds"][0] for el in kb_candidates)
             all_y1 = min(el["bounds"][1] for el in kb_candidates)
             all_x2 = max(el["bounds"][2] for el in kb_candidates)
             all_y2 = max(el["bounds"][3] for el in kb_candidates)
-            
+
             keyboard_el = {
                 "bounds": [all_x1, all_y1, all_x2, all_y2],
                 "cv_bounds": [all_x1, all_y1, all_x2, all_y2],
@@ -105,7 +105,7 @@ class ObserverAgent:
             }
             non_kb_elements.append(keyboard_el)
             return non_kb_elements
-            
+
         return elements
 
     def _merge_and_filter(self, cv_elements: list, ocr_elements: list, image_height: int, is_kb_shown: bool = False) -> list:
@@ -152,15 +152,15 @@ class ObserverAgent:
             cv_bounds = cv_el["bounds"]
             matched_text = []
             matched_ocr_bounds = []
-            
+
             for ocr_idx, ocr_el in enumerate(filtered_ocr):
                 if ocr_idx in used_ocr:
                     continue
                 ocr_bounds = ocr_el["bounds"]
-                
-                is_inside = (ocr_bounds[0] >= cv_bounds[0] - 10 and 
-                             ocr_bounds[1] >= cv_bounds[1] - 10 and 
-                             ocr_bounds[2] <= cv_bounds[2] + 10 and 
+
+                is_inside = (ocr_bounds[0] >= cv_bounds[0] - 10 and
+                             ocr_bounds[1] >= cv_bounds[1] - 10 and
+                             ocr_bounds[2] <= cv_bounds[2] + 10 and
                              ocr_bounds[3] <= cv_bounds[3] + 10)
 
                 if is_inside or compute_iou(cv_bounds, ocr_bounds) > 0.1 or boxes_nearby(cv_bounds, ocr_bounds):
@@ -190,10 +190,10 @@ class ObserverAgent:
                 text = ocr_el.get("text", "").strip()
                 if len(text) < 2 or len(text) > 100:
                     continue
-                
+
                 b = ocr_el["bounds"]
-                w, h = b[2]-b[0], b[3]-b[1]
-                if h > 0 and w/h < 0.2:
+                w, h = b[2] - b[0], b[3] - b[1]
+                if h > 0 and w / h < 0.2:
                     continue
 
                 merged.append({
@@ -213,9 +213,24 @@ class ObserverAgent:
 
         return final_widget_set
 
+    def _detect_stagnation(self, current_summary: str, current_step: int, prev_stagnation: int) -> int:
+        """Compare current UI summary against the last episodic observer entry to detect stagnation."""
+        if self.memory is None:
+            return prev_stagnation
+
+        last_obs = self.memory.episodic.last_by_actor("observer")
+        if last_obs is None:
+            return 0
+
+        prev_summary = last_obs.details or ""
+        if current_summary and prev_summary and current_summary == prev_summary:
+            return prev_stagnation + 1
+        return 0
+
     def analyze(self, state: AgentState) -> Command:
-        print(f"\n--- CYCLE {state.get('current_step', 0)} | [Observer] Starting Pure Vision Perception... ---")
-        
+        current_step = state.get("current_step", 0)
+        print(f"\n--- CYCLE {current_step} | [Observer] Starting Pure Vision Perception... ---")
+
         step_dir = state.get("step_dir", "outputs")
         raw_path = os.path.join(step_dir, "raw.png")
         ocr_path = os.path.join(step_dir, "ocr.json")
@@ -223,6 +238,15 @@ class ObserverAgent:
         merged_path = os.path.join(step_dir, "merged.json")
         annotated_path = os.path.join(step_dir, "annotated.png")
         analysis_path = os.path.join(step_dir, "analysis.txt")
+
+        # ── Active Retrieval ──────────────────────────────────────────────────
+        memory_context = ""
+        scenario_desc = "N/A"
+        navigation_context = "N/A"
+        if self.memory is not None:
+            memory_context = self.memory.retrieve(f"navigation screen step={current_step}")
+            scenario_desc = self.memory.core.get("scenario_desc") or "N/A"
+            navigation_context = self.memory.core.get("navigation_context") or "N/A"
 
         print("[Observer] Taking screenshot...")
         self.take_screenshot.invoke({"target_path": raw_path})
@@ -241,7 +265,7 @@ class ObserverAgent:
         kb_resp = self.check_keyboard_state.invoke({})
         try:
             is_kb_shown = json.loads(kb_resp).get("is_shown", False)
-        except:
+        except Exception:
             is_kb_shown = False
 
         img = cv2.imread(raw_path)
@@ -249,7 +273,7 @@ class ObserverAgent:
 
         print("[Observer] Merging and filtering visual elements...")
         final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
-        
+
         with open(merged_path, "w", encoding="utf-8") as f:
             json.dump(final_widget_set, f, indent=4, ensure_ascii=False)
 
@@ -280,8 +304,8 @@ class ObserverAgent:
         ])
 
         messages = prompt.format_messages(
-            scenario_desc=state.get('scenario_desc', 'N/A'),
-            navigation_context=state.get('navigation_context', 'N/A'),
+            scenario_desc=scenario_desc,
+            navigation_context=navigation_context,
             elements_json=elements_json,
             img_b64=img_b64
         )
@@ -291,12 +315,12 @@ class ObserverAgent:
             for chunk in self.llm.stream(
                 messages,
                 config={
-                    "tags": ["observer", f"step_{state.get('current_step', 0)}"],
+                    "tags": ["observer", f"step_{current_step}"],
                     "timeout": 45.0
                 }
             ):
                 chunks.append(chunk.content)
-                
+
             raw_res = "".join(chunks)
         except Exception as e:
             print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
@@ -319,31 +343,47 @@ class ObserverAgent:
         ]
         ui_summary_text = compress_and_report(summary_data, "ui_summary", "observer")
 
-        previous_ui = state.get("previous_ui_summary", "")
-        prev_count = state.get("stagnation_count", 0)
-        if ui_summary_text and ui_summary_text == previous_ui:
-            new_stagnation_count = prev_count + 1
-        else:
-            new_stagnation_count = 0
+        # ── Stagnation Detection via Episodic Memory ──────────────────────────
+        new_stagnation_count = self._detect_stagnation(
+            ui_summary_text, current_step, state.get("stagnation_count", 0)
+        )
 
-        chat_entry = {
-            "agent": "observer",
-            "step": state.get("current_step", 0),
-            "content": f"RESPONSE:\n{raw_res}"
-        }
-        new_chat_logs = state.get("chat_logs", []) + [chat_entry]
+        # ── Semantic Memory: persist detected UI elements ─────────────────────
+        semantic_entries = []
+        for el in final_widget_set:
+            text = el.get("text", "").strip()
+            if not text:
+                continue
+            semantic_entries.append({
+                "name": f"widget_{el['id']}_{text[:30]}",
+                "summary": f"[{el.get('class', 'Widget')}] {text}",
+                "details": "",
+                "source": "observer",
+                "screen_context": scenario_desc,
+                "bounds": str(el.get("bounds", [])),
+            })
+
+        # ── Memory Update ─────────────────────────────────────────────────────
+        if self.memory is not None:
+            update_packet = {
+                "episodic": {
+                    "event_type": "observer_analysis",
+                    "summary": raw_res.split("\n")[0][:200] if raw_res else "Screen analyzed",
+                    "details": ui_summary_text,
+                    "actor": "observer",
+                    "step": current_step,
+                },
+            }
+            if semantic_entries:
+                update_packet["semantic"] = semantic_entries
+            self.memory.update(update_packet)
 
         return {
             "screenshot_path": raw_path,
-            "annotated_screenshot_path": annotated_path,
-            "ocr_result": ocr_raw,
-            "detected_elements": cv_raw,
-            "ui_elements_summary": ui_summary_text,
             "widgets": final_widget_set,
             "observer_analysis": raw_res,
-            "observer_analysis_step": state.get("current_step", 0),
-            "sender": "observer",
-            "previous_ui_summary": ui_summary_text,
+            "observer_analysis_step": current_step,
             "stagnation_count": new_stagnation_count,
-            "chat_logs": new_chat_logs,
+            "memory_context": memory_context,
+            "sender": "observer",
         }

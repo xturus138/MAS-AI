@@ -7,12 +7,14 @@ from tools.executor_tools import ExecutorTools
 
 
 class ExecutorAgent:
-    def __init__(self, tools: ExecutorTools):
+    def __init__(self, tools: ExecutorTools, memory=None):
         self.tools = tools
+        self.memory = memory
 
     def execute(self, state: AgentState) -> Command:
         plan = state["action_plan"]
         action_type = plan["action_type"]
+        current_step = state.get("current_step", 0)
 
         target_x, target_y = -1, -1
         lookup_error = None
@@ -24,17 +26,18 @@ class ExecutorAgent:
         if plan.get("is_completed"):
             result = "No Action Required (Step already satisfied)"
             print(f"[Executor] {result}")
-            history_entry = {
-                "s":   state.get("current_step", 0),
-                "a":   "none",
-                "tid": -1,
-                "why": "Step already satisfied",
-                "r":   result
-            }
-            new_history = state.get("action_history", []) + [history_entry]
+            if self.memory is not None:
+                self.memory.update({
+                    "episodic": {
+                        "event_type": "execution",
+                        "summary": "No action required — step already satisfied",
+                        "details": result,
+                        "actor": "executor",
+                        "step": current_step,
+                    }
+                })
             return {
                 "execution_result": result,
-                "action_history": new_history,
                 "sender": "executor",
                 "widget_lookup_success": widget_lookup_success,
                 "widget_lookup_fail": widget_lookup_fail,
@@ -42,7 +45,6 @@ class ExecutorAgent:
 
         if action_type in ["click", "long_click", "input"]:
             target_id = plan.get("target_id", -1)
-
             target_widget = next((w for w in widgets if w.get("id") == target_id), None)
 
             if target_widget:
@@ -83,15 +85,6 @@ class ExecutorAgent:
 
         print(f"[Executor] [{action_type}] {plan['intent']} -> {result}")
 
-        history_entry = {
-            "s":   state.get("current_step", 0),
-            "a":   action_type,
-            "tid": plan.get("target_id", -1),
-            "why": plan.get("intent", ""),
-            "r":   result
-        }
-        new_history = state.get("action_history", []) + [history_entry]
-
         # ScenGen pattern: explicit delay for UI rendering (e.g. Activity transitions)
         time.sleep(3)
 
@@ -107,10 +100,28 @@ class ExecutorAgent:
             print(f"[Executor] Failed to capture post-action UI state: {e}")
             new_screenshot = current_screenshot
 
+        # ── Memory Update ─────────────────────────────────────────────────────
+        if self.memory is not None:
+            is_error = str(result).startswith("ERROR")
+            self.memory.update({
+                "episodic": {
+                    "event_type": "execution",
+                    "summary": f"[{'FAIL' if is_error else 'OK'}] {action_type}: {plan.get('intent', '')}",
+                    "details": result,
+                    "actor": "executor",
+                    "step": current_step,
+                },
+                "resource": {
+                    "title": f"post_action_step_{current_step}",
+                    "summary": f"Post-action screenshot after {action_type}",
+                    "resource_type": "screenshot",
+                    "path": new_screenshot,
+                    "step": current_step,
+                },
+            })
+
         return {
             "execution_result": result,
-            "action_history": new_history,
-            "previous_screenshot_path": current_screenshot,
             "screenshot_path": new_screenshot,
             "sender": "executor",
             "widget_lookup_success": widget_lookup_success,
