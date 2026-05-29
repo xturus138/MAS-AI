@@ -21,6 +21,126 @@ class RecorderAgent:
         if self.logger is not None:
             self.logger.log("RECORDER", msg, detail)
 
+    def write_test_report(self, state: AgentState, metrics: dict):
+        """Fill result columns in the original scenario.xlsx and copy it to output_dir.
+
+        Columns filled (identified by header name in the TCS ID header row):
+          Time Testing, Testing Status, Updated At, Testing By, OK Evid., Issue Status
+        Additional columns appended if not already present:
+          Actual Result, Steps Taken, Tokens Used, Stagnation Count
+        """
+        import shutil
+        import openpyxl
+
+        xlsx_path  = os.path.join(os.getcwd(), "scenario.xlsx")
+        tcs_id     = state.get("tcs_id", "")
+        output_dir = state.get("output_dir", "")
+
+        if not os.path.exists(xlsx_path) or not tcs_id:
+            return
+
+        try:
+            wb = openpyxl.load_workbook(xlsx_path)
+            ws = wb.active
+
+            # ── Find header row and map column names → column indices ─────────
+            header_row_idx = None
+            col_map: dict = {}
+            for row_idx, row in enumerate(ws.iter_rows(values_only=False), start=1):
+                first = row[0].value
+                if first and str(first).strip().upper() == "TCS ID":
+                    header_row_idx = row_idx
+                    for col_idx, cell in enumerate(row, start=1):
+                        if cell.value:
+                            col_map[str(cell.value).strip()] = col_idx
+                    break
+
+            if header_row_idx is None:
+                print("[Recorder] Warning: TCS ID header row not found in scenario.xlsx")
+                return
+
+            # ── Ensure all result column headers exist; create if missing ─────
+            RESULT_COLS = [
+                "Time Testing",
+                "Testing Status",
+                "Updated At",
+                "Testing By",
+                "OK Evid.",
+                "Issue Status",
+                "Actual Result",
+                "Steps Taken",
+                "Tokens Used",
+                "Stagnation Count",
+            ]
+            next_col = ws.max_column + 1
+            col_index: dict = {}
+            for col_name in RESULT_COLS:
+                if col_name in col_map:
+                    col_index[col_name] = col_map[col_name]
+                else:
+                    ws.cell(header_row_idx, next_col).value = col_name
+                    col_index[col_name] = next_col
+                    next_col += 1
+
+            # ── Find data row by TCS ID ───────────────────────────────────────
+            data_row_idx = None
+            for row_idx in range(header_row_idx + 1, ws.max_row + 2):
+                cell_val = ws.cell(row_idx, 1).value
+                if cell_val and str(cell_val).strip() == tcs_id:
+                    data_row_idx = row_idx
+                    break
+
+            if data_row_idx is None:
+                print(f"[Recorder] Warning: TCS ID '{tcs_id}' not found in scenario.xlsx")
+                return
+
+            # ── Build result values ───────────────────────────────────────────
+            duration_s   = metrics.get("total_duration_seconds", 0)
+            mins, secs   = divmod(int(duration_s), 60)
+            duration_str = f"{mins}m {secs}s"
+
+            status         = metrics.get("status", "FAILED")
+            testing_status = "OK" if status == "SUCCESS" else "NG"
+
+            judgment = (
+                metrics.get("justification", {}).get("reflector_final_judgment", "") or ""
+            )
+
+            values = {
+                "Time Testing":     duration_str,
+                "Testing Status":   testing_status,
+                "Updated At":       metrics.get("timestamp", ""),
+                "Testing By":       f"MAS AI ({metrics.get('mode', 'predefined')})",
+                "OK Evid.":         output_dir,
+                "Issue Status":     "OK" if testing_status == "OK" else judgment[:200],
+                "Actual Result":    judgment[:500],
+                "Steps Taken":      metrics.get("total_cycles", 0),
+                "Tokens Used":      metrics.get("total_tokens_estimate", 0),
+                "Stagnation Count": metrics.get("stagnation_count", 0),
+            }
+
+            for col_name, value in values.items():
+                idx = col_index.get(col_name)
+                if idx:
+                    ws.cell(data_row_idx, idx).value = value
+
+            # ── Save back to original + copy to output_dir ───────────────────
+            wb.save(xlsx_path)
+
+            if output_dir:
+                dest = os.path.join(output_dir, "test_report.xlsx")
+                shutil.copy2(xlsx_path, dest)
+                print(f"[Recorder] Test report saved to {dest}")
+
+            self._log(
+                "Test report written",
+                f"tcs_id={tcs_id}  status={testing_status}  dest={output_dir}/test_report.xlsx"
+            )
+
+        except Exception as e:
+            print(f"[Recorder] Warning: could not write test report: {e}")
+            self._log("Test report FAILED", str(e))
+
     def finalize_run_metrics(self, state: AgentState):
         output_dir = state.get("output_dir", "outputs")
         metrics_path = os.path.join(output_dir, "final_metrics.json")
@@ -170,8 +290,9 @@ class RecorderAgent:
         ref_passes = state.get("reflector_pass_count", 0)
         first_verify_total = state.get("total_first_verify_calls", 0)
         first_verify_passes = state.get("reflector_first_pass_count", 0)
-        lookup_ok = state.get("widget_lookup_success", 0)
-        lookup_fail = state.get("widget_lookup_fail", 0)
+        lookup_ok       = state.get("widget_lookup_success", 0)
+        lookup_fail     = state.get("widget_lookup_fail", 0)
+        lookup_fallback = state.get("widget_text_fallback_count", 0)
 
         def _pct(num, den):
             return round((num / den) * 100, 1) if den > 0 else None
@@ -187,6 +308,7 @@ class RecorderAgent:
             "decision_accuracy_final_accf":      _pct(steps_completed, first_verify_total),
             "verification_pass_rate":            _pct(ref_passes, total_ref_calls),
             "widget_localization_effectiveness": _pct(lookup_ok, lookup_ok + lookup_fail),
+            "widget_text_fallback_recoveries":   lookup_fallback,
             "time_overhead_seconds":             round(duration, 2),
             "token_consumption":                 total_tokens,
         }
@@ -208,6 +330,9 @@ class RecorderAgent:
         except Exception as e:
             print(f"[Recorder Error] Failed to save final metrics: {e}")
             self._log("FAILED to save final metrics", str(e))
+
+        # ── Test report: fill scenario.xlsx result columns ────────────────────
+        self.write_test_report(state, metrics)
 
         if self.logger is not None:
             self.logger.close()
