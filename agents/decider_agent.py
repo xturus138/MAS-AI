@@ -49,9 +49,10 @@ RULES:
 
 
 class DeciderAgent:
-    def __init__(self, llm, memory=None):
+    def __init__(self, llm, memory=None, logger=None):
         self.llm = llm.with_structured_output(ActionPlan)
         self.memory = memory
+        self.logger = logger
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", SYSTEM_PROMPT),
             ("human",
@@ -60,6 +61,10 @@ class DeciderAgent:
              "STEP INSTRUCTION: \"{current_sub_step}\"\n\n"
              "Output ONE ActionPlan for the STEP INSTRUCTION.")
         ])
+
+    def _log(self, msg: str, detail: str = ""):
+        if self.logger is not None:
+            self.logger.log("DECIDER", msg, detail)
 
     def decide(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
@@ -77,10 +82,13 @@ class DeciderAgent:
         else:
             current_sub_step = "Finish Scenario"
 
+        self._log(f"Step {current_step} — Instruction: {current_sub_step}")
+
         # ── Active Retrieval ──────────────────────────────────────────────────
         memory_context = state.get("memory_context", "")
         if self.memory is not None:
             memory_context = self.memory.retrieve(current_sub_step)
+        self._log("Memory retrieval complete")
 
         messages = self.prompt.format_messages(
             memory_context=memory_context or "No memory context available.",
@@ -89,6 +97,7 @@ class DeciderAgent:
         )
 
         print(f"[Decider] Mapping Instruction: '{current_sub_step}'...")
+        self._log("LLM call started (ActionPlan generation)")
         plan = self.llm.invoke(
             messages,
             config={"tags": ["decider", f"step_{current_step}"]}
@@ -100,8 +109,15 @@ class DeciderAgent:
             with open(plan_path, "w", encoding="utf-8") as f:
                 json.dump(plan.model_dump(), f, indent=4, ensure_ascii=False)
 
-        status = "COMPLETED" if plan.is_completed else f"type={plan.action_type} | tid={plan.target_id}"
+        status = "COMPLETED (no action)" if plan.is_completed else f"type={plan.action_type} | tid={plan.target_id}"
         print(f"[Decider] {status}")
+        self._log(
+            f"ActionPlan: {status}",
+            f"intent={plan.intent}\n"
+            f"text_payload={plan.text_payload!r}\n"
+            f"scroll_direction={plan.scroll_direction!r}\n"
+            f"app_package={plan.app_package!r}"
+        )
 
         # ── Memory Update ─────────────────────────────────────────────────────
         if self.memory is not None:
@@ -114,6 +130,9 @@ class DeciderAgent:
                     "step": current_step,
                 }
             })
+
+        if self.logger is not None:
+            self.logger.separator()
 
         return {
             "action_plan": plan.model_dump(),

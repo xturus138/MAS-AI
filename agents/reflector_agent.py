@@ -16,9 +16,14 @@ class ReflectorResult(BaseModel):
 
 
 class ReflectorAgent:
-    def __init__(self, llm, memory=None):
+    def __init__(self, llm, memory=None, logger=None):
         self.llm = llm.with_structured_output(ReflectorResult)
+        self.logger = logger
         self.memory = memory
+
+    def _log(self, msg: str, detail: str = ""):
+        if self.logger is not None:
+            self.logger.log("REFLECTOR", msg, detail)
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
         img = cv2.imread(image_path)
@@ -43,6 +48,7 @@ class ReflectorAgent:
         screenshot_path = state.get("screenshot_path", "")
         current_step = state.get("current_step", 0)
         tcs_id = state.get("tcs_id", "")
+        self._log(f"Step {current_step} — Verification started")
 
         # ── Resolve context from MIRIX memory (fallback to state for non-MIRIX callers) ──
         if self.memory is not None:
@@ -129,7 +135,13 @@ class ReflectorAgent:
             HumanMessage(content=content)
         ]
 
-        print(f"[Reflector] {'FINAL' if is_final_step else 'STEP'} Verification starting...")
+        mode_label = "FINAL" if is_final_step else "STEP"
+        figma_label = " + Figma Gold Standard" if (is_final_step and figma_enabled and figma_b64) else ""
+        self._log(
+            f"LLM call started ({mode_label} verification{figma_label})",
+            f"instruction={current_instruction}\nexpected_result={expected_result[:200]}"
+        )
+        print(f"[Reflector] {mode_label} Verification starting...")
 
         try:
             result = self.llm.invoke(messages)
@@ -141,7 +153,12 @@ class ReflectorAgent:
             reasoning = f"Evaluation LLM error: {str(e)}"
             figma_discrepancies = ""
 
-        print(f"[Reflector] Result: {'PASSED' if passed else 'FAILED'} | Reasoning: {reasoning}")
+        verdict = "PASSED" if passed else "FAILED"
+        print(f"[Reflector] Result: {verdict} | Reasoning: {reasoning}")
+        self._log(
+            f"Verdict: {verdict}",
+            f"reasoning={reasoning}\nfigma_discrepancies={figma_discrepancies or 'N/A'}"
+        )
         if figma_discrepancies:
             print(f"[Reflector] Figma Discrepancies: {figma_discrepancies}")
 
@@ -193,6 +210,9 @@ class ReflectorAgent:
         is_first = state.get("is_first_verify_attempt", True)
         total_first_verify_calls = state.get("total_first_verify_calls", 0) + (1 if is_first else 0)
         reflector_first_pass_count = state.get("reflector_first_pass_count", 0) + (1 if is_first and passed else 0)
+
+        if self.logger is not None:
+            self.logger.separator()
 
         return {
             "last_reflector_passed": passed,

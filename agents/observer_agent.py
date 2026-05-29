@@ -10,7 +10,7 @@ from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 
 
 class ObserverAgent:
-    def __init__(self, llm: ILLMClient, tools: list, memory=None):
+    def __init__(self, llm: ILLMClient, tools: list, memory=None, logger=None):
         self.llm = llm
         self.take_screenshot = tools[0]
         self.ocr_extract_text = tools[1]
@@ -18,6 +18,7 @@ class ObserverAgent:
         self.annotate_screenshot = tools[3]
         self.check_keyboard_state = tools[4]
         self.memory = memory
+        self.logger = logger
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
         img = cv2.imread(image_path)
@@ -227,9 +228,14 @@ class ObserverAgent:
             return prev_stagnation + 1
         return 0
 
+    def _log(self, msg: str, detail: str = ""):
+        if self.logger is not None:
+            self.logger.log("OBSERVER", msg, detail)
+
     def analyze(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
         print(f"\n--- CYCLE {current_step} | [Observer] Starting Pure Vision Perception... ---")
+        self._log(f"=== CYCLE {current_step} — Vision Perception started ===")
 
         step_dir = state.get("step_dir", "outputs")
         raw_path = os.path.join(step_dir, "raw.png")
@@ -247,9 +253,11 @@ class ObserverAgent:
             memory_context = self.memory.retrieve(f"navigation screen step={current_step}")
             scenario_desc = self.memory.core.get("scenario_desc") or "N/A"
             navigation_context = self.memory.core.get("navigation_context") or "N/A"
+        self._log("Memory retrieval complete", f"scenario_desc={scenario_desc[:80]}")
 
         print("[Observer] Taking screenshot...")
         self.take_screenshot.invoke({"target_path": raw_path})
+        self._log("Screenshot captured", raw_path)
 
         print("[Observer] Running Vision Pipeline (OCR + CV)...")
         ocr_raw = self.ocr_extract_text.invoke({"image_path": raw_path, "save_path": ocr_path})
@@ -260,6 +268,11 @@ class ObserverAgent:
             cv_elements = json.loads(cv_raw)
         except (json.JSONDecodeError, TypeError):
             ocr_elements, cv_elements = [], []
+
+        self._log(
+            "Vision pipeline complete",
+            f"ocr_elements={len(ocr_elements)}  cv_elements={len(cv_elements)}"
+        )
 
         print("[Observer] Checking keyboard state via ADB...")
         kb_resp = self.check_keyboard_state.invoke({})
@@ -273,6 +286,7 @@ class ObserverAgent:
 
         print("[Observer] Merging and filtering visual elements...")
         final_widget_set = self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
+        self._log(f"Widget set built: {len(final_widget_set)} widgets  keyboard={'shown' if is_kb_shown else 'hidden'}")
 
         with open(merged_path, "w", encoding="utf-8") as f:
             json.dump(final_widget_set, f, indent=4, ensure_ascii=False)
@@ -283,6 +297,7 @@ class ObserverAgent:
             "elements": final_widget_set,
             "save_path": annotated_path
         })
+        self._log("Annotated screenshot saved", annotated_path)
 
         print("[Observer] Calling multimodal LLM for semantic interpretation...")
         img_b64 = self._encode_image(annotated_path)
@@ -310,6 +325,7 @@ class ObserverAgent:
             img_b64=img_b64
         )
 
+        self._log("LLM call started (multimodal screen interpretation)")
         try:
             chunks = []
             for chunk in self.llm.stream(
@@ -324,6 +340,7 @@ class ObserverAgent:
             raw_res = "".join(chunks)
         except Exception as e:
             print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
+            self._log("LLM FATAL ERROR — aborting graph", str(e))
             return Command(
                 goto="__end__",
                 update={
@@ -335,6 +352,7 @@ class ObserverAgent:
 
         with open(analysis_path, "w", encoding="utf-8") as f:
             f.write(raw_res)
+        self._log("LLM analysis complete", raw_res[:500] + ("..." if len(raw_res) > 500 else ""))
 
         filtered_widgets = final_widget_set[:50]
         summary_data = [
@@ -347,6 +365,8 @@ class ObserverAgent:
         new_stagnation_count = self._detect_stagnation(
             ui_summary_text, current_step, state.get("stagnation_count", 0)
         )
+        if new_stagnation_count > 0:
+            self._log(f"STAGNATION detected — count={new_stagnation_count} (UI unchanged from previous step)")
 
         # ── Semantic Memory: persist detected UI elements ─────────────────────
         semantic_entries = []
@@ -377,6 +397,9 @@ class ObserverAgent:
             if semantic_entries:
                 update_packet["semantic"] = semantic_entries
             self.memory.update(update_packet)
+
+        if self.logger is not None:
+            self.logger.separator()
 
         return {
             "screenshot_path": raw_path,

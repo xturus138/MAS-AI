@@ -13,8 +13,13 @@ class RecorderAgent:
     metrics and retrieve episodic chat history from memory.
     """
 
-    def __init__(self, memory=None):
+    def __init__(self, memory=None, logger=None):
         self.memory = memory
+        self.logger = logger
+
+    def _log(self, msg: str, detail: str = ""):
+        if self.logger is not None:
+            self.logger.log("RECORDER", msg, detail)
 
     def finalize_run_metrics(self, state: AgentState):
         output_dir = state.get("output_dir", "outputs")
@@ -190,5 +195,19 @@ class RecorderAgent:
             with open(metrics_path, "w", encoding="utf-8") as f:
                 json.dump(metrics, f, indent=4)
             print(f"[Recorder] Final metrics saved to {metrics_path}")
+            self._log(
+                "Final metrics saved",
+                f"status={metrics['status']}  cycles={metrics['total_cycles']}\n"
+                f"physical_actions={metrics['physical_actions']}\n"
+                f"stagnation={metrics['stagnation_count']}\n"
+                f"tokens={metrics['total_tokens_estimate']}\n"
+                f"duration={metrics['total_duration_seconds']}s\n"
+                f"tool_precision={metrics['tool_precision_rate']}%\n"
+                f"path={metrics_path}"
+            )
         except Exception as e:
             print(f"[Recorder Error] Failed to save final metrics: {e}")
+            self._log("FAILED to save final metrics", str(e))
+
+        if self.logger is not None:
+            self.logger.close()

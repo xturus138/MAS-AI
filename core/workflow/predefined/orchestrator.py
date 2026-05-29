@@ -60,12 +60,17 @@ class PredefinedOrchestrator:
     - Compute bridge navigation steps between consecutive scenarios.
     """
 
-    def __init__(self, llm=None, figma_adapter=None, memory=None):
+    def __init__(self, llm=None, figma_adapter=None, memory=None, logger=None):
         self.llm = llm
         self.figma: Optional["FigmaAdapter"] = figma_adapter
         self.memory: Optional["MIRIXMemorySystem"] = memory
+        self.logger = logger
         self._bridge_llm = llm.with_structured_output(BridgePlan) if llm else None
         self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
+
+    def _log(self, msg: str, detail: str = ""):
+        if self.logger is not None:
+            self.logger.log("ORCHESTRATOR", msg, detail)
 
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """
@@ -182,17 +187,27 @@ class PredefinedOrchestrator:
         last_passed = state.get("last_reflector_passed", True)
         sender = state.get("sender", "START")
 
+        if self.logger is not None:
+            self.logger.section(f"CYCLE {global_step} — ORCHESTRATOR (predefined)")
+        self._log(
+            f"Entered from sender={sender}  step_index={current_idx}  retry={retry_count}",
+            f"last_reflector_passed={last_passed}"
+        )
+
         # Advance or retry based on reflector outcome
         if sender == "reflector":
             if last_passed:
                 current_idx += 1
                 retry_count = 0
+                self._log(f"Step {current_idx - 1} verified — advancing to index {current_idx}")
             else:
                 retry_count += 1
                 print(f"[Predefined] Step failure. Retry attempt {retry_count}/3 for index {current_idx}")
+                self._log(f"Step FAILED — retry {retry_count}/3 for index {current_idx}")
 
         if retry_count > 3:
             print("[Predefined] Maximum retries exceeded. Aborting scenario.")
+            self._log("ABORT — maximum retries (3) exceeded")
             if self.memory is not None:
                 self.memory.update({
                     "episodic": {
@@ -238,6 +253,7 @@ class PredefinedOrchestrator:
             update_data["step_dir"] = step_dir
             update_data["is_completed"] = False
             print(f"[Predefined] Dispatching: {sub_steps[current_idx]}")
+            self._log(f"→ Dispatching step {current_idx + 1}/{len(sub_steps)}", sub_steps[current_idx])
 
             if self.memory is not None:
                 self.memory.update({
@@ -253,6 +269,7 @@ class PredefinedOrchestrator:
             completion_msg = f"All {len(sub_steps)} predefined sub-steps completed and verified successfully."
             update_data["is_completed"] = True
             print("[Predefined] All steps verified. Scenario success.")
+            self._log("→ ALL STEPS COMPLETE — scenario success", completion_msg)
 
             if self.memory is not None:
                 self.memory.update({

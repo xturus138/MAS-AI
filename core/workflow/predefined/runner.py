@@ -16,6 +16,7 @@ from agents.executor_agent import ExecutorAgent
 from agents.reflector_agent import ReflectorAgent
 from agents.recorder_agent import RecorderAgent
 from memory.meta_manager import MIRIXMemorySystem
+from core.utils.process_logger import ProcessLogger
 from core.workflow.predefined.orchestrator import PredefinedOrchestrator
 from core.workflow.predefined.graph import build_predefined_graph
 
@@ -61,27 +62,38 @@ def run_predefined():
         # ── MIRIX Memory System (one per scenario) ────────────────────────────
         memory = MIRIXMemorySystem(session_id=session_id, output_dir=output_dir)
 
+        # ── Process Logger (one per scenario) ────────────────────────────────
+        logger = ProcessLogger(output_dir)
+        logger.log("RUNNER", f"Scenario {scenario_index + 1}/{len(scenarios)} started",
+                   f"tcs_id={tcs_id}  session_id={session_id}\n"
+                   f"mode=predefined  output_dir={output_dir}")
+
         # ── LLMs ──────────────────────────────────────────────────────────────
         perception_llm   = LLMFactory.create("observer",      session_id=session_id)
         strategic_llm    = LLMFactory.create("decider",       session_id=session_id)
         reflector_llm    = LLMFactory.create("reflector",     session_id=session_id)
         orchestrator_llm = LLMFactory.create("orchestrator",  session_id=session_id)
 
-        # ── Agents (all receive the shared memory instance) ───────────────────
+        # ── Agents (all receive the shared memory + logger instances) ─────────
         orchestrator = PredefinedOrchestrator(
-            llm=orchestrator_llm, figma_adapter=figma_adapter, memory=memory
+            llm=orchestrator_llm, figma_adapter=figma_adapter, memory=memory, logger=logger
         )
-        observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory)
-        decider   = DeciderAgent(strategic_llm, memory=memory)
-        executor  = ExecutorAgent(exe_tools, memory=memory)
-        reflector = ReflectorAgent(reflector_llm, memory=memory)
-        recorder  = RecorderAgent(memory=memory)
+        observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory, logger=logger)
+        decider   = DeciderAgent(strategic_llm, memory=memory, logger=logger)
+        executor  = ExecutorAgent(exe_tools, memory=memory, logger=logger)
+        reflector = ReflectorAgent(reflector_llm, memory=memory, logger=logger)
+        recorder  = RecorderAgent(memory=memory, logger=logger)
 
         # ── Figma Discovery ───────────────────────────────────────────────────
+        logger.log("RUNNER", "Starting Figma pre-scenario discovery")
         figma_context = orchestrator.pre_scenario_discovery(
             scenario=target_scenario,
             output_dir=output_dir,
         )
+        logger.log("RUNNER", "Figma discovery complete",
+                   f"figma_enabled={figma_context.get('figma_enabled', False)}\n"
+                   f"start_node={figma_context.get('figma_start_node_id', '')}\n"
+                   f"end_node={figma_context.get('figma_end_node_id', '')}")
 
         # ── Bootstrap MIRIX Memory from scenario + figma context ──────────────
         memory.init_session(
@@ -140,8 +152,16 @@ def run_predefined():
         config_run = {"recursion_limit": 150}
         initial_state["start_time"] = time.time()
 
+        logger.log("RUNNER", "Graph execution started", f"recursion_limit={config_run['recursion_limit']}")
         final_state = app.invoke(initial_state, config=config_run)
         final_state["end_time"] = time.time()
+
+        stagnation = final_state.get("stagnation_count", 0)
+        is_completed = final_state.get("is_completed", False)
+        status = "SUCCESS" if is_completed else ("STAGNATED" if stagnation >= 3 else "FAILED")
+        logger.log("RUNNER", "Graph execution completed",
+                   f"status={status}  cycles={final_state.get('current_step', 0)}\n"
+                   f"stagnation={stagnation}  is_completed={is_completed}")
 
         # ── Finalize: write metrics + episodic history to disk ────────────────
         recorder.finalize_run_metrics(final_state)

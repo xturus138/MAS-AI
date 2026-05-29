@@ -93,12 +93,17 @@ class AutonomousOrchestrator:
     - Discover Figma nodes before each scenario to provide a visual baseline.
     """
 
-    def __init__(self, llm=None, figma_adapter=None, memory=None):
+    def __init__(self, llm=None, figma_adapter=None, memory=None, logger=None):
         self.llm = llm
         self.figma = figma_adapter
         self.memory: Optional["MIRIXMemorySystem"] = memory
+        self.logger = logger
         self._planner_llm = llm.with_structured_output(AutonomousPlan) if llm else None
         self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
+
+    def _log(self, msg: str, detail: str = ""):
+        if self.logger is not None:
+            self.logger.log("ORCHESTRATOR", msg, detail)
 
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """
@@ -179,6 +184,10 @@ class AutonomousOrchestrator:
         sender = state.get("sender", "START")
         last_reflector_passed = state.get("last_reflector_passed", True)
 
+        if self.logger is not None:
+            self.logger.section(f"CYCLE {global_step} — ORCHESTRATOR (autonomous)")
+        self._log(f"Entered from sender={sender}", f"last_reflector_passed={last_reflector_passed}")
+
         steps_completed_count = state.get("steps_completed_count", 0)
         if sender == "reflector" and last_reflector_passed:
             steps_completed_count += 1
@@ -253,6 +262,7 @@ class AutonomousOrchestrator:
         ]
 
         print("[Autonomous] Planning next step...")
+        self._log("LLM call started (AutonomousPlan generation)")
         try:
             plan = self._planner_llm.invoke(messages)
 
@@ -262,6 +272,10 @@ class AutonomousOrchestrator:
 
             print(f"[Autonomous] JUDGMENT: {plan.action_type.upper()}")
             print(f"[Autonomous] Plan: '{plan.next_step_instruction}' | Completed: {plan.is_completed}")
+            self._log(
+                f"→ JUDGMENT: {plan.action_type.upper()}  completed={plan.is_completed}",
+                f"instruction={plan.next_step_instruction}\nreasoning={plan.reasoning}"
+            )
 
             node_map = {
                 "OBSERVE": "observer_node",
@@ -289,6 +303,7 @@ class AutonomousOrchestrator:
 
             if is_looping:
                 print(f"[Autonomous] KILL SWITCH: Detected loop of 3 {plan.action_type.upper()} calls. Stopping.")
+                self._log(f"KILL SWITCH — loop of 3 {plan.action_type.upper()} calls detected")
                 if self.memory is not None:
                     self.memory.update({
                         "episodic": {

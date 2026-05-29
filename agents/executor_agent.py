@@ -7,9 +7,14 @@ from tools.executor_tools import ExecutorTools
 
 
 class ExecutorAgent:
-    def __init__(self, tools: ExecutorTools, memory=None):
+    def __init__(self, tools: ExecutorTools, memory=None, logger=None):
         self.tools = tools
         self.memory = memory
+        self.logger = logger
+
+    def _log(self, msg: str, detail: str = ""):
+        if self.logger is not None:
+            self.logger.log("EXECUTOR", msg, detail)
 
     def execute(self, state: AgentState) -> Command:
         plan = state["action_plan"]
@@ -23,9 +28,18 @@ class ExecutorAgent:
         widget_lookup_success = state.get("widget_lookup_success", 0)
         widget_lookup_fail = state.get("widget_lookup_fail", 0)
 
+        self._log(
+            f"Step {current_step} — Executing: {action_type}",
+            f"intent={plan.get('intent', '')}\n"
+            f"target_id={plan.get('target_id', -1)}\n"
+            f"text_payload={plan.get('text_payload', '')!r}\n"
+            f"scroll_direction={plan.get('scroll_direction', '')!r}"
+        )
+
         if plan.get("is_completed"):
             result = "No Action Required (Step already satisfied)"
             print(f"[Executor] {result}")
+            self._log("No action — step already satisfied")
             if self.memory is not None:
                 self.memory.update({
                     "episodic": {
@@ -36,6 +50,8 @@ class ExecutorAgent:
                         "step": current_step,
                     }
                 })
+            if self.logger is not None:
+                self.logger.separator()
             return {
                 "execution_result": result,
                 "sender": "executor",
@@ -53,9 +69,14 @@ class ExecutorAgent:
                 target_y = (bounds[1] + bounds[3]) // 2
                 widget_text = target_widget.get("text", "(no text)")
                 print(f"[Executor] Resolved ID {target_id} -> click=({target_x},{target_y}) | widget='{widget_text}'")
+                self._log(
+                    f"Widget resolved: ID {target_id} → ({target_x},{target_y})",
+                    f"text='{widget_text}'  bounds={bounds}"
+                )
                 widget_lookup_success += 1
             else:
                 lookup_error = f"ERROR: Target ID {target_id} not found in current UI state"
+                self._log(f"Widget lookup FAILED: ID {target_id} not found in {len(widgets)} widgets")
                 widget_lookup_fail += 1
 
         try:
@@ -84,6 +105,11 @@ class ExecutorAgent:
             result = f"ERROR (Execution Failed): {str(e)}"
 
         print(f"[Executor] [{action_type}] {plan['intent']} -> {result}")
+        is_error = str(result).startswith("ERROR")
+        self._log(
+            f"ADB result: {'FAIL' if is_error else 'OK'}",
+            str(result)
+        )
 
         # ScenGen pattern: explicit delay for UI rendering (e.g. Activity transitions)
         time.sleep(3)
@@ -96,13 +122,14 @@ class ExecutorAgent:
         try:
             self.tools.d.screenshot(post_action_path)
             new_screenshot = post_action_path
+            self._log("Post-action screenshot captured", post_action_path)
         except Exception as e:
             print(f"[Executor] Failed to capture post-action UI state: {e}")
+            self._log("Post-action screenshot FAILED", str(e))
             new_screenshot = current_screenshot
 
         # ── Memory Update ─────────────────────────────────────────────────────
         if self.memory is not None:
-            is_error = str(result).startswith("ERROR")
             self.memory.update({
                 "episodic": {
                     "event_type": "execution",
@@ -119,6 +146,9 @@ class ExecutorAgent:
                     "step": current_step,
                 },
             })
+
+        if self.logger is not None:
+            self.logger.separator()
 
         return {
             "execution_result": result,
