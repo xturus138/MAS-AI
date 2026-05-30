@@ -154,6 +154,9 @@ class ExecutorAgent:
             str(result)
         )
 
+        if self.monitor is not None and action_type in ("click", "long_click", "input") and target_x != -1:
+            self.monitor.on_executor(target_x, target_y)
+
         # ScenGen pattern: explicit delay for UI rendering (e.g. Activity transitions)
         time.sleep(3)
 
@@ -182,9 +185,6 @@ class ExecutorAgent:
 
         if self.logger is not None:
             self.logger.separator()
-
-        if self.monitor is not None and action_type in ("click", "long_click", "input") and target_x != -1:
-            self.monitor.on_executor(target_x, target_y)
 
         return {
             "execution_result": result,
