@@ -1,8 +1,14 @@
+import shutil
 import subprocess
 import threading
 import time
 import sys
 from typing import Optional
+
+_SCRCPY_FALLBACK_PATHS = [
+    r"C:\scrcpy\scrcpy-win64-v4.0\scrcpy.exe",
+    r"C:\scrcpy\scrcpy.exe",
+]
 
 
 class VisualMonitor:
@@ -19,9 +25,19 @@ class VisualMonitor:
         self._overlay_ready = threading.Event()
 
     def start(self):
+        scrcpy_cmd = shutil.which("scrcpy")
+        if scrcpy_cmd is None:
+            for path in _SCRCPY_FALLBACK_PATHS:
+                if shutil.which(path) is not None or __import__("os").path.isfile(path):
+                    scrcpy_cmd = path
+                    break
+        if scrcpy_cmd is None:
+            print("[VisualMonitor] WARNING: scrcpy not found on PATH. Monitor disabled.")
+            return
+
         try:
             self._scrcpy_proc = subprocess.Popen(
-                ["scrcpy", "--window-title", "scrcpy", "--always-on-top"],
+                [scrcpy_cmd, "--window-title", "scrcpy", "--always-on-top"],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
