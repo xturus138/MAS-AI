@@ -19,6 +19,7 @@ from memory.meta_manager import MIRIXMemorySystem
 from core.utils.process_logger import ProcessLogger
 from core.workflow.predefined.orchestrator import PredefinedOrchestrator
 from core.workflow.predefined.graph import build_predefined_graph
+from visual.monitor import VisualMonitor
 
 
 def run_predefined():
@@ -37,6 +38,13 @@ def run_predefined():
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
     obs_tools = ObserverTools(device_adapter)
     exe_tools = ExecutorTools(device_adapter)
+
+    device_info = device_adapter.d.info
+    monitor = VisualMonitor(
+        device_w=device_info.get("displayWidth", 1080),
+        device_h=device_info.get("displayHeight", 2400),
+    )
+    monitor.start()
 
     # ── Load Scenarios ────────────────────────────────────────────────────────
     xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
@@ -78,9 +86,9 @@ def run_predefined():
         orchestrator = PredefinedOrchestrator(
             llm=orchestrator_llm, figma_adapter=figma_adapter, memory=memory, logger=logger
         )
-        observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory, logger=logger)
-        decider   = DeciderAgent(strategic_llm, memory=memory, logger=logger)
-        executor  = ExecutorAgent(exe_tools, memory=memory, logger=logger)
+        observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory, logger=logger, monitor=monitor)
+        decider   = DeciderAgent(strategic_llm, memory=memory, logger=logger, monitor=monitor)
+        executor  = ExecutorAgent(exe_tools, memory=memory, logger=logger, monitor=monitor)
         reflector = ReflectorAgent(reflector_llm, memory=memory, logger=logger, device=device_adapter)
         recorder  = RecorderAgent(memory=memory, logger=logger)
 
@@ -187,3 +195,5 @@ def run_predefined():
                 if bridge_steps:
                     print(f"[Predefined] Injecting {len(bridge_steps)} bridge step(s) into next scenario")
                     scenarios[scenario_index + 1]["sub_steps"] = bridge_steps + next_scenario["sub_steps"]
+
+    monitor.stop()
