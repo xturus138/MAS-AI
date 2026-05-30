@@ -9,6 +9,11 @@ from core.utils.toons_helper import compress_and_report
 
 import cv2
 
+# Action types for which no visible UI navigation is required to consider an action successful.
+# 'input' enters text into a focused field — screen stays the same.
+# 'scroll' may not change visible content if already at the boundary.
+_NO_UI_CHANGE_REQUIRED = frozenset({"input", "scroll"})
+
 
 class LoadingCheckResult(BaseModel):
     loading_done: bool = Field(
@@ -454,28 +459,38 @@ class ReflectorAgent:
         print(f"[Reflector] Call 2 UI Change: changed={change_result.ui_changed} | {change_result.reasoning}")
 
         if not change_result.ui_changed:
-            reasoning = f"[UI Change Check FAILED] {change_result.reasoning}"
-            print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
-            self._log("SHORT-CIRCUIT at Call 2", reasoning)
-            return self._build_return(
-                state=state,
-                passed=False,
-                reasoning=reasoning,
-                figma_discrepancies="",
-                screenshot_path=screenshot_path,
-                post_action_path=post_action_path,
-                current_step=current_step,
-                current_idx=current_idx,
-                figma_enabled=figma_enabled,
-                memory_context=memory_context,
-                verification_chain={
-                    "loading_done": True,
-                    "loading_reasoning": loading_result.reasoning,
-                    "ui_changed": False,
-                    "ui_change_reasoning": change_result.reasoning,
-                    "short_circuit": "no_ui_change",
-                },
-            )
+            if action_type in _NO_UI_CHANGE_REQUIRED:
+                print(
+                    f"[Reflector] Call 2 ui_changed=False — action_type={action_type!r} "
+                    "does not require navigation change. Proceeding to Call 3."
+                )
+                self._log(
+                    f"Call 2 no-change ALLOWED for {action_type}",
+                    change_result.reasoning,
+                )
+            else:
+                reasoning = f"[UI Change Check FAILED] {change_result.reasoning}"
+                print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
+                self._log("SHORT-CIRCUIT at Call 2", reasoning)
+                return self._build_return(
+                    state=state,
+                    passed=False,
+                    reasoning=reasoning,
+                    figma_discrepancies="",
+                    screenshot_path=screenshot_path,
+                    post_action_path=post_action_path,
+                    current_step=current_step,
+                    current_idx=current_idx,
+                    figma_enabled=figma_enabled,
+                    memory_context=memory_context,
+                    verification_chain={
+                        "loading_done": True,
+                        "loading_reasoning": loading_result.reasoning,
+                        "ui_changed": False,
+                        "ui_change_reasoning": change_result.reasoning,
+                        "short_circuit": "no_ui_change",
+                    },
+                )
 
         # ── Call 3: Validity Check ────────────────────────────────────────────
         self._log("Call 3: Validity Check")

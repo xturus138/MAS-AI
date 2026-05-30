@@ -167,3 +167,63 @@ def test_report_json_contains_chain_metadata(tmp_path):
     assert chain["loading_done"] is True
     assert chain["ui_changed"] is True
     assert chain["short_circuit"] is None
+
+
+# ── Test 7: input action — no UI change should NOT short-circuit ──────────────
+
+def test_input_action_no_ui_change_proceeds_to_call3():
+    agent = _make_agent()
+    agent._llm_loading.invoke.return_value = LoadingCheckResult(
+        loading_done=True, reasoning="Page loaded"
+    )
+    agent._llm_change.invoke.return_value = UIChangeCheckResult(
+        ui_changed=False, reasoning="Text entered but screen identical"
+    )
+    agent._llm_validity.invoke.return_value = ValidityCheckResult(
+        passed=True, reasoning="Text correctly entered in field", figma_discrepancies=""
+    )
+
+    state = _base_state(action_plan={"action_type": "input"})
+    result = agent.evaluate(state)
+
+    agent._llm_validity.invoke.assert_called_once()   # must NOT short-circuit
+    assert result["last_reflector_passed"] is True
+
+
+# ── Test 8: scroll action — no UI change should NOT short-circuit ─────────────
+
+def test_scroll_action_no_ui_change_proceeds_to_call3():
+    agent = _make_agent()
+    agent._llm_loading.invoke.return_value = LoadingCheckResult(
+        loading_done=True, reasoning="Page loaded"
+    )
+    agent._llm_change.invoke.return_value = UIChangeCheckResult(
+        ui_changed=False, reasoning="Scroll had no visible effect"
+    )
+    agent._llm_validity.invoke.return_value = ValidityCheckResult(
+        passed=False, reasoning="Expected scroll to reveal element", figma_discrepancies=""
+    )
+
+    state = _base_state(action_plan={"action_type": "scroll"})
+    result = agent.evaluate(state)
+
+    agent._llm_validity.invoke.assert_called_once()   # must NOT short-circuit
+    assert result["last_reflector_passed"] is False   # validity result propagated
+
+
+# ── Test 9: click action — no UI change STILL short-circuits (regression) ─────
+
+def test_click_action_no_ui_change_still_short_circuits():
+    agent = _make_agent()
+    agent._llm_loading.invoke.return_value = LoadingCheckResult(
+        loading_done=True, reasoning="Page loaded"
+    )
+    agent._llm_change.invoke.return_value = UIChangeCheckResult(
+        ui_changed=False, reasoning="Click had no effect"
+    )
+
+    state = _base_state(action_plan={"action_type": "click"})
+    result = agent.evaluate(state)
+
+    agent._llm_validity.invoke.assert_not_called()    # must short-circuit
+    assert result["last_reflector_passed"] is False
