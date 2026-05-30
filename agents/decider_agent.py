@@ -50,10 +50,11 @@ RULES:
 
 
 class DeciderAgent:
-    def __init__(self, llm, memory=None, logger=None):
+    def __init__(self, llm, memory=None, logger=None, monitor=None):
         self.llm = llm.with_structured_output(ActionPlan)
         self.memory = memory
         self.logger = logger
+        self.monitor = monitor
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", SYSTEM_PROMPT),
             ("human",
@@ -134,6 +135,13 @@ class DeciderAgent:
 
         if self.logger is not None:
             self.logger.separator()
+
+        if self.monitor is not None and not plan.is_completed:
+            widgets = state.get("widgets", [])
+            target_widget = next(
+                (w for w in widgets if w.get("id") == plan.target_id), {}
+            )
+            self.monitor.on_decider(target_widget)
 
         return {
             "action_plan": plan.model_dump(),
