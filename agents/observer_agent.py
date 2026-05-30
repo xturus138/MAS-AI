@@ -10,7 +10,7 @@ from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 
 
 class ObserverAgent:
-    def __init__(self, llm: ILLMClient, tools: list, memory=None, logger=None):
+    def __init__(self, llm: ILLMClient, tools: list, memory=None, logger=None, monitor=None):
         self.llm = llm
         self.take_screenshot = tools[0]
         self.ocr_extract_text = tools[1]
@@ -21,6 +21,7 @@ class ObserverAgent:
         self.parse_screen_omniparser = tools[5] if len(tools) > 5 else None
         self.memory = memory
         self.logger = logger
+        self.monitor = monitor
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
         img = cv2.imread(image_path)
@@ -524,6 +525,9 @@ class ObserverAgent:
 
         if self.logger is not None:
             self.logger.separator()
+
+        if self.monitor is not None:
+            self.monitor.on_observer(final_widget_set)
 
         return {
             "screenshot_path": raw_path,
