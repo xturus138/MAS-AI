@@ -6,10 +6,11 @@ from tools.executor_tools import ExecutorTools
 
 
 class ExecutorAgent:
-    def __init__(self, tools: ExecutorTools, memory=None, logger=None):
+    def __init__(self, tools: ExecutorTools, memory=None, logger=None, monitor=None):
         self.tools = tools
         self.memory = memory
         self.logger = logger
+        self.monitor = monitor
 
     def _log(self, msg: str, detail: str = ""):
         if self.logger is not None:
@@ -181,6 +182,9 @@ class ExecutorAgent:
 
         if self.logger is not None:
             self.logger.separator()
+
+        if self.monitor is not None and action_type in ("click", "long_click", "input") and target_x != -1:
+            self.monitor.on_executor(target_x, target_y)
 
         return {
             "execution_result": result,
