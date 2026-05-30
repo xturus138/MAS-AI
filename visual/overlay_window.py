@@ -1,5 +1,4 @@
-import sys
-from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPainter, QColor, QPen
 
@@ -30,14 +29,15 @@ class OverlayWindow(QWidget):
         self._ripple_timer = QTimer(self)
         self._ripple_timer.timeout.connect(self._fade_ripple)
 
-        self.show()
-
     def _apply_update(self, boxes, target_box, ripple):
         self._boxes = boxes
         self._target_box = target_box
         self._ripple = ripple
         if ripple:
+            self._ripple_timer.stop()
             self._ripple_timer.start(50)
+        else:
+            self._ripple_timer.stop()
         self.update()
 
     def _apply_geometry(self, x, y, w, h):
