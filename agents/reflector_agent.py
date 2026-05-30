@@ -9,20 +9,45 @@ from core.utils.toons_helper import compress_and_report
 
 import cv2
 
-# Fraction of pixels that must change for a step to be considered non-stagnant.
-# Below this threshold on an intermediate step the LLM call is skipped entirely.
-_PIXEL_DIFF_THRESHOLD = 0.02  # 2 %
+
+class LoadingCheckResult(BaseModel):
+    loading_done: bool = Field(
+        description="True if the page has fully rendered and is no longer loading. "
+                    "False if any spinner, progress bar, skeleton screen, shimmer animation, "
+                    "or partially-rendered content is visible."
+    )
+    reasoning: str = Field(description="Brief explanation of what loading indicators were observed or absent.")
 
 
-class ReflectorResult(BaseModel):
-    passed: bool = Field(description="True if the action achieved its micro-goal OR if the final expected result is satisfied.")
-    reasoning: str = Field(description="Explanation of the visual state vs expectations. Crucial for self-correction retries.")
-    figma_discrepancies: str = Field(default="", description="If Figma Gold Standard was used, describe any layout, color, or structural differences found between the live app and the Figma design. Empty if no Figma comparison was performed.")
+class UIChangeCheckResult(BaseModel):
+    ui_changed: bool = Field(
+        description="True if the app UI meaningfully changed between the before and after screenshots "
+                    "(new screen, new content, new element visible/hidden). "
+                    "False if the screens are identical or only system-level indicators changed "
+                    "(clock, battery, signal strength)."
+    )
+    reasoning: str = Field(description="Brief explanation of what changed or why no change was detected.")
+
+
+class ValidityCheckResult(BaseModel):
+    passed: bool = Field(
+        description="True if the action achieved its micro-goal OR if the final expected result is satisfied."
+    )
+    reasoning: str = Field(
+        description="Explanation of the visual state vs expectations. Crucial for self-correction retries."
+    )
+    figma_discrepancies: str = Field(
+        default="",
+        description="If Figma Gold Standard was used, describe any layout, color, or structural differences. "
+                    "Empty if no Figma comparison was performed."
+    )
 
 
 class ReflectorAgent:
     def __init__(self, llm, memory=None, logger=None, device=None):
-        self.llm = llm.with_structured_output(ReflectorResult)
+        self._llm_loading  = llm.with_structured_output(LoadingCheckResult)
+        self._llm_change   = llm.with_structured_output(UIChangeCheckResult)
+        self._llm_validity = llm.with_structured_output(ValidityCheckResult)
         self.logger = logger
         self.memory = memory
         self.device = device   # IDeviceClient — used to capture post-action screenshot
@@ -67,24 +92,6 @@ class ReflectorAgent:
             print(f"[Reflector] Failed to capture post-action screenshot: {e}")
             return None
 
-    def _pixel_diff_ratio(self, before_path: str, after_path: str) -> float:
-        """Fraction of pixels that changed between two screenshots (0.0=identical, 1.0=all different).
-        Returns 1.0 on any error so the LLM call is never skipped due to a load failure.
-        """
-        try:
-            before = cv2.imread(before_path)
-            after  = cv2.imread(after_path)
-            if before is None or after is None:
-                return 1.0
-            if before.shape != after.shape:
-                after = cv2.resize(after, (before.shape[1], before.shape[0]))
-            diff  = cv2.absdiff(before, after)
-            gray  = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-            total = gray.shape[0] * gray.shape[1]
-            return cv2.countNonZero(gray) / total if total > 0 else 0.0
-        except Exception:
-            return 1.0
-
     def evaluate(self, state: AgentState) -> dict:
         pre_action_path = state.get("screenshot_path", "")   # Observer's screenshot (before action)
         current_step    = state.get("current_step", 0)
@@ -122,7 +129,7 @@ class ReflectorAgent:
             is_final_step       = (current_idx == len(sub_steps) - 1) if sub_steps else False
             current_instruction = sub_steps[current_idx] if current_idx < len(sub_steps) else "Finish"
 
-        # ── 3a. start_app: verify foreground package via ADB (no pixel-diff/LLM) ─
+        # ── 3. start_app: verify foreground package via ADB (no LLM needed) ──────
         action_plan = state.get("action_plan", {}) or {}
         action_type = action_plan.get("action_type", "")
         if action_type == "start_app" and self.device is not None:
@@ -187,78 +194,6 @@ class ReflectorAgent:
                 "total_first_verify_calls":    total_first_verify_calls,
                 "reflector_first_pass_count":  reflector_first_pass_count,
             }
-
-        # ── 3b. Pixel-diff short-circuit (intermediate steps only) ────────────
-        # Skip for `input`: typing text may change < 2% of pixels but still succeeded.
-        if (not is_final_step
-                and pre_action_path
-                and post_action_path
-                and pre_action_path != post_action_path
-                and action_type != "input"):
-            diff_ratio = self._pixel_diff_ratio(pre_action_path, post_action_path)
-            self._log(
-                f"Pixel-diff ratio: {diff_ratio:.4f}",
-                f"threshold={_PIXEL_DIFF_THRESHOLD}  short_circuit={'YES' if diff_ratio < _PIXEL_DIFF_THRESHOLD else 'NO'}"
-            )
-            if diff_ratio < _PIXEL_DIFF_THRESHOLD:
-                print(f"[Reflector] [SKIP] Pixel-diff {diff_ratio:.4f} < {_PIXEL_DIFF_THRESHOLD} - UI unchanged, skipping LLM")
-                self._log("Short-circuit: UI unchanged", f"diff_ratio={diff_ratio:.4f}")
-
-                # Update MIRIX resource for the new screenshot
-                if self.memory is not None and post_action_path:
-                    self.memory.update({
-                        "resource": {
-                            "title": f"post_action_step_{current_step}",
-                            "summary": f"Post-action screenshot (stagnant) after step {current_step}",
-                            "resource_type": "screenshot",
-                            "path": post_action_path,
-                            "step": current_step,
-                        },
-                        "episodic": {
-                            "event_type": "reflector_evaluation",
-                            "summary": f"SKIPPED (pixel-diff stagnant): diff_ratio={diff_ratio:.4f}",
-                            "details": f"UI unchanged, LLM skipped at step {current_step}",
-                            "actor": "reflector",
-                            "step": current_step,
-                        }
-                    })
-
-                recovery_attempts          = state.get("recovery_attempts", 0) + 1
-                total_reflector_calls      = state.get("total_reflector_calls", 0) + 1
-                reflector_pass_count       = state.get("reflector_pass_count", 0)
-                is_first                   = state.get("is_first_verify_attempt", True)
-                total_first_verify_calls   = state.get("total_first_verify_calls", 0) + (1 if is_first else 0)
-                reflector_first_pass_count = state.get("reflector_first_pass_count", 0)
-
-                # Save report to disk
-                save_dir = step_dir if step_dir else output_dir
-                if save_dir:
-                    ref_path = os.path.join(save_dir, "reflector_report.json")
-                    with open(ref_path, "w", encoding="utf-8") as f:
-                        json.dump({
-                            "passed": False,
-                            "reasoning": f"Pixel-diff {diff_ratio:.4f} below threshold {_PIXEL_DIFF_THRESHOLD} — UI did not change.",
-                            "step_index": current_idx,
-                            "figma_enabled": figma_enabled,
-                            "figma_discrepancies": "",
-                            "pixel_diff_ratio": diff_ratio,
-                            "short_circuit": True,
-                        }, f, indent=4, ensure_ascii=False)
-
-                if self.logger is not None:
-                    self.logger.separator()
-
-                return {
-                    "last_reflector_passed":       False,
-                    "screenshot_path":             screenshot_path,
-                    "memory_context":              state.get("memory_context", ""),
-                    "sender":                      "reflector",
-                    "recovery_attempts":           recovery_attempts,
-                    "total_reflector_calls":       total_reflector_calls,
-                    "reflector_pass_count":        reflector_pass_count,
-                    "total_first_verify_calls":    total_first_verify_calls,
-                    "reflector_first_pass_count":  reflector_first_pass_count,
-                }
 
         # ── 4. Full LLM verification ──────────────────────────────────────────
         system_instruction = (
