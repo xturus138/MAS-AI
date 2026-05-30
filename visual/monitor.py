@@ -16,6 +16,7 @@ class VisualMonitor:
         self._hwnd = None
         self._current_boxes: list = []
         self._current_target: dict = {}
+        self._overlay_ready = threading.Event()
 
     def start(self):
         try:
@@ -38,11 +39,13 @@ class VisualMonitor:
 
         if not self._hwnd:
             print("[VisualMonitor] WARNING: scrcpy window did not appear. Monitor disabled.")
+            self._scrcpy_proc.terminate()
+            self._scrcpy_proc = None
             return
 
         self._qt_thread = threading.Thread(target=self._launch_overlay, daemon=True)
         self._qt_thread.start()
-        time.sleep(0.8)
+        self._overlay_ready.wait(timeout=3.0)
 
         self._running = True
         self._tracker_thread = threading.Thread(target=self._track_window, daemon=True)
@@ -57,6 +60,7 @@ class VisualMonitor:
         rect = win32gui.GetWindowRect(self._hwnd)
         x, y, x2, y2 = rect
         self._overlay = OverlayWindow(self.device_w, self.device_h)
+        self._overlay_ready.set()
         self._overlay.setGeometry(x, y, x2 - x, y2 - y)
         self._overlay.show()
         self._app.exec_()
