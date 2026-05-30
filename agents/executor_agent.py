@@ -6,11 +6,12 @@ from tools.executor_tools import ExecutorTools
 
 
 class ExecutorAgent:
-    def __init__(self, tools: ExecutorTools, memory=None, logger=None, monitor=None):
+    def __init__(self, tools: ExecutorTools, memory=None, logger=None, monitor=None, check_crash: bool = False):
         self.tools = tools
         self.memory = memory
         self.logger = logger
         self.monitor = monitor
+        self._check_crash = check_crash
 
     def _log(self, msg: str, detail: str = ""):
         if self.logger is not None:
@@ -157,11 +158,15 @@ class ExecutorAgent:
         if self.monitor is not None and action_type in ("click", "long_click", "input") and target_x != -1:
             self.monitor.on_executor(target_x, target_y)
 
-        # ScenGen pattern: explicit delay for UI rendering (e.g. Activity transitions)
-        time.sleep(3)
+        # Brief pause so the UI can start rendering before the next screenshot
+        time.sleep(1)
 
-        # ── ADB crash detection (ScenGen pattern: post-action logcat check) ────
-        if not is_error:
+        # Clear overlay annotations — the screen has changed, old boxes no longer apply.
+        if self.monitor is not None:
+            self.monitor.on_clear()
+
+        # ── ADB crash detection (opt-in; skipped by default for QA speed) ─────
+        if self._check_crash and not is_error:
             crash_line = self.tools.check_crash(lines=50)
             if crash_line:
                 result = f"[CRASH] {crash_line} | original: {result}"

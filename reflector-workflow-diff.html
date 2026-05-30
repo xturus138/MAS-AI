@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reflector Agent — Workflow Before & After</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a1a;
+    padding: 40px 24px 60px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.82rem;
+    color: #718096;
+    margin-bottom: 36px;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .col-header {
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  .col-header.before { background: #fff5f5; color: #c53030; border: 1.5px solid #feb2b2; }
+  .col-header.after  { background: #f0fff4; color: #276749; border: 1.5px solid #68d391; }
+
+  /* Nodes */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+
+  .node {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    text-align: center;
+    position: relative;
+  }
+  .node .label {
+    font-size: 0.67rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+  .node .text { font-weight: 500; }
+  .node .sub  { font-size: 0.73rem; color: inherit; opacity: 0.75; margin-top: 3px; }
+
+  /* Node variants */
+  .node.trigger  { background: #ebf8ff; border: 1.5px solid #4299e1; color: #2b6cb0; }
+  .node.process  { background: #fff; border: 1.5px solid #cbd5e0; color: #2d3748; }
+  .node.decision { background: #fffff0; border: 1.5px solid #d69e2e; color: #744210; border-radius: 6px; }
+  .node.skip     { background: #fff5f5; border: 1.5px dashed #fc8181; color: #c53030; }
+  .node.llm      { background: #f0fff4; border: 1.5px solid #48bb78; color: #276749; }
+  .node.llm-final{ background: #e6fffa; border: 1.5px solid #38b2ac; color: #234e52; }
+  .node.terminal-pass { background: #c6f6d5; border: 1.5px solid #38a169; color: #22543d; font-weight: 700; }
+  .node.terminal-fail { background: #fed7d7; border: 1.5px solid #e53e3e; color: #742a2a; font-weight: 700; }
+  .node.adb      { background: #faf5ff; border: 1.5px solid #9f7aea; color: #553c9a; }
+  .node.removed  { background: #fff5f5; border: 2px dashed #fc8181; color: #c53030; opacity: 0.55; }
+
+  /* Arrows */
+  .arrow {
+    width: 2px;
+    height: 20px;
+    background: #a0aec0;
+    position: relative;
+    margin: 0 auto;
+  }
+  .arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #a0aec0;
+  }
+
+  .arrow.red    { background: #fc8181; }
+  .arrow.red::after { border-top-color: #fc8181; }
+  .arrow.green  { background: #48bb78; }
+  .arrow.green::after { border-top-color: #48bb78; }
+
+  /* Branching */
+  .branch-container {
+    width: 100%;
+    max-width: 400px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    position: relative;
+    margin: 0 auto;
+  }
+  .branch-line {
+    width: calc(50% + 6px);
+    height: 1px;
+    background: #a0aec0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .branch-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .branch-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+  }
+  .branch-label.yes { background: #c6f6d5; color: #276749; }
+  .branch-label.no  { background: #bee3f8; color: #2b6cb0; }
+
+  .branch-rejoin {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    margin: 0 auto;
+  }
+  .rejoin-line {
+    height: 20px;
+    border-left: 2px solid #a0aec0;
+    border-right: 2px solid #a0aec0;
+    border-bottom: 2px solid #a0aec0;
+    border-radius: 0 0 6px 6px;
+    position: relative;
+  }
+  .rejoin-arrow {
+    width: 2px;
+    height: 20px;
+    background: #a0aec0;
+    margin: 0 auto;
+    position: relative;
+  }
+  .rejoin-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #a0aec0;
+  }
+
+  /* Annotations */
+  .annotation {
+    font-size: 0.7rem;
+    color: #718096;
+    text-align: center;
+    font-style: italic;
+    margin: 2px 0;
+    max-width: 400px;
+  }
+
+  .removed-badge {
+    display: inline-block;
+    background: #fed7d7;
+    color: #c53030;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .new-badge {
+    display: inline-block;
+    background: #c6f6d5;
+    color: #276749;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .step-num {
+    display: inline-block;
+    background: #e2e8f0;
+    color: #4a5568;
+    font-size: 0.62rem;
+    font-weight: 700;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    line-height: 18px;
+    text-align: center;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0 auto 32px;
+    max-width: 700px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #4a5568;
+  }
+  .legend-swatch {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    border: 1.5px solid;
+    flex-shrink: 0;
+  }
+
+  /* Change callout */
+  .change-callout {
+    max-width: 1100px;
+    margin: 28px auto 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .change-callout h3 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #718096;
+    margin-bottom: 10px;
+  }
+  .change-callout ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .change-callout li {
+    font-size: 0.83rem;
+    color: #4a5568;
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .change-callout li::before {
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+  .change-callout li.removed::before { content: '✗'; color: #e53e3e; }
+  .change-callout li.added::before   { content: '✓'; color: #38a169; }
+  .change-callout li.kept::before    { content: '→'; color: #718096; }
+
+  /* Divider */
+  .vs-divider {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #718096;
+    grid-column: 1 / -1;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 16px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Reflector Agent — Workflow Before &amp; After</h1>
+<p class="subtitle">Pixel-diff guard removal · <code>agents/reflector_agent.py</code></p>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#ebf8ff;border-color:#4299e1"></div> Entry / Trigger</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#fff;border-color:#cbd5e0"></div> Process</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#fffff0;border-color:#d69e2e"></div> Decision</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#faf5ff;border-color:#9f7aea"></div> ADB check (no LLM)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#f0fff4;border-color:#48bb78"></div> LLM call</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#fff5f5;border-color:#fc8181;border-style:dashed"></div> Removed block</div>
+</div>
+
+<div class="columns">
+
+  <!-- ═══════════ BEFORE ═══════════ -->
+  <div>
+    <div class="col-header before">Before — With Pixel-Diff Guard</div>
+    <div class="flow">
+
+      <!-- Entry -->
+      <div class="node trigger">
+        <div class="label">Entry</div>
+        <div class="text"><span class="step-num">1</span>Reflector.evaluate(state)</div>
+        <div class="sub">Called after every Executor action</div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- Screenshot -->
+      <div class="node process">
+        <div class="label">Step 1</div>
+        <div class="text"><span class="step-num">2</span>Capture post-action screenshot</div>
+        <div class="sub">device.screenshot() → post_action.png</div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- MIRIX -->
+      <div class="node process">
+        <div class="label">Step 2</div>
+        <div class="text"><span class="step-num">3</span>Resolve MIRIX context</div>
+        <div class="sub">expected_result, sub_steps, figma_enabled, is_final_step</div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- start_app decision -->
+      <div class="node decision">
+        <div class="label">Decision</div>
+        <div class="text"><span class="step-num">4</span>action_type == "start_app"?</div>
+      </div>
+
+      <!-- start_app branch -->
+      <div class="branch-container" style="margin-top:12px;">
+        <div class="branch-col">
+          <span class="branch-label yes">Yes</span>
+          <div class="arrow green"></div>
+          <div class="node adb" style="font-size:0.78rem;">
+            <div class="text">ADB foreground check</div>
+            <div class="sub">compare current_pkg vs expected_pkg</div>
+          </div>
+          <div class="arrow"></div>
+          <div class="node terminal-pass" style="font-size:0.78rem;">Return verdict<br>(no LLM)</div>
+        </div>
+        <div class="branch-col">
+          <span class="branch-label no">No</span>
+          <div class="arrow"></div>
+
+          <!-- PIXEL DIFF DECISION -->
+          <div class="node decision" style="border-style:dashed;background:#fffaf0;">
+            <div class="label" style="color:#c05621;">Step 3b — Pixel-Diff Guard</div>
+            <div class="text" style="color:#c05621;">diff_ratio &lt; 2% ?</div>
+            <div class="sub" style="color:#c05621;">AND not final step AND not input</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:8px;">
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <span class="branch-label yes" style="background:#fed7d7;color:#c53030;">Yes — Skip</span>
+              <div class="arrow red"></div>
+              <div class="node skip" style="font-size:0.75rem;">
+                <div class="text">Auto-pass = False</div>
+                <div class="sub">LLM SKIPPED<br>short_circuit: true in JSON</div>
+              </div>
+              <div class="arrow red"></div>
+              <div class="node terminal-fail" style="font-size:0.75rem;">Return<br>(no LLM)</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;">
+              <span class="branch-label no">No — Continue</span>
+              <div class="arrow"></div>
+              <div class="node llm" style="font-size:0.75rem;">
+                <div class="text">LLM Verification</div>
+                <div class="sub">Intermediate: did UI change?<br>Final: does result match expected?</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="node llm-final" style="font-size:0.75rem;">
+                <div class="text">Save reflector_report.json</div>
+                <div class="sub">Update MIRIX episodic</div>
+              </div>
+              <div class="arrow"></div>
+              <div class="node terminal-pass" style="font-size:0.75rem;">Return verdict<br>(LLM)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ AFTER ═══════════ -->
+  <div>
+    <div class="col-header after">After — LLM Always Runs</div>
+    <div class="flow">
+
+      <!-- Entry -->
+      <div class="node trigger">
+        <div class="label">Entry</div>
+        <div class="text"><span class="step-num">1</span>Reflector.evaluate(state)</div>
+        <div class="sub">Called after every Executor action</div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- Screenshot -->
+      <div class="node process">
+        <div class="label">Step 1</div>
+        <div class="text"><span class="step-num">2</span>Capture post-action screenshot</div>
+        <div class="sub">device.screenshot() → post_action.png</div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- MIRIX -->
+      <div class="node process">
+        <div class="label">Step 2</div>
+        <div class="text"><span class="step-num">3</span>Resolve MIRIX context</div>
+        <div class="sub">expected_result, sub_steps, figma_enabled, is_final_step</div>
+      </div>
+      <div class="arrow"></div>
+
+      <!-- start_app decision -->
+      <div class="node decision">
+        <div class="label">Decision</div>
+        <div class="text"><span class="step-num">4</span>action_type == "start_app"?</div>
+      </div>
+
+      <!-- start_app branch -->
+      <div class="branch-container" style="margin-top:12px;">
+        <div class="branch-col">
+          <span class="branch-label yes">Yes</span>
+          <div class="arrow green"></div>
+          <div class="node adb" style="font-size:0.78rem;">
+            <div class="text">ADB foreground check</div>
+            <div class="sub">compare current_pkg vs expected_pkg</div>
+          </div>
+          <div class="arrow"></div>
+          <div class="node terminal-pass" style="font-size:0.78rem;">Return verdict<br>(no LLM)</div>
+        </div>
+        <div class="branch-col">
+          <span class="branch-label no">No</span>
+          <div class="arrow green" style="height:40px;"></div>
+
+          <!-- Removed block indicator -->
+          <div class="node removed" style="font-size:0.73rem;margin-bottom:8px;">
+            <div class="text">✗ Pixel-diff guard removed</div>
+            <div class="sub">_PIXEL_DIFF_THRESHOLD, _pixel_diff_ratio(),<br>and the short-circuit block are gone</div>
+          </div>
+          <div class="arrow green"></div>
+
+          <!-- LLM always runs -->
+          <div class="node llm" style="border-width:2px;font-size:0.78rem;">
+            <div class="label" style="color:#276749;">Always runs — no skip</div>
+            <div class="text">LLM Verification</div>
+            <div class="sub">Intermediate: did UI change?<br>Final: does result match expected?</div>
+          </div>
+          <div class="arrow green"></div>
+          <div class="node llm-final" style="font-size:0.78rem;">
+            <div class="text">Save reflector_report.json</div>
+            <div class="sub">Update MIRIX episodic</div>
+          </div>
+          <div class="arrow green"></div>
+          <div class="node terminal-pass" style="font-size:0.78rem;border-color:#38a169;">Return verdict<br>(LLM)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Change summary -->
+<div class="change-callout">
+  <div>
+    <h3>What was removed</h3>
+    <ul>
+      <li class="removed"><code>_PIXEL_DIFF_THRESHOLD = 0.02</code> — the 2% magic-number constant</li>
+      <li class="removed"><code>_pixel_diff_ratio()</code> — OpenCV absolute-diff comparison method</li>
+      <li class="removed">Section 3b early-return block — 71 lines that auto-passed steps when pixel change was below threshold</li>
+      <li class="removed">Silent <code>short_circuit: true</code> in reflector_report.json — no more hidden skips in the research log</li>
+      <li class="removed">Special <code>action_type != "input"</code> carve-out — the exception set is now irrelevant</li>
+    </ul>
+  </div>
+  <div>
+    <h3>What was kept / gained</h3>
+    <ul>
+      <li class="kept"><code>start_app</code> ADB foreground check — unchanged, still bypasses LLM correctly</li>
+      <li class="kept"><code>_encode_image()</code> — still uses <code>cv2</code> for WebP compression, no changes</li>
+      <li class="kept">Figma Gold Standard 3-way verification on final step — unchanged</li>
+      <li class="kept">MIRIX episodic memory updates — now every step writes a real LLM verdict</li>
+      <li class="added">Every intermediate step now produces a genuine LLM-verified verdict</li>
+      <li class="added">All <code>reflector_report.json</code> files now contain real reasoning, never a fabricated skip</li>
+      <li class="added">Thesis data is clean — <code>total_reflector_calls</code> now equals actual LLM calls made</li>
+    </ul>
+  </div>
+
+  <div class="vs-divider">
+    Code paths: Before = 3 exit paths (start_app · pixel-diff skip · LLM) &nbsp;→&nbsp; After = 2 exit paths (start_app · LLM)
+  </div>
+</div>
+
+</body>
+</html>

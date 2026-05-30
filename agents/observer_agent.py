@@ -424,61 +424,7 @@ class ObserverAgent:
         })
         self._log("Annotated screenshot saved", annotated_path)
 
-        print("[Observer] Calling multimodal LLM for semantic interpretation...")
-        img_b64 = self._encode_image(annotated_path)
-
-        elements_data = [{"i": el["id"], "t": el.get("text") or ""} for el in final_widget_set]
-        elements_json = compress_and_report(elements_data, "elements", "observer")
-
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a Perception Agent. Your ONLY job is to describe what is visible on the screen. "
-                       "Do NOT assume what the user wants to do. Do NOT bias your descriptions toward any goal.\n"
-                       "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys.\n"
-                       "OUTPUT FORMAT (strict):\n"
-                       "SEMANTIC_MAP: [[ID]: Description, ...]\n"
-                       "SUMMARY: One sentence describing the screen and key actions available."),
-            ("human", [
-                {"type": "text", "text": "App Context: {scenario_desc}\nNavigation Path: {navigation_context}\nElements: {elements_json}\n\nMap every ID in the screenshot to its generic UI function. Be objective. Do not reference any task or goal."},
-                {"type": "image_url", "image_url": {"url": "data:image/webp;base64,{img_b64}"}}
-            ])
-        ])
-
-        messages = prompt.format_messages(
-            scenario_desc=scenario_desc,
-            navigation_context=navigation_context,
-            elements_json=elements_json,
-            img_b64=img_b64
-        )
-
-        self._log("LLM call started (multimodal screen interpretation)")
-        try:
-            chunks = []
-            for chunk in self.llm.stream(
-                messages,
-                config={
-                    "tags": ["observer", f"step_{current_step}"],
-                    "timeout": 45.0
-                }
-            ):
-                chunks.append(chunk.content)
-
-            raw_res = "".join(chunks)
-        except Exception as e:
-            print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
-            self._log("LLM FATAL ERROR — aborting graph", str(e))
-            return Command(
-                goto="__end__",
-                update={
-                    "execution_result": f"Fatal failure in Observer: {str(e)}. Exiting system.",
-                    "sender": "observer",
-                    "is_completed": False
-                }
-            )
-
-        with open(analysis_path, "w", encoding="utf-8") as f:
-            f.write(raw_res)
-        self._log("LLM analysis complete", raw_res[:500] + ("..." if len(raw_res) > 500 else ""))
-
+        # ── UI Summary (computed early — used as cache key before LLM call) ────
         filtered_widgets = final_widget_set[:50]
         summary_data = [
             {"id": el.get("id", "?"), "cls": el.get("class", "Widget"), "text": el.get("text", "")}
@@ -486,10 +432,76 @@ class ObserverAgent:
         ]
         ui_summary_text = compress_and_report(summary_data, "ui_summary", "observer")
 
-        # ── Stagnation Detection via Episodic Memory ──────────────────────────
-        new_stagnation_count = self._detect_stagnation(
-            ui_summary_text, current_step, state.get("stagnation_count", 0)
-        )
+        # ── LLM Cache Check: skip call if UI is identical to previous cycle ───
+        prev_obs = self.memory.episodic.last_by_actor("observer") if self.memory else None
+        prev_ui_summary = prev_obs.details if prev_obs else ""
+        cached_analysis = state.get("observer_analysis", "")
+
+        if prev_ui_summary and cached_analysis and ui_summary_text == prev_ui_summary:
+            raw_res = cached_analysis
+            new_stagnation_count = state.get("stagnation_count", 0) + 1
+            print(f"[Observer] [CACHE HIT] UI unchanged — reusing previous analysis (LLM skipped)")
+            self._log(f"LLM SKIPPED — UI summary identical to previous step (stagnation={new_stagnation_count})")
+        else:
+            print("[Observer] Calling multimodal LLM for semantic interpretation...")
+            img_b64 = self._encode_image(annotated_path, max_height=480)
+
+            elements_data = [{"i": el["id"], "t": el.get("text") or ""} for el in final_widget_set]
+            elements_json = compress_and_report(elements_data, "elements", "observer")
+
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", "You are a Perception Agent. Your ONLY job is to describe what is visible on the screen. "
+                           "Do NOT assume what the user wants to do. Do NOT bias your descriptions toward any goal.\n"
+                           "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys.\n"
+                           "OUTPUT FORMAT (strict):\n"
+                           "SEMANTIC_MAP: [[ID]: Description, ...]\n"
+                           "SUMMARY: One sentence describing the screen and key actions available."),
+                ("human", [
+                    {"type": "text", "text": "App Context: {scenario_desc}\nNavigation Path: {navigation_context}\nElements: {elements_json}\n\nMap every ID in the screenshot to its generic UI function. Be objective. Do not reference any task or goal."},
+                    {"type": "image_url", "image_url": {"url": "data:image/webp;base64,{img_b64}"}}
+                ])
+            ])
+
+            messages = prompt.format_messages(
+                scenario_desc=scenario_desc,
+                navigation_context=navigation_context,
+                elements_json=elements_json,
+                img_b64=img_b64
+            )
+
+            self._log("LLM call started (multimodal screen interpretation)")
+            try:
+                chunks = []
+                for chunk in self.llm.stream(
+                    messages,
+                    config={
+                        "tags": ["observer", f"step_{current_step}"],
+                        "timeout": 45.0
+                    }
+                ):
+                    chunks.append(chunk.content)
+
+                raw_res = "".join(chunks)
+            except Exception as e:
+                print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
+                self._log("LLM FATAL ERROR — aborting graph", str(e))
+                return Command(
+                    goto="__end__",
+                    update={
+                        "execution_result": f"Fatal failure in Observer: {str(e)}. Exiting system.",
+                        "sender": "observer",
+                        "is_completed": False
+                    }
+                )
+
+            with open(analysis_path, "w", encoding="utf-8") as f:
+                f.write(raw_res)
+            self._log("LLM analysis complete", raw_res[:500] + ("..." if len(raw_res) > 500 else ""))
+
+            new_stagnation_count = self._detect_stagnation(
+                ui_summary_text, current_step, state.get("stagnation_count", 0)
+            )
+
         if new_stagnation_count > 0:
             self._log(f"STAGNATION detected — count={new_stagnation_count} (UI unchanged from previous step)")
 
@@ -519,7 +531,9 @@ class ObserverAgent:
                     "step": current_step,
                 },
             }
-            if semantic_entries:
+            # Semantic widget writes are expensive at scale; only include when
+            # the memory system explicitly opts in (set write_semantic_widgets=True).
+            if semantic_entries and getattr(self.memory, "write_semantic_widgets", False):
                 update_packet["semantic"] = semantic_entries
             self.memory.update(update_packet)
 

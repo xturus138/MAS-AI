@@ -42,6 +42,9 @@ class OverlayWindow(QWidget):
 
     def _apply_geometry(self, x, y, w, h):
         self.setGeometry(x, y, w, h)
+        # Re-assert top of z-order so the overlay stays above scrcpy even after
+        # the user clicks/drags the scrcpy window (which would otherwise raise it).
+        self.raise_()
 
     def _fade_ripple(self):
         if not self._ripple:

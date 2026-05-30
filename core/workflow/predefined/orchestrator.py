@@ -194,6 +194,8 @@ class PredefinedOrchestrator:
             f"last_reflector_passed={last_passed}"
         )
 
+        print(f"[Orchestrator] Step {current_idx + 1} | from={sender} | reflector={'PASS' if last_passed else 'FAIL'} | retry={retry_count}")
+
         # Advance or retry based on reflector outcome
         if sender == "reflector":
             if last_passed:
@@ -202,11 +204,11 @@ class PredefinedOrchestrator:
                 self._log(f"Step {current_idx - 1} verified — advancing to index {current_idx}")
             else:
                 retry_count += 1
-                print(f"[Predefined] Step failure. Retry attempt {retry_count}/3 for index {current_idx}")
+                print(f"[Orchestrator] ⚠ Step failed — retry {retry_count}/3")
                 self._log(f"Step FAILED — retry {retry_count}/3 for index {current_idx}")
 
         if retry_count > 3:
-            print("[Predefined] Maximum retries exceeded. Aborting scenario.")
+            print("[Orchestrator] ✗ Maximum retries (3) exceeded — aborting scenario.")
             self._log("ABORT — maximum retries (3) exceeded")
             if self.memory is not None:
                 self.memory.update({
