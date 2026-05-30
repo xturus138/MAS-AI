@@ -19,6 +19,7 @@ from memory.meta_manager import MIRIXMemorySystem
 from core.utils.process_logger import ProcessLogger
 from core.workflow.autonomous.orchestrator import AutonomousOrchestrator
 from core.workflow.autonomous.graph import build_autonomous_graph
+from visual.monitor import VisualMonitor
 
 
 def run_autonomous():
@@ -41,6 +42,12 @@ def run_autonomous():
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
     obs_tools = ObserverTools(device_adapter)
     exe_tools = ExecutorTools(device_adapter)
+    device_info = device_adapter.d.info
+    monitor = VisualMonitor(
+        device_w=device_info.get("displayWidth", 1080),
+        device_h=device_info.get("displayHeight", 2400),
+    )
+    monitor.start()
 
     # ── Load Scenarios ────────────────────────────────────────────────────────
     xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
@@ -82,9 +89,9 @@ def run_autonomous():
         orchestrator = AutonomousOrchestrator(
             llm=orchestrator_llm, figma_adapter=figma_adapter, memory=memory, logger=logger
         )
-        observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory, logger=logger)
-        decider   = DeciderAgent(strategic_llm, memory=memory, logger=logger)
-        executor  = ExecutorAgent(exe_tools, memory=memory, logger=logger)
+        observer  = ObserverAgent(perception_llm, obs_tools.get_tools(), memory=memory, logger=logger, monitor=monitor)
+        decider   = DeciderAgent(strategic_llm, memory=memory, logger=logger, monitor=monitor)
+        executor  = ExecutorAgent(exe_tools, memory=memory, logger=logger, monitor=monitor)
         reflector = ReflectorAgent(reflector_llm, memory=memory, logger=logger, device=device_adapter)
         recorder  = RecorderAgent(memory=memory, logger=logger)
 
@@ -182,3 +189,5 @@ def run_autonomous():
         print(f"Status : {'Stagnated' if final_state.get('stagnation_count', 0) > 3 else 'Finished'}")
         print(f"Steps  : {final_state.get('current_step', 0)}")
         print(f"Results: {output_dir}")
+
+    monitor.stop()
