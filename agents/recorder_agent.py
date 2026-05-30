@@ -305,7 +305,8 @@ class RecorderAgent:
             return round((num / den) * 100, 1) if den > 0 else None
 
         if mode == "autonomous":
-            coverage_rate = 100.0 if is_completed else 0.0
+            # Autonomous mode has no fixed step denominator — coverage_rate is not applicable.
+            coverage_rate = None
         else:
             coverage_rate = _pct(steps_completed, sub_steps_total)
 
