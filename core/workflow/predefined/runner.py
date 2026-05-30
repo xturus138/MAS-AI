@@ -68,8 +68,15 @@ def run_predefined():
             output_dir = os.path.join(config.OUTPUT_DIR, "predefined", f"{tcs_id}_{timestamp}")
             os.makedirs(output_dir, exist_ok=True)
 
+            cross_run_dir = os.path.join(config.OUTPUT_DIR, "predefined", "_memory")
+            os.makedirs(cross_run_dir, exist_ok=True)
+
             # ── MIRIX Memory System (one per scenario) ────────────────────────────
-            memory = MIRIXMemorySystem(session_id=session_id, output_dir=output_dir)
+            memory = MIRIXMemorySystem(
+                session_id=session_id,
+                output_dir=output_dir,
+                cross_run_dir=cross_run_dir,
+            )
 
             # ── Process Logger (one per scenario) ────────────────────────────────
             logger = ProcessLogger(output_dir)

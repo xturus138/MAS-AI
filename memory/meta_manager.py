@@ -20,16 +20,20 @@ class MIRIXMemorySystem:
       update(packet)   — Memory Update: routes fields to correct stores in parallel
     """
 
-    def __init__(self, session_id: str, output_dir: str):
+    def __init__(self, session_id: str, output_dir: str, cross_run_dir: str = ""):
         self.session_id = session_id
         self.output_dir = output_dir
 
+        # Session-specific stores (discarded after each run)
         self.core       = CoreMemoryStore(session_id, output_dir)
         self.episodic   = EpisodicMemoryStore(session_id, output_dir)
-        self.semantic   = SemanticMemoryStore(session_id, output_dir)
         self.procedural = ProceduralMemoryStore(session_id, output_dir)
         self.resource   = ResourceMemoryStore(session_id, output_dir)
-        self.vault      = KnowledgeVaultStore(session_id, output_dir)
+
+        # Persistent stores — use cross_run_dir if provided so knowledge survives across runs
+        persistent_dir  = cross_run_dir if cross_run_dir else output_dir
+        self.semantic   = SemanticMemoryStore(session_id, persistent_dir)
+        self.vault      = KnowledgeVaultStore(session_id, persistent_dir)
 
         self._retriever = ActiveRetrieval(
             self.core, self.episodic, self.semantic,
