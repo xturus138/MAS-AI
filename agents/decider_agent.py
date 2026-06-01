@@ -12,7 +12,7 @@ from langchain_core.prompts import ChatPromptTemplate
 class ActionPlan(BaseModel):
     action_type: Literal[
         "click", "long_click", "input", "scroll",
-        "press_back", "press_home", "press_enter", "start_app"
+        "press_back", "press_home", "press_enter", "start_app", "none"
     ]
     intent: str = Field(
         description="Brief description of what this action aims to achieve toward the step instruction."
@@ -46,7 +46,7 @@ RULES:
 - For typing text into any field: ALWAYS use 'input' directly. The executor internally clicks/focuses the widget before typing — NEVER issue a separate 'click' to focus before 'input'. One action only.
 - Set text_payload to the exact text to type and target_id to the input field's widget ID.
 - For 'scroll': set scroll_direction, target_id = -1.
-- Set is_completed=True ONLY when the STEP INSTRUCTION cannot be mapped to any actions."""
+- Set is_completed=True ONLY when the STEP INSTRUCTION cannot be mapped to any actions. In this case, use 'none' as action_type."""
 
 
 class DeciderAgent:

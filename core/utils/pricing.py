@@ -232,16 +232,22 @@ PRICING: dict[str, Tuple[float, float]] = {
 def _normalize_model_id(model_id: str) -> str:
     """
     Strip the 'blackboxai/' prefix used by Blackbox API calls so the ID
-    matches the keys in the PRICING table.
+    matches the keys in the PRICING table, and prepend 'google/' for bare
+    Gemini/Gemma model names.
 
     Examples:
         "blackboxai/google/gemini-3-pro-preview"  → "google/gemini-3-pro-preview"
-        "blackboxai/minimax/minimax-m2.5"         → "minimax/minimax-m2.5"
+        "gemini-2.5-flash"                        → "google/gemini-2.5-flash"
         "google/gemini-2.0-flash-001"             → "google/gemini-2.0-flash-001"
     """
     prefix = "blackboxai/"
     if model_id.startswith(prefix):
-        return model_id[len(prefix):]
+        model_id = model_id[len(prefix):]
+    
+    # Prepend 'google/' prefix for bare Gemini and Gemma model names
+    if (model_id.startswith("gemini-") or model_id.startswith("gemma-")) and not model_id.startswith("google/"):
+        model_id = "google/" + model_id
+        
     return model_id
 
 

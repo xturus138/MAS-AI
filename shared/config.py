@@ -22,6 +22,8 @@ PROVIDER_URLS: dict = {
     "openai":     "https://api.openai.com/v1",
     "cursor":     CURSOR_BASE_URL,
     "local":      os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1"),
+    "gemini":     "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "google":     "https://generativelanguage.googleapis.com/v1beta/openai/",
 }
 
 def _resolve_api_key(provider: str, key_env_var: str) -> str:
@@ -33,6 +35,13 @@ def _resolve_api_key(provider: str, key_env_var: str) -> str:
     provider_key = os.getenv(provider_key_var)
     if provider_key and provider_key.lower() != "none":
         return provider_key
+
+    # Robust fallback for Google / Gemini provider keys
+    if provider in ("gemini", "google"):
+        for alt_var in ("GEMINI_API_KEY", "GOOGLE_API_KEY"):
+            alt_key = os.getenv(alt_var)
+            if alt_key and alt_key.lower() != "none":
+                return alt_key
 
     return os.getenv("OPENROUTER_API_KEY", "none")
 

@@ -337,7 +337,7 @@ Find all results, screenshots, and metrics in the `outputs/` directory structure
 ### 5. Diagnostics
 
 ```bash
-python check_figma_connection.py   # Test Figma API connectivity
-python check_models.py             # Verify LLM provider connectivity
-python clean_outputs.py            # Clear outputs directory
+python test/check_figma_connection.py   # Test Figma API connectivity
+python test/check_models.py             # Verify LLM provider connectivity
+python clean_outputs.py                 # Clear outputs directory
 ```

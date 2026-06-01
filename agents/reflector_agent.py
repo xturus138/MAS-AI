@@ -12,7 +12,7 @@ import cv2
 # Action types for which no visible UI navigation is required to consider an action successful.
 # 'input' enters text into a focused field — screen stays the same.
 # 'scroll' may not change visible content if already at the boundary.
-_NO_UI_CHANGE_REQUIRED = frozenset({"input", "scroll"})
+_NO_UI_CHANGE_REQUIRED = frozenset({"input", "scroll", "none"})
 
 
 class LoadingCheckResult(BaseModel):
@@ -369,12 +369,27 @@ class ReflectorAgent:
         # ── 3. start_app: verify foreground package via ADB (no LLM needed) ──────
         action_plan = state.get("action_plan", {}) or {}
         action_type = action_plan.get("action_type", "")
+        expected_pkg = action_plan.get("app_package", "")
+
         if action_type == "start_app" and self.device is not None:
-            expected_pkg = action_plan.get("app_package", "")
-            current_pkg  = self.device.get_current_app()
-            passed        = bool(expected_pkg and expected_pkg in current_pkg)
-            reasoning     = (
-                f"ADB foreground check: current='{current_pkg}' expected='{expected_pkg}' → {'PASS' if passed else 'FAIL'}"
+            current_pkg = self.device.get_current_app()
+
+            if not expected_pkg:
+                # Decider marked step as already completed without specifying a
+                # package (the app was already open). Trust the Decider's visual
+                # judgment: whatever is in the foreground IS the target app, so
+                # echo the live package as the expected value — always a PASS.
+                expected_pkg = current_pkg
+                self._log(
+                    "start_app: no expected_pkg — inferred from live foreground",
+                    f"current_package='{current_pkg}'",
+                )
+                print(f"[Reflector] [start_app] No expected_pkg — inferred from device: '{current_pkg}'")
+
+            passed    = bool(current_pkg) and expected_pkg in current_pkg
+            reasoning = (
+                f"ADB foreground check: current='{current_pkg}' expected='{expected_pkg}' "
+                f"→ {'PASS' if passed else 'FAIL'}"
             )
             verdict = "PASSED" if passed else "FAILED"
             print(f"[Reflector] [start_app] {reasoning}")

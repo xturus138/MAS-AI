@@ -143,6 +143,8 @@ class ExecutorAgent:
                 result = self.tools.press_enter()
             elif action_type == "start_app":
                 result = self.tools.start_app(plan["app_package"])
+            elif action_type == "none":
+                result = "No action executed (action_type is 'none')"
             else:
                 result = f"ERROR: Unknown action_type '{action_type}'"
         except Exception as e:

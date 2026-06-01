@@ -58,6 +58,9 @@ def run_predefined():
         return
 
     # ── Execute Each Scenario ─────────────────────────────────────────────────
+    all_run_metrics = []
+    predefined_root = os.path.join(config.OUTPUT_DIR, "predefined")
+    
     try:
         for scenario_index, target_scenario in enumerate(scenarios):
             tcs_id = target_scenario["tcs_id"]
@@ -181,7 +184,9 @@ def run_predefined():
                        f"stagnation={stagnation}  is_completed={is_completed}")
 
             # ── Finalize: write metrics + episodic history to disk ────────────────
-            recorder.finalize_run_metrics(final_state)
+            metrics = recorder.finalize_run_metrics(final_state, shared_dir=predefined_root)
+            if metrics:
+                all_run_metrics.append(metrics)
             memory.close()
 
             print("\n=== SCENARIO SUMMARY ===")
@@ -203,6 +208,9 @@ def run_predefined():
                     if bridge_steps:
                         print(f"[Predefined] Injecting {len(bridge_steps)} bridge step(s) into next scenario")
                         scenarios[scenario_index + 1]["sub_steps"] = bridge_steps + next_scenario["sub_steps"]
+
+        # ── Merged Run-Level Output ───────────────────────────────────────────
+        RecorderAgent.write_run_summary(all_run_metrics, predefined_root)
 
     finally:
         monitor.stop()

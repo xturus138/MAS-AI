@@ -21,134 +21,115 @@ class RecorderAgent:
         if self.logger is not None:
             self.logger.log("RECORDER", msg, detail)
 
-    def write_test_report(self, state: AgentState, metrics: dict):
-        """Fill result columns in the original scenario.xlsx and copy it to output_dir.
-
-        Columns filled (identified by header name in the TCS ID header row):
-          Time Testing, Testing Status, Updated At, Testing By, OK Evid., Issue Status
-        Additional columns appended if not already present:
-          Actual Result, Steps Taken, Tokens Used, Stagnation Count
-
-        Note: writes back to the original scenario.xlsx in-place (accumulates across runs).
-        Not safe for concurrent execution of multiple scenarios.
-        """
-        import shutil
+    def _fill_report_sheet(self, dest: str, tcs_id: str, output_dir: str, metrics: dict):
         import openpyxl
+        wb = openpyxl.load_workbook(dest)
+        ws = wb.active
+
+        header_row_idx = None
+        col_map: dict = {}
+        for row_idx, row in enumerate(ws.iter_rows(values_only=False), start=1):
+            first = row[0].value
+            if first and str(first).strip().upper() == "TCS ID":
+                header_row_idx = row_idx
+                for col_idx, cell in enumerate(row, start=1):
+                    if cell.value:
+                        name = str(cell.value).strip()
+                        if name not in col_map:
+                            col_map[name] = col_idx
+                break
+
+        if header_row_idx is None:
+            print(f"[Recorder] Warning: TCS ID header row not found in {dest}")
+            return
+
+        RESULT_COLS = [
+            "Time Testing", "Testing Status", "Updated At", "Testing By",
+            "OK Evid.", "Issue Status", "Actual Result", "Steps Taken",
+            "Tokens Used", "Stagnation Count"
+        ]
+        next_col = ws.max_column + 1
+        col_index: dict = {}
+        for col_name in RESULT_COLS:
+            if col_name in col_map:
+                col_index[col_name] = col_map[col_name]
+            else:
+                ws.cell(header_row_idx, next_col).value = col_name
+                col_index[col_name] = next_col
+                next_col += 1
+
+        data_row_idx = None
+        for row_idx in range(header_row_idx + 1, ws.max_row + 2):
+            cell_val = ws.cell(row_idx, 1).value
+            if cell_val and str(cell_val).strip() == tcs_id:
+                data_row_idx = row_idx
+                break
+
+        if data_row_idx is None:
+            print(f"[Recorder] Warning: TCS ID '{tcs_id}' not found in {dest}")
+            return
+
+        duration_s   = metrics.get("total_duration_seconds", 0)
+        mins, secs   = divmod(int(duration_s), 60)
+        duration_str = f"{mins}m {secs}s"
+
+        status         = metrics.get("status", "FAILED")
+        testing_status = "OK" if status == "SUCCESS" else "NG"
+
+        judgment = (metrics.get("justification", {}).get("reflector_final_judgment", "") or "")
+
+        values = {
+            "Time Testing":     duration_str,
+            "Testing Status":   testing_status,
+            "Updated At":       metrics.get("timestamp", ""),
+            "Testing By":       f"MAS AI ({metrics.get('mode', 'predefined')})",
+            "OK Evid.":         output_dir,
+            "Issue Status":     "OK" if testing_status == "OK" else judgment[:200],
+            "Actual Result":    judgment[:500],
+            "Steps Taken":      metrics.get("total_cycles", 0),
+            "Tokens Used":      metrics.get("total_tokens_estimate", 0),
+            "Stagnation Count": metrics.get("stagnation_count", 0),
+        }
+
+        for col_name, value in values.items():
+            idx = col_index.get(col_name)
+            if idx:
+                ws.cell(data_row_idx, idx).value = value
+
+        wb.save(dest)
+        print(f"[Recorder] Test report saved to {dest}")
+        self._log("Test report written", f"tcs_id={tcs_id}  status={testing_status}  dest={dest}")
+
+    def write_test_report(self, state: AgentState, metrics: dict, shared_dir: str = None):
+        """Generate test reports. Write to per-scenario dir, and optionally a shared run dir."""
+        import shutil
 
         xlsx_path  = os.path.join(os.getcwd(), "scenario.xlsx")
         tcs_id     = state.get("tcs_id", "")
         output_dir = state.get("output_dir", "")
 
-        if not os.path.exists(xlsx_path) or not tcs_id:
+        if not os.path.exists(xlsx_path) or not tcs_id or not output_dir:
             return
 
         try:
-            wb = openpyxl.load_workbook(xlsx_path)
-            ws = wb.active
+            # 1. Per-scenario isolated report
+            dest = os.path.join(output_dir, "test_report.xlsx")
+            shutil.copy2(xlsx_path, dest)
+            self._fill_report_sheet(dest, tcs_id, output_dir, metrics)
 
-            # ── Find header row and map column names → column indices ─────────
-            header_row_idx = None
-            col_map: dict = {}
-            for row_idx, row in enumerate(ws.iter_rows(values_only=False), start=1):
-                first = row[0].value
-                if first and str(first).strip().upper() == "TCS ID":
-                    header_row_idx = row_idx
-                    for col_idx, cell in enumerate(row, start=1):
-                        if cell.value:
-                            name = str(cell.value).strip()
-                            if name not in col_map:  # first occurrence wins — avoid duplicate header collision
-                                col_map[name] = col_idx
-                    break
-
-            if header_row_idx is None:
-                print("[Recorder] Warning: TCS ID header row not found in scenario.xlsx")
-                return
-
-            # ── Ensure all result column headers exist; create if missing ─────
-            RESULT_COLS = [
-                "Time Testing",
-                "Testing Status",
-                "Updated At",
-                "Testing By",
-                "OK Evid.",
-                "Issue Status",
-                "Actual Result",
-                "Steps Taken",
-                "Tokens Used",
-                "Stagnation Count",
-            ]
-            next_col = ws.max_column + 1
-            col_index: dict = {}
-            for col_name in RESULT_COLS:
-                if col_name in col_map:
-                    col_index[col_name] = col_map[col_name]
-                else:
-                    ws.cell(header_row_idx, next_col).value = col_name
-                    col_index[col_name] = next_col
-                    next_col += 1
-
-            # ── Find data row by TCS ID ───────────────────────────────────────
-            data_row_idx = None
-            for row_idx in range(header_row_idx + 1, ws.max_row + 2):
-                cell_val = ws.cell(row_idx, 1).value
-                if cell_val and str(cell_val).strip() == tcs_id:
-                    data_row_idx = row_idx
-                    break
-
-            if data_row_idx is None:
-                print(f"[Recorder] Warning: TCS ID '{tcs_id}' not found in scenario.xlsx")
-                return
-
-            # ── Build result values ───────────────────────────────────────────
-            duration_s   = metrics.get("total_duration_seconds", 0)
-            mins, secs   = divmod(int(duration_s), 60)
-            duration_str = f"{mins}m {secs}s"
-
-            status         = metrics.get("status", "FAILED")
-            # status is "SUCCESS" / "STAGNATED" / "FAILED" as produced by finalize_run_metrics
-            testing_status = "OK" if status == "SUCCESS" else "NG"
-
-            judgment = (
-                metrics.get("justification", {}).get("reflector_final_judgment", "") or ""
-            )
-
-            # "Time Testing" intentionally replaces any placeholder formula with the actual measured duration
-            values = {
-                "Time Testing":     duration_str,
-                "Testing Status":   testing_status,
-                "Updated At":       metrics.get("timestamp", ""),
-                "Testing By":       f"MAS AI ({metrics.get('mode', 'predefined')})",
-                "OK Evid.":         output_dir,
-                "Issue Status":     "OK" if testing_status == "OK" else judgment[:200],
-                "Actual Result":    judgment[:500],
-                "Steps Taken":      metrics.get("total_cycles", 0),
-                "Tokens Used":      metrics.get("total_tokens_estimate", 0),
-                "Stagnation Count": metrics.get("stagnation_count", 0),
-            }
-
-            for col_name, value in values.items():
-                idx = col_index.get(col_name)
-                if idx:
-                    ws.cell(data_row_idx, idx).value = value
-
-            # ── Save back to original + copy to output_dir ───────────────────
-            wb.save(xlsx_path)
-
-            if output_dir:
-                dest = os.path.join(output_dir, "test_report.xlsx")
-                shutil.copy2(xlsx_path, dest)
-                print(f"[Recorder] Test report saved to {dest}")
-
-            self._log(
-                "Test report written",
-                f"tcs_id={tcs_id}  status={testing_status}  dest={output_dir}/test_report.xlsx"
-            )
+            # 2. Shared run-level merged report
+            if shared_dir:
+                shared_dest = os.path.join(shared_dir, "test_report.xlsx")
+                if not os.path.exists(shared_dest):
+                    # First scenario creates the shared file
+                    shutil.copy2(xlsx_path, shared_dest)
+                self._fill_report_sheet(shared_dest, tcs_id, output_dir, metrics)
 
         except Exception as e:
             print(f"[Recorder] Warning: could not write test report: {e}")
             self._log("Test report FAILED", str(e))
 
-    def finalize_run_metrics(self, state: AgentState):
+    def finalize_run_metrics(self, state: AgentState, shared_dir: str = None) -> dict:
         output_dir = state.get("output_dir", "outputs")
         metrics_path = os.path.join(output_dir, "final_metrics.json")
         session_id = state.get("session_id", "")
@@ -340,7 +321,66 @@ class RecorderAgent:
             self._log("FAILED to save final metrics", str(e))
 
         # ── Test report: fill scenario.xlsx result columns ────────────────────
-        self.write_test_report(state, metrics)
+        self.write_test_report(state, metrics, shared_dir=shared_dir)
 
         if self.logger is not None:
             self.logger.close()
+
+        return metrics
+
+    @staticmethod
+    def write_run_summary(all_metrics: list, shared_dir: str):
+        """Aggregate per-scenario metrics into a single run-level summary."""
+        if not all_metrics or not shared_dir:
+            return
+
+        total_tokens = sum(m.get("total_tokens_estimate", 0) for m in all_metrics)
+        total_cost = sum(m.get("total_price_usd", 0.0) for m in all_metrics)
+        total_duration = sum(m.get("total_duration_seconds", 0.0) for m in all_metrics)
+        total_scenarios = len(all_metrics)
+        passed_scenarios = sum(1 for m in all_metrics if m.get("status") == "SUCCESS")
+        overall_pass_rate = round((passed_scenarios / total_scenarios) * 100, 1) if total_scenarios > 0 else 0.0
+
+        total_physical_actions = sum(m.get("physical_actions", 0) for m in all_metrics)
+        total_recovery_attempts = sum(m.get("recovery_attempts", 0) for m in all_metrics)
+
+        # Averages for research metrics
+        cov_rates = [m.get("research_metrics", {}).get("coverage_rate") for m in all_metrics if m.get("research_metrics", {}).get("coverage_rate") is not None]
+        avg_coverage = round(sum(cov_rates) / len(cov_rates), 1) if cov_rates else None
+
+        tool_precisions = [m.get("tool_precision_rate", 0) for m in all_metrics]
+        avg_tool_precision = round(sum(tool_precisions) / len(tool_precisions), 1) if tool_precisions else 0.0
+
+        per_scenario_status = []
+        for m in all_metrics:
+            per_scenario_status.append({
+                "tcs_id": m.get("tcs_id"),
+                "status": m.get("status"),
+                "tokens": m.get("total_tokens_estimate"),
+                "duration_seconds": m.get("total_duration_seconds"),
+                "coverage_rate": m.get("research_metrics", {}).get("coverage_rate")
+            })
+
+        summary = {
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "total_scenarios": total_scenarios,
+            "passed_scenarios": passed_scenarios,
+            "overall_pass_rate": overall_pass_rate,
+            "total_tokens": total_tokens,
+            "total_cost_usd": round(total_cost, 8),
+            "total_duration_seconds": round(total_duration, 2),
+            "total_physical_actions": total_physical_actions,
+            "total_recovery_attempts": total_recovery_attempts,
+            "avg_coverage_rate": avg_coverage,
+            "avg_tool_precision": avg_tool_precision,
+            "scenario_details": per_scenario_status
+        }
+
+        summary_path = os.path.join(shared_dir, "run_summary.json")
+        try:
+            with open(summary_path, "w", encoding="utf-8") as f:
+                json.dump(summary, f, indent=4)
+            print(f"[Recorder] Merged run summary saved to {summary_path}")
+        except Exception as e:
+            print(f"[Recorder Error] Failed to save run summary: {e}")
+
