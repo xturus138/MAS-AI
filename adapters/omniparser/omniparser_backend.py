@@ -1,6 +1,7 @@
 import os
 import sys
 import base64
+import re
 import cv2
 
 
@@ -91,6 +92,21 @@ class OmniParserBackend:
 
         _, parsed_content_list = self._parser.parse(img_b64)
 
+        # SVG path pattern — geometry noise from vector icons misread by OCR.
+        # This is the only content-based filter: it targets a universal technical
+        # artefact pattern (SVG path commands), not any domain-specific vocabulary.
+        _SVG_PATH_RE = re.compile(r'^[MmCcLlZzHhVvAaSsQqTt][\.\d,\s\-]+', re.ASCII)
+
+        def _is_numeric_dominant(text: str) -> bool:
+            """True if text is predominantly digits/separators — not a button label.
+            Uses character composition only; no currency prefixes or locale.
+            Ratio threshold 0.65 means >=65% of chars are digits, '.', ',', '%' or space.
+            """
+            if not text:
+                return False
+            digit_chars = sum(c.isdigit() or c in ".,% " for c in text)
+            return digit_chars / len(text) > 0.65
+
         widgets = []
         status_bar_h = img_h * 0.05  # mirror observer_agent status-bar filter
 
@@ -112,12 +128,35 @@ class OmniParserBackend:
             element_type = item.get("type", "icon")
             content = (item.get("content") or "").strip()
 
+            # Clear only SVG path artefacts — a structural/technical pattern,
+            # not domain vocabulary. The element is kept for click targeting.
+            if _SVG_PATH_RE.match(content):
+                content = ""
+
+            el_w = x2 - x1
+            el_h = y2 - y1
+
+            # Interactivity heuristic: promote short text labels that look like
+            # buttons (reasonable dimensions) but were mis-labelled non-interactive.
+            # Excludes numerically-dominant text (prices, quantities, scores, etc.)
+            # using character composition — no locale or currency assumptions.
+            is_raw_interactive = item.get("interactivity", element_type == "icon")
+            if (
+                not is_raw_interactive
+                and element_type != "icon"
+                and 0 < len(content) <= 20
+                and el_w >= 60
+                and el_h >= 24
+                and not _is_numeric_dominant(content)
+            ):
+                is_raw_interactive = True
+
             widgets.append({
-                "bounds":       [x1, y1, x2, y2],
-                "cv_bounds":    [x1, y1, x2, y2],
-                "text":         content,
-                "type":         "container" if element_type == "icon" else "text_stub",
-                "interactivity": item.get("interactivity", element_type == "icon"),
+                "bounds":        [x1, y1, x2, y2],
+                "cv_bounds":     [x1, y1, x2, y2],
+                "text":          content,
+                "type":          "container" if (element_type == "icon" or is_raw_interactive) else "text_stub",
+                "interactivity": is_raw_interactive,
             })
 
         return widgets

@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import re
 import cv2
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.types import Command
@@ -81,7 +82,7 @@ class ObserverAgent:
         if not is_kb_shown:
             return elements
 
-        kb_threshold_y = image_height * 0.50
+        kb_threshold_y = image_height * 0.65  # fix: was 0.50, too aggressive for screens with bottom sheets
 
         kb_candidates = []
         non_kb_elements = []
@@ -249,6 +250,27 @@ class ObserverAgent:
         total_area = image_width * image_height
         MAX_AREA_RATIO = 0.12   # card containers are typically 9-11 % of screen
         MIN_CHILDREN   = 1      # drop the large box only if ≥1 smaller box is inside
+        EDGE_MARGIN    = 5      # pixels from screen edge to consider an element as clipped
+
+        # Regex to detect SVG path data mistakenly read by OCR as text
+        _SVG_PATH_RE = re.compile(r'^[MmCcLlZzHhVvAaSsQqTt][\.\d,\s\-]+', re.ASCII)
+
+        def _is_svg_noise(text: str) -> bool:
+            """Return True if text looks like an SVG path command or graphic artifact."""
+            t = text.strip()
+            if not t:
+                return False
+            if _SVG_PATH_RE.match(t):
+                return True
+            # String that is mostly non-alphanumeric (e.g. "M0,0L0,5 4.5,5z")
+            alnum = sum(c.isalnum() for c in t)
+            return len(t) > 3 and alnum / len(t) < 0.3
+
+        def _is_edge_clipped(b: list) -> bool:
+            """Return True if a small element is clipped at the screen edge."""
+            is_clipped = (b[0] <= EDGE_MARGIN or b[2] >= image_width - EDGE_MARGIN)
+            is_small   = (b[2] - b[0]) < 30
+            return is_clipped and is_small
 
         def _area(b):
             return max(0, b[2] - b[0]) * max(0, b[3] - b[1])
@@ -274,6 +296,39 @@ class ObserverAgent:
             children = sum(1 for el in normal if _contained(el.get("bounds", [0,0,0,0]), big_b))
             if children < MIN_CHILDREN:
                 kept.append(big_el)  # no children → might be a real large widget, keep it
+
+        # ── Pass 1b: remove SVG path noise and edge-clipped micro-elements ─────
+        before_noise = len(kept)
+        kept = [
+            el for el in kept
+            if not _is_svg_noise(el.get("text", ""))
+            and not _is_edge_clipped(el.get("bounds", [0, 0, 0, 0]))
+        ]
+        if len(kept) != before_noise:
+            removed = before_noise - len(kept)
+            print(f"[Observer] Noise filter removed {removed} SVG/edge-clipped element(s)")
+
+        # ── Pass 1c: remove narrow dangling text fragments ──────────────────────
+        # OmniParser sometimes produces orphan tokens like a standalone date part
+        # (e.g. "1", "Mei", ".") split away from their parent text block.
+        # Detection rule is purely geometric: a text_stub is a dangling fragment if
+        #   - it is non-interactive (text_stub type), AND
+        #   - its bounding box width is very small (< 6% of screen width), AND
+        #   - its text is very short (<= 3 characters).
+        # No word lists, no locale assumptions — works for any language/domain.
+        before_frag = len(kept)
+        narrow_threshold = image_width * 0.06
+        kept = [
+            el for el in kept
+            if not (
+                el.get("type") == "text_stub"
+                and len(el.get("text", "").strip()) <= 3
+                and (el.get("bounds", [0, 0, 0, 0])[2] - el.get("bounds", [0, 0, 0, 0])[0]) < narrow_threshold
+            )
+        ]
+        if len(kept) != before_frag:
+            removed = before_frag - len(kept)
+            print(f"[Observer] Fragment filter removed {removed} narrow text stub(s)")
 
         # ── Pass 2: merge horizontally adjacent text_stub elements ────────────
         text_stubs   = [el for el in kept if el.get("type") == "text_stub"]
