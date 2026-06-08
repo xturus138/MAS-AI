@@ -159,7 +159,11 @@ class ExecutorAgent:
         )
 
         if self.monitor is not None and action_type in ("click", "long_click", "input") and target_x != -1:
-            self.monitor.on_executor(target_x, target_y)
+            self.monitor.on_executor(target_x, target_y, action_type=action_type)
+        elif self.monitor is not None and action_type == "scroll":
+            self.monitor.on_executor(0, 0, action_type="scroll", scroll_direction=plan.get("scroll_direction", "up"))
+        elif self.monitor is not None and action_type in ("press_back", "press_home", "press_enter"):
+            self.monitor.on_executor(0, 0, action_type=action_type)
 
         # Brief pause so the UI can start rendering before the next screenshot
         if config.ADAPTIVE_EXECUTOR_WAIT and self.tools.d:

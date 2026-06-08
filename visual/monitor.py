@@ -113,10 +113,10 @@ class VisualMonitor:
         self._current_target = target_widget
         self._overlay.update_signal.emit(self._current_boxes, target_widget, {})
 
-    def on_executor(self, x: int, y: int):
+    def on_executor(self, x: int, y: int, action_type: str = "click", scroll_direction: str = ""):
         if self._overlay is None:
             return
-        ripple = {"x": x, "y": y, "alpha": 255}
+        ripple = {"x": x, "y": y, "alpha": 255, "action_type": action_type, "scroll_direction": scroll_direction}
         self._overlay.update_signal.emit(self._current_boxes, self._current_target, ripple)
 
     def on_clear(self):
