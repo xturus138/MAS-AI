@@ -146,8 +146,5 @@ This project is part of my undergraduate thesis in Computer Science. The goal is
 
 If you're a researcher or practitioner interested in AI-assisted testing, feel free to explore the code or reach out. While I wrote the research questions and designed the system, I gratefully acknowledge Claude's assistance in the implementation, as it has been genuinely helpful for a solo researcher managing a codebase of this scope.
 
-## License
 
-MIT License. See LICENSE file for details.
-
-*Built with Python, LangGraph, and help from Claude. Research by [your name].*
+*Built with Python, LangGraph, and help from Claude. Research by Raditya Aryabudhi Ramadhan.*
