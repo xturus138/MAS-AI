@@ -2,8 +2,6 @@
 
 > Automated GUI testing for Android apps using multiple AI agents working together.
 
----
-
 ## What is this?
 
 MAS AI is a research project for my undergraduate thesis (*skripsi*) that explores using multiple AI agents to automatically test Android applications. Instead of writing manual test scripts, this system uses several specialized AI agents that collaborate to observe the screen, decide what actions to take, execute those actions, and verify the results.
@@ -14,20 +12,16 @@ I built this framework to compare two different approaches to automated testing:
 
 Both approaches use the same visual perception capabilities, so it's a fair comparison of methodology rather than capability.
 
----
-
 ## How I Built This
 
 **Solo Research Project**: I designed and implemented this entire framework as part of my thesis research. While the codebase is substantial, I didn't write every line alone — I used Claude (Anthropic's AI assistant) as a coding partner to help with implementation details, debugging, and code structure. Think of Claude as an extremely knowledgeable pair programmer who helped translate my designs into working code.
 
 **Key Technologies**:
-- Python + LangGraph for the multi-agent orchestration
-- LangChain for LLM provider abstraction
-- ADB (Android Debug Bridge) for device control
-- Figma API for design reference
-- SQLite + JSON for the custom memory system
-
----
+* Python + LangGraph for the multi-agent orchestration
+* LangChain for LLM provider abstraction
+* ADB (Android Debug Bridge) for device control
+* Figma API for design reference
+* SQLite + JSON for the custom memory system
 
 ## System Overview
 
@@ -49,16 +43,14 @@ Five specialized agents work in a loop:
 
 The agents remember things across steps using a structured memory system I designed called MIRIX. It has six different "memory stores":
 
-- **Core Memory** — Session info like test goal and expected result
-- **Episodic Memory** — Event log of everything that happened (SQLite)
-- **Semantic Memory** — UI element descriptions for cross-test recall
-- **Procedural Memory** — Test step sequences from the Excel file
-- **Resource Memory** — Screenshots and files on disk
-- **Knowledge Vault** — Domain knowledge accumulated across runs
+* **Core Memory** — Session info like test goal and expected result
+* **Episodic Memory** — Event log of everything that happened (SQLite)
+* **Semantic Memory** — UI element descriptions for cross-test recall
+* **Procedural Memory** — Test step sequences from the Excel file
+* **Resource Memory** — Screenshots and files on disk
+* **Knowledge Vault** — Domain knowledge accumulated across runs
 
 This keeps the working state small while allowing rich context retrieval when agents need it.
-
----
 
 ## Two Ways to Test
 
@@ -82,8 +74,6 @@ The orchestrator LLM decides the sequence: should I observe first? Execute what 
 
 **Best for**: Exploratory testing, robustness evaluation, discovering unexpected UI paths
 
----
-
 ## Why Compare These Two?
 
 My research question: *Which approach is more effective for Android GUI testing — following human-written scripts or letting an AI explore autonomously?*
@@ -91,13 +81,11 @@ My research question: *Which approach is more effective for Android GUI testing 
 Both approaches get the same visual information (screenshots, UI elements), so the comparison isolates the **strategy** (scripted vs. adaptive) rather than **capability** (what the AI can see).
 
 Metrics I track:
-- Success rate per test scenario
-- Number of actions taken (efficiency)
-- First-attempt accuracy (how often it gets things right without retrying)
-- Widget localization success
-- Token usage and cost per scenario
-
----
+* Success rate per test scenario
+* Number of actions taken (efficiency)
+* First-attempt accuracy (how often it gets things right without retrying)
+* Widget localization success
+* Token usage and cost per scenario
 
 ## Project Structure
 
@@ -114,8 +102,6 @@ MAS AI/
 ├── main.py              # Entry point
 └── outputs/             # Test results and artifacts
 ```
-
----
 
 ## Quick Start
 
@@ -149,14 +135,10 @@ python main.py
 
 Results saved to `outputs/{mode}/{scenario_id}_{timestamp}/`
 
----
-
 ## Documentation
 
-- [Prompt Engineering Plan](docs/promptingplan.md) — How I optimized LLM prompts for each agent
-- [Memory System](docs/mirix_memory.md) — Detailed MIRIX architecture (if migrating from older version)
-
----
+* [Prompt Engineering Plan](docs/promptingplan.md) — How I optimized LLM prompts for each agent
+* [Memory System](docs/mirix_memory.md) — Detailed MIRIX architecture (if migrating from older version)
 
 ## Research Context
 
@@ -164,12 +146,8 @@ This project is part of my undergraduate thesis in Computer Science. The goal is
 
 If you're a researcher or practitioner interested in AI-assisted testing, feel free to explore the code or reach out. While I wrote the research questions and designed the system, I gratefully acknowledge Claude's assistance in the implementation — it's been genuinely helpful for a solo researcher managing a codebase of this scope.
 
----
-
 ## License
 
 MIT License — See LICENSE file for details.
-
----
 
 *Built with Python, LangGraph, and help from Claude. Research by [your name].*
