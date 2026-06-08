@@ -41,7 +41,7 @@ Five specialized agents work in a loop:
 
 ### Memory System (MIRIX)
 
-The agents remember things across steps using a structured memory system I designed called MIRIX. It has six different "memory stores":
+The agents remember things across steps using a structured memory system designed called MIRIX. It has six different "memory stores":
 
 * **Core Memory**: Session info like test goal and expected result
 * **Episodic Memory**: Event log of everything that happened (SQLite)
