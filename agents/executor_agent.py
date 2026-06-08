@@ -3,6 +3,7 @@ from typing import Optional
 from langgraph.types import Command
 from core.models.state import AgentState
 from tools.executor_tools import ExecutorTools
+from shared import config
 
 
 class ExecutorAgent:
@@ -161,7 +162,12 @@ class ExecutorAgent:
             self.monitor.on_executor(target_x, target_y)
 
         # Brief pause so the UI can start rendering before the next screenshot
-        time.sleep(1)
+        if config.ADAPTIVE_EXECUTOR_WAIT and self.tools.d:
+            # Adaptive: wait for UI idle with 1s max timeout (fails fast if already stable)
+            self.tools.d.wait_idle(timeout=1.0)
+        else:
+            # Legacy: fixed 1s delay
+            time.sleep(1)
 
         # Clear overlay annotations — the screen has changed, old boxes no longer apply.
         if self.monitor is not None:

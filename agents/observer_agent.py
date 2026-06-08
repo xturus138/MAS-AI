@@ -9,6 +9,7 @@ from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
 from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 from shared.prompts.observer_prompts import SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
+from shared import config
 
 
 class ObserverAgent:
@@ -425,8 +426,11 @@ class ObserverAgent:
         image_height = img.shape[0] if img is not None else 1920
         image_width  = img.shape[1] if img is not None else 1080
 
-        if self.parse_screen_omniparser is not None:
-            # ── OmniParser path: unified YOLO + Florence-2 + OCR pipeline ────
+        # ── Vision Pipeline Selection ────────────────────────────────────────
+        # FAST_VISION_MODE=true forces Canny pipeline (~1s) instead of OmniParser (~4-5s)
+        use_omniparser = self.parse_screen_omniparser is not None and not config.FAST_VISION_MODE
+
+        if use_omniparser:
             print("[Observer] Running OmniParser unified vision pipeline (YOLO + Florence-2 + OCR)...")
             self._log("Vision pipeline: OmniParser")
             omni_raw = self.parse_screen_omniparser.invoke({
@@ -465,7 +469,9 @@ class ObserverAgent:
                 # Fallback triggered inside the OmniParser branch
                 final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
         else:
-            # ── Canny + EasyOCR fallback ──────────────────────────────────────
+            # ── Canny + EasyOCR pipeline (fast mode or OmniParser unavailable) ──
+            if config.FAST_VISION_MODE:
+                print("[Observer] FAST_VISION_MODE enabled — using Canny+OCR pipeline")
             print("[Observer] Running Canny+OCR vision pipeline...")
             final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
 
@@ -493,7 +499,14 @@ class ObserverAgent:
         prev_ui_summary = prev_obs.details if prev_obs else ""
         cached_analysis = state.get("observer_analysis", "")
 
-        if prev_ui_summary and cached_analysis and ui_summary_text == prev_ui_summary:
+        cache_hit = (
+            config.OBSERVER_CACHE_ENABLED
+            and prev_ui_summary
+            and cached_analysis
+            and ui_summary_text == prev_ui_summary
+        )
+
+        if cache_hit:
             raw_res = cached_analysis
             new_stagnation_count = state.get("stagnation_count", 0) + 1
             print(f"[Observer] [CACHE HIT] UI unchanged — reusing previous analysis (LLM skipped)")
@@ -529,17 +542,16 @@ class ObserverAgent:
 
             self._log("LLM call started (multimodal screen interpretation)")
             try:
-                chunks = []
-                for chunk in self.llm.stream(
+                # Use invoke() for faster response on short outputs (~500-1000 tokens)
+                # stream() only beneficial for very long responses
+                response = self.llm.invoke(
                     messages,
                     config={
                         "tags": ["observer", f"step_{current_step}"],
                         "timeout": 45.0
                     }
-                ):
-                    chunks.append(chunk.content)
-
-                raw_res = "".join(chunks)
+                )
+                raw_res = response.content
             except Exception as e:
                 print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
                 self._log("LLM FATAL ERROR — aborting graph", str(e))

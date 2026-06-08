@@ -98,3 +98,9 @@ TOKEN_CONTEXT_WINDOW = int(os.getenv("TOKEN_CONTEXT_WINDOW", "32768"))
 TOKEN_WARN_THRESHOLD = float(os.getenv("TOKEN_WARN_THRESHOLD", "0.75"))
 
 WORKFLOW_STRATEGY = os.getenv("WORKFLOW_STRATEGY", "predefined").lower()
+
+# Performance Tuning (non-breaking, opt-in)
+FAST_VISION_MODE = os.getenv("FAST_VISION_MODE", "false").lower() == "true"  # Use Canny instead of OmniParser
+ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == "true"  # Skip sleep if UI stable
+PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"  # Parallel loading+UI change
+OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"  # Cache LLM results for identical screens

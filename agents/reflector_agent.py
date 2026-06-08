@@ -2,11 +2,13 @@ import base64
 import json
 import os
 from typing import Optional
+from concurrent.futures import ThreadPoolExecutor
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from core.models.state import AgentState
 from core.utils.toons_helper import compress_and_report
 from shared.prompts.reflector_prompts import DIRECTIONAL_STIMULUS, FINAL_STEP_STIMULUS, LOADING_STIMULUS, UI_CHANGE_STIMULUS
+from shared import config
 
 import cv2
 
@@ -137,24 +139,51 @@ class ReflectorAgent:
         pre_path: str,
         post_path: str,
         memory_context: str,
-        loading_reasoning: str,
+        loading_reasoning: str = "",
+        parallel_mode: bool = False,
     ) -> UIChangeCheckResult:
-        """Call 2: determine whether the UI meaningfully changed. Receives Call 1 verdict as context."""
-        system_prompt = (
-            "You are the Reflector Agent performing a UI CHANGE CHECK.\n"
-            "The page has already been confirmed as FULLY LOADED (loading check passed).\n\n"
-            f"Loading check result: {loading_reasoning}\n\n"
-            "Compare the BEFORE screenshot (pre-action) and the AFTER screenshot (post-action).\n"
-            "Return ui_changed=True if the app UI meaningfully changed:\n"
-            "  • New screen or view appeared\n"
-            "  • New content, list items, or elements became visible\n"
-            "  • A form field was filled, a button state changed, a dialog appeared\n\n"
-            "Return ui_changed=False if:\n"
-            "  • Screens are visually identical\n"
-            "  • ONLY system-level indicators changed (clock, battery, signal, notification bar)\n"
-            "  • The action had no visible effect on the app UI\n"
-            + UI_CHANGE_STIMULUS
-        )
+        """Call 2: determine whether the UI meaningfully changed.
+
+        Args:
+            pre_path: Path to before screenshot
+            post_path: Path to after screenshot
+            memory_context: Memory context string
+            loading_reasoning: Result from loading check (empty if parallel_mode=True)
+            parallel_mode: If True, runs independently without loading context
+        """
+        if parallel_mode:
+            # Parallel: No dependency on loading check result
+            system_prompt = (
+                "You are the Reflector Agent performing a UI CHANGE CHECK.\n"
+                "Compare the BEFORE screenshot (pre-action) and the AFTER screenshot (post-action).\n"
+                "Assume the page is fully loaded unless you see clear loading indicators.\n\n"
+                "Return ui_changed=True if the app UI meaningfully changed:\n"
+                "  • New screen or view appeared\n"
+                "  • New content, list items, or elements became visible\n"
+                "  • A form field was filled, a button state changed, a dialog appeared\n\n"
+                "Return ui_changed=False if:\n"
+                "  • Screens are visually identical\n"
+                "  • ONLY system-level indicators changed (clock, battery, signal, notification bar)\n"
+                "  • The action had no visible effect on the app UI\n"
+                + UI_CHANGE_STIMULUS
+            )
+        else:
+            # Sequential: Uses loading check result
+            system_prompt = (
+                "You are the Reflector Agent performing a UI CHANGE CHECK.\n"
+                "The page has already been confirmed as FULLY LOADED (loading check passed).\n\n"
+                f"Loading check result: {loading_reasoning}\n\n"
+                "Compare the BEFORE screenshot (pre-action) and the AFTER screenshot (post-action).\n"
+                "Return ui_changed=True if the app UI meaningfully changed:\n"
+                "  • New screen or view appeared\n"
+                "  • New content, list items, or elements became visible\n"
+                "  • A form field was filled, a button state changed, a dialog appeared\n\n"
+                "Return ui_changed=False if:\n"
+                "  • Screens are visually identical\n"
+                "  • ONLY system-level indicators changed (clock, battery, signal, notification bar)\n"
+                "  • The action had no visible effect on the app UI\n"
+                + UI_CHANGE_STIMULUS
+            )
         content: list = [{"type": "text", "text": f"Context:\n{memory_context}" if memory_context else "No prior context."}]
         for path, label in [(pre_path, "BEFORE (pre-action)"), (post_path, "AFTER (post-action)")]:
             if path:
@@ -430,64 +459,131 @@ class ReflectorAgent:
         self._log(f"3-call chain started ({mode_label})", f"instruction={current_instruction}")
         print(f"[Reflector] {mode_label} — 3-call chain starting...")
 
-        # ── Call 1: Loading Check ─────────────────────────────────────────────
-        self._log("Call 1: Loading Check")
-        loading_result = self._check_loading(screenshot_path, memory_context)
-        self._log(
-            f"Call 1 result: loading_done={loading_result.loading_done}",
-            loading_result.reasoning,
-        )
-        print(f"[Reflector] Call 1 Loading: done={loading_result.loading_done} | {loading_result.reasoning}")
+        # ── Calls 1 & 2: Loading + UI Change (parallel or sequential) ─────────
+        if config.PARALLEL_REFLECTOR_CHECKS and pre_action_path:
+            # PARALLEL MODE: Run Call 1 and Call 2 concurrently using ThreadPoolExecutor
+            # Both are independent - they just analyze different aspects of screenshots
+            self._log("PARALLEL MODE: Running Call 1 (Loading) + Call 2 (UI Change) concurrently")
+            print(f"[Reflector] PARALLEL MODE: Starting Call 1 + Call 2...")
 
-        if not loading_result.loading_done:
-            reasoning = f"[Loading Check FAILED] {loading_result.reasoning}"
-            print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
-            self._log("SHORT-CIRCUIT at Call 1", reasoning)
-            return self._build_return(
-                state=state,
-                passed=False,
-                reasoning=reasoning,
-                figma_discrepancies="",
-                screenshot_path=screenshot_path,
-                post_action_path=post_action_path,
-                current_step=current_step,
-                current_idx=current_idx,
-                figma_enabled=figma_enabled,
-                memory_context=memory_context,
-                verification_chain={
-                    "loading_done": False,
-                    "loading_reasoning": loading_result.reasoning,
-                    "ui_changed": None,
-                    "ui_change_reasoning": None,
-                    "short_circuit": "loading_failed",
-                },
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                # Submit both calls simultaneously
+                future_loading = executor.submit(self._check_loading, screenshot_path, memory_context)
+                future_ui_change = executor.submit(
+                    self._check_ui_change, pre_action_path, screenshot_path, memory_context, "", True
+                )
+
+                # Wait for both to complete (max wall time = slowest call, not sum)
+                loading_result = future_loading.result()
+                change_result = future_ui_change.result()
+
+            self._log(
+                f"Call 1 result: loading_done={loading_result.loading_done}",
+                loading_result.reasoning,
             )
+            print(f"[Reflector] Call 1 Loading: done={loading_result.loading_done}")
+            self._log(
+                f"Call 2 result: ui_changed={change_result.ui_changed}",
+                change_result.reasoning,
+            )
+            print(f"[Reflector] Call 2 UI Change: changed={change_result.ui_changed}")
 
-        # ── Call 2: UI Change Check ───────────────────────────────────────────
-        self._log("Call 2: UI Change Check")
-        change_result = self._check_ui_change(
-            pre_path=pre_action_path,
-            post_path=screenshot_path,
-            memory_context=memory_context,
-            loading_reasoning=loading_result.reasoning,
-        )
-        self._log(
-            f"Call 2 result: ui_changed={change_result.ui_changed}",
-            change_result.reasoning,
-        )
-        print(f"[Reflector] Call 2 UI Change: changed={change_result.ui_changed} | {change_result.reasoning}")
+            # Evaluate results together (both must pass)
+            if not loading_result.loading_done:
+                reasoning = f"[Loading Check FAILED] {loading_result.reasoning}"
+                print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
+                self._log("SHORT-CIRCUIT at Call 1", reasoning)
+                return self._build_return(
+                    state=state,
+                    passed=False,
+                    reasoning=reasoning,
+                    figma_discrepancies="",
+                    screenshot_path=screenshot_path,
+                    post_action_path=post_action_path,
+                    current_step=current_step,
+                    current_idx=current_idx,
+                    figma_enabled=figma_enabled,
+                    memory_context=memory_context,
+                    verification_chain={
+                        "loading_done": False,
+                        "loading_reasoning": loading_result.reasoning,
+                        "ui_changed": change_result.ui_changed,
+                        "ui_change_reasoning": change_result.reasoning,
+                        "short_circuit": "loading_failed",
+                    },
+                )
 
-        if not change_result.ui_changed:
-            if action_type in _NO_UI_CHANGE_REQUIRED:
-                print(
-                    f"[Reflector] Call 2 ui_changed=False — action_type={action_type!r} "
-                    "does not require navigation change. Proceeding to Call 3."
+            if not change_result.ui_changed and action_type not in _NO_UI_CHANGE_REQUIRED:
+                reasoning = f"[UI Change Check FAILED] {change_result.reasoning}"
+                print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
+                self._log("SHORT-CIRCUIT at Call 2", reasoning)
+                return self._build_return(
+                    state=state,
+                    passed=False,
+                    reasoning=reasoning,
+                    figma_discrepancies="",
+                    screenshot_path=screenshot_path,
+                    post_action_path=post_action_path,
+                    current_step=current_step,
+                    current_idx=current_idx,
+                    figma_enabled=figma_enabled,
+                    memory_context=memory_context,
+                    verification_chain={
+                        "loading_done": True,
+                        "loading_reasoning": loading_result.reasoning,
+                        "ui_changed": False,
+                        "ui_change_reasoning": change_result.reasoning,
+                        "short_circuit": "no_ui_change",
+                    },
                 )
-                self._log(
-                    f"Call 2 no-change ALLOWED for {action_type}",
-                    change_result.reasoning,
+        else:
+            # SEQUENTIAL MODE: Run Call 1, then Call 2 (original behavior)
+            self._log("SEQUENTIAL MODE: Running Call 1 then Call 2")
+            loading_result = self._check_loading(screenshot_path, memory_context)
+            self._log(
+                f"Call 1 result: loading_done={loading_result.loading_done}",
+                loading_result.reasoning,
+            )
+            print(f"[Reflector] Call 1 Loading: done={loading_result.loading_done} | {loading_result.reasoning}")
+
+            if not loading_result.loading_done:
+                reasoning = f"[Loading Check FAILED] {loading_result.reasoning}"
+                print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
+                self._log("SHORT-CIRCUIT at Call 1", reasoning)
+                return self._build_return(
+                    state=state,
+                    passed=False,
+                    reasoning=reasoning,
+                    figma_discrepancies="",
+                    screenshot_path=screenshot_path,
+                    post_action_path=post_action_path,
+                    current_step=current_step,
+                    current_idx=current_idx,
+                    figma_enabled=figma_enabled,
+                    memory_context=memory_context,
+                    verification_chain={
+                        "loading_done": False,
+                        "loading_reasoning": loading_result.reasoning,
+                        "ui_changed": None,
+                        "ui_change_reasoning": None,
+                        "short_circuit": "loading_failed",
+                    },
                 )
-            else:
+
+            self._log("Call 2: UI Change Check")
+            change_result = self._check_ui_change(
+                pre_path=pre_action_path,
+                post_path=screenshot_path,
+                memory_context=memory_context,
+                loading_reasoning=loading_result.reasoning,
+            )
+            self._log(
+                f"Call 2 result: ui_changed={change_result.ui_changed}",
+                change_result.reasoning,
+            )
+            print(f"[Reflector] Call 2 UI Change: changed={change_result.ui_changed} | {change_result.reasoning}")
+
+            if not change_result.ui_changed and action_type not in _NO_UI_CHANGE_REQUIRED:
                 reasoning = f"[UI Change Check FAILED] {change_result.reasoning}"
                 print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
                 self._log("SHORT-CIRCUIT at Call 2", reasoning)
