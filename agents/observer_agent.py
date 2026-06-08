@@ -8,6 +8,7 @@ from langgraph.types import Command
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
 from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
+from shared.prompts.observer_prompts import SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
 
 
 class ObserverAgent:
@@ -504,18 +505,20 @@ class ObserverAgent:
             elements_data = [{"i": el["id"], "t": el.get("text") or ""} for el in final_widget_set]
             elements_json = compress_and_report(elements_data, "elements", "observer")
 
-            prompt = ChatPromptTemplate.from_messages([
-                ("system", "You are a Perception Agent. Your ONLY job is to describe what is visible on the screen. "
-                           "Do NOT assume what the user wants to do. Do NOT bias your descriptions toward any goal.\n"
-                           "IMPORTANT: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys.\n"
-                           "OUTPUT FORMAT (strict):\n"
-                           "SEMANTIC_MAP: [[ID]: Description, ...]\n"
-                           "SUMMARY: One sentence describing the screen and key actions available."),
-                ("human", [
-                    {"type": "text", "text": "App Context: {scenario_desc}\nNavigation Path: {navigation_context}\nElements: {elements_json}\n\nMap every ID in the screenshot to its generic UI function. Be objective. Do not reference any task or goal."},
-                    {"type": "image_url", "image_url": {"url": "data:image/webp;base64,{img_b64}"}}
-                ])
-            ])
+            # Build prompt with Few-Shot examples for output format locking
+            prompt_messages = [
+                ("system", SYSTEM_PROMPT),
+            ]
+            # Unpack few-shot examples (human, assistant) pairs
+            for role, content in FEW_SHOT_EXAMPLES:
+                prompt_messages.append((role, content))
+            # Add the actual user input
+            prompt_messages.append(("human", [
+                {"type": "text", "text": "App Context: {scenario_desc}\nNavigation Path: {navigation_context}\nElements: {elements_json}\n\nMap every ID in the screenshot to its generic UI function. Be objective. Do not reference any task or goal."},
+                {"type": "image_url", "image_url": {"url": "data:image/webp;base64,{img_b64}"}}
+            ]))
+
+            prompt = ChatPromptTemplate.from_messages(prompt_messages)
 
             messages = prompt.format_messages(
                 scenario_desc=scenario_desc,

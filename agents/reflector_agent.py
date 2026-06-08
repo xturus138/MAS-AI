@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from core.models.state import AgentState
 from core.utils.toons_helper import compress_and_report
+from shared.prompts.reflector_prompts import DIRECTIONAL_STIMULUS, FINAL_STEP_STIMULUS, LOADING_STIMULUS, UI_CHANGE_STIMULUS
 
 import cv2
 
@@ -16,30 +17,33 @@ _NO_UI_CHANGE_REQUIRED = frozenset({"input", "scroll", "none"})
 
 
 class LoadingCheckResult(BaseModel):
+    """Chain-of-Thought: reasoning MUST be first field."""
+    reasoning: str = Field(description="Step-by-step analysis of loading indicators before final verdict.")
     loading_done: bool = Field(
         description="True if the page has fully rendered and is no longer loading. "
                     "False if any spinner, progress bar, skeleton screen, shimmer animation, "
                     "or partially-rendered content is visible."
     )
-    reasoning: str = Field(description="Brief explanation of what loading indicators were observed or absent.")
 
 
 class UIChangeCheckResult(BaseModel):
+    """Chain-of-Thought: reasoning MUST be first field."""
+    reasoning: str = Field(description="Step-by-step comparison of before/after screenshots before final verdict.")
     ui_changed: bool = Field(
         description="True if the app UI meaningfully changed between the before and after screenshots "
                     "(new screen, new content, new element visible/hidden). "
                     "False if the screens are identical or only system-level indicators changed "
                     "(clock, battery, signal strength)."
     )
-    reasoning: str = Field(description="Brief explanation of what changed or why no change was detected.")
 
 
 class ValidityCheckResult(BaseModel):
+    """Chain-of-Thought: reasoning MUST be first field."""
+    reasoning: str = Field(
+        description="Step-by-step evaluation of visual state vs expectations before final verdict."
+    )
     passed: bool = Field(
         description="True if the action achieved its micro-goal OR if the final expected result is satisfied."
-    )
-    reasoning: str = Field(
-        description="Explanation of the visual state vs expectations. Crucial for self-correction retries."
     )
     figma_discrepancies: str = Field(
         default="",
@@ -111,7 +115,8 @@ class ReflectorAgent:
             "  • Shimmer animation\n"
             "  • Partially-rendered list (items appear one by one)\n"
             "  • Blank or mostly-white content area that should have content\n\n"
-            "Return loading_done=True ONLY if the page appears fully and stably rendered."
+            "Return loading_done=True ONLY if the page appears fully and stably rendered.\n"
+            + LOADING_STIMULUS
         )
         content: list = [{"type": "text", "text": f"Context:\n{memory_context}" if memory_context else "No prior context."}]
         if screenshot_path:
@@ -147,7 +152,8 @@ class ReflectorAgent:
             "Return ui_changed=False if:\n"
             "  • Screens are visually identical\n"
             "  • ONLY system-level indicators changed (clock, battery, signal, notification bar)\n"
-            "  • The action had no visible effect on the app UI"
+            "  • The action had no visible effect on the app UI\n"
+            + UI_CHANGE_STIMULUS
         )
         content: list = [{"type": "text", "text": f"Context:\n{memory_context}" if memory_context else "No prior context."}]
         for path, label in [(pre_path, "BEFORE (pre-action)"), (post_path, "AFTER (post-action)")]:
@@ -187,25 +193,23 @@ class ReflectorAgent:
         if is_final_step:
             if figma_enabled and figma_b64:
                 system_prompt += (
-                    "CRITICAL: This is the FINAL step. Perform a 3-WAY VERIFICATION:\n"
-                    "1. Confirm the LIVE APP SCREENSHOT matches the EXPECTED RESULT.\n"
-                    "2. Compare the LIVE APP SCREENSHOT against the FIGMA GOLD STANDARD.\n"
-                    "   - Note layout, color, content, or structural discrepancies.\n"
-                    "   - Minor pixel differences are acceptable. Missing elements are NOT.\n"
-                    f"ULTIMATE EXPECTED RESULT: {expected_result}\n"
+                    FINAL_STEP_STIMULUS
+                    + f"\nULTIMATE EXPECTED RESULT: {expected_result}\n"
                 )
                 print("[Reflector] FINAL Verification with Figma Gold Standard")
             else:
                 system_prompt += (
                     "CRITICAL: This is the FINAL step. Verify the screen matches the ultimate Expected Result.\n"
-                    f"ULTIMATE EXPECTED RESULT: {expected_result}\n"
+                    + DIRECTIONAL_STIMULUS
+                    + f"\nULTIMATE EXPECTED RESULT: {expected_result}\n"
                 )
                 print("[Reflector] FINAL Verification (text-only mode)")
         else:
             system_prompt += (
                 "This is an intermediate step. The UI has already changed (confirmed above).\n"
                 "Verify the change was the CORRECT response to the instruction — not an error dialog, "
-                "wrong screen, or unrelated transition."
+                "wrong screen, or unrelated transition.\n"
+                + DIRECTIONAL_STIMULUS
             )
         content: list = [{"type": "text", "text": f"Context:\n{memory_context}" if memory_context else "No prior context."}]
         if screenshot_path:

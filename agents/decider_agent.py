@@ -7,9 +7,14 @@ from langgraph.types import Command
 from core.models.state import AgentState
 from core.utils.toons_helper import compress_and_report
 from langchain_core.prompts import ChatPromptTemplate
+from shared.prompts.decider_prompts import SYSTEM_PROMPT
 
 
 class ActionPlan(BaseModel):
+    """Chain-of-Thought: reasoning MUST be first field to force LLM to think before acting."""
+    reasoning: str = Field(
+        description="Step-by-step thinking: 1) Intent analysis 2) UI element mapping 3) Action selection 4) Target verification."
+    )
     action_type: Literal[
         "click", "long_click", "input", "scroll",
         "press_back", "press_home", "press_enter", "start_app", "none"
@@ -37,16 +42,7 @@ class ActionPlan(BaseModel):
     )
 
 
-SYSTEM_PROMPT = """You are the Decider Agent in an Android GUI testing multi-agent system.
-
-Your task: translate the given step instruction into exactly ONE ActionPlan.
-
-RULES:
-- target_id MUST be an integer ID from the SEMANTIC_MAP, or -1.
-- For typing text into any field: ALWAYS use 'input' directly. The executor internally clicks/focuses the widget before typing — NEVER issue a separate 'click' to focus before 'input'. One action only.
-- Set text_payload to the exact text to type and target_id to the input field's widget ID.
-- For 'scroll': set scroll_direction, target_id = -1.
-- Set is_completed=True ONLY when the STEP INSTRUCTION cannot be mapped to any actions. In this case, use 'none' as action_type."""
+# SYSTEM_PROMPT imported from shared.prompts.decider_prompts
 
 
 class DeciderAgent:

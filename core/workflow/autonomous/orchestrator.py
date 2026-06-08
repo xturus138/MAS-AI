@@ -4,12 +4,17 @@ from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.types import Command
 from core.models.state import AgentState
+from shared.prompts.orchestrator_prompts import FEW_SHOT_EXAMPLES
 
 if TYPE_CHECKING:
     from memory.meta_manager import MIRIXMemorySystem
 
 
 class AutonomousPlan(BaseModel):
+    """Chain-of-Thought: reasoning MUST be first field to force LLM to analyze before deciding."""
+    reasoning: str = Field(
+        description="Analyze SENDER and action history step-by-step before selecting the next action."
+    )
     action_type: str = Field(
         description="The judge's decision: 'OBSERVE', 'DECIDE', 'EXECUTE', 'VERIFY', or 'COMPLETE'."
     )
@@ -21,9 +26,6 @@ class AutonomousPlan(BaseModel):
     )
     is_completed: bool = Field(
         description="Set to True only if the overall task goal has been achieved."
-    )
-    reasoning: str = Field(
-        description="Brief explanation of the judgment."
     )
 
 
@@ -253,13 +255,20 @@ class AutonomousOrchestrator:
             f"RECENT ACTION HISTORY (last 5):\n{recent_episodes_str}"
         )
 
+        # Build messages with Few-Shot examples for ReAct pattern
         messages = [
             SystemMessage(content=AUTONOMOUS_SYSTEM_PROMPT.format(
                 task_goal=task_goal,
                 expected_result=expected_result,
             )),
-            HumanMessage(content=human_content),
         ]
+        # Insert Few-Shot examples showing correct dispatch patterns
+        for role, content in FEW_SHOT_EXAMPLES:
+            if role == "human":
+                messages.append(HumanMessage(content=content))
+            else:
+                messages.append(SystemMessage(content=content))
+        messages.append(HumanMessage(content=human_content))
 
         print("[Autonomous] Planning next step...")
         self._log("LLM call started (AutonomousPlan generation)")

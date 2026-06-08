@@ -3,6 +3,12 @@ from typing import Optional, TYPE_CHECKING
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from core.models.state import AgentState
+from shared.prompts.predefined_orchestrator_prompts import (
+    FIGMA_FLOW_SYSTEM_PROMPT,
+    FIGMA_FLOW_EXAMPLES,
+    BRIDGE_SYSTEM_PROMPT,
+    BRIDGE_EXAMPLES,
+)
 
 if TYPE_CHECKING:
     from adapters.figma.figma_adapter import FigmaAdapter
@@ -10,6 +16,10 @@ if TYPE_CHECKING:
 
 
 class BridgePlan(BaseModel):
+    """Chain-of-Thought: reasoning MUST be first field."""
+    reasoning: str = Field(
+        description="Analyze current vs target screen step-by-step before determining bridge steps."
+    )
     bridge_steps: list = Field(
         description=(
             "Ordered list of navigation steps to move from the current screen "
@@ -17,12 +27,13 @@ class BridgePlan(BaseModel):
             "Each step is a plain string instruction like 'click Back' or 'click Home button'."
         )
     )
-    reasoning: str = Field(
-        description="Brief explanation of why these steps are needed."
-    )
 
 
 class FigmaFlowPlan(BaseModel):
+    """Chain-of-Thought: reasoning MUST be first field."""
+    reasoning: str = Field(
+        description="Analyze scenario context and Figma graph step-by-step before selecting path."
+    )
     path_ids: list = Field(
         description=(
             "The ordered list of Figma Node IDs (e.g. ['10:5', '12:1']) that represent "
@@ -30,24 +41,9 @@ class FigmaFlowPlan(BaseModel):
             "for this scenario. Return an empty list if no path can be resolved."
         )
     )
-    reasoning: str = Field(
-        description="Brief explanation of why this start screen and flow were chosen."
-    )
 
 
-BRIDGE_SYSTEM_PROMPT = """You are the Orchestrator Agent in a MAS AI Android testing framework.
-
-Your task is to generate a short sequence of navigation steps to transition the app
-from its CURRENT screen to the REQUIRED STARTING SCREEN of the next test scenario.
-
-Use only these action types in your steps:
-- "click <element name>"
-- "press back"
-- "press home"
-- "scroll up" / "scroll down"
-
-Be minimal. Generate only what is strictly necessary to reach the target screen.
-"""
+# Note: BRIDGE_SYSTEM_PROMPT now imported from shared.prompts.predefined_orchestrator_prompts
 
 
 class PredefinedOrchestrator:
@@ -95,17 +91,6 @@ class PredefinedOrchestrator:
 
         flow_summary = self.figma.get_flow_summary()
 
-        system_prompt = (
-            "You are the Orchestrator Agent in a MAS AI Android testing framework.\n"
-            "Your task is to analyze a Figma prototype flow and a test scenario to "
-            "determine the correct sequence of screens (frames) the app should pass through.\n\n"
-            "RULES:\n"
-            "1. Identify the 'Start' frame that matches the scenario's menu context.\n"
-            "2. Follow the connections (transitions) in the Figma file to reach the 'End' frame "
-            "that fulfills the scenario's expected result.\n"
-            "3. Return the full path of Node IDs in chronological order."
-        )
-
         human_content = (
             f"TEST SCENARIO:\n"
             f"  Menu Context: {menu_name}\n"
@@ -114,12 +99,18 @@ class PredefinedOrchestrator:
             f"FIGMA PROTOTYPE GRAPH:\n{flow_summary}"
         )
 
+        # Build messages with Few-Shot examples for Figma flow planning
+        messages = [SystemMessage(content=FIGMA_FLOW_SYSTEM_PROMPT)]
+        for role, content in FIGMA_FLOW_EXAMPLES:
+            if role == "human":
+                messages.append(HumanMessage(content=content))
+            else:
+                messages.append(SystemMessage(content=content))
+        messages.append(HumanMessage(content=human_content))
+
         print(f"[Predefined] Planning Figma flow for '{menu_name}'...")
         try:
-            result = self._mapping_llm.invoke([
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=human_content)
-            ])
+            result = self._mapping_llm.invoke(messages)
 
             if not result.path_ids:
                 print("[Predefined] LLM could not resolve a Figma path. Falling back to text-only.")
@@ -160,10 +151,14 @@ class PredefinedOrchestrator:
             f"Figma Node ID: {next_start_node_id}"
         )
 
-        messages = [
-            SystemMessage(content=BRIDGE_SYSTEM_PROMPT),
-            HumanMessage(content=human_content),
-        ]
+        # Build messages with Few-Shot examples for bridge navigation
+        messages = [SystemMessage(content=BRIDGE_SYSTEM_PROMPT)]
+        for role, content in BRIDGE_EXAMPLES:
+            if role == "human":
+                messages.append(HumanMessage(content=content))
+            else:
+                messages.append(SystemMessage(content=content))
+        messages.append(HumanMessage(content=human_content))
 
         print(f"[Predefined] Computing navigation bridge to '{next_screen_name}'...")
         try:
