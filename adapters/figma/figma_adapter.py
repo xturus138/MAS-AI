@@ -22,10 +22,11 @@ class FigmaAdapter:
         self._headers = {"X-FIGMA-TOKEN": self.access_token}
         self._frames_cache: Optional[list] = None
         self._flow_starting_points: list = []
+        self._screenshot_cache = {}
 
     def _get(self, path: str, params: dict = None) -> dict:
         url = f"{config.FIGMA_API_BASE}{path}"
-        response = requests.get(url, headers=self._headers, params=params or {}, timeout=60)
+        response = requests.get(url, headers=self._headers, params=params or {}, timeout=config.FIGMA_REQUEST_TIMEOUT)
         response.raise_for_status()
         return response.json()
 
@@ -139,6 +140,9 @@ class FigmaAdapter:
             return {}
 
     def get_node_screenshot_b64(self, node_id: str) -> str:
+        if node_id in self._screenshot_cache:
+            return self._screenshot_cache[node_id]
+
         try:
             safe_id = node_id.replace(":", "-")
             data = self._get(
@@ -149,13 +153,15 @@ class FigmaAdapter:
             if not image_url:
                 print(f"[Figma] WARN: No image URL returned for node {node_id}")
                 return ""
-            
+
             import time
             for attempt in range(3):
                 try:
-                    img_resp = requests.get(image_url, timeout=120)
+                    img_resp = requests.get(image_url, timeout=config.FIGMA_REQUEST_TIMEOUT)
                     img_resp.raise_for_status()
-                    return base64.b64encode(img_resp.content).decode("utf-8")
+                    b64_val = base64.b64encode(img_resp.content).decode("utf-8")
+                    self._screenshot_cache[node_id] = b64_val
+                    return b64_val
                 except Exception as e:
                     if attempt < 2:
                         print(f"[Figma] WARN: Image download failed (attempt {attempt+1}/3), retrying in 2s... {e}")
@@ -229,24 +235,25 @@ class FigmaAdapter:
         """Creates a side-by-side composite of multiple Figma frames with titles."""
         from PIL import Image, ImageDraw, ImageFont
         import io
+        from concurrent.futures import ThreadPoolExecutor
 
         if not node_ids:
             return
 
-        images = []
-        titles = []
-        
         target_ids = node_ids
         if len(node_ids) > 3:
             target_ids = [node_ids[0], node_ids[len(node_ids)//2], node_ids[-1]]
 
-        for i, nid in enumerate(target_ids):
+        # Deduplicate target_ids to avoid redundant concurrent requests
+        unique_ids = list(dict.fromkeys(target_ids))
+
+        def _fetch_frame_data(nid):
             b64 = self.get_node_screenshot_b64(nid)
-            if not b64: continue
-            
+            if not b64:
+                return None
+
             img = Image.open(io.BytesIO(base64.b64decode(b64)))
-            images.append(img)
-            
+
             # Try to get frame name from self._frames_cache first to avoid redundant API request
             name = f"Frame {nid}"
             if self._frames_cache:
@@ -258,10 +265,24 @@ class FigmaAdapter:
                 context = self.get_node_context(nid)
                 if context:
                     name = context.get("document", {}).get("name", name)
-            titles.append(name)
+            return {"img": img, "name": name}
 
-        if not images:
+        # Download unique screenshots in parallel
+        with ThreadPoolExecutor(max_workers=min(4, len(unique_ids))) as executor:
+            fetched = list(executor.map(lambda nid: (nid, _fetch_frame_data(nid)), unique_ids))
+
+        # Create a mapping of node_id -> frame data
+        id_to_data = {nid: data for nid, data in fetched if data is not None}
+
+        # Build results in the original target_ids order
+        results = [id_to_data[nid] for nid in target_ids if nid in id_to_data]
+
+        results = [r for r in results if r is not None]
+        if not results:
             return
+
+        images = [r["img"] for r in results]
+        titles = [r["name"] for r in results]
 
         padding = 40
         title_height = 80

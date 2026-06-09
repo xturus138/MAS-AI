@@ -27,7 +27,7 @@ FEW_SHOT_EXAMPLES = [
         "human",
         """App Context: Notes App
 Navigation Path: N/A
-Elements: [{"i": 1, "t": "Catatan"}, {"i": 2, "t": "Semua"}, {"i": 3, "t": "+"}]"""
+Elements: [{{"i": 1, "t": "Catatan"}}, {{"i": 2, "t": "Semua"}}, {{"i": 3, "t": "+"}}]"""
     ),
     (
         "assistant",
@@ -42,7 +42,7 @@ SUMMARY: The screen displays the main dashboard of a notes application with a li
         "human",
         """App Context: E-commerce Login
 Navigation Path: Login Screen
-Elements: [{"i": 1, "t": "Email"}, {"i": 2, "t": "Password"}, {"i": 3, "t": "Login"}, {"i": 4, "t": "Forgot Password?"}]"""
+Elements: [{{"i": 1, "t": "Email"}}, {{"i": 2, "t": "Password"}}, {{"i": 3, "t": "Login"}}, {{"i": 4, "t": "Forgot Password?"}}]"""
     ),
     (
         "assistant",
@@ -58,7 +58,7 @@ SUMMARY: The screen displays a login form with email and password input fields, 
         "human",
         """App Context: Product Search
 Navigation Path: Search > Product Detail
-Elements: [{"i": 1, "t": "Search products..."}, {"i": 2, "t": "Q"}, {"i": 3, "t": "W"}, {"i": 4, "t": "A"}, {"i": 5, "t": "S"}, {"i": 6, "t": "Add to Cart"}]"""
+Elements: [{{"i": 1, "t": "Search products..."}}, {{"i": 2, "t": "Q"}}, {{"i": 3, "t": "W"}}, {{"i": 4, "t": "A"}}, {{"i": 5, "t": "S"}}, {{"i": 6, "t": "Add to Cart"}}]"""
     ),
     (
         "assistant",

@@ -9,6 +9,7 @@ from core.models.state import AgentState
 from core.utils.toons_helper import compress_and_report
 from shared.prompts.reflector_prompts import DIRECTIONAL_STIMULUS, FINAL_STEP_STIMULUS, LOADING_STIMULUS, UI_CHANGE_STIMULUS
 from shared import config
+from core.utils.process_logger import LogLevel as _LL
 
 import cv2
 
@@ -63,9 +64,10 @@ class ReflectorAgent:
         self.memory = memory
         self.device = device   # IDeviceClient — used to capture post-action screenshot
 
-    def _log(self, msg: str, detail: str = ""):
+    def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
-            self.logger.log("REFLECTOR", msg, detail)
+            lvl = level if level is not None else _LL.INFO
+            self.logger.log("REFLECTOR", msg, detail, level=lvl)
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
         img = cv2.imread(image_path)
@@ -96,10 +98,10 @@ class ReflectorAgent:
         post_action_path = os.path.join(save_dir, "post_action.png")
         try:
             self.device.screenshot(post_action_path)
-            self._log("Post-action screenshot captured", post_action_path)
+            self._log("Post-action screenshot captured", post_action_path, level=_LL.DEBUG)
             return post_action_path
         except Exception as e:
-            self._log("Post-action screenshot FAILED", str(e))
+            self._log("Post-action screenshot FAILED", str(e), level=_LL.ERROR)
             print(f"[Reflector] Failed to capture post-action screenshot: {e}")
             return None
 
@@ -416,6 +418,7 @@ class ReflectorAgent:
                 self._log(
                     "start_app: no expected_pkg — inferred from live foreground",
                     f"current_package='{current_pkg}'",
+                    level=_LL.DEBUG
                 )
                 print(f"[Reflector] [start_app] No expected_pkg — inferred from device: '{current_pkg}'")
 
@@ -426,7 +429,7 @@ class ReflectorAgent:
             )
             verdict = "PASSED" if passed else "FAILED"
             print(f"[Reflector] [start_app] {reasoning}")
-            self._log(f"start_app foreground check: {verdict}", reasoning)
+            self._log(f"start_app foreground check: {verdict}", reasoning)  # Keep as INFO (verdict)
 
             return self._build_return(
                 state=state,
@@ -456,14 +459,14 @@ class ReflectorAgent:
             memory_context = self.memory.retrieve(f"execution result step={current_step}")
 
         mode_label = "FINAL" if is_final_step else "STEP"
-        self._log(f"3-call chain started ({mode_label})", f"instruction={current_instruction}")
+        self._log(f"3-call chain started ({mode_label})", f"instruction={current_instruction}")  # Keep as INFO (step boundary)
         print(f"[Reflector] {mode_label} — 3-call chain starting...")
 
         # ── Calls 1 & 2: Loading + UI Change (parallel or sequential) ─────────
         if config.PARALLEL_REFLECTOR_CHECKS and pre_action_path:
             # PARALLEL MODE: Run Call 1 and Call 2 concurrently using ThreadPoolExecutor
             # Both are independent - they just analyze different aspects of screenshots
-            self._log("PARALLEL MODE: Running Call 1 (Loading) + Call 2 (UI Change) concurrently")
+            self._log("PARALLEL MODE: Running Call 1 (Loading) + Call 2 (UI Change) concurrently", level=_LL.DEBUG)
             print(f"[Reflector] PARALLEL MODE: Starting Call 1 + Call 2...")
 
             with ThreadPoolExecutor(max_workers=2) as executor:
@@ -480,11 +483,13 @@ class ReflectorAgent:
             self._log(
                 f"Call 1 result: loading_done={loading_result.loading_done}",
                 loading_result.reasoning,
+                level=_LL.DEBUG
             )
             print(f"[Reflector] Call 1 Loading: done={loading_result.loading_done}")
             self._log(
                 f"Call 2 result: ui_changed={change_result.ui_changed}",
                 change_result.reasoning,
+                level=_LL.DEBUG
             )
             print(f"[Reflector] Call 2 UI Change: changed={change_result.ui_changed}")
 
@@ -492,7 +497,7 @@ class ReflectorAgent:
             if not loading_result.loading_done:
                 reasoning = f"[Loading Check FAILED] {loading_result.reasoning}"
                 print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
-                self._log("SHORT-CIRCUIT at Call 1", reasoning)
+                self._log("SHORT-CIRCUIT at Call 1", reasoning, level=_LL.DEBUG)
                 return self._build_return(
                     state=state,
                     passed=False,
@@ -516,7 +521,7 @@ class ReflectorAgent:
             if not change_result.ui_changed and action_type not in _NO_UI_CHANGE_REQUIRED:
                 reasoning = f"[UI Change Check FAILED] {change_result.reasoning}"
                 print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
-                self._log("SHORT-CIRCUIT at Call 2", reasoning)
+                self._log("SHORT-CIRCUIT at Call 2", reasoning, level=_LL.DEBUG)
                 return self._build_return(
                     state=state,
                     passed=False,
@@ -538,18 +543,19 @@ class ReflectorAgent:
                 )
         else:
             # SEQUENTIAL MODE: Run Call 1, then Call 2 (original behavior)
-            self._log("SEQUENTIAL MODE: Running Call 1 then Call 2")
+            self._log("SEQUENTIAL MODE: Running Call 1 then Call 2", level=_LL.DEBUG)
             loading_result = self._check_loading(screenshot_path, memory_context)
             self._log(
                 f"Call 1 result: loading_done={loading_result.loading_done}",
                 loading_result.reasoning,
+                level=_LL.DEBUG
             )
             print(f"[Reflector] Call 1 Loading: done={loading_result.loading_done} | {loading_result.reasoning}")
 
             if not loading_result.loading_done:
                 reasoning = f"[Loading Check FAILED] {loading_result.reasoning}"
                 print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
-                self._log("SHORT-CIRCUIT at Call 1", reasoning)
+                self._log("SHORT-CIRCUIT at Call 1", reasoning, level=_LL.DEBUG)
                 return self._build_return(
                     state=state,
                     passed=False,
@@ -570,7 +576,7 @@ class ReflectorAgent:
                     },
                 )
 
-            self._log("Call 2: UI Change Check")
+            self._log("Call 2: UI Change Check", level=_LL.DEBUG)
             change_result = self._check_ui_change(
                 pre_path=pre_action_path,
                 post_path=screenshot_path,
@@ -580,13 +586,14 @@ class ReflectorAgent:
             self._log(
                 f"Call 2 result: ui_changed={change_result.ui_changed}",
                 change_result.reasoning,
+                level=_LL.DEBUG
             )
             print(f"[Reflector] Call 2 UI Change: changed={change_result.ui_changed} | {change_result.reasoning}")
 
             if not change_result.ui_changed and action_type not in _NO_UI_CHANGE_REQUIRED:
                 reasoning = f"[UI Change Check FAILED] {change_result.reasoning}"
                 print(f"[Reflector] SHORT-CIRCUIT: {reasoning}")
-                self._log("SHORT-CIRCUIT at Call 2", reasoning)
+                self._log("SHORT-CIRCUIT at Call 2", reasoning, level=_LL.DEBUG)
                 return self._build_return(
                     state=state,
                     passed=False,
@@ -608,7 +615,7 @@ class ReflectorAgent:
                 )
 
         # ── Call 3: Validity Check ────────────────────────────────────────────
-        self._log("Call 3: Validity Check")
+        self._log("Call 3: Validity Check", level=_LL.DEBUG)
         validity_result = self._check_validity(
             screenshot_path=screenshot_path,
             instruction=current_instruction,

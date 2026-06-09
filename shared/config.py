@@ -7,6 +7,10 @@ load_dotenv()
 os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 
+# HuggingFace Hub timeout settings (in seconds)
+os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", os.getenv("HF_HUB_DOWNLOAD_TIMEOUT", "300"))
+os.environ.setdefault("HF_HUB_ETAG_TIMEOUT", os.getenv("HF_HUB_ETAG_TIMEOUT", "300"))
+
 TARGET_DEVICE = os.getenv("TARGET_DEVICE", "T8SGEE5TF695ZPV4")
 
 OUTPUT_DIR    = os.getenv("OUTPUT_DIR", "outputs")
@@ -79,6 +83,7 @@ ORCHESTRATOR_AZURE_DEPLOYMENT = os.getenv("ORCHESTRATOR_AZURE_DEPLOYMENT", "")
 FIGMA_ACCESS_TOKEN = os.getenv("FIGMA_ACCESS_TOKEN", "")
 FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
 FIGMA_FILE_URL     = os.getenv("FIGMA_URL_QA", "")
+FIGMA_REQUEST_TIMEOUT = int(os.getenv("FIGMA_REQUEST_TIMEOUT", "300"))
 
 # OmniParser Vision Backend
 # Set OMNIPARSER_ENABLED=true once model weights are downloaded.
@@ -100,7 +105,9 @@ TOKEN_WARN_THRESHOLD = float(os.getenv("TOKEN_WARN_THRESHOLD", "0.75"))
 WORKFLOW_STRATEGY = os.getenv("WORKFLOW_STRATEGY", "predefined").lower()
 
 # Performance Tuning (non-breaking, opt-in)
-FAST_VISION_MODE = os.getenv("FAST_VISION_MODE", "false").lower() == "true"  # Use Canny instead of OmniParser
+FAST_VISION_MODE = os.getenv("FAST_VISION_MODE", "true").lower() == "true"  # Use Canny instead of OmniParser
+if OMNIPARSER_ENABLED:
+    FAST_VISION_MODE = False  # OmniParser requires fast vision mode to be disabled
 ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == "true"  # Skip sleep if UI stable
 PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"  # Parallel loading+UI change
 OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"  # Cache LLM results for identical screens

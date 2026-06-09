@@ -7,7 +7,8 @@ from langgraph.types import Command
 from core.models.state import AgentState
 from core.utils.toons_helper import compress_and_report
 from langchain_core.prompts import ChatPromptTemplate
-from shared.prompts.decider_prompts import SYSTEM_PROMPT
+from shared.prompts.decider_prompts import SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
+from core.utils.process_logger import LogLevel as _LL
 
 
 class ActionPlan(BaseModel):
@@ -51,18 +52,22 @@ class DeciderAgent:
         self.memory = memory
         self.logger = logger
         self.monitor = monitor
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system", SYSTEM_PROMPT),
-            ("human",
+        # Build prompt with Chain of Thought + General Knowledge Prompting
+        # Includes few-shot examples to lock output format
+        prompt_messages = [("system", SYSTEM_PROMPT)]
+        for role, content in FEW_SHOT_EXAMPLES:
+            prompt_messages.append((role, content))
+        prompt_messages.append(("human",
              "Session Memory Context:\n{memory_context}\n\n"
              "Screen Analysis:\n{observer_analysis}\n\n"
              "STEP INSTRUCTION: \"{current_sub_step}\"\n\n"
-             "Output ONE ActionPlan for the STEP INSTRUCTION.")
-        ])
+             "Output ONE ActionPlan for the STEP INSTRUCTION."))
+        self.prompt = ChatPromptTemplate.from_messages(prompt_messages)
 
-    def _log(self, msg: str, detail: str = ""):
+    def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
-            self.logger.log("DECIDER", msg, detail)
+            lvl = level if level is not None else _LL.INFO
+            self.logger.log("DECIDER", msg, detail, level=lvl)
 
     def decide(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
@@ -86,7 +91,7 @@ class DeciderAgent:
         memory_context = state.get("memory_context", "")
         if self.memory is not None:
             memory_context = self.memory.retrieve(current_sub_step)
-        self._log("Memory retrieval complete")
+        self._log("Memory retrieval complete", level=_LL.DEBUG)
 
         messages = self.prompt.format_messages(
             memory_context=memory_context or "No memory context available.",
@@ -95,7 +100,7 @@ class DeciderAgent:
         )
 
         print(f"[Decider] Mapping Instruction: '{current_sub_step}'...")
-        self._log("LLM call started (ActionPlan generation)")
+        self._log("LLM call started (ActionPlan generation)", level=_LL.DEBUG)
         plan = self.llm.invoke(
             messages,
             config={"tags": ["decider", f"step_{current_step}"]}

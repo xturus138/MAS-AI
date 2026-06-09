@@ -10,6 +10,7 @@ from core.ports.llm_port import ILLMClient
 from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 from shared.prompts.observer_prompts import SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
 from shared import config
+from core.utils.process_logger import LogLevel as _LL
 
 
 class ObserverAgent:
@@ -362,9 +363,11 @@ class ObserverAgent:
 
         return other_els + merged_stubs
 
-    def _log(self, msg: str, detail: str = ""):
+    def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
-            self.logger.log("OBSERVER", msg, detail)
+            from core.utils.process_logger import LogLevel
+            lvl = level if level is not None else _LL.INFO
+            self.logger.log("OBSERVER", msg, detail, level=lvl)
 
     def _run_canny_pipeline(
         self,
@@ -384,7 +387,8 @@ class ObserverAgent:
             ocr_elements, cv_elements = [], []
         self._log(
             "Canny+OCR pipeline complete",
-            f"ocr_elements={len(ocr_elements)}  cv_elements={len(cv_elements)}"
+            f"ocr_elements={len(ocr_elements)}  cv_elements={len(cv_elements)}",
+            level=_LL.DEBUG
         )
         return self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
 
@@ -409,12 +413,11 @@ class ObserverAgent:
             memory_context = self.memory.retrieve(f"navigation screen step={current_step}")
             scenario_desc = self.memory.core.get("scenario_desc") or "N/A"
             navigation_context = self.memory.core.get("navigation_context") or "N/A"
-        self._log("Memory retrieval complete", f"scenario_desc={scenario_desc[:80]}")
+        self._log("Memory retrieval complete", f"scenario_desc={scenario_desc[:80]}", level=_LL.DEBUG)
 
         print("[Observer] Taking screenshot...")
         self.take_screenshot.invoke({"target_path": raw_path})
-        self._log("Screenshot captured", raw_path)
-
+        self._log("Screenshot captured", raw_path, level=_LL.DEBUG)
         print("[Observer] Checking keyboard state via ADB...")
         kb_resp = self.check_keyboard_state.invoke({})
         try:
@@ -432,7 +435,7 @@ class ObserverAgent:
 
         if use_omniparser:
             print("[Observer] Running OmniParser unified vision pipeline (YOLO + Florence-2 + OCR)...")
-            self._log("Vision pipeline: OmniParser")
+            self._log("Vision pipeline: OmniParser", level=_LL.DEBUG)
             omni_raw = self.parse_screen_omniparser.invoke({
                 "image_path": raw_path,
                 "save_path": cv_path,
@@ -443,7 +446,7 @@ class ObserverAgent:
                     raise ValueError(omni_elements["error"])
             except Exception as exc:
                 print(f"[Observer] OmniParser failed ({exc}), falling back to Canny pipeline.")
-                self._log("OmniParser FAILED — falling back to Canny+OCR", str(exc))
+                self._log("OmniParser FAILED — falling back to Canny+OCR", str(exc), level=_LL.WARN)
                 omni_elements = None
 
             if omni_elements is not None:
@@ -463,7 +466,8 @@ class ObserverAgent:
                     final_widget_set.append(el)
                 self._log(
                     "OmniParser pipeline complete",
-                    f"widgets={len(final_widget_set)}  keyboard={'shown' if is_kb_shown else 'hidden'}"
+                    f"widgets={len(final_widget_set)}  keyboard={'shown' if is_kb_shown else 'hidden'}",
+                    level=_LL.DEBUG
                 )
             else:
                 # Fallback triggered inside the OmniParser branch
@@ -484,7 +488,7 @@ class ObserverAgent:
             "elements": final_widget_set,
             "save_path": annotated_path
         })
-        self._log("Annotated screenshot saved", annotated_path)
+        self._log("Annotated screenshot saved", annotated_path, level=_LL.DEBUG)
 
         # ── UI Summary (computed early — used as cache key before LLM call) ────
         filtered_widgets = final_widget_set[:50]
@@ -540,7 +544,7 @@ class ObserverAgent:
                 img_b64=img_b64
             )
 
-            self._log("LLM call started (multimodal screen interpretation)")
+            self._log("LLM call started (multimodal screen interpretation)", level=_LL.DEBUG)
             try:
                 # Use invoke() for faster response on short outputs (~500-1000 tokens)
                 # stream() only beneficial for very long responses
@@ -554,7 +558,7 @@ class ObserverAgent:
                 raw_res = response.content
             except Exception as e:
                 print(f"\n[!] Observer Vision LLM Failed/Timed Out: {str(e)}")
-                self._log("LLM FATAL ERROR — aborting graph", str(e))
+                self._log("LLM FATAL ERROR — aborting graph", str(e), level=_LL.ERROR)
                 return Command(
                     goto="__end__",
                     update={

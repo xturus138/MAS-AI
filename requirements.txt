@@ -16,3 +16,9 @@ mcp
 httpx
 PyQt5
 pywin32
+matplotlib
+supervision
+ultralytics
+transformers
+huggingface-hub
+safetensors

@@ -5,6 +5,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.types import Command
 from core.models.state import AgentState
 from shared.prompts.orchestrator_prompts import FEW_SHOT_EXAMPLES
+from core.utils.process_logger import LogLevel as _LL
 
 if TYPE_CHECKING:
     from memory.meta_manager import MIRIXMemorySystem
@@ -103,9 +104,10 @@ class AutonomousOrchestrator:
         self._planner_llm = llm.with_structured_output(AutonomousPlan) if llm else None
         self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
 
-    def _log(self, msg: str, detail: str = ""):
+    def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
-            self.logger.log("ORCHESTRATOR", msg, detail)
+            lvl = level if level is not None else _LL.INFO
+            self.logger.log("ORCHESTRATOR", msg, detail, level=lvl)
 
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """

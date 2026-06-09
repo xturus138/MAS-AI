@@ -91,7 +91,9 @@ class ADBAdapter(IDeviceClient):
         return self.d.dump_hierarchy()
 
     def wait_idle(self, timeout: float = 10.0):
+        import time
         try:
+            time.sleep(0.5)  # Let transition start
             self.d.wait_idle(timeout=timeout)
         except Exception:
             pass

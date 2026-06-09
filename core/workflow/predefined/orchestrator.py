@@ -9,6 +9,7 @@ from shared.prompts.predefined_orchestrator_prompts import (
     BRIDGE_SYSTEM_PROMPT,
     BRIDGE_EXAMPLES,
 )
+from core.utils.process_logger import LogLevel as _LL
 
 if TYPE_CHECKING:
     from adapters.figma.figma_adapter import FigmaAdapter
@@ -64,9 +65,10 @@ class PredefinedOrchestrator:
         self._bridge_llm = llm.with_structured_output(BridgePlan) if llm else None
         self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
 
-    def _log(self, msg: str, detail: str = ""):
+    def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
-            self.logger.log("ORCHESTRATOR", msg, detail)
+            lvl = level if level is not None else _LL.INFO
+            self.logger.log("ORCHESTRATOR", msg, detail, level=lvl)
 
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """

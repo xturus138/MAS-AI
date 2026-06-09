@@ -2,6 +2,7 @@ import os
 import json
 import datetime
 from core.models.state import AgentState
+from core.utils.process_logger import LogLevel as _LL
 
 
 class RecorderAgent:
@@ -17,9 +18,10 @@ class RecorderAgent:
         self.memory = memory
         self.logger = logger
 
-    def _log(self, msg: str, detail: str = ""):
+    def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
-            self.logger.log("RECORDER", msg, detail)
+            lvl = level if level is not None else _LL.INFO
+            self.logger.log("RECORDER", msg, detail, level=lvl)
 
     def _fill_report_sheet(self, dest: str, tcs_id: str, output_dir: str, metrics: dict):
         import openpyxl

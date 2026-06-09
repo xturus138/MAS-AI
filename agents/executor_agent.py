@@ -4,6 +4,7 @@ from langgraph.types import Command
 from core.models.state import AgentState
 from tools.executor_tools import ExecutorTools
 from shared import config
+from core.utils.process_logger import LogLevel as _LL
 
 
 class ExecutorAgent:
@@ -14,9 +15,10 @@ class ExecutorAgent:
         self.monitor = monitor
         self._check_crash = check_crash
 
-    def _log(self, msg: str, detail: str = ""):
+    def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
-            self.logger.log("EXECUTOR", msg, detail)
+            lvl = level if level is not None else _LL.INFO
+            self.logger.log("EXECUTOR", msg, detail, level=lvl)
 
     # ── Text-Match Fallback ───────────────────────────────────────────────────
     def _text_match_fallback(self, widgets: list, plan: dict) -> Optional[dict]:
@@ -100,9 +102,10 @@ class ExecutorAgent:
                 widget_text = target_widget.get("text", "(no text)")
                 print(f"[Executor] Resolved ID {target_id} -> click=({target_x},{target_y}) | widget='{widget_text}'")
                 self._log(
-                    f"Widget resolved: ID {target_id} → ({target_x},{target_y})",
-                    f"text='{widget_text}'  bounds={bounds}"
-                )
+            f"Widget resolved: ID {target_id} → ({target_x},{target_y})",
+            f"text='{widget_text}'  bounds={bounds}",
+            level=_LL.DEBUG
+        )
                 widget_lookup_success += 1
             else:
                 # ── Text-match fallback: try keyword match before declaring failure ──
@@ -115,13 +118,14 @@ class ExecutorAgent:
                     print(f"[Executor] [FALLBACK] ID {target_id} not found — text-match → widget='{widget_text}' ({target_x},{target_y})")
                     self._log(
                         f"Widget text-match fallback: ID {target_id} → '{widget_text}' ({target_x},{target_y})",
-                        f"bounds={bounds}"
+                        f"bounds={bounds}",
+                        level=_LL.DEBUG
                     )
                     widget_text_fallback += 1
                     widget_lookup_success += 1
                 else:
                     lookup_error = f"ERROR: Target ID {target_id} not found in current UI state"
-                    self._log(f"Widget lookup FAILED: ID {target_id} not found in {len(widgets)} widgets")
+                    self._log(f"Widget lookup FAILED: ID {target_id} not found in {len(widgets)} widgets", level=_LL.WARN)
                     widget_lookup_fail += 1
 
         try:
@@ -155,7 +159,8 @@ class ExecutorAgent:
         is_error = str(result).startswith("ERROR")
         self._log(
             f"ADB result: {'FAIL' if is_error else 'OK'}",
-            str(result)
+            str(result),
+            level=_LL.DEBUG
         )
 
         if self.monitor is not None and action_type in ("click", "long_click", "input") and target_x != -1:
