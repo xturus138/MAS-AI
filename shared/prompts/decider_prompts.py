@@ -42,8 +42,9 @@ STRICT RULES:
 - action_type must be strictly one of: 'click', 'long_click', 'input', 'scroll', 'press_back', 'press_home', 'press_enter', 'start_app', or 'none'.
 - For typing: ALWAYS use 'input' directly. Executor handles focus automatically — NEVER issue a separate 'click' to focus before 'input'.
 - Set text_payload to the exact text to type and target_id to the input field's widget ID.
+- For input/typing steps: NEVER mark completed just because requested text appears somewhere on screen. Only mark completed if the target editable/input field itself visibly contains the requested text. If not confirmed, return action_type='input' with target_id set to the input field and text_payload set to the exact requested text.
 - For 'scroll': set scroll_direction, target_id = -1.
-- If the step is already completed on the current screen, set is_completed=true and action_type='none'."""
+- If a non-input step is already completed on the current screen, set is_completed=true and action_type='none'."""
 
 # Few-Shot Examples for Decider Agent
 FEW_SHOT_EXAMPLES = [

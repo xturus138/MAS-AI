@@ -6,6 +6,7 @@ from langgraph.types import Command
 from core.models.state import AgentState
 from shared.prompts.orchestrator_prompts import FEW_SHOT_EXAMPLES
 from core.utils.process_logger import LogLevel as _LL
+from core.utils.output_manager import build_step_dir
 
 if TYPE_CHECKING:
     from memory.meta_manager import MIRIXMemorySystem
@@ -167,7 +168,9 @@ class AutonomousOrchestrator:
             print(f"[Autonomous] Flow Planned: {result.path_ids} ({result.reasoning})")
 
             figma_end_screenshot_b64 = self.figma.get_node_screenshot_b64(end_id)
-            gold_standard_path = os.path.join(output_dir, "figma_gold_standard.png")
+            figma_dir = os.path.join(output_dir, "figma")
+            os.makedirs(figma_dir, exist_ok=True)
+            gold_standard_path = os.path.join(figma_dir, "gold_standard.png")
             self.figma.save_composite_gold_standard(result.path_ids, gold_standard_path)
 
             return {
@@ -277,9 +280,7 @@ class AutonomousOrchestrator:
         try:
             plan = self._planner_llm.invoke(messages)
 
-            step_dir = os.path.join(output_dir, f"step_{global_step + 1}")
-            if not os.path.exists(step_dir):
-                os.makedirs(step_dir)
+            step_dir = build_step_dir(output_dir, global_step + 1)
 
             print(f"[Autonomous] JUDGMENT: {plan.action_type.upper()}")
             print(f"[Autonomous] Plan: '{plan.next_step_instruction}' | Completed: {plan.is_completed}")

@@ -41,7 +41,9 @@ class ResourceMemoryStore:
         """
         if not b64_data:
             return ""
-        dest = os.path.join(output_dir, "memory", "figma_end.png")
+        figma_dir = os.path.join(output_dir, "figma")
+        os.makedirs(figma_dir, exist_ok=True)
+        dest = os.path.join(figma_dir, "end_state.png")
         try:
             with open(dest, "wb") as f:
                 f.write(base64.b64decode(b64_data))

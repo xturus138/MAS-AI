@@ -94,5 +94,8 @@ Desktop.ini
 .claude/
 docs/superpowers/
 
+# Vault — sensitive credentials
+vaultkey/
+
 # Temp Python libs accidentally dumped into project root by PDF tool
 UsersraditAppDataLocalTemppdflibs/

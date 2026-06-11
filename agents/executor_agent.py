@@ -136,8 +136,8 @@ class ExecutorAgent:
             elif action_type == "long_click":
                 result = self.tools.long_click(target_x, target_y)
             elif action_type == "input":
-                self.tools.click_coordinates(target_x, target_y)
-                result = self.tools.type_text(plan["text_payload"])
+                resource_id = target_widget.get("resource_id", "") if target_widget else ""
+                result = self.tools.input_text(target_x, target_y, plan["text_payload"], resource_id=resource_id)
             elif action_type == "scroll":
                 result = self.tools.swipe_screen(plan["scroll_direction"])
             elif action_type == "press_back":

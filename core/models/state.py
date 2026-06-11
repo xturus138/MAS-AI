@@ -14,14 +14,24 @@ class AgentState(TypedDict):
     screenshot_path: str
     output_dir: str
     step_dir: str
+    output_paths: dict
+    steps_dir: str
+    logs_dir: str
+    llm_logs_dir: str
+    reports_dir: str
+    figma_dir: str
     action_plan: dict
     execution_result: str
     last_reflector_passed: bool
+    last_reflector_reasoning: str
 
     # ── Current observer output (live, not persisted across steps) ────────────
     observer_analysis: str
     observer_analysis_step: int     # current_step when observer last ran (staleness check)
     widgets: List[dict]
+    observation_source: Optional[str]
+    confidence_score: Optional[float]
+    fallback_reason: Optional[str]
 
     # ── MIRIX: retrieved memory context injected into every agent prompt ───────
     memory_context: str

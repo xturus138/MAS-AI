@@ -1,5 +1,7 @@
 import os
-from typing import Optional, TYPE_CHECKING
+import json
+import re
+from typing import Optional, TYPE_CHECKING, Any
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, SystemMessage
 from core.models.state import AgentState
@@ -10,6 +12,7 @@ from shared.prompts.predefined_orchestrator_prompts import (
     BRIDGE_EXAMPLES,
 )
 from core.utils.process_logger import LogLevel as _LL
+from core.utils.output_manager import build_step_dir
 
 if TYPE_CHECKING:
     from adapters.figma.figma_adapter import FigmaAdapter
@@ -70,6 +73,165 @@ class PredefinedOrchestrator:
             lvl = level if level is not None else _LL.INFO
             self.logger.log("ORCHESTRATOR", msg, detail, level=lvl)
 
+    def _extract_json_from_llm_output(self, raw_output: str) -> Any:
+        """Safely extract JSON from LLM output that may contain XML tags or extra text."""
+        if not raw_output:
+            return None
+
+        cleaned = raw_output.strip()
+
+        # Strategy 1: Content inside <thinking> tags
+        if "<thinking>" in cleaned and "</thinking>" in cleaned:
+            start = cleaned.find("<thinking>")
+            end = cleaned.find("</thinking>")
+            if start != -1 and end != -1:
+                inner = cleaned[start + len("<thinking>"):end].strip()
+                try:
+                    return json.loads(inner)
+                except json.JSONDecodeError:
+                    pass
+                cleaned = inner
+
+        # Strategy 2: Extract JSON object via brace matching
+        brace_depth = 0
+        json_start = -1
+        in_string = False
+        escape_next = False
+
+        for i, char in enumerate(cleaned):
+            if escape_next:
+                escape_next = False
+                continue
+            if char == '\\':
+                escape_next = True
+                continue
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+
+            if char == '{':
+                if brace_depth == 0:
+                    json_start = i
+                brace_depth += 1
+            elif char == '}':
+                brace_depth -= 1
+                if brace_depth == 0 and json_start != -1:
+                    candidate = cleaned[json_start:i + 1]
+                    try:
+                        return json.loads(candidate)
+                    except json.JSONDecodeError:
+                        continue
+
+        # Strategy 3: Look for JSON array format
+        if json_start == -1 and '[' in cleaned:
+            bracket_depth = 0
+            arr_start = -1
+            for i, char in enumerate(cleaned):
+                if char == '"':
+                    in_string = not in_string
+                    continue
+                if in_string:
+                    continue
+                if char == '[':
+                    if bracket_depth == 0:
+                        arr_start = i
+                    bracket_depth += 1
+                elif char == ']':
+                    bracket_depth -= 1
+                    if bracket_depth == 0 and arr_start != -1:
+                        candidate = cleaned[arr_start:i + 1]
+                        try:
+                            return json.loads(candidate)
+                        except json.JSONDecodeError:
+                            continue
+
+        return None
+
+    def _invoke_with_recovery(self, messages, model_class, structured_llm, max_retries: int = 2):
+        """Invoke structured LLM with automatic JSON extraction retry."""
+        last_error = None
+
+        for attempt in range(max_retries):
+            try:
+                return structured_llm.invoke(messages)
+            except Exception as e:
+                error_str = str(e)
+                last_error = e
+
+                # Check if this is a JSON parsing error
+                if "json_invalid" not in error_str and "Invalid JSON" not in error_str and "missing" not in error_str.lower():
+                    raise  # Not a JSON/parsing error, re-raise
+
+                # Try to get raw output for recovery
+                if attempt < max_retries - 1:
+                    try:
+                        print(f"[Orchestrator] Attempting JSON recovery (attempt {attempt + 1})...")
+                        # We use self.llm which is the base LLM without structured output
+                        raw_response = self.llm.invoke(messages)
+                        raw_text = raw_response.content if hasattr(raw_response, 'content') else str(raw_response)
+
+                        # Try to extract JSON
+                        extracted = self._extract_json_from_llm_output(raw_text)
+                        if extracted:
+                            print(f"[Orchestrator] Extracted JSON keys: {list(extracted.keys()) if isinstance(extracted, dict) else 'N/A'}")
+                            # Parse manually and create model instance
+                            if isinstance(extracted, dict):
+                                # For FigmaFlowPlan
+                                if model_class.__name__ == "FigmaFlowPlan":
+                                    # Try multiple possible field names for reasoning and path_ids
+                                    reasoning = (
+                                        extracted.get("reasoning") or
+                                        extracted.get("thinking") or
+                                        extracted.get("analysis") or
+                                        extracted.get("explanation") or
+                                        "Auto-recovered JSON"
+                                    )
+                                    path_ids = extracted.get("path_ids")
+                                    if path_ids is None:
+                                        # Try alternative field names
+                                        for key in extracted.keys():
+                                            if isinstance(extracted[key], list) and len(extracted[key]) > 0:
+                                                if isinstance(extracted[key][0], str) and ":" in str(extracted[key][0]):
+                                                    path_ids = extracted[key]
+                                                    print(f"[Orchestrator] Found path_ids under key '{key}': {path_ids}")
+                                                    break
+                                    path_ids = path_ids or []
+                                    print(f"[Orchestrator] Creating FigmaFlowPlan with reasoning='{reasoning[:50]}...', path_ids={path_ids}")
+                                    return FigmaFlowPlan(
+                                        reasoning=reasoning,
+                                        path_ids=path_ids
+                                    )
+                                # For BridgePlan
+                                elif model_class.__name__ == "BridgePlan":
+                                    reasoning = (
+                                        extracted.get("reasoning") or
+                                        extracted.get("thinking") or
+                                        extracted.get("analysis") or
+                                        extracted.get("explanation") or
+                                        "Auto-recovered JSON"
+                                    )
+                                    bridge_steps = extracted.get("bridge_steps", [])
+                                    print(f"[Orchestrator] Creating BridgePlan with reasoning='{reasoning[:50]}...'")
+                                    return BridgePlan(
+                                        reasoning=reasoning,
+                                        bridge_steps=bridge_steps
+                                    )
+                        else:
+                            print(f"[Orchestrator] JSON extraction returned None. Raw text preview: {raw_text[:200]}...")
+                    except Exception as inner_e:
+                        print(f"[Orchestrator] JSON recovery attempt {attempt + 1} failed: {inner_e}")
+
+                # Modify prompt for retry - ask for cleaner output
+                if attempt < max_retries - 1:
+                    messages.append(SystemMessage(content=
+                        "IMPORTANT: Return ONLY a valid JSON object with ALL required fields. No XML tags. No extra text."
+                    ))
+
+        # All retries exhausted
+        raise last_error
+
     def pre_scenario_discovery(self, scenario: dict, output_dir: str) -> dict:
         """
         Analyzes the Figma prototype flow and test scenario to determine
@@ -112,7 +274,7 @@ class PredefinedOrchestrator:
 
         print(f"[Predefined] Planning Figma flow for '{menu_name}'...")
         try:
-            result = self._mapping_llm.invoke(messages)
+            result = self._invoke_with_recovery(messages, FigmaFlowPlan, self._mapping_llm)
 
             if not result.path_ids:
                 print("[Predefined] LLM could not resolve a Figma path. Falling back to text-only.")
@@ -124,7 +286,9 @@ class PredefinedOrchestrator:
 
             figma_end_screenshot_b64 = self.figma.get_node_screenshot_b64(end_id)
 
-            gold_standard_path = os.path.join(output_dir, "figma_gold_standard.png")
+            figma_dir = os.path.join(output_dir, "figma")
+            os.makedirs(figma_dir, exist_ok=True)
+            gold_standard_path = os.path.join(figma_dir, "gold_standard.png")
             self.figma.save_composite_gold_standard(result.path_ids, gold_standard_path)
 
             return {
@@ -193,12 +357,23 @@ class PredefinedOrchestrator:
 
         print(f"[Orchestrator] Step {current_idx + 1} | from={sender} | reflector={'PASS' if last_passed else 'FAIL'} | retry={retry_count}")
 
+        # Check if last failure was a system error (not a real validation failure)
+        last_reasoning = state.get("last_reflector_reasoning", "")
+        is_system_error = "[SYSTEM_ERROR]" in last_reasoning if last_reasoning else False
+
         # Advance or retry based on reflector outcome
         if sender == "reflector":
             if last_passed:
                 current_idx += 1
                 retry_count = 0
                 self._log(f"Step {current_idx - 1} verified — advancing to index {current_idx}")
+            elif is_system_error:
+                # System error (e.g., LLM JSON parsing) - don't count as app failure
+                print(f"[Orchestrator] ⚠ Reflector system error detected - not retrying app action")
+                self._log(f"SYSTEM ERROR from Reflector — treating as technical failure, not app failure")
+                # Continue to next step (don't retry the app action)
+                current_idx += 1
+                retry_count = 0
             else:
                 retry_count += 1
                 print(f"[Orchestrator] ⚠ Step failed — retry {retry_count}/3")
@@ -242,12 +417,7 @@ class PredefinedOrchestrator:
         }
 
         if current_idx < len(sub_steps):
-            step_dir = os.path.join(output_dir, f"step_{current_idx + 1}")
-            if retry_count > 0:
-                step_dir = os.path.join(output_dir, f"step_{current_idx + 1}_retry_{retry_count}")
-
-            if not os.path.exists(step_dir):
-                os.makedirs(step_dir)
+            step_dir = build_step_dir(output_dir, current_idx + 1, retry_count)
 
             update_data["step_dir"] = step_dir
             update_data["is_completed"] = False

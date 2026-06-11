@@ -3,7 +3,7 @@ Aggregate and compare final_metrics.json files from predefined test runs.
 
 Usage:
     python analysis/compare_runs.py
-    python analysis/compare_runs.py --output_dir outputs/predefined
+    python analysis/compare_runs.py --output_dir outputs/runs/predefined
     python analysis/compare_runs.py --csv results.csv
 """
 
@@ -143,7 +143,7 @@ def write_csv(records: list, path: str):
 def main():
     parser = argparse.ArgumentParser(description="Aggregate MAS AI predefined run metrics.")
     parser.add_argument(
-        "--output_dir", default="outputs/predefined",
+        "--output_dir", default="outputs/runs/predefined",
         help="Root directory to scan for final_metrics.json files (default: outputs/predefined)"
     )
     parser.add_argument(

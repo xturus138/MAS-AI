@@ -1,6 +1,7 @@
 import json
 import os
-from typing import Literal
+import re
+from typing import Literal, Optional
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.types import Command
@@ -48,6 +49,7 @@ class ActionPlan(BaseModel):
 
 class DeciderAgent:
     def __init__(self, llm, memory=None, logger=None, monitor=None):
+        self.base_llm = llm  # Store base LLM for recovery
         self.llm = llm.with_structured_output(ActionPlan)
         self.memory = memory
         self.logger = logger
@@ -68,6 +70,237 @@ class DeciderAgent:
         if self.logger is not None:
             lvl = level if level is not None else _LL.INFO
             self.logger.log("DECIDER", msg, detail, level=lvl)
+
+    def _extract_json_from_llm_output(self, raw_output: str) -> Optional[str]:
+        """Safely extract JSON from LLM output that may contain XML tags or extra text."""
+        if not raw_output:
+            return None
+
+        cleaned = raw_output.strip()
+
+        # Strategy 1: Content inside <thinking> tags
+        if "<thinking>" in cleaned and "</thinking>" in cleaned:
+            start = cleaned.find("<thinking>")
+            end = cleaned.find("</thinking>")
+            if start != -1 and end != -1:
+                inner = cleaned[start + len("<thinking>"):end].strip()
+                try:
+                    json.loads(inner)
+                    return inner
+                except json.JSONDecodeError:
+                    pass
+                cleaned = inner
+
+        # Strategy 2: Extract JSON object via brace matching
+        brace_depth = 0
+        json_start = -1
+        in_string = False
+        escape_next = False
+
+        for i, char in enumerate(cleaned):
+            if escape_next:
+                escape_next = False
+                continue
+            if char == '\\':
+                escape_next = True
+                continue
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+
+            if char == '{':
+                if brace_depth == 0:
+                    json_start = i
+                brace_depth += 1
+            elif char == '}':
+                brace_depth -= 1
+                if brace_depth == 0 and json_start != -1:
+                    candidate = cleaned[json_start:i + 1]
+                    try:
+                        json.loads(candidate)
+                        return candidate
+                    except json.JSONDecodeError:
+                        continue
+
+        return None
+
+    def _extract_instruction_text(self, instruction: str) -> str:
+        """Extract intended input text from Indonesian/English test instruction."""
+        quoted = re.search(r'["“”\']([^"“”\']+)["“”\']', instruction)
+        if quoted:
+            return quoted.group(1).strip()
+
+        patterns = [
+            r"(?:memasukkan|masukkan|input|type|enter)\s+(?:konten|isi|judul|teks|text)?\s*[:：]?\s*(.+)$",
+            r"(?:isi|judul)\s*[:：]\s*(.+)$",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, instruction, flags=re.IGNORECASE)
+            if match:
+                return match.group(1).strip().strip('.').strip()
+        return ""
+
+    def _is_input_instruction(self, instruction: str) -> bool:
+        return bool(re.search(r"\b(memasukkan|masukkan|input|type|enter|ketik)\b", instruction, flags=re.IGNORECASE))
+
+    def _widget_text(self, widget: dict) -> str:
+        return str(widget.get("text") or widget.get("label") or "").strip()
+
+    def _find_input_widget(self, widgets: list[dict], preferred_id: int = -1) -> Optional[dict]:
+        if preferred_id != -1:
+            preferred = next((w for w in widgets if w.get("id") == preferred_id), None)
+            if preferred and preferred.get("role") == "input":
+                return preferred
+
+        focused_input = next(
+            (w for w in widgets if w.get("role") == "input" and w.get("state", {}).get("focused")),
+            None,
+        )
+        if focused_input:
+            return focused_input
+
+        return next((w for w in widgets if w.get("role") == "input" and w.get("actionable")), None)
+
+    def _find_done_widget(self, widgets: list[dict]) -> Optional[dict]:
+        resource_keywords = ("send_button", "done_button", "save_button")
+        exact_done_labels = {"selesai", "done", "save", "simpan", "kirim"}
+
+        for widget in widgets:
+            resource_id = str(widget.get("resource_id") or "").lower()
+            if any(keyword in resource_id for keyword in resource_keywords):
+                return widget
+
+        for widget in widgets:
+            label = self._widget_text(widget).strip().lower()
+            if label in exact_done_labels:
+                return widget
+        return None
+
+    def _guard_click_plan(self, plan: ActionPlan, instruction: str, widgets: list[dict]) -> ActionPlan:
+        """Resolve common unmapped completion clicks like Selesai/Done/Save."""
+        if plan.action_type != "click" or plan.target_id != -1:
+            return plan
+        if not re.search(r"\b(selesai|done|save|simpan)\b", instruction, flags=re.IGNORECASE):
+            return plan
+
+        target_widget = self._find_done_widget(widgets)
+        if not target_widget:
+            return plan
+
+        return ActionPlan(
+            reasoning=(
+                f"Click-target guard: instruction asks for a completion action, and widget "
+                f"[{target_widget.get('id')}] ({self._widget_text(target_widget) or target_widget.get('resource_id')}) "
+                "matches Selesai/Done/Save."
+            ),
+            action_type="click",
+            intent=plan.intent,
+            target_id=int(target_widget.get("id", -1)),
+            text_payload="",
+            scroll_direction="",
+            app_package="",
+            is_completed=False,
+        )
+
+    def _guard_input_plan(self, plan: ActionPlan, instruction: str, widgets: list[dict]) -> ActionPlan:
+        """Prevent false completion when desired text appears outside editable input."""
+        if not self._is_input_instruction(instruction):
+            return plan
+
+        payload = plan.text_payload.strip() or self._extract_instruction_text(instruction)
+        if not payload:
+            return plan
+
+        target_widget = self._find_input_widget(widgets, plan.target_id)
+        if not target_widget:
+            return plan
+
+        target_text = self._widget_text(target_widget)
+        target_has_payload = payload.lower() in target_text.lower()
+
+        if plan.action_type == "none" or plan.is_completed:
+            if not target_has_payload:
+                return ActionPlan(
+                    reasoning=(
+                        f"Input-step guard: instruction requires typing {payload!r}. "
+                        f"Desired text is not present in editable input [{target_widget.get('id')}]; "
+                        "text elsewhere on screen does not complete an input step."
+                    ),
+                    action_type="input",
+                    intent=f"Enter required text into editable input: {payload}",
+                    target_id=int(target_widget.get("id", -1)),
+                    text_payload=payload,
+                    scroll_direction="",
+                    app_package="",
+                    is_completed=False,
+                )
+        return plan
+
+    def _invoke_with_recovery(self, messages, current_step: int) -> ActionPlan:
+        """Invoke structured LLM with automatic JSON extraction retry."""
+        last_error = None
+
+        for attempt in range(2):
+            try:
+                return self.llm.invoke(
+                    messages,
+                    config={"tags": ["decider", f"step_{current_step}"]}
+                )
+            except Exception as e:
+                error_str = str(e)
+                last_error = e
+
+                # Check if this is a JSON parsing error
+                if "json_invalid" not in error_str and "Invalid JSON" not in error_str:
+                    raise  # Not a JSON error, re-raise
+
+                # Try to get raw output for recovery
+                if attempt == 0:
+                    try:
+                        print(f"[Decider] Attempting JSON recovery...")
+                        # Call base LLM without structured output
+                        raw_response = self.base_llm.invoke(messages)
+                        raw_text = raw_response.content if hasattr(raw_response, 'content') else str(raw_response)
+
+                        # Try to extract JSON
+                        extracted = self._extract_json_from_llm_output(raw_text)
+                        if extracted:
+                            data = json.loads(extracted)
+                            # Handle alternative field names
+                            reasoning = (
+                                data.get("reasoning") or
+                                data.get("thinking") or
+                                data.get("analysis") or
+                                "Auto-recovered JSON"
+                            )
+                            # Manually construct ActionPlan
+                            return ActionPlan(
+                                reasoning=reasoning,
+                                action_type=data.get("action_type", "none"),
+                                intent=data.get("intent", "Recovered from malformed JSON"),
+                                target_id=data.get("target_id", -1),
+                                text_payload=data.get("text_payload", ""),
+                                scroll_direction=data.get("scroll_direction", ""),
+                                app_package=data.get("app_package", ""),
+                                is_completed=data.get("is_completed", False)
+                            )
+                    except Exception as inner_e:
+                        print(f"[Decider] JSON recovery attempt failed: {inner_e}")
+
+        # All recovery failed - return safe fallback
+        print(f"[Decider] Failed to parse LLM output, using fallback: {last_error}")
+        return ActionPlan(
+            reasoning=f"LLM output parsing failed after recovery attempts: {last_error}",
+            action_type="none",
+            intent="Fallback due to LLM output format error",
+            target_id=-1,
+            text_payload="",
+            scroll_direction="",
+            app_package="",
+            is_completed=True  # Mark as completed to avoid infinite retries
+        )
 
     def decide(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
@@ -101,10 +334,20 @@ class DeciderAgent:
 
         print(f"[Decider] Mapping Instruction: '{current_sub_step}'...")
         self._log("LLM call started (ActionPlan generation)", level=_LL.DEBUG)
-        plan = self.llm.invoke(
-            messages,
-            config={"tags": ["decider", f"step_{current_step}"]}
-        )
+        plan = self._invoke_with_recovery(messages, current_step)
+        widgets = state.get("widgets", [])
+        for guard_name, guard_fn in (
+            ("Input-step guard", self._guard_input_plan),
+            ("Click-target guard", self._guard_click_plan),
+        ):
+            guarded_plan = guard_fn(plan, current_sub_step, widgets)
+            if guarded_plan != plan:
+                self._log(
+                    f"{guard_name} corrected ActionPlan",
+                    f"before={plan.model_dump_json()}\nafter={guarded_plan.model_dump_json()}",
+                    level=_LL.WARN,
+                )
+                plan = guarded_plan
 
         step_dir = state.get("step_dir", "")
         if step_dir:

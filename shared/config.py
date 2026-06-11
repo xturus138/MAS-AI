@@ -17,6 +17,11 @@ OUTPUT_DIR    = os.getenv("OUTPUT_DIR", "outputs")
 MAX_TOKENS    = int(os.getenv("MAX_TOKENS", "4000"))
 LOCAL_LLM_URL = os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1")
 
+# 9Router (OpenAI compatible local endpoint) - MAS-AI model
+NINEROUTER_BASE_URL = os.getenv("NINEROUTER_BASE_URL", "http://localhost:20128/v1")
+NINEROUTER_API_KEY = os.getenv("NINEROUTER_API_KEY", "not-needed-for-local")
+NINEROUTER_MODEL = os.getenv("NINEROUTER_MODEL", "MAS-AI")
+
 CURSOR_API_KEY = os.getenv("CURSOR_API_KEY", "")
 CURSOR_BASE_URL = os.getenv("CURSOR_BASE_URL", "https://api2.cursor.sh")
 
@@ -25,14 +30,36 @@ AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "https://masaiskripsi
 AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY", "")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-06-01")
 
+# LLM7 configuration
+LLM7_API_KEY = os.getenv("LLM7_API_KEY", "")
+LLM7_BASE_URL = os.getenv("LLM7_BASE_URL", "https://api.llm7.io/v1")
+
+# Alibaba Cloud MaaS configuration
+ALIBABA_API_KEY = os.getenv("ALIBABA_API_KEY", "")
+ALIBABA_BASE_URL = os.getenv("ALIBABA_BASE_URL", "https://ws-uzp67h5dtqgxfa3h.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1")
+
+# Vertex AI configuration
+VERTEX_PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "mas-ai-497913")
+VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "global")
+VERTEX_ENDPOINT = os.getenv("VERTEX_ENDPOINT", "openapi")
+VERTEX_API_KEY = os.getenv("VERTEX_API_KEY", "")
+VERTEX_BASE_URL = (
+    f"https://aiplatform.googleapis.com/v1beta1/projects/"
+    f"{VERTEX_PROJECT_ID}/locations/{VERTEX_LOCATION}/endpoints/{VERTEX_ENDPOINT}"
+)
+
 PROVIDER_URLS: dict = {
     "openrouter": "https://openrouter.ai/api/v1",
     "blackbox":   "https://api.blackbox.ai/v1",
     "openai":     "https://api.openai.com/v1",
     "cursor":     CURSOR_BASE_URL,
+    "vertex":     VERTEX_BASE_URL,
+    "alibaba":    ALIBABA_BASE_URL,
+    "llm7":       LLM7_BASE_URL,
     "local":      os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1"),
     "gemini":     "https://generativelanguage.googleapis.com/v1beta/openai/",
     "google":     "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "9router":    os.getenv("NINEROUTER_BASE_URL", "http://localhost:20128/v1"),
     # Azure uses per-deployment endpoints, not a shared URL
     "azure":      AZURE_OPENAI_ENDPOINT if AZURE_OPENAI_ENDPOINT else "",
 }
@@ -53,6 +80,22 @@ def _resolve_api_key(provider: str, key_env_var: str) -> str:
             alt_key = os.getenv(alt_var)
             if alt_key and alt_key.lower() != "none":
                 return alt_key
+
+    # Fallback for 9Router
+    if provider == "9router":
+        return os.getenv("9ROUTER_API_KEY", "not-needed-for-local")
+
+    # Vertex AI: return empty string so adapter knows to try ADC
+    if provider == "vertex":
+        return os.getenv("VERTEX_API_KEY", "")
+
+    # Alibaba Cloud MaaS: return empty string if not set (no fallback to OPENROUTER)
+    if provider == "alibaba":
+        return os.getenv("ALIBABA_API_KEY", "")
+
+    # LLM7: return empty string if not set (no fallback to OPENROUTER)
+    if provider == "llm7":
+        return os.getenv("LLM7_API_KEY", "")
 
     return os.getenv("OPENROUTER_API_KEY", "none")
 
@@ -92,7 +135,11 @@ OMNIPARSER_PROJECT_DIR   = os.getenv("OMNIPARSER_PROJECT_DIR", "")
 OMNIPARSER_WEIGHTS_DIR   = os.getenv("OMNIPARSER_WEIGHTS_DIR", "")
 OMNIPARSER_BOX_THRESHOLD = float(os.getenv("OMNIPARSER_BOX_THRESHOLD", "0.05"))
 
+# Observer Mode (XML-first hybrid or pure vision)
+OBSERVER_MODE = os.getenv("OBSERVER_MODE", "xml_first").lower()  # "xml_first" or "pure_vision"
+
 print(f"[*] Environment Loaded:")
+print(f"    - Observer Mode:      {OBSERVER_MODE}")
 print(f"    - Observer Model:     {OBSERVER_MODEL}")
 print(f"    - Decider Model:      {DECIDER_MODEL}")
 print(f"    - Reflector Model:    {REFLECTOR_MODEL}")

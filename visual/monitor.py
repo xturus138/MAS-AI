@@ -24,6 +24,48 @@ class VisualMonitor:
         self._current_target: dict = {}
         self._overlay_ready = threading.Event()
 
+    def _should_overlay_widget(self, widget: dict) -> bool:
+        """Return True if widget should be drawn on debug overlay.
+
+        XML-first path can emit large structural containers with resource-id-derived
+        labels. Those are useful in workflow state, but painting them causes the
+        whole scrcpy window to wash blue. Filter here only for monitor display.
+        """
+        bounds = widget.get("bounds")
+        if not bounds or len(bounds) != 4:
+            return False
+
+        x1, y1, x2, y2 = bounds
+        width = max(0, x2 - x1)
+        height = max(0, y2 - y1)
+        if width <= 0 or height <= 0:
+            return False
+
+        source = widget.get("source", "")
+        actionable = widget.get("actionable", False)
+        role = widget.get("role", "")
+        class_name = widget.get("class", "")
+
+        if source == "xml":
+            screen_area = max(1, self.device_w * self.device_h)
+            area_ratio = (width * height) / screen_area
+            width_ratio = width / max(1, self.device_w)
+            height_ratio = height / max(1, self.device_h)
+            structural_class = any(token in class_name for token in ("FrameLayout", "LinearLayout", "ViewGroup"))
+
+            # Full-screen / broad structural wrappers from XML should not be painted.
+            if not actionable and role == "view" and structural_class and area_ratio >= 0.05:
+                return False
+            if not actionable and width_ratio >= 0.85 and height_ratio >= 0.20:
+                return False
+            if not actionable and area_ratio >= 0.12:
+                return False
+
+        return True
+
+    def _filter_overlay_boxes(self, widgets: list) -> list:
+        return [w["bounds"] for w in widgets if self._should_overlay_widget(w)]
+
     def start(self):
         scrcpy_cmd = shutil.which("scrcpy")
         if scrcpy_cmd is None:
@@ -74,9 +116,9 @@ class VisualMonitor:
         ensures the overlay is sized/positioned to match only the phone content.
         """
         import win32gui
-        cl = win32gui.GetClientRect(hwnd)          # (0, 0, w, h) in client coords
-        tl = win32gui.ClientToScreen(hwnd, (0, 0)) # top-left in screen coords
-        return tl[0], tl[1], cl[2], cl[3]         # x, y, w, h
+        cl = win32gui.GetClientRect(hwnd)
+        tl = win32gui.ClientToScreen(hwnd, (0, 0))
+        return tl[0], tl[1], cl[2], cl[3]
 
     def _launch_overlay(self):
         from PyQt5.QtWidgets import QApplication
@@ -103,7 +145,7 @@ class VisualMonitor:
     def on_observer(self, widgets: list):
         if self._overlay is None:
             return
-        self._current_boxes = [w["bounds"] for w in widgets if w.get("bounds") and len(w["bounds"]) == 4]
+        self._current_boxes = self._filter_overlay_boxes(widgets)
         self._current_target = {}
         self._overlay.update_signal.emit(self._current_boxes, {}, {})
 

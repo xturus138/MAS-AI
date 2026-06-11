@@ -1,6 +1,13 @@
 from shared import config
 from adapters.llm.langchain_adapter import LangChainAdapter
 
+try:
+    import google.auth
+    import google.auth.transport.requests
+    _HAS_GOOGLE_AUTH = True
+except ImportError:
+    _HAS_GOOGLE_AUTH = False
+
 
 class LLMFactory:
     _ROLE_MAP = {
@@ -35,7 +42,7 @@ class LLMFactory:
     }
 
     @classmethod
-    def create(cls, role: str, session_id: str | None = None) -> LangChainAdapter:
+    def create(cls, role: str, session_id: str | None = None, log_dir: str | None = None) -> LangChainAdapter:
         role = role.lower()
         if role not in cls._ROLE_MAP:
             raise ValueError(
@@ -51,11 +58,35 @@ class LLMFactory:
         azure_deployment = cfg.get("azure_deployment", lambda: "")() if provider == "azure" else None
         is_local = provider == "local"
 
-        extra_headers = (
-            {"HTTP-Referer": "https://localhost", "X-Title": "MAS-Agent"}
-            if provider == "openrouter"
-            else None
-        )
+        extra_headers = None
+        if provider == "openrouter":
+            extra_headers = {
+                "HTTP-Referer": "https://localhost",
+                "X-Title": "MAS-Agent",
+            }
+        elif provider == "vertex":
+            # Vertex OpenAI-compatible endpoint requires publisher prefix
+            if "/" not in model:
+                model = f"google/{model}"
+            if api_key and api_key.lower() not in ("", "none"):
+                # API key goes as query param, not header
+                separator = "&" if "?" in base_url else "?"
+                base_url = f"{base_url}{separator}key={api_key}"
+                api_key = "unused-vertex-api-key"
+                extra_headers = {}
+            elif _HAS_GOOGLE_AUTH:
+                try:
+                    credentials, _ = google.auth.default(
+                        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+                    )
+                    credentials.refresh(google.auth.transport.requests.Request())
+                    extra_headers = {"Authorization": f"Bearer {credentials.token}"}
+                except Exception:
+                    print("[LLMFactory] Vertex ADC token refresh failed; falling back to API-key mode with empty key")
+                    extra_headers = {}
+            else:
+                print("[LLMFactory] Vertex: no API key and google-auth unavailable; pass empty headers")
+                extra_headers = {}
 
         print(
             f"[LLMFactory] Creating '{role}' client | "
@@ -69,6 +100,7 @@ class LLMFactory:
             base_url=base_url,
             is_local=is_local,
             session_id=session_id,
+            log_dir=log_dir,
             extra_headers=extra_headers,
             provider=provider,
             azure_deployment=azure_deployment,

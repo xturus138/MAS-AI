@@ -12,6 +12,7 @@ from shared import config
 from core.utils.process_logger import LogLevel as _LL
 
 import cv2
+from core.utils.output_writer import write_step_summary
 
 # Action types for which no visible UI navigation is required to consider an action successful.
 # 'input' enters text into a focused field — screen stays the same.
@@ -57,6 +58,7 @@ class ValidityCheckResult(BaseModel):
 
 class ReflectorAgent:
     def __init__(self, llm, memory=None, logger=None, device=None):
+        self.base_llm = llm  # Keep base LLM for recovery
         self._llm_loading  = llm.with_structured_output(LoadingCheckResult)
         self._llm_change   = llm.with_structured_output(UIChangeCheckResult)
         self._llm_validity = llm.with_structured_output(ValidityCheckResult)
@@ -199,6 +201,170 @@ class ReflectorAgent:
         except Exception as e:
             return UIChangeCheckResult(ui_changed=True, reasoning=f"UI change check error (assuming changed): {e}")
 
+    def _extract_json_from_llm_output(self, raw_output: str) -> Optional[str]:
+        """Safely extract JSON from LLM output that may contain XML tags or extra text.
+
+        Attempts multiple strategies:
+        1. Extract content from <thinking> tags and parse JSON within
+        2. Find outermost JSON object via brace counting
+        3. Return None if no valid JSON found
+        """
+        if not raw_output:
+            return None
+
+        cleaned = raw_output.strip()
+
+        # Strategy 1: Content inside <thinking> tags
+        if "<thinking>" in cleaned and "</thinking>" in cleaned:
+            # Extract from thinking tags
+            start = cleaned.find("<thinking>")
+            end = cleaned.find("</thinking>")
+            if start != -1 and end != -1:
+                inner = cleaned[start + len("<thinking>"):end].strip()
+                # Try to find JSON within the thinking content
+                try:
+                    # Direct JSON parse attempt
+                    json.loads(inner)
+                    return inner
+                except json.JSONDecodeError:
+                    pass
+                # Look for nested JSON object
+                cleaned = inner
+
+        # Strategy 2: Extract JSON object via brace matching
+        # Find the outermost balanced JSON object
+        brace_depth = 0
+        json_start = -1
+        in_string = False
+        escape_next = False
+
+        for i, char in enumerate(cleaned):
+            if escape_next:
+                escape_next = False
+                continue
+            if char == '\\':
+                escape_next = True
+                continue
+            if char == '"' and not escape_next:
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+
+            if char == '{':
+                if brace_depth == 0:
+                    json_start = i
+                brace_depth += 1
+            elif char == '}':
+                brace_depth -= 1
+                if brace_depth == 0 and json_start != -1:
+                    candidate = cleaned[json_start:i + 1]
+                    try:
+                        json.loads(candidate)
+                        return candidate
+                    except json.JSONDecodeError:
+                        continue
+
+        # Strategy 3: Look for JSON array format
+        if json_start == -1 and '[' in cleaned:
+            bracket_depth = 0
+            arr_start = -1
+            for i, char in enumerate(cleaned):
+                if char == '"':
+                    in_string = not in_string
+                    continue
+                if in_string:
+                    continue
+                if char == '[':
+                    if bracket_depth == 0:
+                        arr_start = i
+                    bracket_depth += 1
+                elif char == ']':
+                    bracket_depth -= 1
+                    if bracket_depth == 0 and arr_start != -1:
+                        candidate = cleaned[arr_start:i + 1]
+                        try:
+                            json.loads(candidate)
+                            return candidate
+                        except json.JSONDecodeError:
+                            continue
+
+        return None
+
+    def _invoke_with_json_recovery(
+        self,
+        messages,
+        max_retries: int = 2
+    ) -> ValidityCheckResult:
+        """Invoke structured LLM with automatic JSON extraction retry.
+
+        If the LLM returns malformed JSON (e.g., with XML tags), attempt to
+        extract the JSON and retry parsing before giving up.
+        """
+        last_error = None
+
+        for attempt in range(max_retries):
+            try:
+                # Try normal structured output
+                return self._llm_validity.invoke(messages)
+            except Exception as e:
+                error_str = str(e)
+                last_error = e
+
+                # Check if this is a JSON parsing error
+                if "json_invalid" not in error_str and "Invalid JSON" not in error_str:
+                    # Not a JSON error, don't retry
+                    break
+
+                # Try to get raw output for recovery
+                # We need to call the base LLM without structured output
+                if attempt < max_retries - 1:
+                    try:
+                        print(f"[Reflector] Attempting JSON recovery (attempt {attempt + 1})...")
+                        # Call base LLM to get raw text
+                        raw_response = self.base_llm.invoke(messages)
+                        raw_text = raw_response.content if hasattr(raw_response, 'content') else str(raw_response)
+
+                        # Try to extract JSON
+                        extracted = self._extract_json_from_llm_output(raw_text)
+                        if extracted:
+                            # Parse manually and create result
+                            data = json.loads(extracted)
+
+                            # Handle alternative field names
+                            reasoning = (
+                                data.get("reasoning") or
+                                data.get("thinking") or
+                                data.get("analysis") or
+                                data.get("explanation") or
+                                "Auto-recovered JSON"
+                            )
+
+                            return ValidityCheckResult(
+                                reasoning=reasoning,
+                                passed=data.get("passed", False),
+                                figma_discrepancies=data.get("figma_discrepancies", "")
+                            )
+                    except Exception as inner_e:
+                        # Recovery failed, will retry or fail
+                        print(f"[Reflector] JSON recovery attempt {attempt + 1} failed: {inner_e}")
+
+                # Modify prompt for retry - ask for cleaner output
+                if attempt < max_retries - 1:
+                    # Add reminder to output format
+                    from langchain_core.messages import SystemMessage
+                    reminder = SystemMessage(content=
+                        "IMPORTANT: Return ONLY a valid JSON object. No XML tags. No extra text."
+                    )
+                    messages = messages + [reminder]
+
+        # All retries exhausted - return system error
+        return ValidityCheckResult(
+            passed=False,
+            reasoning=f"[SYSTEM_ERROR] Failed to parse LLM output after {max_retries} attempts: {last_error}",
+            figma_discrepancies=""
+        )
+
     # ── Call 3 ────────────────────────────────────────────────────────────────
 
     def _check_validity(
@@ -252,10 +418,7 @@ class ReflectorAgent:
             content.append({"type": "image_url", "image_url": {"url": f"data:image/png;base64,{figma_b64}"}})
             content.append({"type": "text", "text": "[Image above: FIGMA GOLD STANDARD]"})
         messages = [SystemMessage(content=system_prompt), HumanMessage(content=content)]
-        try:
-            return self._llm_validity.invoke(messages)
-        except Exception as e:
-            return ValidityCheckResult(passed=False, reasoning=f"Validity LLM error: {e}", figma_discrepancies="")
+        return self._invoke_with_json_recovery(messages)
 
     # ── Shared return builder ─────────────────────────────────────────────────
 
@@ -273,6 +436,7 @@ class ReflectorAgent:
         figma_enabled: bool,
         memory_context: str,
         verification_chain: dict,
+        instruction: str = "",
         tcs_id: str = "",
         is_final_step: bool = False,
         expected_result: str = "",
@@ -283,17 +447,33 @@ class ReflectorAgent:
         output_dir = state.get("output_dir", "")
         save_dir  = step_dir if step_dir else output_dir
 
+        # Determine if this is a system error vs validation failure
+        is_system_error = "[SYSTEM_ERROR]" in reasoning
+
         if save_dir:
             ref_path = os.path.join(save_dir, "reflector_report.json")
             with open(ref_path, "w", encoding="utf-8") as f:
                 json.dump({
                     "passed": passed,
+                    "is_system_error": is_system_error,
                     "reasoning": reasoning,
                     "step_index": current_idx,
                     "figma_enabled": figma_enabled,
                     "figma_discrepancies": figma_discrepancies,
                     "verification_chain": verification_chain,
                 }, f, indent=4, ensure_ascii=False)
+
+            # ── Write step summary ─────────────────────────────────────────────
+            action_plan = state.get("action_plan", {}) or {}
+            write_step_summary(
+                step_dir=save_dir,
+                step_number=current_step,
+                instruction=instruction or state.get("orchestrator_instruction", "") or "",
+                action_type=action_plan.get("action_type", ""),
+                target_widget_id=action_plan.get("target_id", -1),
+                verdict=verdict,
+                has_screenshot=bool(post_action_path or state.get("screenshot_path", "")),
+            )
 
             if is_final_step and figma_enabled:
                 comparison_path = os.path.join(save_dir, "figma_comparison_result.json")
@@ -354,6 +534,7 @@ class ReflectorAgent:
 
         return {
             "last_reflector_passed":       passed,
+            "last_reflector_reasoning":    reasoning,
             "screenshot_path":             screenshot_path,
             "memory_context":              memory_context,
             "sender":                      "reflector",
@@ -442,6 +623,7 @@ class ReflectorAgent:
                 current_idx=current_idx,
                 figma_enabled=False,
                 memory_context=state.get("memory_context", ""),
+                instruction=current_instruction,
                 verification_chain={
                     "loading_done": None,
                     "loading_reasoning": None,
@@ -509,6 +691,7 @@ class ReflectorAgent:
                     current_idx=current_idx,
                     figma_enabled=figma_enabled,
                     memory_context=memory_context,
+                    instruction=current_instruction,
                     verification_chain={
                         "loading_done": False,
                         "loading_reasoning": loading_result.reasoning,
@@ -533,6 +716,7 @@ class ReflectorAgent:
                     current_idx=current_idx,
                     figma_enabled=figma_enabled,
                     memory_context=memory_context,
+                    instruction=current_instruction,
                     verification_chain={
                         "loading_done": True,
                         "loading_reasoning": loading_result.reasoning,
@@ -567,6 +751,7 @@ class ReflectorAgent:
                     current_idx=current_idx,
                     figma_enabled=figma_enabled,
                     memory_context=memory_context,
+                    instruction=current_instruction,
                     verification_chain={
                         "loading_done": False,
                         "loading_reasoning": loading_result.reasoning,
@@ -605,6 +790,7 @@ class ReflectorAgent:
                     current_idx=current_idx,
                     figma_enabled=figma_enabled,
                     memory_context=memory_context,
+                    instruction=current_instruction,
                     verification_chain={
                         "loading_done": True,
                         "loading_reasoning": loading_result.reasoning,
@@ -648,6 +834,7 @@ class ReflectorAgent:
             current_idx=current_idx,
             figma_enabled=figma_enabled,
             memory_context=memory_context,
+            instruction=current_instruction,
             verification_chain={
                 "loading_done": True,
                 "loading_reasoning": loading_result.reasoning,

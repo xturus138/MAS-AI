@@ -20,6 +20,8 @@ from core.utils.process_logger import ProcessLogger
 from core.workflow.autonomous.orchestrator import AutonomousOrchestrator
 from core.workflow.autonomous.graph import build_autonomous_graph
 from visual.monitor import VisualMonitor
+from core.utils.output_writer import write_run_overview, write_run_index as _write_run_index
+from core.utils.output_manager import create_run_output, write_latest_index, compute_run_root
 
 
 def run_autonomous():
@@ -36,6 +38,12 @@ def run_autonomous():
       4. Build graph  →  5. Run graph loop  →  6. finalize_run_metrics()
     """
     print("[*] Starting AUTONOMOUS Workflow...")
+
+    # ── Shared output roots ─────────────────────────────────────────────────
+    run_root, date_str, run_number = compute_run_root("autonomous")
+    all_run_metrics = []
+    os.makedirs(run_root, exist_ok=True)
+    print(f"[*] Run root: {run_root}")
 
     # ── Infrastructure (Once per run) ─────────────────────────────────────────
     figma_adapter = build_figma_adapter_from_prompt(access_token=config.FIGMA_ACCESS_TOKEN)
@@ -68,8 +76,10 @@ def run_autonomous():
             session_id = f"{tcs_id}_{timestamp}"
             print(f"\n[+] Executing Scenario {scenario_index + 1}/{len(scenarios)}: {tcs_id} | Session: {session_id}")
 
-            output_dir = os.path.join(config.OUTPUT_DIR, "autonomous", f"{tcs_id}_{timestamp}")
-            os.makedirs(output_dir, exist_ok=True)
+            paths = create_run_output(mode="autonomous", tcs_id=tcs_id, timestamp=timestamp,
+                                      run_root=run_root, scenario_index=scenario_index)
+            output_dir = paths.run_dir
+            write_latest_index(paths)
 
             # ── MIRIX Memory System (one per scenario) ────────────────────────────
             memory = MIRIXMemorySystem(session_id=session_id, output_dir=output_dir)
@@ -81,10 +91,10 @@ def run_autonomous():
                        f"mode=autonomous  output_dir={output_dir}")
 
             # ── LLMs ──────────────────────────────────────────────────────────────
-            perception_llm   = LLMFactory.create("observer",     session_id=session_id)
-            strategic_llm    = LLMFactory.create("decider",      session_id=session_id)
-            reflector_llm    = LLMFactory.create("reflector",    session_id=session_id)
-            orchestrator_llm = LLMFactory.create("orchestrator", session_id=session_id)
+            perception_llm   = LLMFactory.create("observer",     session_id=session_id, log_dir=paths.llm_logs_dir)
+            strategic_llm    = LLMFactory.create("decider",      session_id=session_id, log_dir=paths.llm_logs_dir)
+            reflector_llm    = LLMFactory.create("reflector",    session_id=session_id, log_dir=paths.llm_logs_dir)
+            orchestrator_llm = LLMFactory.create("orchestrator", session_id=session_id, log_dir=paths.llm_logs_dir)
 
             # ── Agents (all receive the shared memory + logger instances) ─────────
             orchestrator = AutonomousOrchestrator(
@@ -135,6 +145,12 @@ def run_autonomous():
                 "screenshot_path":          "",
                 "output_dir":               output_dir,
                 "step_dir":                 "",
+                "output_paths":             paths.as_dict(),
+                "steps_dir":                paths.steps_dir,
+                "logs_dir":                 paths.logs_dir,
+                "llm_logs_dir":             paths.llm_logs_dir,
+                "reports_dir":              paths.reports_dir,
+                "figma_dir":                paths.figma_dir,
                 "action_plan":              {},
                 "execution_result":         "",
                 "last_reflector_passed":    False,
@@ -182,7 +198,41 @@ def run_autonomous():
                        f"stagnation={stagnation}  is_completed={is_completed}")
 
             # ── Finalize: write metrics + episodic history to disk ────────────────
-            recorder.finalize_run_metrics(final_state)
+            metrics = recorder.finalize_run_metrics(final_state, shared_dir=run_root)
+            if metrics:
+                all_run_metrics.append(metrics)
+
+            # ── Write run_overview.md (human-readable summary) ─────────────────
+            if metrics:
+                steps_data = []
+                if memory is not None:
+                    episodes = memory.episodic.all_as_dicts()
+                    ref_eps = [ep for ep in episodes if ep.get("actor") == "reflector"]
+                    for ep in ref_eps:
+                        summary_text = ep.get("summary", "")
+                        verdict_str = "PASSED" if "PASSED" in summary_text else "FAILED"
+                        steps_data.append({
+                            "step_number": ep.get("step", "?"),
+                            "instruction": summary_text[:60],
+                            "action_type": "",
+                            "verdict": verdict_str,
+                        })
+                write_run_overview(
+                    output_dir=output_dir,
+                    tcs_id=tcs_id,
+                    status=status,
+                    mode="autonomous",
+                    steps_completed=final_state.get("steps_completed_count", 0),
+                    total_steps=final_state.get("current_step", 0),
+                    duration_seconds=metrics.get("total_duration_seconds", 0),
+                    physical_actions=metrics.get("physical_actions", 0),
+                    figma_enabled=figma_context.get("figma_enabled", False),
+                    tokens=metrics.get("total_tokens_estimate", 0),
+                    cost_usd=metrics.get("total_price_usd", 0.0),
+                    reflector_judgment=metrics.get("justification", {}).get("reflector_final_judgment", ""),
+                    steps_data=steps_data,
+                )
+
             memory.close()
 
             print("\n=== SCENARIO SUMMARY ===")
@@ -190,6 +240,14 @@ def run_autonomous():
             print(f"Status : {'Stagnated' if final_state.get('stagnation_count', 0) > 3 else 'Finished'}")
             print(f"Steps  : {final_state.get('current_step', 0)}")
             print(f"Results: {output_dir}")
+
+        # ── Merged Run-Level Output ───────────────────────────────────────────
+        RecorderAgent.write_run_summary(all_run_metrics, run_root)
+
+        # ── Mode-level run_index.json ──────────────────────────────────────────
+        _write_run_index(run_root, all_run_metrics)
+        mode_root = os.path.join(config.OUTPUT_DIR, "runs", "autonomous")
+        _write_run_index(mode_root, all_run_metrics)
 
     finally:
         monitor.stop()

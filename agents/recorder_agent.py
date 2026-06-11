@@ -3,6 +3,8 @@ import json
 import datetime
 from core.models.state import AgentState
 from core.utils.process_logger import LogLevel as _LL
+from core.utils.output_writer import write_run_summary as _write_run_summary, write_run_index as _write_run_index
+from shared import config
 
 
 class RecorderAgent:
@@ -115,7 +117,9 @@ class RecorderAgent:
 
         try:
             # 1. Per-scenario isolated report
-            dest = os.path.join(output_dir, "test_report.xlsx")
+            reports_dir = state.get("reports_dir") or os.path.join(output_dir, "reports")
+            os.makedirs(reports_dir, exist_ok=True)
+            dest = os.path.join(reports_dir, "test_report.xlsx")
             shutil.copy2(xlsx_path, dest)
             self._fill_report_sheet(dest, tcs_id, output_dir, metrics)
 
@@ -133,6 +137,10 @@ class RecorderAgent:
 
     def finalize_run_metrics(self, state: AgentState, shared_dir: str = None) -> dict:
         output_dir = state.get("output_dir", "outputs")
+        logs_dir = state.get("logs_dir") or os.path.join(output_dir, "logs")
+        reports_dir = state.get("reports_dir") or os.path.join(output_dir, "reports")
+        os.makedirs(logs_dir, exist_ok=True)
+        os.makedirs(reports_dir, exist_ok=True)
         metrics_path = os.path.join(output_dir, "final_metrics.json")
         session_id = state.get("session_id", "")
         tcs_id = state.get("tcs_id", "Unknown")
@@ -154,7 +162,7 @@ class RecorderAgent:
         # ── Write episodic history to disk (replaces mid-loop recorder.record()) ─
         if self.memory is not None:
             episodes = self.memory.episodic.all_as_dicts()
-            chat_file = os.path.join(output_dir, "chat_logs.txt")
+            chat_file = os.path.join(logs_dir, "chat_logs.txt")
             try:
                 lines = []
                 for ep in episodes:
@@ -177,7 +185,7 @@ class RecorderAgent:
                 "recording_status": "Success" if is_completed else "In Progress/Failed",
                 "actions": exec_episodes,
             }
-            script_file = os.path.join(output_dir, "interaction_script.json")
+            script_file = os.path.join(reports_dir, "interaction_script.json")
             try:
                 with open(script_file, "w", encoding="utf-8") as f:
                     json.dump(script_content, f, indent=2)
@@ -188,7 +196,10 @@ class RecorderAgent:
         total_tokens = 0
         total_cost_usd = 0.0
         if session_id:
-            log_dir = os.path.join("outputs", "llm_logs", session_id)
+            log_dir = state.get("llm_logs_dir") or os.path.join(output_dir, "logs", "llm")
+            if not os.path.exists(log_dir):
+                legacy_log_dir = os.path.join(config.OUTPUT_DIR, "llm_logs", session_id)
+                log_dir = legacy_log_dir if os.path.exists(legacy_log_dir) else log_dir
             if os.path.exists(log_dir):
                 for filename in os.listdir(log_dir):
                     if filename.endswith(".json"):
@@ -249,12 +260,20 @@ class RecorderAgent:
         if self.memory is not None:
             figma_enabled = (self.memory.core.get("figma_enabled") or "False") == "True"
 
+        # ── Research metrics base values (computed before metrics dict) ───
+        sub_steps_total = len(
+            self.memory.procedural.get_steps(tcs_id, "workflow")
+        ) if self.memory is not None else 0
+        steps_completed = state.get("steps_completed_count", 0)
+
         metrics = {
+            "session_id": session_id,
             "tcs_id": tcs_id,
             "mode": mode,
             "status": status,
             "total_cycles": state.get("current_step", 0),
             "physical_actions": exec_count,
+            "steps_completed": steps_completed,
             "stagnation_count": stagnation,
             "total_tokens_estimate": total_tokens,
             "total_price_usd": round(total_cost_usd, 8),
@@ -272,17 +291,13 @@ class RecorderAgent:
         }
 
         # ── Research metrics block ────────────────────────────────────────────
-        sub_steps_total = len(
-            self.memory.procedural.get_steps(tcs_id, "workflow")
-        ) if self.memory is not None else 0
-        steps_completed = state.get("steps_completed_count", 0)
-        total_ref_calls = state.get("total_reflector_calls", 0)
-        ref_passes = state.get("reflector_pass_count", 0)
-        first_verify_total = state.get("total_first_verify_calls", 0)
+        total_ref_calls     = state.get("total_reflector_calls", 0)
+        ref_passes          = state.get("reflector_pass_count", 0)
+        first_verify_total  = state.get("total_first_verify_calls", 0)
         first_verify_passes = state.get("reflector_first_pass_count", 0)
-        lookup_ok       = state.get("widget_lookup_success", 0)
-        lookup_fail     = state.get("widget_lookup_fail", 0)
-        lookup_fallback = state.get("widget_text_fallback_count", 0)
+        lookup_ok           = state.get("widget_lookup_success", 0)
+        lookup_fail         = state.get("widget_lookup_fail", 0)
+        lookup_fallback     = state.get("widget_text_fallback_count", 0)
 
         def _pct(num, den):
             return round((num / den) * 100, 1) if den > 0 else None
@@ -322,7 +337,16 @@ class RecorderAgent:
             print(f"[Recorder Error] Failed to save final metrics: {e}")
             self._log("FAILED to save final metrics", str(e))
 
-        # ── Test report: fill scenario.xlsx result columns ────────────────────
+        # ── Lightweight per-run summary ────────────────────────────────────
+        _write_run_summary(
+            output_dir=output_dir,
+            tcs_id=tcs_id,
+            status=status,
+            steps_completed=steps_completed,
+            duration_seconds=duration,
+        )
+
+        # ── Test report: fill scenario.xlsx result columns ──────────────────
         self.write_test_report(state, metrics, shared_dir=shared_dir)
 
         if self.logger is not None:
@@ -385,4 +409,7 @@ class RecorderAgent:
             print(f"[Recorder] Merged run summary saved to {summary_path}")
         except Exception as e:
             print(f"[Recorder Error] Failed to save run summary: {e}")
+
+        # ── Write run index for quick scanning ──────────────────────────────
+        _write_run_index(shared_dir, all_metrics)
 

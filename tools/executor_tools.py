@@ -20,6 +20,27 @@ class ExecutorTools:
         self.d.wait_idle(timeout=3.0)
         return f"Typed: {text}"
 
+    def set_text_by_resource_id(self, resource_id: str, text: str) -> str:
+        """Set text directly through uiautomator selector when XML exposes resource-id."""
+        if not resource_id or not hasattr(self.d, "d") or self.d.d is None:
+            return ""
+        try:
+            selector = self.d.d(resourceId=resource_id)
+            if not selector.exists(timeout=1.0):
+                return ""
+            selector.set_text(text)
+            self.d.wait_idle(timeout=3.0)
+            return f"Set text via resource_id {resource_id}: {text}"
+        except Exception:
+            return ""
+
+    def input_text(self, x: int, y: int, text: str, resource_id: str = "") -> str:
+        direct_result = self.set_text_by_resource_id(resource_id, text)
+        if direct_result:
+            return direct_result
+        self.click_coordinates(x, y)
+        return self.type_text(text)
+
     def swipe_screen(self, direction: str, region: dict = None) -> str:
         if region:
             cx = (region["x1"] + region["x2"]) // 2

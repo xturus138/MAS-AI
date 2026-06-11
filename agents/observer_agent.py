@@ -21,8 +21,9 @@ class ObserverAgent:
         self.detect_visual_elements = tools[2]
         self.annotate_screenshot = tools[3]
         self.check_keyboard_state = tools[4]
-        # Optional: OmniParser unified vision backend (index 5)
-        self.parse_screen_omniparser = tools[5] if len(tools) > 5 else None
+        self.dump_hierarchy = tools[5]
+        # Optional: OmniParser unified vision backend (index 6 now)
+        self.parse_screen_omniparser = tools[6] if len(tools) > 6 else None
         self.memory = memory
         self.logger = logger
         self.monitor = monitor
@@ -369,6 +370,231 @@ class ObserverAgent:
             lvl = level if level is not None else _LL.INFO
             self.logger.log("OBSERVER", msg, detail, level=lvl)
 
+    def _generate_compact_xml_tree(
+        self,
+        widgets: list,
+        scenario_desc: str = "",
+        navigation_context: str = ""
+    ) -> str:
+        """Generate prioritized compact semantic UI tree from XML widgets.
+
+        Prioritization order:
+        1. Dialogs, errors, alerts (highest priority)
+        2. Selected/focused elements
+        3. Clickable interactive elements (buttons, inputs)
+        4. Navigation controls (back, menu, tabs)
+        5. List items with content
+        6. Visible labels and text
+        7. Other structural elements (summarized)
+        """
+        if not widgets:
+            return "UI Tree: (no elements)"
+
+        # Categorize widgets by priority
+        dialogs_errors = []
+        selected_focused = []
+        interactive = []
+        navigation = []
+        list_items = []
+        labeled_static = []
+        other = []
+
+        # Keywords for categorization
+        dialog_keywords = {"dialog", "alert", "popup", "modal", "error", "warning", "confirm", "permission"}
+        nav_keywords = {"back", "menu", "nav", "toolbar", "tab", "home", "close", "exit"}
+        list_container_keywords = {"list", "recycler", "scroll", "item"}
+
+        for w in widgets:
+            role = w.get("role", "view")
+            label = (w.get("label", "") or "").lower()
+            is_actionable = w.get("actionable", False)
+            state = w.get("state", {})
+            is_selected = state.get("selected", False) or state.get("focused", False)
+            res_id = (w.get("resource_id", "") or "").lower()
+
+            # Check for dialogs/errors first
+            if any(k in label or k in res_id for k in dialog_keywords):
+                dialogs_errors.append(w)
+                continue
+
+            # Selected/focused elements
+            if is_selected:
+                selected_focused.append(w)
+                continue
+
+            # Navigation controls
+            if any(k in label or k in res_id for k in nav_keywords):
+                navigation.append(w)
+                continue
+
+            # Interactive elements (buttons, inputs, etc.)
+            if is_actionable:
+                if role in {"button", "icon_button", "input", "checkbox", "switch", "radio", "dropdown"}:
+                    interactive.append(w)
+                    continue
+
+            # List items (elements in scrollable containers with content)
+            if role in {"list", "grid"} or (is_actionable and any(k in res_id for k in list_container_keywords)):
+                if label:  # Only if they have content
+                    list_items.append(w)
+                    continue
+
+            # Static labeled elements
+            if label and len(label) > 0:
+                labeled_static.append(w)
+                continue
+
+            # Everything else
+            other.append(w)
+
+        # Build compact tree sections
+        sections = []
+        element_count = 0
+        max_elements = 40  # Limit total for LLM context
+
+        def format_element(w: dict, prefix: str = "") -> str:
+            role = w.get("role", "view")
+            label = w.get("label", "") or ""
+            if role == "input" and not label:
+                label = "<empty>"
+            # Truncate long labels
+            if len(label) > 50:
+                label = label[:47] + "..."
+            is_actionable = "⚡" if w.get("actionable") else "○"
+            state_markers = []
+            state = w.get("state", {})
+            if state.get("selected"):
+                state_markers.append("★")
+            if state.get("focused"):
+                state_markers.append("▸")
+            if state.get("checked"):
+                state_markers.append("✓")
+            state_str = "".join(state_markers)
+            return f"{prefix}[{w.get('id', '?'):2}] {is_actionable} {role:12} | {label}" + (f" {state_str}" if state_str else "")
+
+        # Section 1: Critical (dialogs/errors)
+        if dialogs_errors:
+            sections.append("\n⚠️ DIALOGS/ALERTS:")
+            for w in dialogs_errors[:5]:
+                sections.append(format_element(w, "  "))
+                element_count += 1
+
+        # Section 2: Selected/Focused
+        if selected_focused:
+            sections.append("\n⭐ SELECTED/FOCUSED:")
+            for w in selected_focused[:5]:
+                sections.append(format_element(w, "  "))
+                element_count += 1
+
+        # Section 3: Interactive Elements
+        if interactive:
+            sections.append("\n⚡ INTERACTIVE:")
+            remaining = max_elements - element_count
+            for w in interactive[:min(15, remaining)]:
+                sections.append(format_element(w, "  "))
+                element_count += 1
+
+        # Section 4: Navigation
+        if navigation:
+            sections.append("\n🧭 NAVIGATION:")
+            remaining = max_elements - element_count
+            for w in navigation[:min(5, remaining)]:
+                sections.append(format_element(w, "  "))
+                element_count += 1
+
+        # Section 5: List Items
+        if list_items:
+            sections.append("\n📋 LIST ITEMS:")
+            remaining = max_elements - element_count
+            for w in list_items[:min(10, remaining)]:
+                sections.append(format_element(w, "  "))
+                element_count += 1
+
+        # Section 6: Static Content (labels, text)
+        if labeled_static:
+            sections.append("\n📝 CONTENT:")
+            remaining = max_elements - element_count
+            for w in labeled_static[:min(10, remaining)]:
+                sections.append(format_element(w, "  "))
+                element_count += 1
+
+        # Section 7: Others (summarized if many)
+        if other:
+            remaining = max_elements - element_count
+            if remaining > 0 and len(other) <= remaining:
+                sections.append("\n📦 OTHER:")
+                for w in other:
+                    sections.append(format_element(w, "  "))
+            elif len(other) > 0:
+                sections.append(f"\n📦 OTHER: ({len(other)} structural elements)")
+
+        # Build header with summary stats
+        actionable_count = sum(1 for w in widgets if w.get("actionable"))
+        input_count = sum(1 for w in widgets if w.get("role") == "input")
+
+        header_lines = [
+            f"UI Analysis: {len(widgets)} total elements",
+            f"  Interactive: {actionable_count} | Inputs: {input_count} | Shown: {element_count}",
+        ]
+        if scenario_desc and scenario_desc != "N/A":
+            header_lines.append(f"  Context: {scenario_desc[:60]}")
+
+        return "\n".join(header_lines + sections)
+
+    def _call_text_only_llm(
+        self,
+        compact_tree: str,
+        scenario_desc: str,
+        navigation_context: str,
+        current_step: int
+    ) -> str:
+        """Call Observer LLM with text-only compact XML tree (no image)."""
+        from langchain_core.messages import SystemMessage, HumanMessage
+
+        system_prompt = (
+            "You are an expert mobile UI analyst. Analyze the provided structured UI tree "
+            "and produce a semantic understanding of the screen.\n\n"
+            "Output format:\n"
+            "SEMANTIC_MAP:\n"
+            "[1]: Description of element 1\n"
+            "[2]: Description of element 2\n"
+            "...\n\n"
+            "SUMMARY: One-sentence summary of the screen state and purpose.\n\n"
+            "Be objective and generic. Do not reference specific task goals. "
+            "Focus on what UI elements exist and their apparent functions. "
+            "For editable input elements, describe existing content ONLY when that same input element has a non-empty label/text value. "
+            "Never infer that an empty focused input contains nearby list-item text or repeated text elsewhere on screen."
+        )
+
+        user_prompt = f"""App Context: {scenario_desc}
+Navigation Path: {navigation_context}
+Step: {current_step}
+
+{compact_tree}
+
+Provide semantic mapping of this UI."""
+
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt)
+        ]
+
+        self._log("LLM call started (text-only XML interpretation)", level=_LL.DEBUG)
+        try:
+            response = self.llm.invoke(
+                messages,
+                config={
+                    "tags": ["observer", f"step_{current_step}", "xml_fast"],
+                    "timeout": 30.0
+                }
+            )
+            return response.content
+        except Exception as e:
+            print(f"\n[!] Observer Text LLM Failed: {str(e)}")
+            self._log("LLM ERROR in XML-fast path", str(e), level=_LL.ERROR)
+            # Return minimal fallback analysis
+            return f"SEMANTIC_MAP:\n(fallback: {len(compact_tree)} chars of UI data)\n\nSUMMARY: XML-derived UI analysis failed, using raw structure."
+
     def _run_canny_pipeline(
         self,
         raw_path: str,
@@ -394,11 +620,13 @@ class ObserverAgent:
 
     def analyze(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
-        print(f"\n--- CYCLE {current_step} | [Observer] Starting Pure Vision Perception... ---")
-        self._log(f"=== CYCLE {current_step} — Vision Perception started ===")
+        mode_desc = "XML-First Hybrid" if getattr(config, "OBSERVER_MODE", "xml_first") == "xml_first" else "Pure Vision"
+        print(f"\n--- CYCLE {current_step} | [Observer] Starting {mode_desc} Perception... ---")
+        self._log(f"=== CYCLE {current_step} — {mode_desc} Perception started ===")
 
         step_dir = state.get("step_dir", "outputs")
         raw_path = os.path.join(step_dir, "raw.png")
+        xml_path = os.path.join(step_dir, "hierarchy.xml")
         ocr_path = os.path.join(step_dir, "ocr.json")
         cv_path = os.path.join(step_dir, "cv.json")
         merged_path = os.path.join(step_dir, "merged.json")
@@ -415,9 +643,6 @@ class ObserverAgent:
             navigation_context = self.memory.core.get("navigation_context") or "N/A"
         self._log("Memory retrieval complete", f"scenario_desc={scenario_desc[:80]}", level=_LL.DEBUG)
 
-        print("[Observer] Taking screenshot...")
-        self.take_screenshot.invoke({"target_path": raw_path})
-        self._log("Screenshot captured", raw_path, level=_LL.DEBUG)
         print("[Observer] Checking keyboard state via ADB...")
         kb_resp = self.check_keyboard_state.invoke({})
         try:
@@ -425,70 +650,130 @@ class ObserverAgent:
         except Exception:
             is_kb_shown = False
 
-        img = cv2.imread(raw_path)
-        image_height = img.shape[0] if img is not None else 1920
-        image_width  = img.shape[1] if img is not None else 1080
+        # ── Hybrid XML-First Pipeline ────────────────────────────────────────
+        final_widget_set = []
+        observation_source = "vision"
+        confidence_score = 1.0
+        fallback_reason = ""
 
-        # ── Vision Pipeline Selection ────────────────────────────────────────
-        # FAST_VISION_MODE=true forces Canny pipeline (~1s) instead of OmniParser (~4-5s)
-        use_omniparser = self.parse_screen_omniparser is not None and not config.FAST_VISION_MODE
+        # Check if XML mode is enabled
+        use_xml = getattr(config, "OBSERVER_MODE", "xml_first") == "xml_first"
 
-        if use_omniparser:
-            print("[Observer] Running OmniParser unified vision pipeline (YOLO + Florence-2 + OCR)...")
-            self._log("Vision pipeline: OmniParser", level=_LL.DEBUG)
-            omni_raw = self.parse_screen_omniparser.invoke({
-                "image_path": raw_path,
-                "save_path": cv_path,
-            })
-            try:
-                omni_elements = json.loads(omni_raw)
-                if isinstance(omni_elements, dict) and "error" in omni_elements:
-                    raise ValueError(omni_elements["error"])
-            except Exception as exc:
-                print(f"[Observer] OmniParser failed ({exc}), falling back to Canny pipeline.")
-                self._log("OmniParser FAILED — falling back to Canny+OCR", str(exc), level=_LL.WARN)
-                omni_elements = None
+        if use_xml:
+            print("[Observer] Dumping UI hierarchy XML via ADB...")
+            xml_data = self.dump_hierarchy.invoke({"save_path": xml_path})
+            if xml_data and not xml_data.startswith("<error>"):
+                from core.utils.xml_processor import XMLProcessor
+                # ADB uiautomator coordinates calibrate sizes
+                # We retrieve current screen dimensions (usually standard)
+                processor = XMLProcessor(screen_width=1080, screen_height=2400)
+                xml_elements = processor.parse_hierarchy(xml_data)
 
-            if omni_elements is not None:
-                # Post-process: remove card-container backgrounds and merge split text.
-                before_count = len(omni_elements)
-                omni_elements = self._filter_omniparser_widgets(omni_elements, image_width, image_height)
-                after_count = len(omni_elements)
-                if before_count != after_count:
-                    print(f"[Observer] OmniParser post-filter: {before_count} → {after_count} elements")
+                score, reason = processor.evaluate_confidence(xml_elements, xml_data)
+                confidence_score = score
 
-                grouped = self._group_keyboard_elements(omni_elements, image_height, is_kb_shown)
-                final_widget_set = []
-                for idx, el in enumerate(grouped, start=1):
-                    el["id"] = idx
-                    el["class"] = "Interactive" if el["type"] == "container" else "StaticText"
-                    el["resource_id"] = "none"
-                    final_widget_set.append(el)
-                self._log(
-                    "OmniParser pipeline complete",
-                    f"widgets={len(final_widget_set)}  keyboard={'shown' if is_kb_shown else 'hidden'}",
-                    level=_LL.DEBUG
-                )
+                if score >= 0.5:
+                    print(f"[Observer] XML hierarchy parsed successfully. Confidence: {score:.2f}. Found {len(xml_elements)} elements.")
+                    final_widget_set = xml_elements
+                    observation_source = "xml"
+                else:
+                    print(f"[Observer] Low XML confidence ({score:.2f}): {reason}. Triggering Vision Fallback...")
+                    fallback_reason = reason
+                    observation_source = "hybrid"
             else:
-                # Fallback triggered inside the OmniParser branch
+                print("[Observer] Failed to dump XML hierarchy. Triggering Vision Fallback...")
+                fallback_reason = "XML dump failure"
+                observation_source = "hybrid"
+
+        # Vision Path (primary if not use_xml, or fallback if XML confidence is low)
+        if not final_widget_set or observation_source == "hybrid":
+            print("[Observer] Taking screenshot for vision pipeline...")
+            self.take_screenshot.invoke({"target_path": raw_path})
+            self._log("Screenshot captured", raw_path, level=_LL.DEBUG)
+
+            img = cv2.imread(raw_path)
+            image_height = img.shape[0] if img is not None else 1920
+            image_width  = img.shape[1] if img is not None else 1080
+
+            # ── Vision Pipeline Selection ────────────────────────────────────────
+            use_omniparser = self.parse_screen_omniparser is not None and not config.FAST_VISION_MODE
+
+            if use_omniparser:
+                print("[Observer] Running OmniParser unified vision pipeline (YOLO + Florence-2 + OCR)...")
+                self._log("Vision pipeline: OmniParser", level=_LL.DEBUG)
+                omni_raw = self.parse_screen_omniparser.invoke({
+                    "image_path": raw_path,
+                    "save_path": cv_path,
+                })
+                try:
+                    omni_elements = json.loads(omni_raw)
+                    if isinstance(omni_elements, dict) and "error" in omni_elements:
+                        raise ValueError(omni_elements["error"])
+                except Exception as exc:
+                    print(f"[Observer] OmniParser failed ({exc}), falling back to Canny pipeline.")
+                    self._log("OmniParser FAILED — falling back to Canny+OCR", str(exc), level=_LL.WARN)
+                    omni_elements = None
+
+                if omni_elements is not None:
+                    # Post-process: remove card-container backgrounds and merge split text.
+                    before_count = len(omni_elements)
+                    omni_elements = self._filter_omniparser_widgets(omni_elements, image_width, image_height)
+                    after_count = len(omni_elements)
+                    if before_count != after_count:
+                        print(f"[Observer] OmniParser post-filter: {before_count} → {after_count} elements")
+
+                    grouped = self._group_keyboard_elements(omni_elements, image_height, is_kb_shown)
+                    vision_widgets = []
+                    for idx, el in enumerate(grouped, start=1):
+                        el["id"] = idx
+                        el["class"] = "Interactive" if el["type"] == "container" else "StaticText"
+                        el["resource_id"] = "none"
+                        vision_widgets.append(el)
+
+                    self._log(
+                        "OmniParser pipeline complete",
+                        f"widgets={len(vision_widgets)}  keyboard={'shown' if is_kb_shown else 'hidden'}",
+                        level=_LL.DEBUG
+                    )
+
+                    # If we had partial XML elements, we can merge or fully fallback.
+                    # Simple thesis fallback: fully use vision widgets, but tag them.
+                    final_widget_set = vision_widgets
+                else:
+                    final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
+            else:
+                # ── Canny + EasyOCR pipeline (fast mode or OmniParser unavailable) ──
+                if config.FAST_VISION_MODE:
+                    print("[Observer] FAST_VISION_MODE enabled — using Canny+OCR pipeline")
+                print("[Observer] Running Canny+OCR vision pipeline...")
                 final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
-        else:
-            # ── Canny + EasyOCR pipeline (fast mode or OmniParser unavailable) ──
-            if config.FAST_VISION_MODE:
-                print("[Observer] FAST_VISION_MODE enabled — using Canny+OCR pipeline")
-            print("[Observer] Running Canny+OCR vision pipeline...")
-            final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
+
+        # For XML-first path, we must ensure we have a screenshot for Reflector and visual validation
+        if observation_source == "xml" and not os.path.exists(raw_path):
+            self.take_screenshot.invoke({"target_path": raw_path})
 
         with open(merged_path, "w", encoding="utf-8") as f:
             json.dump(final_widget_set, f, indent=4, ensure_ascii=False)
 
-        print("[Observer] Annotating screenshot...")
-        self.annotate_screenshot.invoke({
-            "image_path": raw_path,
-            "elements": final_widget_set,
-            "save_path": annotated_path
-        })
-        self._log("Annotated screenshot saved", annotated_path, level=_LL.DEBUG)
+        # ── Determine if we can use XML-fast path ─────────────────────────────
+        # XML-fast path: skip annotation and multimodal LLM when XML confidence is high
+        xml_fast_path = (
+            observation_source == "xml"
+            and confidence_score >= 0.9
+            and len(final_widget_set) > 0
+        )
+
+        if xml_fast_path:
+            print(f"[Observer] XML-FAST: High confidence ({confidence_score:.2f}), skipping annotation")
+            self._log(f"XML-FAST path: {len(final_widget_set)} elements from XML")
+        else:
+            print("[Observer] Annotating screenshot...")
+            self.annotate_screenshot.invoke({
+                "image_path": raw_path,
+                "elements": final_widget_set,
+                "save_path": annotated_path
+            })
+            self._log("Annotated screenshot saved", annotated_path, level=_LL.DEBUG)
 
         # ── UI Summary (computed early — used as cache key before LLM call) ────
         filtered_widgets = final_widget_set[:50]
@@ -515,7 +800,28 @@ class ObserverAgent:
             new_stagnation_count = state.get("stagnation_count", 0) + 1
             print(f"[Observer] [CACHE HIT] UI unchanged — reusing previous analysis (LLM skipped)")
             self._log(f"LLM SKIPPED — UI summary identical to previous step (stagnation={new_stagnation_count})")
+        elif xml_fast_path:
+            # ── XML-FAST PATH: Text-only LLM with compact tree ────────────────────
+            print("[Observer] Calling text-only LLM for XML semantic interpretation...")
+            compact_tree = self._generate_compact_xml_tree(
+                final_widget_set,
+                scenario_desc,
+                navigation_context
+            )
+            raw_res = self._call_text_only_llm(
+                compact_tree,
+                scenario_desc,
+                navigation_context,
+                current_step
+            )
+            with open(analysis_path, "w", encoding="utf-8") as f:
+                f.write(raw_res)
+            self._log("LLM analysis complete (XML-fast)", raw_res[:500] + ("..." if len(raw_res) > 500 else ""))
+            new_stagnation_count = self._detect_stagnation(
+                ui_summary_text, current_step, state.get("stagnation_count", 0)
+            )
         else:
+            # ── VISION PATH: Multimodal LLM with annotated image ──────────────────
             print("[Observer] Calling multimodal LLM for semantic interpretation...")
             img_b64 = self._encode_image(annotated_path, max_height=480)
 
@@ -625,4 +931,7 @@ class ObserverAgent:
             "stagnation_count": new_stagnation_count,
             "memory_context": memory_context,
             "sender": "observer",
+            "observation_source": observation_source,
+            "confidence_score": confidence_score,
+            "fallback_reason": fallback_reason,
         }

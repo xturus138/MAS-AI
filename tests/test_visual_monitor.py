@@ -57,3 +57,68 @@ def test_monitor_start_scrcpy_not_found():
     with patch("subprocess.Popen", side_effect=FileNotFoundError):
         m.start()
     assert m._overlay is None
+
+
+def test_filter_overlay_boxes_drops_large_xml_structural_containers():
+    """Large non-actionable XML wrappers must not flood the monitor overlay."""
+    from visual.monitor import VisualMonitor
+
+    m = VisualMonitor(device_w=720, device_h=1600)
+    widgets = [
+        {
+            "bounds": [0, 0, 720, 1600],
+            "source": "xml",
+            "actionable": False,
+            "role": "view",
+            "class": "android.widget.FrameLayout",
+            "label": "action_bar_overlay_layout",
+        },
+        {
+            "bounds": [0, 97, 720, 1600],
+            "source": "xml",
+            "actionable": False,
+            "role": "view",
+            "class": "android.widget.FrameLayout",
+            "label": "nested_header_layout",
+        },
+        {
+            "bounds": [70, 421, 650, 499],
+            "source": "xml",
+            "actionable": False,
+            "role": "text",
+            "class": "android.widget.TextView",
+            "label": "Rencana Skripsi 2026",
+        },
+        {
+            "bounds": [548, 1310, 655, 1417],
+            "source": "xml",
+            "actionable": True,
+            "role": "icon_button",
+            "class": "android.widget.ImageView",
+            "label": "Ketuk untuk buat catatan",
+        },
+    ]
+
+    assert m._filter_overlay_boxes(widgets) == [
+        [70, 421, 650, 499],
+        [548, 1310, 655, 1417],
+    ]
+
+
+def test_filter_overlay_boxes_keeps_actionable_large_xml_targets():
+    """Do not hide real large actionable targets from monitor display."""
+    from visual.monitor import VisualMonitor
+
+    m = VisualMonitor(device_w=720, device_h=1600)
+    widgets = [
+        {
+            "bounds": [0, 0, 720, 269],
+            "source": "xml",
+            "actionable": True,
+            "role": "button",
+            "class": "android.widget.FrameLayout",
+            "label": "action_bar_container",
+        }
+    ]
+
+    assert m._filter_overlay_boxes(widgets) == [[0, 0, 720, 269]]
