@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import time
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -238,19 +239,42 @@ class DeciderAgent:
                 )
         return plan
 
+    @staticmethod
+    def _is_rate_limit_error(error: Exception) -> bool:
+        err_str = str(error)
+        return "429" in err_str or "rate" in err_str.lower() or "too many requests" in err_str.lower()
+
     def _invoke_with_recovery(self, messages, current_step: int) -> ActionPlan:
-        """Invoke structured LLM with automatic JSON extraction retry."""
+        """Invoke structured LLM with automatic JSON extraction retry.
+
+        Rate-limit (429) errors are retried with exponential backoff.
+        """
         last_error = None
+        rate_limit_backoff = 1.0
 
         for attempt in range(2):
             try:
-                return self.llm.invoke(
+                result = self.llm.invoke(
                     messages,
                     config={"tags": ["decider", f"step_{current_step}"]}
                 )
+                if result is not None:
+                    return result
+                print(f"[Decider] Structured LLM returned None, attempting recovery...")
             except Exception as e:
-                error_str = str(e)
                 last_error = e
+
+                # Rate-limit: retry with exponential backoff
+                if self._is_rate_limit_error(e):
+                    if attempt < 1:
+                        print(f"[Decider] Rate limited (429), retrying in {rate_limit_backoff:.1f}s...")
+                        time.sleep(rate_limit_backoff)
+                        rate_limit_backoff = min(rate_limit_backoff * 2, 16.0)
+                        continue
+                    print(f"[Decider] Rate limited after retries: {e}")
+                    break
+
+                error_str = str(e)
 
                 # Check if this is a JSON parsing error
                 if "json_invalid" not in error_str and "Invalid JSON" not in error_str:
@@ -260,22 +284,18 @@ class DeciderAgent:
                 if attempt == 0:
                     try:
                         print(f"[Decider] Attempting JSON recovery...")
-                        # Call base LLM without structured output
                         raw_response = self.base_llm.invoke(messages)
                         raw_text = raw_response.content if hasattr(raw_response, 'content') else str(raw_response)
 
-                        # Try to extract JSON
                         extracted = self._extract_json_from_llm_output(raw_text)
                         if extracted:
                             data = json.loads(extracted)
-                            # Handle alternative field names
                             reasoning = (
                                 data.get("reasoning") or
                                 data.get("thinking") or
                                 data.get("analysis") or
                                 "Auto-recovered JSON"
                             )
-                            # Manually construct ActionPlan
                             return ActionPlan(
                                 reasoning=reasoning,
                                 action_type=data.get("action_type", "none"),
@@ -299,7 +319,7 @@ class DeciderAgent:
             text_payload="",
             scroll_direction="",
             app_package="",
-            is_completed=True  # Mark as completed to avoid infinite retries
+            is_completed=True
         )
 
     def decide(self, state: AgentState) -> Command:
@@ -335,6 +355,17 @@ class DeciderAgent:
         print(f"[Decider] Mapping Instruction: '{current_sub_step}'...")
         self._log("LLM call started (ActionPlan generation)", level=_LL.DEBUG)
         plan = self._invoke_with_recovery(messages, current_step)
+        if plan is None:
+            plan = ActionPlan(
+                reasoning="Decider LLM returned None — fallback",
+                action_type="none",
+                intent="Fallback",
+                target_id=-1,
+                text_payload="",
+                scroll_direction="",
+                app_package="",
+                is_completed=True,
+            )
         widgets = state.get("widgets", [])
         for guard_name, guard_fn in (
             ("Input-step guard", self._guard_input_plan),

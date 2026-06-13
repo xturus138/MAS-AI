@@ -3,7 +3,7 @@ import json
 import re
 from typing import Optional, TYPE_CHECKING, Any
 from pydantic import BaseModel, Field
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from core.models.state import AgentState
 from shared.prompts.predefined_orchestrator_prompts import (
     FIGMA_FLOW_SYSTEM_PROMPT,
@@ -155,7 +155,11 @@ class PredefinedOrchestrator:
 
         for attempt in range(max_retries):
             try:
-                return structured_llm.invoke(messages)
+                result = structured_llm.invoke(messages)
+                if result is not None:
+                    return result
+                print(f"[Orchestrator] Structured LLM returned None, attempting recovery...")
+                last_error = Exception("Structured LLM returned None")
             except Exception as e:
                 error_str = str(e)
                 last_error = e
@@ -225,7 +229,7 @@ class PredefinedOrchestrator:
 
                 # Modify prompt for retry - ask for cleaner output
                 if attempt < max_retries - 1:
-                    messages.append(SystemMessage(content=
+                    messages.append(AIMessage(content=
                         "IMPORTANT: Return ONLY a valid JSON object with ALL required fields. No XML tags. No extra text."
                     ))
 
@@ -269,7 +273,7 @@ class PredefinedOrchestrator:
             if role == "human":
                 messages.append(HumanMessage(content=content))
             else:
-                messages.append(SystemMessage(content=content))
+                messages.append(AIMessage(content=content))
         messages.append(HumanMessage(content=human_content))
 
         print(f"[Predefined] Planning Figma flow for '{menu_name}'...")
@@ -323,12 +327,15 @@ class PredefinedOrchestrator:
             if role == "human":
                 messages.append(HumanMessage(content=content))
             else:
-                messages.append(SystemMessage(content=content))
+                messages.append(AIMessage(content=content))
         messages.append(HumanMessage(content=human_content))
 
         print(f"[Predefined] Computing navigation bridge to '{next_screen_name}'...")
         try:
             result = self._bridge_llm.invoke(messages)
+            if result is None:
+                print("[Predefined] Bridge LLM returned None")
+                return []
             print(f"[Predefined] Bridge plan: {result.bridge_steps}")
             return result.bridge_steps
         except Exception as e:

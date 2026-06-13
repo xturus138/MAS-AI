@@ -92,14 +92,23 @@ Metrics I track:
 ```
 MAS AI/
 ├── agents/              # The five agent implementations
-├── core/                # Workflow runners and orchestration
-├── memory/              # MIRIX memory system stores
-├── shared/prompts/      # Optimized LLM prompts (few-shot, CoT, etc.)
-├── adapters/            # Device (ADB), LLM, Figma, OmniParser
-├── tools/               # Screenshot, OCR, element detection
+├── core/                # Models, ports, workflow runners, utilities
+│   ├── models/          # AgentState (LangGraph TypedDict)
+│   ├── ports/           # Abstract interfaces (ILLMClient, IDeviceClient)
+│   ├── workflow/        # Predefined + autonomous graph definitions
+│   └── utils/           # LLM factory, pricing, output manager, process logger, etc.
+├── memory/              # MIRIX memory system (6 stores)
+│   └── retrieval/       # Active retrieval across Episodic + Semantic stores
+├── shared/              # Config + optimized LLM prompts
+├── adapters/            # Device (ADB), LLM (LangChain), Figma
+├── tools/               # Executor tools (ADB), observer tools (screenshot/OCR)
 ├── visual/              # PyQt5 real-time monitoring overlay
+├── analysis/            # Run comparison tools
+├── scripts/             # Maintenance (cleanup outputs, etc.)
+├── tests/               # Standalone integration scripts (not pytest)
 ├── scenario.xlsx        # Test scenarios and steps
 ├── main.py              # Entry point
+├── PROVIDER_SWITCH.md   # LLM provider quick-switch cheat sheet
 └── outputs/             # Test results and artifacts
 ```
 

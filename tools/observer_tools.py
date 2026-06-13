@@ -5,8 +5,6 @@ import numpy as np
 import easyocr
 from langchain_core.tools import tool
 from core.ports.device_port import IDeviceClient
-from shared import config
-from adapters.omniparser.omniparser_backend import OmniParserBackend
 
 
 class ObserverTools:
@@ -14,17 +12,9 @@ class ObserverTools:
         self.d = device_session
         self.ocr_model = easyocr.Reader(['en'], gpu=True)
 
-        self.omniparser = OmniParserBackend(
-            weights_dir=config.OMNIPARSER_WEIGHTS_DIR,
-            project_dir=config.OMNIPARSER_PROJECT_DIR,
-            box_threshold=config.OMNIPARSER_BOX_THRESHOLD,
-            enabled=config.OMNIPARSER_ENABLED,
-        )
-
     def get_tools(self):
         d = self.d
         ocr_model = self.ocr_model
-        omniparser = self.omniparser
 
         @tool
         def take_screenshot(target_path: str) -> str:
@@ -202,27 +192,5 @@ class ObserverTools:
                 return f"<error>{str(e)}</error>"
 
         base_tools = [take_screenshot, ocr_extract_text, detect_visual_elements, annotate_screenshot, check_keyboard_state, dump_hierarchy]
-
-        if omniparser.is_available:
-            @tool
-            def parse_screen_omniparser(image_path: str, save_path: str = "") -> str:
-                """
-                OmniParser unified vision pipeline: YOLO widget detection + Florence-2 icon
-                captioning + EasyOCR, all fused into a single structured element list.
-                Returns JSON list of widgets with bounds (pixels), text, and type.
-                When save_path is given, result is also written to disk as JSON.
-                """
-                try:
-                    widgets = omniparser.parse_screen(image_path)
-                except Exception as exc:
-                    return json.dumps({"error": str(exc)})
-
-                json_data = json.dumps(widgets, ensure_ascii=False)
-                if save_path:
-                    with open(save_path, "w", encoding="utf-8") as fh:
-                        fh.write(json_data)
-                return json_data
-
-            return base_tools + [parse_screen_omniparser]
 
         return base_tools

@@ -25,7 +25,7 @@ class ExecutorAgent:
         """Find a widget by keyword match when target_id lookup fails.
 
         Extracts tokens (>3 chars) from intent + text_payload, then scores
-        each widget by how many keywords appear in its text field.
+        each widget by how many keywords appear in its text or xml_label field.
         Returns the highest-scoring widget, or None if no match.
         """
         raw = (plan.get("intent") or "") + " " + (plan.get("text_payload") or "")
@@ -37,9 +37,11 @@ class ExecutorAgent:
         best_score = 0
         for widget in widgets:
             widget_text = (widget.get("text") or "").lower()
-            if not widget_text:
+            widget_xml_label = (widget.get("xml_label") or "").lower()
+            combined = f"{widget_text} {widget_xml_label}".strip()
+            if not combined:
                 continue
-            score = sum(1 for kw in keywords if kw in widget_text)
+            score = sum(1 for kw in keywords if kw in combined)
             if score > best_score:
                 best_score = score
                 best = widget

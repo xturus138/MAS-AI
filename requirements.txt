@@ -2,6 +2,7 @@ uiautomator2
 pydantic
 langchain
 langchain-openai
+langchain-anthropic
 langchain-core
 langgraph
 easyocr

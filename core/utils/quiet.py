@@ -6,7 +6,7 @@ environment variables take effect before torch / transformers / ultralytics load
 It does two things:
   1. Sets env vars + logging levels that quiet YOLO, transformers and torch.
   2. Wraps sys.stdout to drop a handful of raw ``print()`` lines that the
-     OmniParser / ultralytics backend emits every cycle (image size,
+     Canny / EasyOCR / vision pipeline emits every cycle (image size,
      filtered_boxes, YOLO speed, etc.) — lines we cannot silence any other way.
 
 Everything else (agent narrative, cost trackers) passes through untouched.

@@ -1,21 +1,20 @@
 import sys
 import os
+import json
 import unittest
 from unittest.mock import MagicMock
 
 sys.path.append(".")
 
-# Mock config
 from shared import config
 config.OBSERVER_MODE = "xml_first"
-config.FAST_VISION_MODE = True
 
 from core.models.state import AgentState
 from agents.observer_agent import ObserverAgent
 
-class TestObserverAgentXML(unittest.TestCase):
+
+class TestObserverAgentVisionXMLRefine(unittest.TestCase):
     def setUp(self):
-        # Tools: [take_screenshot, ocr_extract_text, detect_visual_elements, annotate_screenshot, check_keyboard_state, dump_hierarchy]
         self.take_screenshot = MagicMock()
         self.ocr_extract_text = MagicMock()
         self.detect_visual_elements = MagicMock()
@@ -44,11 +43,11 @@ class TestObserverAgentXML(unittest.TestCase):
             self.detect_visual_elements,
             self.annotate_screenshot,
             self.check_keyboard_state,
-            self.dump_hierarchy
+            self.dump_hierarchy,
         ]
 
         self.llm = MagicMock()
-        self.llm.invoke.return_value = MagicMock(content="Mocked LLM Analysis")
+        self.llm.invoke.return_value = MagicMock(content="SEMANTIC_MAP:\n[1]: Button - Submit\nSUMMARY: A screen with a submit button.")
 
         self.memory = MagicMock()
         self.memory.retrieve.return_value = "Mocked Memory Context"
@@ -59,85 +58,129 @@ class TestObserverAgentXML(unittest.TestCase):
 
         self.agent = ObserverAgent(self.llm, self.tools, memory=self.memory, logger=self.logger)
 
-    def test_xml_first_path(self):
-        # Create temp dir for outputs
-        step_dir = "test_step_dir"
-        os.makedirs(step_dir, exist_ok=True)
+    def _make_step_dir(self, name: str) -> str:
+        import cv2, numpy as np
+        os.makedirs(name, exist_ok=True)
+        blank = np.zeros((2400, 1080, 3), np.uint8)
+        cv2.imwrite(os.path.join(name, "raw.png"), blank)
+        return name
 
-        state: AgentState = {
-            "current_step": 1,
-            "step_dir": step_dir,
-            "observer_analysis": "",
-            "widgets": []
-        }
+    def _clean_step_dir(self, name: str):
+        import shutil
+        if os.path.exists(name):
+            shutil.rmtree(name)
 
-        # We need mock raw.png to satisfy OpenCV imread in annotation
-        import cv2
-        import numpy as np
-        blank_image = np.zeros((2400, 1080, 3), np.uint8)
-        cv2.imwrite(os.path.join(step_dir, "raw.png"), blank_image)
+    # ── Tests ─────────────────────────────────────────────────────────────
+
+    def test_vision_xml_refinement_appends_missed_actionable(self):
+        """Vision finds nothing, XML has actionable button → appended as widget."""
+        step_dir = self._make_step_dir("test_refine_append")
+        state: AgentState = {"current_step": 1, "step_dir": step_dir, "observer_analysis": "", "widgets": []}
 
         result = self.agent.analyze(state)
 
-        # Assertions
-        self.assertEqual(result["observation_source"], "xml")
+        self.assertIn("xml_refined", result["observation_source"])
+        self.assertTrue(len(result["widgets"]) > 0)
+        # Widget came from XML appended (since vision found nothing)
+        self.assertEqual(result["widgets"][0]["source"], "xml")
+        self.assertEqual(result["widgets"][0]["xml_label"], "Submit")
+
+        # All tools called
+        self.take_screenshot.invoke.assert_called_once()
+        self.ocr_extract_text.invoke.assert_called_once()
+        self.detect_visual_elements.invoke.assert_called_once()
+        self.dump_hierarchy.invoke.assert_called_once()
+        self.annotate_screenshot.invoke.assert_called_once()
+
+        self._clean_step_dir(step_dir)
+
+    def test_vision_only_when_xml_fails(self):
+        """XML dump fails → vision-only output, no refinement."""
+        self.dump_hierarchy.invoke.return_value = "<error>no device</error>"
+        self.ocr_extract_text.invoke.return_value = json.dumps([
+            {"text": "Cancel", "bounds": [50, 200, 200, 260], "confidence": 0.9}
+        ])
+        self.detect_visual_elements.invoke.return_value = json.dumps([
+            {"bounds": [40, 190, 210, 270]}
+        ])
+
+        step_dir = self._make_step_dir("test_xml_fail")
+        state: AgentState = {"current_step": 1, "step_dir": step_dir, "observer_analysis": "", "widgets": []}
+
+        result = self.agent.analyze(state)
+
+        self.assertEqual(result["observation_source"], "vision")
         self.assertEqual(result["confidence_score"], 1.0)
         self.assertTrue(len(result["widgets"]) > 0)
-        self.assertEqual(result["widgets"][0]["label"], "Submit")
-        self.assertEqual(result["widgets"][0]["role"], "button")
 
-        # Verify dump_hierarchy tool called
-        self.dump_hierarchy.invoke.assert_called_once()
+        # Vision tools called
+        self.take_screenshot.invoke.assert_called_once()
+        self.ocr_extract_text.invoke.assert_called_once()
+        self.detect_visual_elements.invoke.assert_called_once()
+        self.annotate_screenshot.invoke.assert_called_once()
 
-        # Clean up
-        import shutil
-        shutil.rmtree(step_dir)
+        self._clean_step_dir(step_dir)
 
-    def test_xml_fallback_to_vision(self):
-        # Test low confidence triggers fallback
-        # Valid XML syntax but empty node list -> confidence 0.0, "No valid elements parsed after filtering"
-        self.dump_hierarchy.invoke.return_value = """<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+    def test_xml_refines_vision_bounds(self):
+        """Vision has approximate coords, XML has precise → bounds replaced."""
+        self.ocr_extract_text.invoke.return_value = json.dumps([
+            {"text": "Submit", "bounds": [90, 190, 310, 310], "confidence": 0.9}
+        ])
+        self.detect_visual_elements.invoke.return_value = json.dumps([
+            {"bounds": [85, 185, 315, 315]}
+        ])
+
+        step_dir = self._make_step_dir("test_bounds_refine")
+        state: AgentState = {"current_step": 1, "step_dir": step_dir, "observer_analysis": "", "widgets": []}
+
+        result = self.agent.analyze(state)
+
+        # XML-refined: bounds should be the precise XML coords
+        self.assertIn("xml_refined", result["observation_source"])
+        self.assertEqual(len(result["widgets"]), 1)
+        self.assertEqual(result["widgets"][0]["source"], "xml")
+        self.assertEqual(result["widgets"][0]["bounds"], [100, 200, 300, 300])
+
+        self._clean_step_dir(step_dir)
+
+    def test_xml_adds_missed_actionable(self):
+        """Vision detects one element, XML has extra actionable → appended."""
+        self.ocr_extract_text.invoke.return_value = json.dumps([
+            {"text": "Search", "bounds": [50, 100, 400, 150], "confidence": 0.9}
+        ])
+        self.detect_visual_elements.invoke.return_value = json.dumps([
+            {"bounds": [40, 95, 410, 155]}
+        ])
+        # XML has Search field + extra Login button vision missed
+        self.dump_hierarchy.invoke.return_value = """<?xml version='1.0' encoding='UTF-8'?>
         <hierarchy rotation="0">
-            <node index="0" bounds="[0,0][1080,2400]">
-                <!-- Empty or unparsable contents -->
+            <node bounds="[0,0][1080,2400]">
+                <node index="0" text="Search" class="android.widget.EditText" bounds="[50,100][400,150]" clickable="true" focusable="true" />
+                <node index="1" text="Login" class="android.widget.Button" bounds="[500,600][700,700]" clickable="true" />
             </node>
         </hierarchy>
         """
 
-        step_dir = "test_step_dir_fallback"
-        os.makedirs(step_dir, exist_ok=True)
-
-        # Mock OCR output
-        self.ocr_extract_text.invoke.return_value = '[{"text": "Submit Button", "bounds": [100, 200, 300, 300], "confidence": 0.9}]'
-        self.detect_visual_elements.invoke.return_value = '[{"bounds": [100, 200, 300, 300]}]'
-
-        state: AgentState = {
-            "current_step": 1,
-            "step_dir": step_dir,
-            "observer_analysis": "",
-            "widgets": []
-        }
-
-        import cv2
-        import numpy as np
-        blank_image = np.zeros((2400, 1080, 3), np.uint8)
-        cv2.imwrite(os.path.join(step_dir, "raw.png"), blank_image)
+        step_dir = self._make_step_dir("test_extra_actionable")
+        state: AgentState = {"current_step": 1, "step_dir": step_dir, "observer_analysis": "", "widgets": []}
 
         result = self.agent.analyze(state)
 
-        # Assertions
-        self.assertEqual(result["observation_source"], "hybrid")
-        self.assertTrue(result["confidence_score"] < 0.5)
-        self.assertEqual(result["fallback_reason"], "No valid elements parsed after filtering")
-        self.assertTrue(len(result["widgets"]) > 0)
+        self.assertIn("xml_refined", result["observation_source"])
+        # Should have 2 widgets: Search (matched+refined) + Login (appended from XML)
+        self.assertEqual(len(result["widgets"]), 2)
 
-        # Verify vision tools called
-        self.take_screenshot.invoke.assert_called()
-        self.ocr_extract_text.invoke.assert_called_once()
-        self.detect_visual_elements.invoke.assert_called_once()
+        # First: Search field — XML-refined
+        self.assertEqual(result["widgets"][0]["source"], "xml")
+        self.assertEqual(result["widgets"][0]["bounds"], [50, 100, 400, 150])
 
-        import shutil
-        shutil.rmtree(step_dir)
+        # Second: Login button — XML-appended (vision missed it)
+        self.assertEqual(result["widgets"][1]["source"], "xml")
+        self.assertEqual(result["widgets"][1]["xml_label"], "Login")
+        self.assertEqual(result["widgets"][1]["bounds"], [500, 600, 700, 700])
+
+        self._clean_step_dir(step_dir)
+
 
 if __name__ == "__main__":
     unittest.main()

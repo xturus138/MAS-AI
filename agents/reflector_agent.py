@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import time
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from pydantic import BaseModel, Field
@@ -131,10 +132,20 @@ class ReflectorAgent:
                 content.append({"type": "image_url", "image_url": {"url": f"data:image/webp;base64,{b64}"}})
                 content.append({"type": "text", "text": "[Image above: post-action screenshot to check for loading state]"})
         messages = [SystemMessage(content=system_prompt), HumanMessage(content=content)]
-        try:
-            return self._llm_loading.invoke(messages)
-        except Exception as e:
-            return LoadingCheckResult(loading_done=True, reasoning=f"Loading check error (assuming loaded): {e}")
+        backoff = 1.0
+        for attempt in range(4):
+            try:
+                result = self._llm_loading.invoke(messages)
+                if result is not None:
+                    return result
+                return LoadingCheckResult(loading_done=True, reasoning="Loading check returned None (assuming loaded)")
+            except Exception as e:
+                if self._is_rate_limit_error(e) and attempt < 3:
+                    print(f"[Reflector] Loading check rate limited, retrying in {backoff:.1f}s...")
+                    time.sleep(backoff)
+                    backoff = min(backoff * 2, 16.0)
+                    continue
+                return LoadingCheckResult(loading_done=True, reasoning=f"Loading check error (assuming loaded): {e}")
 
     # ── Call 2 ────────────────────────────────────────────────────────────────
 
@@ -196,10 +207,20 @@ class ReflectorAgent:
                     content.append({"type": "image_url", "image_url": {"url": f"data:image/webp;base64,{b64}"}})
                     content.append({"type": "text", "text": f"[Image above: {label} screenshot]"})
         messages = [SystemMessage(content=system_prompt), HumanMessage(content=content)]
-        try:
-            return self._llm_change.invoke(messages)
-        except Exception as e:
-            return UIChangeCheckResult(ui_changed=True, reasoning=f"UI change check error (assuming changed): {e}")
+        backoff = 1.0
+        for attempt in range(4):
+            try:
+                result = self._llm_change.invoke(messages)
+                if result is not None:
+                    return result
+                return UIChangeCheckResult(ui_changed=True, reasoning="UI change check returned None (assuming changed)")
+            except Exception as e:
+                if self._is_rate_limit_error(e) and attempt < 3:
+                    print(f"[Reflector] UI change check rate limited, retrying in {backoff:.1f}s...")
+                    time.sleep(backoff)
+                    backoff = min(backoff * 2, 16.0)
+                    continue
+                return UIChangeCheckResult(ui_changed=True, reasoning=f"UI change check error (assuming changed): {e}")
 
     def _extract_json_from_llm_output(self, raw_output: str) -> Optional[str]:
         """Safely extract JSON from LLM output that may contain XML tags or extra text.
@@ -291,6 +312,12 @@ class ReflectorAgent:
 
         return None
 
+    @staticmethod
+    def _is_rate_limit_error(error: Exception) -> bool:
+        """Check if an exception is a 429 rate-limit error."""
+        err_str = str(error)
+        return "429" in err_str or "rate" in err_str.lower() or "too many requests" in err_str.lower()
+
     def _invoke_with_json_recovery(
         self,
         messages,
@@ -300,16 +327,30 @@ class ReflectorAgent:
 
         If the LLM returns malformed JSON (e.g., with XML tags), attempt to
         extract the JSON and retry parsing before giving up.
+        Rate-limit (429) errors are retried with exponential backoff separately.
         """
         last_error = None
+        rate_limit_backoff = 1.0
 
         for attempt in range(max_retries):
             try:
-                # Try normal structured output
-                return self._llm_validity.invoke(messages)
+                result = self._llm_validity.invoke(messages)
+                if result is not None:
+                    return result
+                print(f"[Reflector] Structured LLM returned None, attempting recovery...")
             except Exception as e:
-                error_str = str(e)
                 last_error = e
+
+                # Rate-limit: retry with exponential backoff
+                if self._is_rate_limit_error(e):
+                    if attempt < max_retries - 1:
+                        print(f"[Reflector] Rate limited (429), retrying in {rate_limit_backoff:.1f}s (attempt {attempt + 1})...")
+                        time.sleep(rate_limit_backoff)
+                        rate_limit_backoff = min(rate_limit_backoff * 2, 16.0)
+                        continue
+                    break
+
+                error_str = str(e)
 
                 # Check if this is a JSON parsing error
                 if "json_invalid" not in error_str and "Invalid JSON" not in error_str:
@@ -317,21 +358,16 @@ class ReflectorAgent:
                     break
 
                 # Try to get raw output for recovery
-                # We need to call the base LLM without structured output
                 if attempt < max_retries - 1:
                     try:
                         print(f"[Reflector] Attempting JSON recovery (attempt {attempt + 1})...")
-                        # Call base LLM to get raw text
                         raw_response = self.base_llm.invoke(messages)
                         raw_text = raw_response.content if hasattr(raw_response, 'content') else str(raw_response)
 
-                        # Try to extract JSON
                         extracted = self._extract_json_from_llm_output(raw_text)
                         if extracted:
-                            # Parse manually and create result
                             data = json.loads(extracted)
 
-                            # Handle alternative field names
                             reasoning = (
                                 data.get("reasoning") or
                                 data.get("thinking") or
@@ -346,14 +382,12 @@ class ReflectorAgent:
                                 figma_discrepancies=data.get("figma_discrepancies", "")
                             )
                     except Exception as inner_e:
-                        # Recovery failed, will retry or fail
                         print(f"[Reflector] JSON recovery attempt {attempt + 1} failed: {inner_e}")
 
-                # Modify prompt for retry - ask for cleaner output
+                # Modify prompt for retry
                 if attempt < max_retries - 1:
-                    # Add reminder to output format
-                    from langchain_core.messages import SystemMessage
-                    reminder = SystemMessage(content=
+                    from langchain_core.messages import AIMessage
+                    reminder = AIMessage(content=
                         "IMPORTANT: Return ONLY a valid JSON object. No XML tags. No extra text."
                     )
                     messages = messages + [reminder]

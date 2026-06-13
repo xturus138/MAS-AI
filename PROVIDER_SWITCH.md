@@ -98,6 +98,25 @@ ORCHESTRATOR_MODEL=qwen-max
 
 ---
 
+## BlueSminds AI (https://bluesminds.com)
+
+```bash
+OBSERVER_PROVIDER=bluesminds
+OBSERVER_MODEL=gpt-5.5
+DECIDER_PROVIDER=bluesminds
+DECIDER_MODEL=gpt-5.5
+REFLECTOR_PROVIDER=bluesminds
+REFLECTOR_MODEL=gpt-5.5
+ORCHESTRATOR_PROVIDER=bluesminds
+ORCHESTRATOR_MODEL=gpt-5.5
+```
+**Requires:** `BLUESMINDS_API_KEY` in `.env`
+**Recommended:** `gpt-5.5` ($10/1M input, $60/1M completion)
+**Available models (free tier):** `gpt-4o-mini` only
+**Available models (paid):** `gpt-5.5`, `gpt-4o`, `gpt-5-mini`, `gpt-5-nano`, `qwen3.6-27b`, `DeepSeek-V4-Flash`, `MiniMax-M2.7`, `gemini-3.1-pro-preview`, and more (38 total)
+
+---
+
 ## OpenRouter
 
 ```bash

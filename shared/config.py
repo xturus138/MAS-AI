@@ -30,6 +30,10 @@ AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "https://masaiskripsi
 AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY", "")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-06-01")
 
+# BlueSminds AI configuration
+BLUESMINDS_API_KEY = os.getenv("BLUESMINDS_API_KEY", "")
+BLUESMINDS_BASE_URL = os.getenv("BLUESMINDS_BASE_URL", "https://api.bluesminds.com/v1")
+
 # LLM7 configuration
 LLM7_API_KEY = os.getenv("LLM7_API_KEY", "")
 LLM7_BASE_URL = os.getenv("LLM7_BASE_URL", "https://api.llm7.io/v1")
@@ -56,6 +60,7 @@ PROVIDER_URLS: dict = {
     "vertex":     VERTEX_BASE_URL,
     "alibaba":    ALIBABA_BASE_URL,
     "llm7":       LLM7_BASE_URL,
+    "bluesminds": BLUESMINDS_BASE_URL,
     "local":      os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1"),
     "gemini":     "https://generativelanguage.googleapis.com/v1beta/openai/",
     "google":     "https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -97,6 +102,10 @@ def _resolve_api_key(provider: str, key_env_var: str) -> str:
     if provider == "llm7":
         return os.getenv("LLM7_API_KEY", "")
 
+    # BlueSminds: return empty string if not set
+    if provider == "bluesminds":
+        return os.getenv("BLUESMINDS_API_KEY", "")
+
     return os.getenv("OPENROUTER_API_KEY", "none")
 
 OBSERVER_PROVIDER = os.getenv("OBSERVER_PROVIDER", "openrouter").lower()
@@ -128,13 +137,6 @@ FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
 FIGMA_FILE_URL     = os.getenv("FIGMA_URL_QA", "")
 FIGMA_REQUEST_TIMEOUT = int(os.getenv("FIGMA_REQUEST_TIMEOUT", "300"))
 
-# OmniParser Vision Backend
-# Set OMNIPARSER_ENABLED=true once model weights are downloaded.
-OMNIPARSER_ENABLED       = os.getenv("OMNIPARSER_ENABLED", "false").lower() == "true"
-OMNIPARSER_PROJECT_DIR   = os.getenv("OMNIPARSER_PROJECT_DIR", "")
-OMNIPARSER_WEIGHTS_DIR   = os.getenv("OMNIPARSER_WEIGHTS_DIR", "")
-OMNIPARSER_BOX_THRESHOLD = float(os.getenv("OMNIPARSER_BOX_THRESHOLD", "0.05"))
-
 # Observer Mode (XML-first hybrid or pure vision)
 OBSERVER_MODE = os.getenv("OBSERVER_MODE", "xml_first").lower()  # "xml_first" or "pure_vision"
 
@@ -152,9 +154,6 @@ TOKEN_WARN_THRESHOLD = float(os.getenv("TOKEN_WARN_THRESHOLD", "0.75"))
 WORKFLOW_STRATEGY = os.getenv("WORKFLOW_STRATEGY", "predefined").lower()
 
 # Performance Tuning (non-breaking, opt-in)
-FAST_VISION_MODE = os.getenv("FAST_VISION_MODE", "true").lower() == "true"  # Use Canny instead of OmniParser
-if OMNIPARSER_ENABLED:
-    FAST_VISION_MODE = False  # OmniParser requires fast vision mode to be disabled
 ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == "true"  # Skip sleep if UI stable
 PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"  # Parallel loading+UI change
 OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"  # Cache LLM results for identical screens
