@@ -14,7 +14,7 @@ HUMAN_TEXT = (
     "Elements: {elements_json}\n\n"
     "Each element has id (i), text (t), and optional role (r) from XML metadata "
     "(e.g. icon_button, button, input, text). Use role to correctly classify "
-    "interactive elements - an element with role=icon_button IS a clickable "
+    "interactive elements — an element with role=icon_button IS a clickable "
     "icon/button, not placeholder text.\n\n"
     "Map every ID in the screenshot to its generic UI function. Be objective. "
     "Do not reference any task or goal."
