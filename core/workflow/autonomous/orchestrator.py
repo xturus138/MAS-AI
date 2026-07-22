@@ -1,12 +1,14 @@
 import os
-from typing import Optional, TYPE_CHECKING
-from pydantic import BaseModel, Field
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import TYPE_CHECKING, Optional
+
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.types import Command
+from pydantic import BaseModel, Field
+
 from core.models.state import AgentState
-from shared.prompts.orchestrator_prompts import FEW_SHOT_EXAMPLES
-from core.utils.process_logger import LogLevel as _LL
 from core.utils.output_manager import build_step_dir
+from core.utils.process_logger import LogLevel as _LL
+from shared.prompts.orchestrator_prompts import FEW_SHOT_EXAMPLES
 
 if TYPE_CHECKING:
     from memory.meta_manager import MIRIXMemorySystem
@@ -14,6 +16,7 @@ if TYPE_CHECKING:
 
 class AutonomousPlan(BaseModel):
     """Chain-of-Thought: reasoning MUST be first field to force LLM to analyze before deciding."""
+
     reasoning: str = Field(
         description="Analyze SENDER and action history step-by-step before selecting the next action."
     )
@@ -50,6 +53,12 @@ Your goal is to achieve the following TASK: "{task_goal}"
 
 You must satisfy the ULTIMATE EXPECTED RESULT: "{expected_result}"
 Do NOT declare COMPLETE or set is_completed=True unless the ULTIMATE EXPECTED RESULT is fully met.
+
+REASONING PROCESS (Chain of Thought):
+Before selecting the next agent, you MUST analyze the situation step-by-step:
+1. What was the last agent (SENDER) and what did they report/achieve?
+2. Did the last action succeed or fail based on the action history and reflector feedback?
+3. What is the logical next step to make progress toward the ULTIMATE EXPECTED RESULT?
 
 As the central judge, you decide which agent to invoke next based on their specialized purposes and technical I/O:
 
@@ -154,14 +163,23 @@ class AutonomousOrchestrator:
 
         print(f"[Autonomous] Planning Figma flow for '{menu_name}'...")
         try:
-            result = self._mapping_llm.invoke([
-                SystemMessage(content=system_prompt),
-                HumanMessage(content=human_content)
-            ])
+            result = self._mapping_llm.invoke(
+                [
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=human_content),
+                ]
+            )
 
             if not result.path_ids:
-                print("[Autonomous] LLM could not resolve a Figma path. Falling back to text-only.")
-                return {"figma_enabled": False, "figma_start_node_id": "", "figma_end_node_id": "", "figma_end_screenshot_b64": ""}
+                print(
+                    "[Autonomous] LLM could not resolve a Figma path. Falling back to text-only."
+                )
+                return {
+                    "figma_enabled": False,
+                    "figma_start_node_id": "",
+                    "figma_end_node_id": "",
+                    "figma_end_screenshot_b64": "",
+                }
 
             start_id = result.path_ids[0]
             end_id = result.path_ids[-1]
@@ -181,7 +199,12 @@ class AutonomousOrchestrator:
             }
         except Exception as e:
             print(f"[Autonomous] Figma flow planning failed: {e}")
-            return {"figma_enabled": False, "figma_start_node_id": "", "figma_end_node_id": "", "figma_end_screenshot_b64": ""}
+            return {
+                "figma_enabled": False,
+                "figma_start_node_id": "",
+                "figma_end_node_id": "",
+                "figma_end_screenshot_b64": "",
+            }
 
     def orchestrate(self, state: AgentState) -> dict:
         """LangGraph node: LLM-driven planner that generates the next subgoal."""
@@ -193,13 +216,15 @@ class AutonomousOrchestrator:
 
         if self.logger is not None:
             self.logger.section(f"CYCLE {global_step} — ORCHESTRATOR (autonomous)")
-        self._log(f"Entered from sender={sender}", f"last_reflector_passed={last_reflector_passed}")
+        self._log(
+            f"Entered from sender={sender}",
+            f"last_reflector_passed={last_reflector_passed}",
+        )
 
         steps_completed_count = state.get("steps_completed_count", 0)
         if sender == "reflector" and last_reflector_passed:
             steps_completed_count += 1
 
-        # ── Active Retrieval: get scenario context and recent history ─────────
         task_goal = ""
         expected_result = ""
         figma_info = ""
@@ -208,7 +233,11 @@ class AutonomousOrchestrator:
         recent_episodes_str = "None"
 
         if self.memory is not None:
-            task_goal = self.memory.core.get("task_goal") or self.memory.core.get("scenario_desc") or ""
+            task_goal = (
+                self.memory.core.get("task_goal")
+                or self.memory.core.get("scenario_desc")
+                or ""
+            )
             expected_result = self.memory.core.get("expected_result") or ""
             figma_enabled = (self.memory.core.get("figma_enabled") or "False") == "True"
 
@@ -217,14 +246,15 @@ class AutonomousOrchestrator:
 
             sub_steps = self.memory.procedural.get_steps(tcs_id, "workflow")
             if sub_steps:
-                numbered = "\n".join([f"  {i+1}. {s}" for i, s in enumerate(sub_steps)])
+                numbered = "\n".join(
+                    [f"  {i + 1}. {s}" for i, s in enumerate(sub_steps)]
+                )
                 reference_path = (
                     f"\nREFERENCE TEST PATH (defined by the test designer):\n{numbered}\n"
                     f"These steps describe the expected human tester behavior for this scenario. "
                     f"You are not required to follow them."
                 )
 
-            # Get last reflector judgment for failure feedback
             if sender == "reflector" and not last_reflector_passed:
                 last_ref = self.memory.episodic.last_by_actor("reflector")
                 if last_ref:
@@ -234,18 +264,24 @@ class AutonomousOrchestrator:
                         f"You MUST continue the workflow to recover. Do NOT dispatch COMPLETE yet."
                     )
 
-            # Recent action history from episodic memory (last 5 executor episodes)
             recent = self.memory.episodic.last(10)
             if recent:
-                exec_eps = [ep for ep in recent if ep.actor in ("executor", "reflector")][-5:]
+                exec_eps = [
+                    ep for ep in recent if ep.actor in ("executor", "reflector")
+                ][-5:]
                 if exec_eps:
-                    lines = [f"  step={ep.step} [{ep.actor}] {ep.event_type}: {ep.summary}" for ep in exec_eps]
+                    lines = [
+                        f"  step={ep.step} [{ep.actor}] {ep.event_type}: {ep.summary}"
+                        for ep in exec_eps
+                    ]
                     recent_episodes_str = "\n".join(lines)
 
         raw_observer_analysis = state.get("observer_analysis", "No analysis yet.")
         observer_analysis_step = state.get("observer_analysis_step", -1)
 
-        steps_stale = global_step - observer_analysis_step if observer_analysis_step >= 0 else 0
+        steps_stale = (
+            global_step - observer_analysis_step if observer_analysis_step >= 0 else 0
+        )
         if steps_stale > 1:
             staleness_label = f"[WARNING: STALE — captured {steps_stale} steps ago. Dispatch OBSERVE first to refresh.]\n"
         else:
@@ -260,41 +296,72 @@ class AutonomousOrchestrator:
             f"RECENT ACTION HISTORY (last 5):\n{recent_episodes_str}"
         )
 
-        # Build messages with Few-Shot examples for ReAct pattern
         messages = [
-            SystemMessage(content=AUTONOMOUS_SYSTEM_PROMPT.format(
-                task_goal=task_goal,
-                expected_result=expected_result,
-            )),
+            SystemMessage(
+                content=AUTONOMOUS_SYSTEM_PROMPT.format(
+                    task_goal=task_goal,
+                    expected_result=expected_result,
+                )
+            ),
         ]
-        # Insert Few-Shot examples showing correct dispatch patterns
         for role, content in FEW_SHOT_EXAMPLES:
             if role == "human":
                 messages.append(HumanMessage(content=content))
             else:
-                messages.append(SystemMessage(content=content))
+                messages.append(AIMessage(content=content))
         messages.append(HumanMessage(content=human_content))
 
         print("[Autonomous] Planning next step...")
         self._log("LLM call started (AutonomousPlan generation)")
         try:
-            plan = self._planner_llm.invoke(messages)
+            plan = None
+            last_plan_error = None
+            for _attempt in range(2):
+                try:
+                    plan = self._planner_llm.invoke(messages)
+                    if plan is not None:
+                        break
+                except Exception as _plan_e:
+                    last_plan_error = _plan_e
+                    err_str = str(_plan_e)
+                    # Only retry on JSON/parsing errors; re-raise others immediately
+                    if (
+                        "json_invalid" not in err_str
+                        and "Invalid JSON" not in err_str
+                        and "missing" not in err_str.lower()
+                    ):
+                        raise
+                    if _attempt == 0:
+                        print(
+                            f"[Autonomous] JSON parse error on planning, retrying once: {_plan_e}"
+                        )
+                        messages.append(
+                            AIMessage(
+                                content="IMPORTANT: Return ONLY a valid JSON object with ALL required fields. No XML tags."
+                            )
+                        )
+            if plan is None:
+                raise last_plan_error or Exception(
+                    "Planner returned None after retries"
+                )
 
             step_dir = build_step_dir(output_dir, global_step + 1)
 
             print(f"[Autonomous] JUDGMENT: {plan.action_type.upper()}")
-            print(f"[Autonomous] Plan: '{plan.next_step_instruction}' | Completed: {plan.is_completed}")
+            print(
+                f"[Autonomous] Plan: '{plan.next_step_instruction}' | Completed: {plan.is_completed}"
+            )
             self._log(
                 f"→ JUDGMENT: {plan.action_type.upper()}  completed={plan.is_completed}",
-                f"instruction={plan.next_step_instruction}\nreasoning={plan.reasoning}"
+                f"instruction={plan.next_step_instruction}\nreasoning={plan.reasoning}",
             )
 
             node_map = {
                 "OBSERVE": "observer_node",
-                "DECIDE":  "decider_node",
+                "DECIDE": "decider_node",
                 "EXECUTE": "executor_node",
-                "ACT":     "executor_node",
-                "VERIFY":  "reflector_node",
+                "ACT": "executor_node",
+                "VERIFY": "reflector_node",
             }
             target_node = node_map.get(plan.action_type.upper(), "observer_node")
 
@@ -303,63 +370,70 @@ class AutonomousOrchestrator:
             if plan.is_completed or plan.action_type.upper() == "COMPLETE":
                 target_node = "__end__"
 
-            # Loop Detection Kill Switch
             last_calls = state.get("last_agent_calls", [])
             last_calls.append(plan.action_type.upper())
             last_calls = last_calls[-5:]
 
             is_looping = (
-                len(last_calls) >= 3 and
-                last_calls[-1] == last_calls[-2] == last_calls[-3]
+                len(last_calls) >= 3
+                and last_calls[-1] == last_calls[-2] == last_calls[-3]
             )
 
             if is_looping:
-                print(f"[Autonomous] KILL SWITCH: Detected loop of 3 {plan.action_type.upper()} calls. Stopping.")
-                self._log(f"KILL SWITCH — loop of 3 {plan.action_type.upper()} calls detected")
+                print(
+                    f"[Autonomous] KILL SWITCH: Detected loop of 3 {plan.action_type.upper()} calls. Stopping."
+                )
+                self._log(
+                    f"KILL SWITCH — loop of 3 {plan.action_type.upper()} calls detected"
+                )
                 if self.memory is not None:
-                    self.memory.update({
-                        "episodic": {
-                            "event_type": "orchestrator_decision",
-                            "summary": f"KILL SWITCH: Loop of 3 {plan.action_type.upper()} calls.",
-                            "details": "",
-                            "actor": "orchestrator",
-                            "step": global_step,
+                    self.memory.update(
+                        {
+                            "episodic": {
+                                "event_type": "orchestrator_decision",
+                                "summary": f"KILL SWITCH: Loop of 3 {plan.action_type.upper()} calls.",
+                                "details": "",
+                                "actor": "orchestrator",
+                                "step": global_step,
+                            }
                         }
-                    })
+                    )
                 return Command(
                     goto="__end__",
                     update={
                         "is_completed": False,
                         "sender": "orchestrator",
                         "stagnation_count": state.get("stagnation_count", 0) + 3,
-                    }
+                    },
                 )
 
-            # Global Step Limit Kill Switch
             if global_step >= 35:
-                print(f"[Autonomous] KILL SWITCH: Global step limit (35) reached. Stopping.")
+                print(
+                    f"[Autonomous] KILL SWITCH: Global step limit (35) reached. Stopping."
+                )
                 return Command(
                     goto="__end__",
                     update={
                         "is_completed": False,
                         "sender": "orchestrator",
                         "stagnation_count": state.get("stagnation_count", 0) + 3,
-                    }
+                    },
                 )
 
             print(f"[Autonomous] DISPATCHING TO: {target_node}")
 
-            # ── Memory Update ─────────────────────────────────────────────────
             if self.memory is not None:
-                self.memory.update({
-                    "episodic": {
-                        "event_type": "orchestrator_decision",
-                        "summary": f"Dispatch {plan.action_type.upper()}: {plan.next_step_instruction[:120]}",
-                        "details": plan.reasoning,
-                        "actor": "orchestrator",
-                        "step": global_step + 1,
+                self.memory.update(
+                    {
+                        "episodic": {
+                            "event_type": "orchestrator_decision",
+                            "summary": f"Dispatch {plan.action_type.upper()}: {plan.next_step_instruction[:120]}",
+                            "details": plan.reasoning,
+                            "actor": "orchestrator",
+                            "step": global_step + 1,
+                        }
                     }
-                })
+                )
 
             is_final = plan.is_completed or plan.action_type.upper() == "COMPLETE"
             return Command(
@@ -367,23 +441,24 @@ class AutonomousOrchestrator:
                 update={
                     "orchestrator_instruction": plan.next_step_instruction,
                     "current_sub_step_index": 0,
-                    "current_step":           global_step + 1,
-                    "is_completed":           is_final,
-                    "is_final_step":          is_final,
-                    "next_agent":             plan.action_type.upper(),
-                    "last_agent_calls":       last_calls,
-                    "step_dir":               step_dir,
-                    "sender":                 "orchestrator",
+                    "current_step": global_step + 1,
+                    "is_completed": is_final,
+                    "is_final_step": is_final,
+                    "next_agent": plan.action_type.upper(),
+                    "last_agent_calls": last_calls,
+                    "step_dir": step_dir,
+                    "sender": "orchestrator",
                     "is_first_verify_attempt": is_first_verify,
-                    "steps_completed_count":  steps_completed_count,
-                }
+                    "steps_completed_count": steps_completed_count,
+                },
             )
         except Exception as e:
             print(f"[Autonomous] Planning failed: {e}")
+            self._log("Planning failed — aborting run", str(e), level=_LL.ERROR)
             return Command(
                 goto="__end__",
                 update={
-                    "is_completed": True,
+                    "is_completed": False,
                     "sender": "orchestrator",
-                }
+                },
             )

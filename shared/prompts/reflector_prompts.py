@@ -1,13 +1,25 @@
 """
 Reflector Agent Prompts
 
-Implements: Directional Stimulus Prompting
-Purpose: Guide LLM attention to relevant aspects, ignore irrelevant differences
+Implements: Self-Consistency
+Purpose: Improve verdict reliability by sampling multiple reasoning paths and
+taking a majority vote before declaring PASSED/FAILED.
+
+Self-consistency is realised in the agent layer (reflector_agent.py:
+_self_consistency_evaluate) which fires 3 LLM calls at temperature=0.7 and
+majority-votes the verdict on every reflection. Each individual call is guided
+by the Directional Stimulus blocks below — they direct the LLM's attention to
+relevant aspects (layout, text accuracy, missing elements) and away from
+irrelevant noise (system bar, compression artifacts). Directional Stimulus is
+the per-call steering; Self-Consistency is the aggregate reliability technique.
 """
 
-# Directional Stimulus for intermediate step verification
-# Guides what to IGNORE vs FOCUS on during validity checks
 DIRECTIONAL_STIMULUS = """
+GENERAL KNOWLEDGE (from prior experience and UI repository):
+{general_knowledge}
+
+Use this only to focus evaluation on known patterns; do not override what is visible in the screenshots.
+
 EVALUATION CRITERIA (Directional Stimulus):
 
 IGNORE these differences (do not penalize):
@@ -26,9 +38,12 @@ FOCUS on these aspects (critical for correctness):
 - Core user-visible state changes
 """
 
-# Directional Stimulus specifically for final step verification
-# Stronger guidance when comparing against Figma Gold Standard
 FINAL_STEP_STIMULUS = """
+GENERAL KNOWLEDGE (from prior experience and UI repository):
+{general_knowledge}
+
+Use this only to focus evaluation on known patterns; do not override what is visible in the screenshots.
+
 CRITICAL FINAL VERIFICATION (3-WAY MATCH REQUIRED):
 You must perform a comprehensive 3-way verification comparing:
 1. The LIVE APP SCREENSHOT (what the app currently shows)
@@ -56,9 +71,10 @@ CRITICALLY FOCUS ON (these ARE failures if mismatched):
 VERDICT GUIDANCE:
 - PASS: Core functionality and layout match; minor visual differences acceptable
 - FAIL: Missing core elements, incorrect text, wrong screen, or structural mismatch
+
+Provide your reasoning step-by-step evaluating each criterion above before declaring if the test 'passed'.
 """
 
-# Additional stimuli for specific check types
 LOADING_STIMULUS = """
 DIRECTIONAL STIMULUS FOR LOADING CHECK:
 

@@ -99,3 +99,9 @@ vaultkey/
 
 # Temp Python libs accidentally dumped into project root by PDF tool
 UsersraditAppDataLocalTemppdflibs/
+
+# Scratch/debug output from manual observer test runs
+test_bounds_refine/
+test_extra_actionable/
+test_refine_append/
+test_xml_fail/

@@ -99,11 +99,9 @@ def create_run_output(mode: str, tcs_id: str, timestamp: str | None = None,
     root = config.OUTPUT_DIR
 
     if run_root and scenario_index is not None:
-        # New layout: run_root/scenario_NN/
         run_dir = os.path.join(run_root, scenario_dir_name(scenario_index))
         shared_memory_dir = os.path.join(root, "runs", mode, "_memory")
     else:
-        # Legacy flat layout: runs/<mode>/<date>/<tcs_id>__<timestamp>/
         run_name = f"{tcs_id}__{timestamp}"
         run_dir = os.path.join(root, "runs", mode, date, run_name)
         shared_memory_dir = os.path.join(root, "shared", f"{mode}_memory")

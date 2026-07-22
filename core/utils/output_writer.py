@@ -32,7 +32,6 @@ def archive_old_runs(mode_root: str) -> None:
         if entry.startswith("_") or entry == "past":
             continue
 
-        # New layout: entry is a date bucket, archive run_N dirs inside
         if run_pattern.match(entry):
             os.makedirs(past_dir, exist_ok=True)
             dest = os.path.join(past_dir, entry)
@@ -42,7 +41,6 @@ def archive_old_runs(mode_root: str) -> None:
             print(f"[OutputWriter] Archived: {entry} -> past/")
             continue
 
-        # Legacy layout: entry is a flat scenario dir
         if legacy_pattern.match(entry):
             os.makedirs(past_dir, exist_ok=True)
             dest = os.path.join(past_dir, entry)
@@ -52,7 +50,6 @@ def archive_old_runs(mode_root: str) -> None:
             print(f"[OutputWriter] Archived: {entry} -> past/")
             continue
 
-        # Date bucket in new layout — archive run_N dirs inside it
         if re.match(r"^\d{4}-\d{2}-\d{2}$", entry):
             for sub_entry in os.listdir(src):
                 sub_src = os.path.join(src, sub_entry)
@@ -88,7 +85,6 @@ def write_run_overview(
     """
     status_icon = "✅" if status == "SUCCESS" else "❌" if status == "FAILED" else "⏸️"
 
-    # -- Helper for duration --
     def _fmt_dur(s: float) -> str:
         m, sec = divmod(int(s), 60)
         return f"{m}m {sec}s" if m else f"{sec}s"
@@ -113,7 +109,6 @@ def write_run_overview(
         "",
     ]
 
-    # -- Step Summary Table --
     if steps_data:
         lines.append("## Step Summary")
         lines.append("")
@@ -126,7 +121,6 @@ def write_run_overview(
             lines.append(f"| {sd.get('step_number', '?')} | {instr} | {action} | {verdict} |")
         lines.append("")
 
-    # -- Final Verdict --
     lines.append("## Final Verdict")
     lines.append("")
     lines.append(reflector_judgment or "No judgment recorded.")

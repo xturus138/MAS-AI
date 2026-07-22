@@ -216,6 +216,7 @@ Per-widget result shape:
   "effective_sample_count": 5,
   "temperature": 1.0,
   "temperature_status": "provisional_not_evaluated",
+  "temperature_application": "requested_not_verified",
   "threshold": null,
   "calibration_status": "not_calibrated",
   "measurement_status": "ok"
@@ -266,6 +267,11 @@ effective temperature). Enforcement level:
 - Silent ignoring cannot be detected, so provider + model + temperature are recorded in every
   artifact and this limitation is documented in `docs/observer-uncertainty.md`, keeping results
   auditable.
+- Every artifact records `temperature_application="requested_not_verified"` (NOT
+  "successfully_applied"), because rejection-only enforcement cannot confirm the provider
+  honored the requested temperature. This is distinct from `temperature_status`
+  ("provisional_not_evaluated"), which concerns the *value* being unvalidated, not whether it
+  was applied.
 
 ## 12. Testing requirements
 

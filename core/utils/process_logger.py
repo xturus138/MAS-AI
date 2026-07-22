@@ -27,7 +27,7 @@ class ProcessLogger:
     If not set, falls back to the global RUN_LOG_LEVEL env var, then INFO.
     """
 
-    LEVEL_WIDTH = 14   # component name column width
+    LEVEL_WIDTH = 14
 
     _COMPONENT_LEVELS: dict = {}
 
@@ -35,7 +35,6 @@ class ProcessLogger:
     def _resolve_level(cls, component: str) -> LogLevel:
         """Return the effective LogLevel for a given component."""
         if component not in cls._COMPONENT_LEVELS:
-            # Check per-component env var first (e.g. REFLECTOR_LOG_LEVEL)
             env_key = f"{component.upper()}_LOG_LEVEL"
             env_val = os.environ.get(env_key, "").upper()
             if env_val == "DEBUG":
@@ -45,7 +44,6 @@ class ProcessLogger:
             elif env_val == "ERROR":
                 cls._COMPONENT_LEVELS[component] = LogLevel.ERROR
             else:
-                # Fall back to global RUN_LOG_LEVEL
                 global_val = os.environ.get("RUN_LOG_LEVEL", "INFO").upper()
                 cls._COMPONENT_LEVELS[component] = {
                     "DEBUG": LogLevel.DEBUG, "INFO": LogLevel.INFO,
@@ -57,7 +55,6 @@ class ProcessLogger:
         self._path = os.path.join(output_dir, "process.log")
         self._lock = threading.Lock()
         os.makedirs(output_dir, exist_ok=True)
-        # Write header so the file exists immediately when the runner starts
         self._write_raw(
             f"{'=' * 80}\n"
             f"  MAS AI — Process Log\n"
@@ -66,7 +63,6 @@ class ProcessLogger:
             f"{'=' * 80}\n\n"
         )
 
-    # ── Public API ────────────────────────────────────────────────────────────
 
     def log(self, component: str, message: str, detail: str = "",
             level: LogLevel = LogLevel.INFO):
@@ -79,7 +75,7 @@ class ProcessLogger:
         :param level:     LogLevel.DEBUG/INFO/WARN/ERROR.  Default: INFO.
         """
         if level < self._resolve_level(component):
-            return  # filtered
+            return
 
         tag = f"[{component.upper():<{self.LEVEL_WIDTH}}]"
         line = f"{self._ts()}  {tag}  {message}\n"
@@ -108,7 +104,6 @@ class ProcessLogger:
             f"{'=' * 80}\n"
         )
 
-    # ── Internal ──────────────────────────────────────────────────────────────
 
     @staticmethod
     def _ts() -> str:

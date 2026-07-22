@@ -70,7 +70,6 @@ def main() -> int:
         if shared_memory.exists():
             actions.append((shared_memory, _unique_dest(root / "shared" / f"{mode}_memory")))
 
-    # Attach legacy LLM logs to matching migrated run when possible.
     legacy_llm_root = root / "llm_logs"
     if legacy_llm_root.exists():
         for log_dir in legacy_llm_root.iterdir():
@@ -86,7 +85,6 @@ def main() -> int:
             else:
                 actions.append((log_dir, _unique_dest(quarantine / "llm_logs" / log_dir.name)))
 
-    # ── Phase 2: Wrap era-1 flat runs under run_N/scenario_NN ──────────────
     runs_root = root / "runs"
     if runs_root.exists():
         for mode in ("predefined", "autonomous"):
@@ -100,7 +98,6 @@ def main() -> int:
                 if date_entry.name == "_memory":
                     continue
 
-                # Collect era-1 scenario dirs (not already under run_N)
                 flat_dirs = []
                 has_run_dirs = False
                 for entry in sorted(date_entry.iterdir()):
@@ -114,12 +111,10 @@ def main() -> int:
                 if not flat_dirs:
                     continue
 
-                # If run_N dirs already exist, skip (user may have custom layout)
                 if has_run_dirs:
                     print(f"[Skip] {date_entry} already has run_N dirs — {len(flat_dirs)} flat dirs remain")
                     continue
 
-                # Create run_1 and move flat dirs into scenario_NN subdirs
                 run_dir = date_entry / "run_1"
 
                 for idx, flat_dir in enumerate(flat_dirs):
@@ -127,7 +122,6 @@ def main() -> int:
                     dest = run_dir / scenario_name
                     actions.append((flat_dir, dest))
 
-                # Move any run-level files (test_report.xlsx, run_summary.json)
                 for fname in ("test_report.xlsx", "run_summary.json"):
                     src = date_entry / fname
                     if src.exists():

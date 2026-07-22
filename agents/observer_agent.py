@@ -1,11 +1,12 @@
-import base64
 import json
 import math
 import os
 import time
+
 import cv2
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.types import Command
+
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
 from core.uncertainty.clusterer import EntailmentClusterer
@@ -16,14 +17,17 @@ from core.uncertainty.request_builder import (
     ObserverSemanticRequestBuilder,
 )
 from core.uncertainty.service import ObserverUncertaintyService, TemperatureRejectedError
-from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
-from shared.prompts.observer_prompts import SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
-from shared import config
 from core.utils.process_logger import LogLevel as _LL
+from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
+from shared import config
+from shared.prompts.observer_prompts import FEW_SHOT_EXAMPLES, SYSTEM_PROMPT
+from shared.utils.llm_utils import encode_image as _encode_image_shared
 
 
 class ObserverAgent:
-    def __init__(self, llm: ILLMClient, tools: list, memory=None, logger=None, monitor=None):
+    def __init__(
+        self, llm: ILLMClient, tools: list, memory=None, logger=None, monitor=None
+    ):
         self.llm = llm
         self.take_screenshot = tools[0]
         self.ocr_extract_text = tools[1]
@@ -36,23 +40,8 @@ class ObserverAgent:
         self.monitor = monitor
 
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
-        img = cv2.imread(image_path)
-        if img is None:
-            return ""
-
-        h, w = img.shape[:2]
-        if h > max_height:
-            scale = max_height / h
-            new_w = int(w * scale)
-            img = cv2.resize(img, (new_w, max_height), interpolation=cv2.INTER_AREA)
-
-        success, buffer = cv2.imencode(".webp", img, [int(cv2.IMWRITE_WEBP_QUALITY), 70])
-        if not success:
-            success, buffer = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 75])
-        if not success:
-            return ""
-
-        return base64.b64encode(buffer).decode("utf-8")
+        """Delegate to shared image encoding utility."""
+        return _encode_image_shared(image_path, max_height)
 
     @staticmethod
     def _build_semantic_request_builder() -> ObserverSemanticRequestBuilder:
@@ -112,7 +101,9 @@ class ObserverAgent:
         if not ocr_elements:
             return []
 
-        sorted_ocr = sorted(ocr_elements, key=lambda x: (x["bounds"][1], x["bounds"][0]))
+        sorted_ocr = sorted(
+            ocr_elements, key=lambda x: (x["bounds"][1], x["bounds"][0])
+        )
 
         merged = []
         if not sorted_ocr:
@@ -133,9 +124,11 @@ class ObserverAgent:
                     min(curr_b[0], next_b[0]),
                     min(curr_b[1], next_b[1]),
                     max(curr_b[2], next_b[2]),
-                    max(curr_b[3], next_b[3])
+                    max(curr_b[3], next_b[3]),
                 ]
-                current["text"] = current.get("text", "") + " " + next_el.get("text", "")
+                current["text"] = (
+                    current.get("text", "") + " " + next_el.get("text", "")
+                )
             else:
                 merged.append(current)
                 current = next_el
@@ -143,7 +136,9 @@ class ObserverAgent:
         merged.append(current)
         return merged
 
-    def _group_keyboard_elements(self, elements: list, image_height: int, is_kb_shown: bool) -> list:
+    def _group_keyboard_elements(
+        self, elements: list, image_height: int, is_kb_shown: bool
+    ) -> list:
         if not is_kb_shown:
             return elements
 
@@ -171,24 +166,32 @@ class ObserverAgent:
                 "bounds": [all_x1, all_y1, all_x2, all_y2],
                 "cv_bounds": [all_x1, all_y1, all_x2, all_y2],
                 "text": "On-Screen Keyboard",
-                "type": "container"
+                "type": "container",
             }
             non_kb_elements.append(keyboard_el)
             return non_kb_elements
 
         return elements
 
-    def _merge_and_filter(self, cv_elements: list, ocr_elements: list, image_height: int, is_kb_shown: bool = False) -> list:
+    def _merge_and_filter(
+        self,
+        cv_elements: list,
+        ocr_elements: list,
+        image_height: int,
+        is_kb_shown: bool = False,
+    ) -> list:
         status_bar_threshold = image_height * 0.05
 
         ocr_elements = self._merge_ocr_blocks(ocr_elements)
 
         filtered_cv = [
-            el for el in cv_elements
+            el
+            for el in cv_elements
             if el.get("bounds", [0, 0])[1] >= status_bar_threshold
         ]
         filtered_ocr = [
-            el for el in ocr_elements
+            el
+            for el in ocr_elements
             if el.get("bounds", [0, 0])[1] >= status_bar_threshold
         ]
 
@@ -228,12 +231,18 @@ class ObserverAgent:
                     continue
                 ocr_bounds = ocr_el["bounds"]
 
-                is_inside = (ocr_bounds[0] >= cv_bounds[0] - 10 and
-                             ocr_bounds[1] >= cv_bounds[1] - 10 and
-                             ocr_bounds[2] <= cv_bounds[2] + 10 and
-                             ocr_bounds[3] <= cv_bounds[3] + 10)
+                is_inside = (
+                    ocr_bounds[0] >= cv_bounds[0] - 10
+                    and ocr_bounds[1] >= cv_bounds[1] - 10
+                    and ocr_bounds[2] <= cv_bounds[2] + 10
+                    and ocr_bounds[3] <= cv_bounds[3] + 10
+                )
 
-                if is_inside or compute_iou(cv_bounds, ocr_bounds) > 0.1 or boxes_nearby(cv_bounds, ocr_bounds):
+                if (
+                    is_inside
+                    or compute_iou(cv_bounds, ocr_bounds) > 0.1
+                    or boxes_nearby(cv_bounds, ocr_bounds)
+                ):
                     matched_text.append(ocr_el.get("text", ""))
                     matched_ocr_bounds.append(ocr_bounds)
                     used_ocr.add(ocr_idx)
@@ -251,7 +260,7 @@ class ObserverAgent:
                 "bounds": click_bounds,
                 "cv_bounds": cv_bounds,
                 "text": " ".join(matched_text) if matched_text else "",
-                "type": "container"
+                "type": "container",
             }
             merged.append(entry)
 
@@ -266,11 +275,9 @@ class ObserverAgent:
                 if h > 0 and w / h < 0.2:
                     continue
 
-                merged.append({
-                    "bounds": ocr_el["bounds"],
-                    "text": text,
-                    "type": "text_stub"
-                })
+                merged.append(
+                    {"bounds": ocr_el["bounds"], "text": text, "type": "text_stub"}
+                )
 
         merged = self._group_keyboard_elements(merged, image_height, is_kb_shown)
 
@@ -283,7 +290,9 @@ class ObserverAgent:
 
         return final_widget_set
 
-    def _detect_stagnation(self, current_summary: str, current_step: int, prev_stagnation: int) -> int:
+    def _detect_stagnation(
+        self, current_summary: str, current_step: int, prev_stagnation: int
+    ) -> int:
         """Compare current UI summary against the last episodic observer entry to detect stagnation."""
         if self.memory is None:
             return prev_stagnation
@@ -297,7 +306,13 @@ class ObserverAgent:
             return prev_stagnation + 1
         return 0
 
-    def _refine_with_xml(self, vision_widgets: list, xml_elements: list, image_width: int, image_height: int) -> list:
+    def _refine_with_xml(
+        self,
+        vision_widgets: list,
+        xml_elements: list,
+        image_width: int,
+        image_height: int,
+    ) -> list:
         """Match Canny+OCR widgets to XML elements by IoU/center proximity.
 
         - Matched widgets get XML-precise bounds and source="xml" (orange annotation).
@@ -308,8 +323,10 @@ class ObserverAgent:
             return vision_widgets
 
         def _iou(a, b):
-            xA = max(a[0], b[0]); yA = max(a[1], b[1])
-            xB = min(a[2], b[2]); yB = min(a[3], b[3])
+            xA = max(a[0], b[0])
+            yA = max(a[1], b[1])
+            xB = min(a[2], b[2])
+            yB = min(a[3], b[3])
             inter = max(0, xB - xA) * max(0, yB - yA)
             areaA = (a[2] - a[0]) * (a[3] - a[1])
             areaB = (b[2] - b[0]) * (b[3] - b[1])
@@ -334,7 +351,6 @@ class ObserverAgent:
                 if i in matched_xml:
                     continue
                 score = _iou(vw["bounds"], xe["bounds"])
-                # Text-match boost: OCR text == XML label
                 vw_text = (vw.get("text") or "").strip().lower()
                 xe_label = (xe.get("label") or "").strip().lower()
                 if vw_text and xe_label and vw_text == xe_label:
@@ -352,40 +368,41 @@ class ObserverAgent:
 
             if use_xml:
                 vw["bounds"] = best_xml["bounds"]
-                vw["cv_bounds"] = best_xml["bounds"]  # annotation uses cv_bounds
+                vw["cv_bounds"] = best_xml["bounds"]
                 vw["source"] = "xml"
                 vw["xml_label"] = best_xml.get("label", "")
                 vw["xml_role"] = best_xml.get("role", "")
                 vw["xml_actionable"] = best_xml.get("actionable", False)
-                # Propagate XML label to text when vision widget has no text
                 if not vw.get("text") and best_xml.get("label"):
                     vw["text"] = best_xml["label"]
                 matched_xml.add(best_idx)
 
             refined.append(vw)
 
-        # Append unmatched actionable XML elements (vision missed them)
         for i, xe in enumerate(xml_elements):
             if i not in matched_xml and xe.get("actionable"):
-                refined.append({
-                    "id": len(refined) + 1,
-                    "bounds": xe["bounds"],
-                    "cv_bounds": xe["bounds"],
-                    "text": xe.get("label", ""),
-                    "type": "container",
-                    "class": "Interactive",
-                    "source": "xml",
-                    "resource_id": xe.get("resource_id", "none"),
-                    "xml_label": xe.get("label", ""),
-                    "xml_role": xe.get("role", ""),
-                    "xml_actionable": True,
-                })
+                refined.append(
+                    {
+                        "id": len(refined) + 1,
+                        "bounds": xe["bounds"],
+                        "cv_bounds": xe["bounds"],
+                        "text": xe.get("label", ""),
+                        "type": "container",
+                        "class": "Interactive",
+                        "source": "xml",
+                        "resource_id": xe.get("resource_id", "none"),
+                        "xml_label": xe.get("label", ""),
+                        "xml_role": xe.get("role", ""),
+                        "xml_actionable": True,
+                    }
+                )
 
         return refined
 
     def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
             from core.utils.process_logger import LogLevel
+
             lvl = level if level is not None else _LL.INFO
             self.logger.log("OBSERVER", msg, detail, level=lvl)
 
@@ -398,8 +415,12 @@ class ObserverAgent:
         is_kb_shown: bool,
     ) -> list:
         """Run the classic Canny edge detection + EasyOCR vision pipeline."""
-        ocr_raw = self.ocr_extract_text.invoke({"image_path": raw_path, "save_path": ocr_path})
-        cv_raw = self.detect_visual_elements.invoke({"image_path": raw_path, "save_path": cv_path})
+        ocr_raw = self.ocr_extract_text.invoke(
+            {"image_path": raw_path, "save_path": ocr_path}
+        )
+        cv_raw = self.detect_visual_elements.invoke(
+            {"image_path": raw_path, "save_path": cv_path}
+        )
         try:
             ocr_elements = json.loads(ocr_raw)
             cv_elements = json.loads(cv_raw)
@@ -408,13 +429,17 @@ class ObserverAgent:
         self._log(
             "Canny+OCR pipeline complete",
             f"ocr_elements={len(ocr_elements)}  cv_elements={len(cv_elements)}",
-            level=_LL.DEBUG
+            level=_LL.DEBUG,
         )
-        return self._merge_and_filter(cv_elements, ocr_elements, image_height, is_kb_shown)
+        return self._merge_and_filter(
+            cv_elements, ocr_elements, image_height, is_kb_shown
+        )
 
     def analyze(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
-        print(f"\n--- CYCLE {current_step} | [Observer] Perception (vision + XML refinement)... ---")
+        print(
+            f"\n--- CYCLE {current_step} | [Observer] Perception (vision + XML refinement)... ---"
+        )
         self._log(f"=== CYCLE {current_step} — Perception started ===")
 
         step_dir = state.get("step_dir", "outputs")
@@ -426,15 +451,29 @@ class ObserverAgent:
         annotated_path = os.path.join(step_dir, "annotated.png")
         analysis_path = os.path.join(step_dir, "analysis.txt")
 
-        # ── Active Retrieval ──────────────────────────────────────────────────
         memory_context = ""
+        general_knowledge = "No relevant prior UI knowledge."
         scenario_desc = "N/A"
         navigation_context = "N/A"
         if self.memory is not None:
-            memory_context = self.memory.retrieve(f"navigation screen step={current_step}")
+            memory_context = self.memory.retrieve(
+                f"navigation screen step={current_step}"
+            )
+            labels = self.memory.retrieve_with_labels(
+                f"navigation screen step={current_step}", max_per_store=3
+            )
+            semantic = labels.get("semantic", "")
+            vault = labels.get("vault", "")
+            parts = [p for p in (semantic, vault) if p]
+            if parts:
+                general_knowledge = "\n\n".join(parts)
             scenario_desc = self.memory.core.get("scenario_desc") or "N/A"
             navigation_context = self.memory.core.get("navigation_context") or "N/A"
-        self._log("Memory retrieval complete", f"scenario_desc={scenario_desc[:80]}", level=_LL.DEBUG)
+        self._log(
+            "Memory retrieval complete",
+            f"scenario_desc={scenario_desc[:80]}",
+            level=_LL.DEBUG,
+        )
 
         print("[Observer] Checking keyboard state via ADB...")
         kb_resp = self.check_keyboard_state.invoke({})
@@ -443,66 +482,88 @@ class ObserverAgent:
         except Exception:
             is_kb_shown = False
 
-        # ── 1. Always take screenshot ─────────────────────────────────────────
         print("[Observer] Taking screenshot...")
         self.take_screenshot.invoke({"target_path": raw_path})
         self._log("Screenshot captured", raw_path, level=_LL.DEBUG)
 
         img = cv2.imread(raw_path)
         image_height = img.shape[0] if img is not None else 1920
-        image_width  = img.shape[1] if img is not None else 1080
+        image_width = img.shape[1] if img is not None else 1080
 
-        # ── 2. Always run Canny+OCR vision pipeline ─────────────────────────
         print("[Observer] Running Canny+OCR vision pipeline...")
-        final_widget_set = self._run_canny_pipeline(raw_path, ocr_path, cv_path, image_height, is_kb_shown)
+        final_widget_set = self._run_canny_pipeline(
+            raw_path, ocr_path, cv_path, image_height, is_kb_shown
+        )
         observation_source = "vision"
         confidence_score = 1.0
         fallback_reason = ""
 
-        # ── 3. Dump XML and refine coordinates ────────────────────────────────
         print("[Observer] Dumping XML hierarchy for coordinate refinement...")
         xml_data = self.dump_hierarchy.invoke({"save_path": xml_path})
         xml_elements = []
         if xml_data and not xml_data.startswith("<error>"):
             from core.utils.xml_processor import XMLProcessor
-            processor = XMLProcessor(screen_width=image_width, screen_height=image_height)
+
+            processor = XMLProcessor(
+                screen_width=image_width, screen_height=image_height
+            )
             xml_elements = processor.parse_hierarchy(xml_data)
             print(f"[Observer] XML parsed: {len(xml_elements)} elements")
 
             if xml_elements:
                 before = len(final_widget_set)
-                final_widget_set = self._refine_with_xml(final_widget_set, xml_elements, image_width, image_height)
-                xml_refined = sum(1 for w in final_widget_set if w.get("source") == "xml")
-                print(f"[Observer] XML refinement: {xml_refined} coordinates updated ({before}→{len(final_widget_set)} total)")
-                observation_source = f"vision+xml_refined({xml_refined}/{len(final_widget_set)})"
-                self._log("XML refinement complete", f"refined={xml_refined} total={len(final_widget_set)}")
+                final_widget_set = self._refine_with_xml(
+                    final_widget_set, xml_elements, image_width, image_height
+                )
+                xml_refined = sum(
+                    1 for w in final_widget_set if w.get("source") == "xml"
+                )
+                print(
+                    f"[Observer] XML refinement: {xml_refined} coordinates updated ({before}→{len(final_widget_set)} total)"
+                )
+                observation_source = (
+                    f"vision+xml_refined({xml_refined}/{len(final_widget_set)})"
+                )
+                self._log(
+                    "XML refinement complete",
+                    f"refined={xml_refined} total={len(final_widget_set)}",
+                )
         else:
             print("[Observer] XML dump failed or empty, using vision-only coordinates")
             fallback_reason = "XML dump failure"
-            self._log("XML dump failed", xml_data if isinstance(xml_data, str) else "empty", level=_LL.WARN)
+            self._log(
+                "XML dump failed",
+                xml_data if isinstance(xml_data, str) else "empty",
+                level=_LL.WARN,
+            )
 
-        # ── 4. Save merged + annotate screenshot (always) ─────────────────────
         with open(merged_path, "w", encoding="utf-8") as f:
             json.dump(final_widget_set, f, indent=4, ensure_ascii=False)
 
         print("[Observer] Annotating screenshot...")
-        self.annotate_screenshot.invoke({
-            "image_path": raw_path,
-            "elements": final_widget_set,
-            "save_path": annotated_path
-        })
+        self.annotate_screenshot.invoke(
+            {
+                "image_path": raw_path,
+                "elements": final_widget_set,
+                "save_path": annotated_path,
+            }
+        )
         self._log("Annotated screenshot saved", annotated_path, level=_LL.DEBUG)
 
-        # ── 5. UI Summary (cache key) ─────────────────────────────────────────
         filtered_widgets = final_widget_set[:50]
         summary_data = [
-            {"id": el.get("id", "?"), "cls": el.get("class", "Widget"), "text": el.get("text", "")}
+            {
+                "id": el.get("id", "?"),
+                "cls": el.get("class", "Widget"),
+                "text": el.get("text", ""),
+            }
             for el in filtered_widgets
         ]
         ui_summary_text = compress_and_report(summary_data, "ui_summary", "observer")
 
-        # ── 6. LLM Cache Check ────────────────────────────────────────────────
-        prev_obs = self.memory.episodic.last_by_actor("observer") if self.memory else None
+        prev_obs = (
+            self.memory.episodic.last_by_actor("observer") if self.memory else None
+        )
         prev_ui_summary = prev_obs.details if prev_obs else ""
         cached_analysis = state.get("observer_analysis", "")
 
@@ -516,14 +577,24 @@ class ObserverAgent:
         if cache_hit:
             raw_res = cached_analysis
             new_stagnation_count = state.get("stagnation_count", 0) + 1
-            print(f"[Observer] [CACHE HIT] UI unchanged — reusing previous analysis (LLM skipped)")
-            self._log(f"LLM SKIPPED — UI summary identical to previous step (stagnation={new_stagnation_count})")
+            print(
+                f"[Observer] [CACHE HIT] UI unchanged — reusing previous analysis (LLM skipped)"
+            )
+            self._log(
+                f"LLM SKIPPED — UI summary identical to previous step (stagnation={new_stagnation_count})"
+            )
         else:
-            # ── 7. Multimodal LLM with annotated image ────────────────────────
             print("[Observer] Calling multimodal LLM for semantic interpretation...")
             img_b64 = self._encode_image(annotated_path, max_height=480)
 
-            elements_data = [{"i": el["id"], "t": el.get("text") or "", "r": el.get("xml_role") or ""} for el in final_widget_set]
+            elements_data = [
+                {
+                    "i": el["id"],
+                    "t": el.get("text") or "",
+                    "r": el.get("xml_role") or "",
+                }
+                for el in final_widget_set
+            ]
             elements_json = compress_and_report(elements_data, "elements", "observer")
 
             builder = self._build_semantic_request_builder()
@@ -538,7 +609,9 @@ class ObserverAgent:
             # so pass through ChatPromptTemplate.from_messages for message objects.
             messages = ChatPromptTemplate.from_messages(built).format_messages()
 
-            self._log("LLM call started (multimodal screen interpretation)", level=_LL.DEBUG)
+            self._log(
+                "LLM call started (multimodal screen interpretation)", level=_LL.DEBUG
+            )
             raw_res = ""
             backoff = 1.0
             for attempt in range(4):
@@ -547,69 +620,88 @@ class ObserverAgent:
                         messages,
                         config={
                             "tags": ["observer", f"step_{current_step}"],
-                            "timeout": 45.0
-                        }
+                            "timeout": 45.0,
+                        },
                     )
                     raw_res = response.content
                     break
                 except Exception as e:
                     err_str = str(e)
-                    is_429 = "429" in err_str or "rate" in err_str.lower() or "too many requests" in err_str.lower()
+                    is_429 = (
+                        "429" in err_str
+                        or "rate" in err_str.lower()
+                        or "too many requests" in err_str.lower()
+                    )
                     if is_429 and attempt < 3:
-                        print(f"[Observer] Rate limited (429), retrying in {backoff:.1f}s (attempt {attempt + 1})...")
-                        self._log(f"Rate limited, retrying in {backoff:.1f}s", err_str, level=_LL.WARN)
+                        print(
+                            f"[Observer] Rate limited (429), retrying in {backoff:.1f}s (attempt {attempt + 1})..."
+                        )
+                        self._log(
+                            f"Rate limited, retrying in {backoff:.1f}s",
+                            err_str,
+                            level=_LL.WARN,
+                        )
                         time.sleep(backoff)
                         backoff = min(backoff * 2, 16.0)
                         continue
                     print(f"\n[!] Observer Vision LLM Failed/Timed Out: {err_str}")
-                    self._log("LLM FATAL ERROR — aborting graph", err_str, level=_LL.ERROR)
+                    self._log(
+                        "LLM FATAL ERROR — aborting graph", err_str, level=_LL.ERROR
+                    )
                     return Command(
                         goto="__end__",
                         update={
                             "execution_result": f"Fatal failure in Observer: {err_str}. Exiting system.",
                             "sender": "observer",
-                            "is_completed": False
-                        }
+                            "is_completed": False,
+                        },
                     )
 
             with open(analysis_path, "w", encoding="utf-8") as f:
                 f.write(raw_res)
-            self._log("LLM analysis complete", raw_res[:500] + ("..." if len(raw_res) > 500 else ""))
+            self._log(
+                "LLM analysis complete",
+                raw_res[:500] + ("..." if len(raw_res) > 500 else ""),
+            )
 
             new_stagnation_count = self._detect_stagnation(
                 ui_summary_text, current_step, state.get("stagnation_count", 0)
             )
 
         if new_stagnation_count > 0:
-            self._log(f"STAGNATION detected — count={new_stagnation_count} (UI unchanged from previous step)")
+            self._log(
+                f"STAGNATION detected — count={new_stagnation_count} (UI unchanged from previous step)"
+            )
 
-        # ── Semantic Memory: persist detected UI elements ─────────────────────
         semantic_entries = []
         for el in final_widget_set:
             text = el.get("text", "").strip()
             if not text:
                 continue
-            semantic_entries.append({
-                "name": f"widget_{el['id']}_{text[:30]}",
-                "summary": f"[{el.get('class', 'Widget')}] {text}",
-                "details": "",
-                "source": "observer",
-                "screen_context": scenario_desc,
-                "bounds": str(el.get("bounds", [])),
-            })
+            semantic_entries.append(
+                {
+                    "name": f"widget_{el['id']}_{text[:30]}",
+                    "summary": f"[{el.get('class', 'Widget')}] {text}",
+                    "details": "",
+                    "source": "observer",
+                    "screen_context": scenario_desc,
+                    "bounds": str(el.get("bounds", [])),
+                }
+            )
 
-        # ── Memory Update ─────────────────────────────────────────────────────
         if self.memory is not None:
             update_packet = {
                 "episodic": {
                     "event_type": "observer_analysis",
-                    "summary": raw_res.split("\n")[0][:200] if raw_res else "Screen analyzed",
+                    "summary": raw_res.split("\n")[0][:200]
+                    if raw_res
+                    else "Screen analyzed",
                     "details": ui_summary_text,
                     "actor": "observer",
                     "step": current_step,
                 },
             }
-            if semantic_entries and getattr(self.memory, "write_semantic_widgets", False):
+            if semantic_entries:
                 update_packet["semantic"] = semantic_entries
             self.memory.update(update_packet)
 

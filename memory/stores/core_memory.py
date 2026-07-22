@@ -35,7 +35,6 @@ class CoreMemoryStore:
         for k, v in self._data.items():
             if topic_lower in k.lower() or topic_lower in v.lower():
                 results.append(CoreEntry(key=k, value=v))
-        # Always include the core constants most useful for agents
         priority_keys = [
             "tcs_id", "task_goal", "expected_result", "scenario_desc",
             "user_role", "navigation_context", "test_type",

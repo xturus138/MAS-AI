@@ -18,7 +18,7 @@ def _make_recorder(steps_completed=3, sub_steps_total=3, is_completed=True, mode
         "figma_enabled": "False",
     }.get(key, "")
     memory.procedural.get_steps.return_value = (
-        []  # autonomous: no sub_steps
+        []
         if mode_hint == "autonomous"
         else [f"step{i}" for i in range(sub_steps_total)]
     )
@@ -51,7 +51,6 @@ def _base_final_state(steps_completed=3, is_completed=True):
     }
 
 
-# ── Test 1: predefined coverage_rate is steps/total ───────────────────────────
 
 def test_predefined_coverage_rate_is_steps_over_total(tmp_path):
     recorder, _ = _make_recorder(steps_completed=2, sub_steps_total=4, mode_hint="predefined")
@@ -65,7 +64,6 @@ def test_predefined_coverage_rate_is_steps_over_total(tmp_path):
     assert metrics["research_metrics"]["coverage_rate"] == 50.0
 
 
-# ── Test 2: predefined full completion gives 100% ─────────────────────────────
 
 def test_predefined_full_completion_coverage_rate_100(tmp_path):
     recorder, _ = _make_recorder(steps_completed=3, sub_steps_total=3, mode_hint="predefined")
@@ -79,7 +77,6 @@ def test_predefined_full_completion_coverage_rate_100(tmp_path):
     assert metrics["research_metrics"]["coverage_rate"] == 100.0
 
 
-# ── Test 3: autonomous coverage_rate is None, not a tautology ────────────────
 
 def test_autonomous_coverage_rate_is_none(tmp_path):
     recorder, _ = _make_recorder(mode_hint="autonomous")

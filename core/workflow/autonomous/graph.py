@@ -28,7 +28,6 @@ def build_autonomous_graph(
 
     graph.add_edge(START, "orchestrator_node")
 
-    # Every sub-agent returns to the orchestrator for the next judgment
     graph.add_edge("observer_node",  "orchestrator_node")
     graph.add_edge("decider_node",   "orchestrator_node")
     graph.add_edge("executor_node",  "orchestrator_node")

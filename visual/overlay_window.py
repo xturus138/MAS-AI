@@ -65,7 +65,6 @@ class OverlayWindow(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # ── Observer: blue bounding boxes ────────────────────────────────────
         pen = QPen(QColor(0, 120, 255, 200))
         pen.setWidth(2)
         painter.setPen(pen)
@@ -77,7 +76,6 @@ class OverlayWindow(QWidget):
             x2, y2 = self._map(box[2], box[3])
             painter.drawRect(x1, y1, x2 - x1, y2 - y1)
 
-        # ── Decider: yellow target highlight ─────────────────────────────────
         if self._target_box:
             b = self._target_box.get("bounds", [])
             if len(b) == 4:
@@ -89,7 +87,6 @@ class OverlayWindow(QWidget):
                 painter.setBrush(QColor(255, 200, 0, 60))
                 painter.drawRect(x1, y1, x2 - x1, y2 - y1)
 
-        # ── Executor: action indicators ────────────────────────────────────────
         if self._ripple:
             alpha = self._ripple["alpha"]
             action_type = self._ripple.get("action_type", "click")
@@ -112,13 +109,11 @@ class OverlayWindow(QWidget):
         rx, ry = self._map(phone_x, phone_y)
         color = QColor(255, 50, 50, alpha)
 
-        # Center dot (precise tap point)
         dot_r = 4
         painter.setPen(QPen(color, 1))
         painter.setBrush(color)
         painter.drawEllipse(rx - dot_r, ry - dot_r, dot_r * 2, dot_r * 2)
 
-        # Short crosshair for exactness
         gap = dot_r + 2
         arm = 14
         painter.setPen(QPen(color, 1))
@@ -134,7 +129,6 @@ class OverlayWindow(QWidget):
         cy = self.height() // 2
         arrow_len = 80
 
-        # Arrow shaft + head in direction
         if direction == "up":
             tip = QPointF(cx, cy - arrow_len)
             base = QPointF(cx, cy + arrow_len // 2)
@@ -144,16 +138,14 @@ class OverlayWindow(QWidget):
         elif direction == "left":
             tip = QPointF(cx - arrow_len, cy)
             base = QPointF(cx + arrow_len // 2, cy)
-        else:  # right
+        else:
             tip = QPointF(cx + arrow_len, cy)
             base = QPointF(cx - arrow_len // 2, cy)
 
-        # Shaft
         pen = QPen(color, 4)
         painter.setPen(pen)
         painter.drawLine(base.toPoint(), tip.toPoint())
 
-        # Arrowhead triangle
         from math import pi, cos, sin
         arrow_deg = {"up": 270, "down": 90, "left": 180, "right": 0}.get(direction, 270)
         rad = arrow_deg * pi / 180
@@ -165,7 +157,6 @@ class OverlayWindow(QWidget):
         painter.setPen(QPen(color, 1))
         painter.drawPolygon(QPolygonF([tip, p1, p2, p3]))
 
-        # Label
         from PyQt5.QtGui import QFont
         painter.setPen(QPen(color, 1))
         label_pos = base.toPoint()
@@ -186,7 +177,7 @@ class OverlayWindow(QWidget):
             rx, ry = 10, h - bh - 10
         elif corner == "bottom-center":
             rx, ry = (w - bw) // 2, h - bh - 10
-        else:  # bottom-right
+        else:
             rx, ry = w - bw - 10, h - bh - 10
 
         painter.drawRoundedRect(rx, ry, bw, bh, 6, 6)

@@ -42,7 +42,6 @@ class LangChainAdapter(ILLMClient):
             callbacks=[self.logger],
         )
 
-    # ── SDK selection ─────────────────────────────────────────────────────
 
     @staticmethod
     def _build_llm(
@@ -75,7 +74,6 @@ class LangChainAdapter(ILLMClient):
                 callbacks=callbacks,
             )
 
-        # OpenAI-compatible (openai, openrouter, blackbox, vertex, gemini, local, etc.)
         return ChatOpenAI(
             model=model_name,
             api_key=api_key,
@@ -87,7 +85,6 @@ class LangChainAdapter(ILLMClient):
             timeout=60,
         )
 
-    # ── ILLMClient interface ──────────────────────────────────────────────
 
     def invoke(self, messages: List[Any], **kwargs) -> Any:
         return self.llm.invoke(messages, **kwargs)

@@ -100,7 +100,7 @@ class FigmaAdapter:
             return "No Figma frames or prototype flows found."
 
         summary = []
-        
+
         if self._flow_starting_points:
             summary.append("NAMED FLOW STARTING POINTS:")
             for fp in self._flow_starting_points:
@@ -123,7 +123,7 @@ class FigmaAdapter:
             else:
                 f_summary += "\n  Connections: None (End node or isolated)"
             summary.append(f_summary)
-        
+
         return "\n".join(summary)
 
     def find_flow_start_node(self, menu_name: str) -> Optional[str]:
@@ -244,7 +244,6 @@ class FigmaAdapter:
         if len(node_ids) > 3:
             target_ids = [node_ids[0], node_ids[len(node_ids)//2], node_ids[-1]]
 
-        # Deduplicate target_ids to avoid redundant concurrent requests
         unique_ids = list(dict.fromkeys(target_ids))
 
         def _fetch_frame_data(nid):
@@ -254,7 +253,6 @@ class FigmaAdapter:
 
             img = Image.open(io.BytesIO(base64.b64decode(b64)))
 
-            # Try to get frame name from self._frames_cache first to avoid redundant API request
             name = f"Frame {nid}"
             if self._frames_cache:
                 for f in self._frames_cache:
@@ -267,14 +265,11 @@ class FigmaAdapter:
                     name = context.get("document", {}).get("name", name)
             return {"img": img, "name": name}
 
-        # Download unique screenshots in parallel
         with ThreadPoolExecutor(max_workers=min(4, len(unique_ids))) as executor:
             fetched = list(executor.map(lambda nid: (nid, _fetch_frame_data(nid)), unique_ids))
 
-        # Create a mapping of node_id -> frame data
         id_to_data = {nid: data for nid, data in fetched if data is not None}
 
-        # Build results in the original target_ids order
         results = [id_to_data[nid] for nid in target_ids if nid in id_to_data]
 
         results = [r for r in results if r is not None]
@@ -291,7 +286,7 @@ class FigmaAdapter:
 
         canvas = Image.new("RGB", (max_w, max_h), (245, 245, 245))
         draw = ImageDraw.Draw(canvas)
-        
+
         try:
             font = ImageFont.truetype("arial.ttf", 32)
         except:
@@ -307,12 +302,29 @@ class FigmaAdapter:
         print(f"[Figma] Composite Gold Standard saved to: {output_path}")
 
 
-def build_figma_adapter_from_prompt(access_token: str) -> Optional[FigmaAdapter]:
-    if config.FIGMA_FILE_URL:
-        file_key = _extract_file_key(config.FIGMA_FILE_URL)
-        print(f"[Figma] File key auto-loaded from config: {file_key}")
+def build_figma_adapter_from_prompt(
+    access_token: str,
+    figma_url: Optional[str] = None,
+) -> Optional[FigmaAdapter]:
+    """
+    Build a FigmaAdapter.
+
+    Priority order for the Figma file URL:
+      1. ``figma_url`` argument (passed from CLI)
+      2. ``FIGMA_URL_QA`` env var (via config.FIGMA_FILE_URL)
+      3. Interactive prompt (fallback when running without CLI args)
+    """
+    resolved_url = figma_url or config.FIGMA_FILE_URL
+
+    if resolved_url:
+        file_key = _extract_file_key(resolved_url)
+        source = "CLI" if figma_url else "config"
+        print(f"[Figma] File key loaded from {source}: {file_key}")
         return FigmaAdapter(file_key=file_key, access_token=access_token)
 
+    # No URL provided via CLI or env — ask interactively.
+    # (main.py already prompts before reaching here, so this is a safety net
+    # for callers that invoke build_figma_adapter_from_prompt directly.)
     print("\n[*] MAS AI - Figma Visual Integration Setup")
     print("    Enter Figma file URL (or press Enter to skip visual validation): ", end="", flush=True)
     try:
@@ -327,4 +339,3 @@ def build_figma_adapter_from_prompt(access_token: str) -> Optional[FigmaAdapter]
     file_key = _extract_file_key(raw_input)
     print(f"[Figma] File key extracted: {file_key}")
     return FigmaAdapter(file_key=file_key, access_token=access_token)
-

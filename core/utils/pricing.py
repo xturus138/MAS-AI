@@ -8,12 +8,7 @@ or bare (e.g. "google/gemini-3-pro-preview"). Both are handled.
 
 from typing import Optional, Tuple
 
-# ---------------------------------------------------------------------------
-# Pricing table  –  (input_cost_per_1M, output_cost_per_1M) in USD
-# Source: pricing.md from Blackbox AI documentation
-# ---------------------------------------------------------------------------
 PRICING: dict[str, Tuple[float, float]] = {
-    # Anthropic
     "anthropic/claude-sonnet-4.6":                      (3.00,  15.00),
     "anthropic/claude-opus-4.6":                        (5.00,  25.00),
     "anthropic/claude-opus-4.7":                        (5.00,  25.00),
@@ -45,7 +40,6 @@ PRICING: dict[str, Tuple[float, float]] = {
     "anthropic/claude-2.1":                             (8.00,  24.00),
     "anthropic/claude-2.1:beta":                        (8.00,  24.00),
 
-    # OpenAI
     "openai/gpt-5.2-codex":                            (1.75,  14.00),
     "openai/gpt-5.2":                                  (1.75,  14.00),
     "openai/chatgpt-4o-latest":                        (5.00,  15.00),
@@ -89,7 +83,6 @@ PRICING: dict[str, Tuple[float, float]] = {
     "openai/o4-mini":                                  (1.10,   4.40),
     "openai/o4-mini-high":                             (1.10,   4.40),
 
-    # Google
     "google/gemini-3-pro-preview":                     (2.00,  12.00),
     "google/gemini-3.1-pro-preview":                   (2.00,  12.00),
     "google/gemini-flash-1.5":                         (0.07,   0.30),
@@ -120,14 +113,12 @@ PRICING: dict[str, Tuple[float, float]] = {
     "google/gemma-3n-e4b-it":                          (0.02,   0.04),
     "google/gemma-3n-e4b-it:free":                     (0.00,   0.00),
 
-    # MiniMax
     "minimax/minimax-m1":                              (0.30,   1.65),
     "minimax/minimax-m2":                              (0.26,   1.02),
     "minimax/minimax-m2.5":                            (0.30,   1.20),
     "minimax/minimax-m2.7":                            (0.30,   1.20),
     "minimax/minimax-01":                              (0.20,   1.10),
 
-    # Meta Llama
     "meta-llama/llama-3-70b-instruct":                 (0.30,   0.40),
     "meta-llama/llama-3-8b-instruct":                  (0.03,   0.06),
     "meta-llama/llama-3.1-405b":                       (2.00,   2.00),
@@ -146,7 +137,6 @@ PRICING: dict[str, Tuple[float, float]] = {
     "meta-llama/llama-4-scout":                        (0.08,   0.30),
     "meta-llama/llama-4-scout:free":                   (0.00,   0.00),
 
-    # DeepSeek
     "deepseek/deepseek-chat":                          (0.38,   0.89),
     "deepseek/deepseek-chat:free":                     (0.00,   0.00),
     "deepseek/deepseek-chat-v3-0324":                  (0.28,   0.88),
@@ -159,7 +149,6 @@ PRICING: dict[str, Tuple[float, float]] = {
     "deepseek/deepseek-r1-distill-llama-8b":           (0.04,   0.04),
     "deepseek/deepseek-prover-v2":                     (0.50,   2.18),
 
-    # Qwen
     "qwen/qwen-2.5-72b-instruct":                     (0.12,   0.39),
     "qwen/qwen-2.5-72b-instruct:free":                 (0.00,   0.00),
     "qwen/qwen-2.5-7b-instruct":                       (0.04,   0.10),
@@ -173,7 +162,6 @@ PRICING: dict[str, Tuple[float, float]] = {
     "qwen/qwen3-14b":                                  (0.06,   0.24),
     "qwen/qwen3-8b":                                   (0.04,   0.14),
 
-    # Mistral
     "mistralai/mistral-large":                         (2.00,   6.00),
     "mistralai/mistral-large-2407":                    (2.00,   6.00),
     "mistralai/mistral-large-2411":                    (2.00,   6.00),
@@ -186,7 +174,6 @@ PRICING: dict[str, Tuple[float, float]] = {
     "mistralai/magistral-medium-2506":                 (2.00,   5.00),
     "mistralai/magistral-small-2506":                  (0.50,   1.50),
 
-    # xAI
     "x-ai/grok-3":                                     (3.00,  15.00),
     "x-ai/grok-3-beta":                                (3.00,  15.00),
     "x-ai/grok-3-mini":                                (0.30,   0.50),
@@ -195,40 +182,30 @@ PRICING: dict[str, Tuple[float, float]] = {
     "x-ai/grok-vision-beta":                           (5.00,  15.00),
     "x-ai/grok-code-fast-1:free":                      (0.00,   0.00),
 
-    # Amazon
     "amazon/nova-lite-v1":                             (0.06,   0.24),
     "amazon/nova-micro-v1":                            (0.04,   0.14),
     "amazon/nova-pro-v1":                              (0.80,   3.20),
 
-    # Cohere
     "cohere/command":                                  (1.00,   2.00),
     "cohere/command-a":                                (2.50,  10.00),
     "cohere/command-r":                                (0.50,   1.50),
     "cohere/command-r-plus":                           (3.00,  15.00),
 
-    # Microsoft
     "microsoft/phi-4":                                 (0.07,   0.14),
     "microsoft/phi-4-multimodal-instruct":             (0.05,   0.10),
     "microsoft/phi-4-reasoning-plus":                  (0.07,   0.35),
     "microsoft/wizardlm-2-8x22b":                      (0.48,   0.48),
 
-    # NVIDIA
     "nvidia/llama-3.1-nemotron-70b-instruct":          (0.12,   0.30),
     "nvidia/llama-3.1-nemotron-ultra-253b-v1":         (0.60,   1.80),
 
-    # Perplexity
     "perplexity/sonar":                                (1.00,   1.00),
     "perplexity/sonar-pro":                            (3.00,  15.00),
     "perplexity/r1-1776":                              (2.00,   8.00),
 
-    # Blackbox
     "blackbox-search":                                 (0.20,   0.50),
 }
 
-# ---------------------------------------------------------------------------
-# Aliases: Blackbox-namespaced → canonical pricing key
-# Pattern: "blackboxai/<provider>/<model>" → "<provider>/<model>"
-# ---------------------------------------------------------------------------
 def _normalize_model_id(model_id: str) -> str:
     """
     Strip the 'blackboxai/' prefix used by Blackbox API calls so the ID
@@ -244,7 +221,6 @@ def _normalize_model_id(model_id: str) -> str:
     if model_id.startswith(prefix):
         model_id = model_id[len(prefix):]
     
-    # Prepend 'google/' prefix for bare Gemini and Gemma model names
     if (model_id.startswith("gemini-") or model_id.startswith("gemma-")) and not model_id.startswith("google/"):
         model_id = "google/" + model_id
         

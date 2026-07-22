@@ -49,7 +49,6 @@ class TestXMLProcessor(unittest.TestCase):
         self.assertEqual(self.processor.get_role_from_class("android.view.View", clickable=True), "button")
 
     def test_label_priority(self):
-        # Create a mock node using ElementTree
         node = ET.Element("node", text="Hello", **{"content-desc": "Desc", "resource-id": "com.app:id/btn"})
         self.assertEqual(self.processor.get_element_label(node), "Hello")
 
@@ -63,12 +62,10 @@ class TestXMLProcessor(unittest.TestCase):
         elements = self.processor.parse_hierarchy(self.sample_xml)
         self.assertTrue(len(elements) > 0)
 
-        # Verify system UI elements (status bar, navigation bar) were filtered out
         for el in elements:
             self.assertNotEqual(el["resource_id"], "com.android.systemui:id/status_bar")
             self.assertNotEqual(el["resource_id"], "com.android.systemui:id/navigation_bar")
 
-        # Verify role normalization
         input_el = next(el for el in elements if el["resource_id"] == "com.example.app:id/username_input")
         self.assertEqual(input_el["role"], "input")
         self.assertTrue(input_el["state"]["focused"])
@@ -83,17 +80,15 @@ class TestXMLProcessor(unittest.TestCase):
 
     def test_element_ranking(self):
         elements = self.processor.parse_hierarchy(self.sample_xml)
-        # First ranked elements should be actionable (input, button, icon)
         first_el = elements[0]
         self.assertTrue(first_el["actionable"])
-        self.assertEqual(first_el["role"], "input")  # focused input gets highest rank
+        self.assertEqual(first_el["role"], "input")
 
     def test_confidence_scoring(self):
         elements = self.processor.parse_hierarchy(self.sample_xml)
         score, reason = self.processor.evaluate_confidence(elements, self.sample_xml)
         self.assertEqual(score, 1.0)
 
-        # Test low confidence with empty elements
         score_low, reason_low = self.processor.evaluate_confidence([], "")
         self.assertEqual(score_low, 0.0)
 

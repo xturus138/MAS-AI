@@ -70,7 +70,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         if os.path.exists(name):
             shutil.rmtree(name)
 
-    # ── Tests ─────────────────────────────────────────────────────────────
 
     def test_vision_xml_refinement_appends_missed_actionable(self):
         """Vision finds nothing, XML has actionable button → appended as widget."""
@@ -81,11 +80,9 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
 
         self.assertIn("xml_refined", result["observation_source"])
         self.assertTrue(len(result["widgets"]) > 0)
-        # Widget came from XML appended (since vision found nothing)
         self.assertEqual(result["widgets"][0]["source"], "xml")
         self.assertEqual(result["widgets"][0]["xml_label"], "Submit")
 
-        # All tools called
         self.take_screenshot.invoke.assert_called_once()
         self.ocr_extract_text.invoke.assert_called_once()
         self.detect_visual_elements.invoke.assert_called_once()
@@ -113,7 +110,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         self.assertEqual(result["confidence_score"], 1.0)
         self.assertTrue(len(result["widgets"]) > 0)
 
-        # Vision tools called
         self.take_screenshot.invoke.assert_called_once()
         self.ocr_extract_text.invoke.assert_called_once()
         self.detect_visual_elements.invoke.assert_called_once()
@@ -135,7 +131,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
 
         result = self.agent.analyze(state)
 
-        # XML-refined: bounds should be the precise XML coords
         self.assertIn("xml_refined", result["observation_source"])
         self.assertEqual(len(result["widgets"]), 1)
         self.assertEqual(result["widgets"][0]["source"], "xml")
@@ -151,7 +146,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         self.detect_visual_elements.invoke.return_value = json.dumps([
             {"bounds": [40, 95, 410, 155]}
         ])
-        # XML has Search field + extra Login button vision missed
         self.dump_hierarchy.invoke.return_value = """<?xml version='1.0' encoding='UTF-8'?>
         <hierarchy rotation="0">
             <node bounds="[0,0][1080,2400]">
@@ -167,14 +161,11 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         result = self.agent.analyze(state)
 
         self.assertIn("xml_refined", result["observation_source"])
-        # Should have 2 widgets: Search (matched+refined) + Login (appended from XML)
         self.assertEqual(len(result["widgets"]), 2)
 
-        # First: Search field — XML-refined
         self.assertEqual(result["widgets"][0]["source"], "xml")
         self.assertEqual(result["widgets"][0]["bounds"], [50, 100, 400, 150])
 
-        # Second: Login button — XML-appended (vision missed it)
         self.assertEqual(result["widgets"][1]["source"], "xml")
         self.assertEqual(result["widgets"][1]["xml_label"], "Login")
         self.assertEqual(result["widgets"][1]["bounds"], [500, 600, 700, 700])

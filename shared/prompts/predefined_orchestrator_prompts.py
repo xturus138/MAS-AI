@@ -5,7 +5,6 @@ Implements: Chain-of-Thought (CoT) + Few-Shot Learning
 Purpose: Guide LLM to reason before selecting Figma paths and bridge steps
 """
 
-# System prompt for Figma flow discovery with CoT
 FIGMA_FLOW_SYSTEM_PROMPT = """You are the Orchestrator Agent in a MAS AI Android testing framework.
 Your task is to analyze a Figma prototype flow and a test scenario to determine the correct sequence of screens (frames) the app should pass through.
 
@@ -22,9 +21,7 @@ RULES:
 3. Return the full path of Node IDs in chronological order.
 4. If no clear path exists, return an empty path_ids list."""
 
-# Few-Shot Examples for Figma flow planning
 FIGMA_FLOW_EXAMPLES = [
-    # Example 1: Simple login flow
     (
         "human",
         '''TEST SCENARIO:
@@ -47,7 +44,6 @@ Connections:
         '''REASONING: The scenario starts at "Login Screen" which matches frame 10:5. The expected result is successful login which leads to the "Dashboard" frame 12:1. There is a direct connection from login to dashboard via the login button. This is a simple two-frame path.
 path_ids: ["10:5", "12:1"]'''
     ),
-    # Example 2: Multi-step checkout flow
     (
         "human",
         '''TEST SCENARIO:
@@ -78,7 +74,6 @@ path_ids: ["20:3", "22:1", "24:5", "26:2"]'''
     ),
 ]
 
-# System prompt for bridge navigation with CoT
 BRIDGE_SYSTEM_PROMPT = """You are the Orchestrator Agent in a MAS AI Android testing framework.
 Your task is to generate a short sequence of navigation steps to transition the app from its CURRENT screen to the REQUIRED STARTING SCREEN of the next test scenario.
 
@@ -97,9 +92,7 @@ Use only these action types in your steps:
 
 Be minimal. Generate only what is strictly necessary to reach the target screen."""
 
-# Few-Shot Examples for bridge navigation
 BRIDGE_EXAMPLES = [
-    # Example 1: Simple back navigation
     (
         "human",
         '''CURRENT SCREEN (where the app is now):
@@ -115,7 +108,6 @@ Figma Node ID: 30:5'''
 bridge_steps: ["press back"]
 reasoning: "Single back action from confirmation returns to product catalog"'''
     ),
-    # Example 2: Multi-step navigation with scroll
     (
         "human",
         '''CURRENT SCREEN (where the app is now):
@@ -131,7 +123,6 @@ Figma Node ID: 10:1'''
 bridge_steps: ["press back"]
 reasoning: "Pressing back from settings returns to the home dashboard"'''
     ),
-    # Example 3: Complex navigation requiring clicks
     (
         "human",
         '''CURRENT SCREEN (where the app is now):

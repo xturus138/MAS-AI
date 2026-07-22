@@ -41,7 +41,6 @@ class LLMJsonLogger(BaseCallbackHandler):
         if not os.path.exists(self.log_dir):
             os.makedirs(self.log_dir, exist_ok=True)
 
-        # State carried from on_chat_model_start → on_llm_end
         self._pending: Dict[str, dict] = {}
 
     def _sanitize(self, filename: str) -> str:
@@ -117,7 +116,6 @@ class LLMJsonLogger(BaseCallbackHandler):
             except Exception as e:
                 print(f"[!] Failed to log LLM payload: {e}")
 
-            # Store filepath keyed by run_id + index so on_llm_end can update it
             pending_key = f"{run_id}_{i}"
             self._pending[pending_key] = {
                 "filepath":      filepath,
@@ -148,11 +146,9 @@ class LLMJsonLogger(BaseCallbackHandler):
             filepath     = pending["filepath"]
             prompt_tokens = pending["prompt_tokens"]
 
-            # --- Try to get completion tokens from usage metadata ---
             completion_tokens = 0
             llm_output = response.llm_output or {}
 
-            # OpenAI / Blackbox API returns token usage in llm_output
             usage = llm_output.get("token_usage") or llm_output.get("usage") or {}
             if usage:
                 completion_tokens = (
@@ -160,12 +156,10 @@ class LLMJsonLogger(BaseCallbackHandler):
                     or usage.get("output_tokens")
                     or 0
                 )
-                # Also trust prompt tokens from the API if available
                 api_prompt = usage.get("prompt_tokens") or usage.get("input_tokens")
                 if api_prompt:
                     prompt_tokens = api_prompt
 
-            # Fallback: estimate from response text
             if completion_tokens == 0:
                 for gen in generation_list:
                     text = getattr(gen, "text", "") or ""
@@ -184,7 +178,6 @@ class LLMJsonLogger(BaseCallbackHandler):
                 f"Cost: {_YELLOW}${cost_usd:.6f}{_RESET}"
             )
 
-            # Patch the log file
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     log_data = json.load(f)

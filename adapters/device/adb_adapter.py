@@ -93,7 +93,7 @@ class ADBAdapter(IDeviceClient):
     def wait_idle(self, timeout: float = 10.0):
         import time
         try:
-            time.sleep(0.5)  # Let transition start
+            time.sleep(0.5)
             self.d.wait_idle(timeout=timeout)
         except Exception:
             pass

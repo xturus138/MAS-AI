@@ -47,10 +47,9 @@ def check_auth_mode():
         print(f"{PASS} API key mode: VERTEX_API_KEY is set.")
         return "api_key"
 
-    # Check if google-auth is available for ADC
     try:
-        import google.auth  # noqa: F401
-        import google.auth.transport.requests  # noqa: F401
+        import google.auth
+        import google.auth.transport.requests
 
         print(f"{PASS} ADC mode: google-auth available, will attempt bearer token.")
         return "adc"
@@ -65,7 +64,6 @@ def check_invoke(role: str = "observer") -> bool:
     """Run one real LLM invocation with Vertex provider."""
     from core.utils.llm_factory import LLMFactory
 
-    # Force provider=vertex for the given role via env override
     role_upper = role.upper()
     original_provider = os.environ.get(f"{role_upper}_PROVIDER")
     original_model = os.environ.get(f"{role_upper}_MODEL")
@@ -73,13 +71,12 @@ def check_invoke(role: str = "observer") -> bool:
     os.environ[f"{role_upper}_PROVIDER"] = "vertex"
     os.environ[f"{role_upper}_MODEL"] = "google/gemini-2.5-flash"
 
-    # Reload modules so computed constants pick up the overridden env vars
     import importlib
     from shared import config as shared_config
     importlib.reload(shared_config)
     import core.utils.llm_factory as llm_factory_mod
     importlib.reload(llm_factory_mod)
-    LLMFactory = llm_factory_mod.LLMFactory  # Local reference after reload
+    LLMFactory = llm_factory_mod.LLMFactory
 
     try:
         print(f"{INFO} Creating {role} LLM via LLMFactory (provider=vertex, model=google/gemini-2.5-flash) ...")
@@ -111,7 +108,6 @@ def check_invoke(role: str = "observer") -> bool:
             print(f"{FAIL} Error: {e}")
         return False
     finally:
-        # Restore original env values
         if original_provider:
             os.environ[f"{role_upper}_PROVIDER"] = original_provider
         else:

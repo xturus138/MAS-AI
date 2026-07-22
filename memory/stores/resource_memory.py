@@ -88,7 +88,6 @@ class ResourceMemoryStore:
                 results.append(self._to_entry(e))
             if len(results) >= max_results:
                 break
-        # Always include the most recent screenshot and figma gold if present
         for rtype in ("figma_gold", "screenshot"):
             path = self.get_latest_screenshot_path(rtype)
             if path and not any(r.path == path for r in results):

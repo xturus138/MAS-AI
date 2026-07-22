@@ -26,15 +26,13 @@ def load_scenarios(xlsx_path: str) -> list[dict]:
             
         first_col = str(row[0]).strip()
         
-        # 1. Skip everything until we find the actual header row
         if not header_found:
             if first_col.upper() == "TCS ID":
                 header_found = True
             continue
             
-        # 2. Once header is found, process the data rows
         tcs_id = first_col
-        if not tcs_id or tcs_id.isdigit(): # Skip if empty or just a number (like the green '1' in screenshot)
+        if not tcs_id or tcs_id.isdigit():
             continue
                 
         menu = str(row[1]).strip() if row[1] else "-"

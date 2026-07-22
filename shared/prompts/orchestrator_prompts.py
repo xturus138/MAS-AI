@@ -1,14 +1,12 @@
 """
 Orchestrator Agent Prompts
 
-Implements: ReAct (Reasoning and Acting) + Few-Shot Learning
+Implements: LLM-based Agent Routing (Command goto) + Few-Shot Learning
+Note: Uses LangGraph Command(goto) for agent selection, not a true ReAct loop.
 Purpose: Prevent infinite loops by showing correct dispatch patterns
 """
 
-# Few-Shot Examples for ReAct pattern
-# Shows Reasoning → Action chains to prevent incorrect dispatch sequences
 FEW_SHOT_EXAMPLES = [
-    # Example 1: After executor → must observe
     (
         "human",
         """SENDER: executor
@@ -24,7 +22,6 @@ ACTION: OBSERVE
 INSTRUCTION: Read the new screen state after the login button was clicked
 is_completed: False"""
     ),
-    # Example 2: After observer → should decide
     (
         "human",
         """SENDER: observer
@@ -46,7 +43,6 @@ ACTION: DECIDE
 INSTRUCTION: Enter test card details into the payment form and proceed with checkout
 is_completed: False"""
     ),
-    # Example 3: After failed reflector → must observe (recovery)
     (
         "human",
         """SENDER: reflector
@@ -65,7 +61,6 @@ ACTION: OBSERVE
 INSTRUCTION: Re-read the current screen to identify what UI elements are actually present
 is_completed: False"""
     ),
-    # Example 4: After successful reflector → complete or continue
     (
         "human",
         """SENDER: reflector

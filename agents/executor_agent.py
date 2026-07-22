@@ -20,7 +20,6 @@ class ExecutorAgent:
             lvl = level if level is not None else _LL.INFO
             self.logger.log("EXECUTOR", msg, detail, level=lvl)
 
-    # ── Text-Match Fallback ───────────────────────────────────────────────────
     def _text_match_fallback(self, widgets: list, plan: dict) -> Optional[dict]:
         """Find a widget by keyword match when target_id lookup fails.
 
@@ -110,7 +109,6 @@ class ExecutorAgent:
         )
                 widget_lookup_success += 1
             else:
-                # ── Text-match fallback: try keyword match before declaring failure ──
                 fallback_widget = self._text_match_fallback(widgets, plan)
                 if fallback_widget:
                     bounds = fallback_widget.get("bounds", [0, 0, 0, 0])
@@ -172,19 +170,14 @@ class ExecutorAgent:
         elif self.monitor is not None and action_type in ("press_back", "press_home", "press_enter"):
             self.monitor.on_executor(0, 0, action_type=action_type)
 
-        # Brief pause so the UI can start rendering before the next screenshot
         if config.ADAPTIVE_EXECUTOR_WAIT and self.tools.d:
-            # Adaptive: wait for UI idle with 1s max timeout (fails fast if already stable)
             self.tools.d.wait_idle(timeout=1.0)
         else:
-            # Legacy: fixed 1s delay
             time.sleep(1)
 
-        # Clear overlay annotations — the screen has changed, old boxes no longer apply.
         if self.monitor is not None:
             self.monitor.on_clear()
 
-        # ── ADB crash detection (opt-in; skipped by default for QA speed) ─────
         if self._check_crash and not is_error:
             crash_line = self.tools.check_crash(lines=50)
             if crash_line:
@@ -192,10 +185,8 @@ class ExecutorAgent:
                 print(f"[Executor] ⚠️  CRASH DETECTED: {crash_line}")
                 self._log("CRASH detected in logcat", crash_line)
 
-        # Recompute after potential crash mutation
         is_error = str(result).startswith("ERROR") or str(result).startswith("[CRASH]")
 
-        # ── Memory Update ─────────────────────────────────────────────────────
         if self.memory is not None:
             self.memory.update({
                 "episodic": {
