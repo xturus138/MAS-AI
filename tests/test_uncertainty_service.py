@@ -101,6 +101,46 @@ class TestService(unittest.TestCase):
         with self.assertRaises(TemperatureRejectedError):
             svc.sample([("system", "x"), ("human", "y")])
 
+    def test_manifest_has_explanation_key_none_when_no_disagreement(self):
+        svc = ObserverUncertaintyService(llm=None, clusterer=_ExactMatchClusterer(),
+                                         cfg=_cfg(), prompt_hash="x")
+        with tempfile.TemporaryDirectory() as d:
+            manifest = svc.measure_from_samples(["[1]: Button - Login"] * 5, WIDGETS, "s", d)
+        self.assertIn("explanation", manifest)
+        self.assertIsNone(manifest["explanation"])
+
+    def test_manifest_explanation_is_none_when_llm_is_none_even_with_disagreement(self):
+        # llm=None -> explainer call raises internally -> caught -> None.
+        # This must not raise, even though there IS real disagreement.
+        svc = ObserverUncertaintyService(llm=None, clusterer=_ExactMatchClusterer(),
+                                         cfg=_cfg(), prompt_hash="x")
+        samples = (["[1]: Primary Button - Login"] * 3) + (["[1]: Text Link - Login"] * 2)
+        with tempfile.TemporaryDirectory() as d:
+            manifest = svc.measure_from_samples(samples, WIDGETS, "Login screen", d)
+        self.assertIsNone(manifest["explanation"])
+
+    def test_manifest_explanation_populated_when_llm_provided(self):
+        class _ExplainerLLM:
+            def invoke(self, messages):
+                from unittest.mock import MagicMock
+                return MagicMock(content="3 of 5 said Primary Button, 2 said Text Link.")
+        svc = ObserverUncertaintyService(llm=_ExplainerLLM(), clusterer=_ExactMatchClusterer(),
+                                         cfg=_cfg(), prompt_hash="x")
+        samples = (["[1]: Primary Button - Login"] * 3) + (["[1]: Text Link - Login"] * 2)
+        with tempfile.TemporaryDirectory() as d:
+            manifest = svc.measure_from_samples(samples, WIDGETS, "Login screen", d)
+        self.assertIsNotNone(manifest["explanation"])
+        self.assertIn("Primary Button", manifest["explanation"])
+
+    def test_per_widget_entries_carry_text_and_role(self):
+        svc = ObserverUncertaintyService(llm=None, clusterer=_ExactMatchClusterer(),
+                                         cfg=_cfg(), prompt_hash="x")
+        with tempfile.TemporaryDirectory() as d:
+            manifest = svc.measure_from_samples(["[1]: Button - Login"] * 5, WIDGETS, "s", d)
+        w = manifest["widgets"][0]
+        self.assertEqual(w["text"], "Login")
+        self.assertEqual(w["role"], "button")
+
 
 if __name__ == "__main__":
     unittest.main()

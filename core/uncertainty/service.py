@@ -5,6 +5,7 @@ measure() samples the LLM then delegates to measure_from_samples(); tests and
 --self-test call measure_from_samples() directly with injected samples.
 """
 from core.uncertainty.artifacts import write_uncertainty_artifacts
+from core.uncertainty.explainer import explain_step_uncertainty
 from core.uncertainty.clusterer import WidgetContext
 from core.uncertainty.dse import normalized_dse, raw_dse
 from core.uncertainty.semantic_parser import parse_semantic_map
@@ -61,9 +62,22 @@ class ObserverUncertaintyService:
         sampling_failures = sampling_failures or []
         parsed = [parse_semantic_map(o) for o in raw_outputs]
 
+        max_widgets = getattr(self.cfg, "max_widgets", None)
+        measured_widgets = widgets
+        skipped_widgets = []
+        if max_widgets is not None and len(widgets) > max_widgets:
+            measured_widgets = widgets[:max_widgets]
+            skipped_widgets = widgets[max_widgets:]
+
         per_widget = []
         for w in widgets:
             wid = w.get("id")
+            if w in skipped_widgets:
+                per_widget.append({
+                    "element_id": wid,
+                    "measurement_status": "skipped_widget_cap",
+                })
+                continue
             responses = []
             parse_failures = 0
             for pmap in parsed:
@@ -81,12 +95,16 @@ class ObserverUncertaintyService:
             cluster_result = self.clusterer.cluster(responses, ctx)
             counts = cluster_result.counts
             effective_m = sum(counts)
+            # raw_dse (nats, unbounded) is the paper-faithful primary result.
+            # normalized_dse (0-1) is a derived, secondary presentation for dashboards.
             r = raw_dse(counts)
             n = normalized_dse(counts)
             status = "insufficient_samples" if effective_m <= 1 else "ok"
 
             per_widget.append({
                 "element_id": wid,
+                "text": ctx.text,
+                "role": ctx.role,
                 "responses": responses,
                 "clusters": cluster_result.clusters,
                 "cluster_probabilities": [c / effective_m for c in counts] if effective_m else [],
@@ -104,6 +122,8 @@ class ObserverUncertaintyService:
                 "measurement_status": status,
             })
 
+        explanation = explain_step_uncertainty(self.llm, per_widget, screen_desc)
+
         manifest = {
             "enabled": self.cfg.enabled,
             "prompt_hash": self.prompt_hash,
@@ -118,6 +138,10 @@ class ObserverUncertaintyService:
             "calibration_status": "not_calibrated",
             "raw_samples": raw_outputs,
             "sampling_failures": sampling_failures,
+            "max_widgets": max_widgets,
+            "widgets_measured": len(measured_widgets),
+            "widgets_skipped": len(skipped_widgets),
+            "explanation": explanation,
             "widgets": per_widget,
         }
         unc_dir = write_uncertainty_artifacts(step_dir, manifest, per_widget)
