@@ -8,11 +8,14 @@ from langchain_core.prompts import ChatPromptTemplate
 from langgraph.types import Command
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
+from core.uncertainty.clusterer import EntailmentClusterer
+from core.uncertainty.config import UncertaintyConfig
 from core.uncertainty.request_builder import (
     HUMAN_TEMPLATE,
     OUTPUT_CONTRACT,
     ObserverSemanticRequestBuilder,
 )
+from core.uncertainty.service import ObserverUncertaintyService, TemperatureRejectedError
 from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 from shared.prompts.observer_prompts import SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
 from shared import config
@@ -61,6 +64,49 @@ class ObserverAgent:
             human_template=HUMAN_TEMPLATE,
             output_contract=OUTPUT_CONTRACT,
         )
+
+    def _maybe_run_uncertainty(self, enabled, builder, scenario_desc,
+                               navigation_context, elements_json, img_b64,
+                               widgets, step_dir) -> str:
+        """When enabled, run M fresh independent DSE samples (never the cached/normal
+        response). Returns the uncertainty artifact dir path, or "" when disabled/failed.
+        DSE is measurement only and never affects the returned Observer analysis."""
+        if not enabled:
+            return ""
+        try:
+            cfg = UncertaintyConfig(
+                enabled=True,
+                samples=config.OBSERVER_UNCERTAINTY_SAMPLES,
+                temperature=config.OBSERVER_UNCERTAINTY_TEMPERATURE,
+                provider=getattr(self.llm, "provider", "unknown"),
+                model=getattr(self.llm, "model_name", "unknown"),
+                judge_model=getattr(self.llm, "model_name", "unknown"),
+            )
+            messages = ChatPromptTemplate.from_messages(
+                builder.build(
+                    scenario_desc=scenario_desc,
+                    navigation_context=navigation_context,
+                    elements_json=elements_json,
+                    img_b64=img_b64,
+                )
+            ).format_messages()
+            service = ObserverUncertaintyService(
+                llm=self.llm,
+                clusterer=EntailmentClusterer(self.llm),
+                cfg=cfg,
+                prompt_hash=builder.prompt_hash,
+            )
+            manifest = service.measure(messages, widgets, scenario_desc, step_dir)
+            self._log("DSE uncertainty measured",
+                      f"dir={manifest.get('uncertainty_dir')}", level=_LL.DEBUG)
+            return manifest.get("uncertainty_dir", "")
+        except TemperatureRejectedError as e:
+            self._log("DSE uncertainty aborted (temperature rejected)", str(e),
+                      level=_LL.WARN)
+            return ""
+        except Exception as e:  # noqa: BLE001 — instrumentation must never break the workflow
+            self._log("DSE uncertainty failed (non-fatal)", str(e), level=_LL.WARN)
+            return ""
 
     def _merge_ocr_blocks(self, ocr_elements: list) -> list:
         if not ocr_elements:
@@ -573,6 +619,21 @@ class ObserverAgent:
         if self.monitor is not None:
             self.monitor.on_observer(final_widget_set)
 
+        uncertainty_dir = ""
+        if config.OBSERVER_UNCERTAINTY_ENABLED:
+            unc_builder = self._build_semantic_request_builder()
+            unc_img_b64 = self._encode_image(annotated_path, max_height=480)
+            unc_elements_json = compress_and_report(
+                [{"i": el["id"], "t": el.get("text") or "", "r": el.get("xml_role") or ""}
+                 for el in final_widget_set],
+                "elements", "observer",
+            )
+            uncertainty_dir = self._maybe_run_uncertainty(
+                enabled=True, builder=unc_builder, scenario_desc=scenario_desc,
+                navigation_context=navigation_context, elements_json=unc_elements_json,
+                img_b64=unc_img_b64, widgets=final_widget_set, step_dir=step_dir,
+            )
+
         return {
             "screenshot_path": raw_path,
             "widgets": final_widget_set,
@@ -584,4 +645,5 @@ class ObserverAgent:
             "observation_source": observation_source,
             "confidence_score": confidence_score,
             "fallback_reason": fallback_reason,
+            "uncertainty_artifact_dir": uncertainty_dir,
         }
