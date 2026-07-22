@@ -59,3 +59,5 @@ class AgentState(TypedDict):
     widget_lookup_success: int
     widget_lookup_fail: int
     widget_text_fallback_count: int     # fallback recoveries via text-match (subset of widget_lookup_success)
+
+    uncertainty_artifact_dir: str
