@@ -141,6 +141,31 @@ class TestService(unittest.TestCase):
         self.assertEqual(w["text"], "Login")
         self.assertEqual(w["role"], "button")
 
+    def test_widget_cap_skips_widgets_beyond_max_widgets(self):
+        cfg = UncertaintyConfig(enabled=True, samples=5, temperature=1.0,
+                                provider="stub", model="m", judge_model="m",
+                                max_widgets=1)
+        svc = ObserverUncertaintyService(llm=None, clusterer=_ExactMatchClusterer(),
+                                         cfg=cfg, prompt_hash="x")
+        widgets = [
+            {"id": 1, "text": "Login", "xml_role": "button"},
+            {"id": 2, "text": "Cancel", "xml_role": "button"},
+            {"id": 3, "text": "Help", "xml_role": "link"},
+        ]
+        samples = ["[1]: Button - Login"] * 5
+        with tempfile.TemporaryDirectory() as d:
+            manifest = svc.measure_from_samples(samples, widgets, "s", d)
+
+        self.assertEqual(manifest["widgets_measured"], 1)
+        self.assertEqual(manifest["widgets_skipped"], 2)
+
+        by_id = {w["element_id"]: w for w in manifest["widgets"]}
+        self.assertEqual(by_id[1]["measurement_status"], "ok")
+        self.assertEqual(by_id[2]["measurement_status"], "skipped_widget_cap")
+        self.assertEqual(by_id[3]["measurement_status"], "skipped_widget_cap")
+        self.assertNotIn("text", by_id[2])
+        self.assertNotIn("role", by_id[3])
+
 
 if __name__ == "__main__":
     unittest.main()

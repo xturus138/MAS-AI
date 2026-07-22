@@ -10,3 +10,4 @@ class UncertaintyConfig:
     provider: str
     model: str
     judge_model: str
+    max_widgets: int = 20
