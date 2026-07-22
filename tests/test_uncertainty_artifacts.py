@@ -39,6 +39,30 @@ class TestArtifacts(unittest.TestCase):
             self.assertNotIn("token", m)
             self.assertNotIn("authorization", m.get("nested", {}))
 
+    def test_writes_explanation_txt_when_present(self):
+        manifest = {"explanation": "3 of 5 said A, 2 said B.", "widgets": []}
+        with tempfile.TemporaryDirectory() as d:
+            unc_dir = write_uncertainty_artifacts(d, manifest, [])
+            exp_path = os.path.join(unc_dir, "explanation.txt")
+            self.assertTrue(os.path.exists(exp_path))
+            with open(exp_path, encoding="utf-8") as f:
+                content = f.read()
+            self.assertEqual(content, "3 of 5 said A, 2 said B.")
+
+    def test_does_not_write_explanation_txt_when_none(self):
+        manifest = {"explanation": None, "widgets": []}
+        with tempfile.TemporaryDirectory() as d:
+            unc_dir = write_uncertainty_artifacts(d, manifest, [])
+            exp_path = os.path.join(unc_dir, "explanation.txt")
+            self.assertFalse(os.path.exists(exp_path))
+
+    def test_does_not_write_explanation_txt_when_key_missing(self):
+        manifest = {"widgets": []}  # no "explanation" key at all
+        with tempfile.TemporaryDirectory() as d:
+            unc_dir = write_uncertainty_artifacts(d, manifest, [])
+            exp_path = os.path.join(unc_dir, "explanation.txt")
+            self.assertFalse(os.path.exists(exp_path))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -27,4 +27,8 @@ def write_uncertainty_artifacts(step_dir: str, run_manifest: dict,
         json.dump(safe_manifest, f, indent=2, ensure_ascii=False)
     with open(os.path.join(unc_dir, "widgets.json"), "w", encoding="utf-8") as f:
         json.dump(safe_widgets, f, indent=2, ensure_ascii=False)
+    explanation = run_manifest.get("explanation")
+    if explanation:
+        with open(os.path.join(unc_dir, "explanation.txt"), "w", encoding="utf-8") as f:
+            f.write(explanation)
     return unc_dir
