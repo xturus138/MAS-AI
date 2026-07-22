@@ -18,15 +18,24 @@ def _format_widgets_block(uncertain_widgets: list) -> str:
     lines = []
     for w in uncertain_widgets:
         cluster_lines = []
-        for cluster in w["clusters"]:
+        for cluster in w.get("clusters", []):
             count = len(cluster)
             sample_desc = cluster[0] if cluster else ""
             cluster_lines.append(f"    - {count}x: {sample_desc}")
         lines.append(
-            f"- Widget {w['element_id']} (text={w.get('text', '') or '(none)'}, "
+            f"- Widget {w.get('element_id', '?')} (text={w.get('text', '') or '(none)'}, "
             f"role={w.get('role', '') or '(unknown)'}):\n" + "\n".join(cluster_lines)
         )
     return "\n".join(lines)
+
+
+def _invoke_and_extract(llm, messages):
+    """Call llm.invoke(messages) and return stripped text, or None on any exception."""
+    try:
+        resp = llm.invoke(messages)
+        return (getattr(resp, "content", resp) or "").strip()
+    except Exception:  # noqa: BLE001 — explanation generation must never break the run
+        return None
 
 
 def explain_step_uncertainty(llm, widgets_data: list, screen_desc: str):
@@ -40,10 +49,8 @@ def explain_step_uncertainty(llm, widgets_data: list, screen_desc: str):
     )
     messages = [("system", EXPLAINER_SYSTEM_PROMPT), ("human", human_text)]
 
-    try:
-        resp = llm.invoke(messages)
-        text = (getattr(resp, "content", resp) or "").strip()
-    except Exception:  # noqa: BLE001 — explanation generation must never break the run
+    text = _invoke_and_extract(llm, messages)
+    if text is None:
         return None
 
     if not contains_banned_word(text):
@@ -53,10 +60,8 @@ def explain_step_uncertainty(llm, widgets_data: list, screen_desc: str):
         ("system", EXPLAINER_SYSTEM_PROMPT),
         ("human", human_text + EXPLAINER_RETRY_REMINDER),
     ]
-    try:
-        resp = llm.invoke(retry_messages)
-        text = (getattr(resp, "content", resp) or "").strip()
-    except Exception:  # noqa: BLE001
+    text = _invoke_and_extract(llm, retry_messages)
+    if text is None:
         return None
 
     if contains_banned_word(text):

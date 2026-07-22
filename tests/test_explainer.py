@@ -81,6 +81,17 @@ class TestExplainStepUncertainty(unittest.TestCase):
         result = explain_step_uncertainty(llm, widgets, "Notes screen")
         self.assertIsNone(result)
 
+    def test_exception_on_retry_call_returns_none(self):
+        llm = MagicMock()
+        llm.invoke.side_effect = [
+            MagicMock(content="The widget was unreliable across samples."),
+            RuntimeError("connection reset"),
+        ]
+        widgets = [_widget(7, 0.65, [["A"] * 3, ["B"] * 2])]
+        result = explain_step_uncertainty(llm, widgets, "Notes screen")
+        self.assertIsNone(result)
+        self.assertEqual(llm.invoke.call_count, 2)
+
     def test_none_llm_returns_none_without_raising(self):
         widgets = [_widget(7, 0.65, [["A"] * 3, ["B"] * 2])]
         result = explain_step_uncertainty(None, widgets, "Notes screen")
