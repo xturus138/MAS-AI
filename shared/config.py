@@ -157,3 +157,9 @@ WORKFLOW_STRATEGY = os.getenv("WORKFLOW_STRATEGY", "predefined").lower()
 ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == "true"  # Skip sleep if UI stable
 PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"  # Parallel loading+UI change
 OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"  # Cache LLM results for identical screens
+
+# --- Observer DSE uncertainty (Phase 1: measurement only) ---
+OBSERVER_UNCERTAINTY_ENABLED = os.getenv("OBSERVER_UNCERTAINTY_ENABLED", "false").lower() == "true"
+OBSERVER_UNCERTAINTY_SAMPLES = int(os.getenv("OBSERVER_UNCERTAINTY_SAMPLES", "5"))
+# Provisional, literature-inspired value. NOT validated. See docs/observer-uncertainty.md.
+OBSERVER_UNCERTAINTY_TEMPERATURE = float(os.getenv("OBSERVER_UNCERTAINTY_TEMPERATURE", "1.0"))
