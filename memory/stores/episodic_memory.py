@@ -64,7 +64,6 @@ class EpisodicMemoryStore:
     def search(self, topic: str, max_results: int = 5) -> List[EpisodicEntry]:
         results = []
         try:
-            # FTS keyword search first
             cur = self._conn.execute(
                 "SELECT e.event_type, e.summary, e.details, e.actor, e.timestamp, e.step "
                 "FROM episodes e "
@@ -78,7 +77,6 @@ class EpisodicMemoryStore:
         except Exception:
             pass
 
-        # Always append the last N episodes regardless of topic
         needed = max_results - len(results)
         if needed > 0:
             cur = self._conn.execute(
@@ -125,7 +123,6 @@ class EpisodicMemoryStore:
 
     @staticmethod
     def _fts_query(topic: str) -> str:
-        # Escape special FTS5 characters and build OR query from words
         words = [w.strip('"') for w in topic.split() if len(w) > 2]
         if not words:
             return '""'

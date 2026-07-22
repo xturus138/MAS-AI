@@ -14,7 +14,6 @@ from agents.reflector_agent import (
 )
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _make_agent():
     """Build a ReflectorAgent with three individually-mocked LLM clients."""
@@ -50,7 +49,6 @@ def _base_state(**overrides):
     return state
 
 
-# ── Test 1: Loading check short-circuit ───────────────────────────────────────
 
 def test_loading_short_circuit_returns_fail_without_calling_change_or_validity():
     agent = _make_agent()
@@ -65,7 +63,6 @@ def test_loading_short_circuit_returns_fail_without_calling_change_or_validity()
     agent._llm_validity.invoke.assert_not_called()
 
 
-# ── Test 2: UI change short-circuit ───────────────────────────────────────────
 
 def test_ui_change_short_circuit_returns_fail_without_calling_validity():
     agent = _make_agent()
@@ -82,7 +79,6 @@ def test_ui_change_short_circuit_returns_fail_without_calling_validity():
     agent._llm_validity.invoke.assert_not_called()
 
 
-# ── Test 3: Full chain — all pass ─────────────────────────────────────────────
 
 def test_full_chain_pass_all_three_calls_invoked():
     agent = _make_agent()
@@ -104,7 +100,6 @@ def test_full_chain_pass_all_three_calls_invoked():
     agent._llm_validity.invoke.assert_called_once()
 
 
-# ── Test 4: Full chain — validity fails ───────────────────────────────────────
 
 def test_full_chain_validity_fail_returns_false():
     agent = _make_agent()
@@ -123,7 +118,6 @@ def test_full_chain_validity_fail_returns_false():
     assert result["last_reflector_passed"] is False
 
 
-# ── Test 5: start_app bypasses all 3 LLM calls ────────────────────────────────
 
 def test_start_app_bypasses_llm_chain():
     agent = _make_agent()
@@ -142,7 +136,6 @@ def test_start_app_bypasses_llm_chain():
     assert result["last_reflector_passed"] is True
 
 
-# ── Test 6: report JSON contains chain metadata ────────────────────────────────
 
 def test_report_json_contains_chain_metadata(tmp_path):
     agent = _make_agent()
@@ -169,7 +162,6 @@ def test_report_json_contains_chain_metadata(tmp_path):
     assert chain["short_circuit"] is None
 
 
-# ── Test 7: input action — no UI change should NOT short-circuit ──────────────
 
 def test_input_action_no_ui_change_proceeds_to_call3():
     agent = _make_agent()
@@ -186,11 +178,10 @@ def test_input_action_no_ui_change_proceeds_to_call3():
     state = _base_state(action_plan={"action_type": "input"})
     result = agent.evaluate(state)
 
-    agent._llm_validity.invoke.assert_called_once()   # must NOT short-circuit
+    agent._llm_validity.invoke.assert_called_once()
     assert result["last_reflector_passed"] is True
 
 
-# ── Test 8: scroll action — no UI change should NOT short-circuit ─────────────
 
 def test_scroll_action_no_ui_change_proceeds_to_call3():
     agent = _make_agent()
@@ -207,11 +198,10 @@ def test_scroll_action_no_ui_change_proceeds_to_call3():
     state = _base_state(action_plan={"action_type": "scroll"})
     result = agent.evaluate(state)
 
-    agent._llm_validity.invoke.assert_called_once()   # must NOT short-circuit
-    assert result["last_reflector_passed"] is False   # validity result propagated
+    agent._llm_validity.invoke.assert_called_once()
+    assert result["last_reflector_passed"] is False
 
 
-# ── Test 9: click action — no UI change STILL short-circuits (regression) ─────
 
 def test_click_action_no_ui_change_still_short_circuits():
     agent = _make_agent()
@@ -225,5 +215,5 @@ def test_click_action_no_ui_change_still_short_circuits():
     state = _base_state(action_plan={"action_type": "click"})
     result = agent.evaluate(state)
 
-    agent._llm_validity.invoke.assert_not_called()    # must short-circuit
+    agent._llm_validity.invoke.assert_not_called()
     assert result["last_reflector_passed"] is False

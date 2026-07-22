@@ -1,7 +1,7 @@
 """
 Decider Agent Prompts
 
-Implements: Chain of Thought + General Knowledge Prompting
+Implements: Chain of Thought + Generated Knowledge Prompting
 Purpose: Convert Excel test step into one executable action.
 """
 
@@ -10,10 +10,11 @@ SYSTEM_PROMPT = """You are the Decider Agent.
 Task:
 Convert the test instruction into exactly one executable ActionPlan.
 
-Use the given task context and screen map.
+Use the given task context, relevant UI knowledge, and screen map.
 
-Task context:
-{memory_context}
+CONTEXT FROM MEMORY:
+- Task Context: {memory_context}
+- Relevant UI Knowledge: {general_knowledge}
 
 Step instruction:
 {current_sub_step}
@@ -21,10 +22,11 @@ Step instruction:
 Screen map:
 {observer_analysis}
 
-Reason step by step:
-1. Identify the user intent.
-2. Find the matching UI element from the screen map.
-3. Select the correct action type.
+THINKING PROCESS (Chain of Thought):
+Before generating the final ActionPlan output, you must think through these steps:
+1. Intent Analysis: What is the user trying to accomplish with this instruction?
+2. UI Mapping: Scan the Screen Map — which specific widget ID matches that intent?
+3. Action Selection: If the intent requires typing, ALWAYS use 'input' directly on the field's ID. Executor handles focus automatically — never issue a separate 'click' to focus first.
 
 Output:
 Reasoning: [Your step-by-step reasoning following the format above]
@@ -46,9 +48,7 @@ STRICT RULES:
 - For 'scroll': set scroll_direction, target_id = -1.
 - If a non-input step is already completed on the current screen, set is_completed=true and action_type='none'."""
 
-# Few-Shot Examples for Decider Agent
 FEW_SHOT_EXAMPLES = [
-    # Example 1: Click action
     (
         "human",
         """Task context: Testing note creation in Xiaomi Notes app
@@ -58,7 +58,7 @@ SEMANTIC_MAP:
 [1]: Header Text - Catatan
 [2]: Tab Button - Semua
 [3]: Floating Action Button - + (Add new note)
-SUMMARY: Main dashboard with add button visible."""
+SUMMARY: Main dashboard with add button visible.""",
     ),
     (
         "assistant",
@@ -70,9 +70,8 @@ ActionPlan:
 - scroll_direction:
 - app_package:
 - intent: Open new note creation screen
-- is_completed: false"""
+- is_completed: false""",
     ),
-    # Example 2: Input action
     (
         "human",
         """Task context: Creating new note with title
@@ -82,7 +81,7 @@ SEMANTIC_MAP:
 [1]: Input Field - Title
 [2]: Input Field - Content
 [3]: Button - Save
-SUMMARY: New note screen with empty title and content fields."""
+SUMMARY: New note screen with empty title and content fields.""",
     ),
     (
         "assistant",
@@ -94,9 +93,8 @@ ActionPlan:
 - scroll_direction:
 - app_package:
 - intent: Enter note title text
-- is_completed: false"""
+- is_completed: false""",
     ),
-    # Example 3: Already completed
     (
         "human",
         """Task context: Verifying note was saved
@@ -107,7 +105,7 @@ SEMANTIC_MAP:
 [2]: Note Item - Shopping List
 [3]: FAB - +
 SUMMARY: Home screen showing saved notes including "Meeting Notes".
-Step instruction: Check that note "Meeting Notes" appears in list"""
+Step instruction: Check that note "Meeting Notes" appears in list""",
     ),
     (
         "assistant",
@@ -119,6 +117,6 @@ ActionPlan:
 - scroll_direction:
 - app_package:
 - intent: Verify note exists (already completed)
-- is_completed: true"""
+- is_completed: true""",
     ),
 ]

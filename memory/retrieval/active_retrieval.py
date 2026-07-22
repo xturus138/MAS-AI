@@ -3,8 +3,12 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from memory.stores import (
-        CoreMemoryStore, EpisodicMemoryStore, SemanticMemoryStore,
-        ProceduralMemoryStore, ResourceMemoryStore, KnowledgeVaultStore,
+        CoreMemoryStore,
+        EpisodicMemoryStore,
+        KnowledgeVaultStore,
+        ProceduralMemoryStore,
+        ResourceMemoryStore,
+        SemanticMemoryStore,
     )
 
 
@@ -20,7 +24,9 @@ def _format_episodic(entries) -> str:
         return ""
     lines = []
     for e in entries:
-        lines.append(f"  [{e.timestamp}] [{e.actor}] step={e.step} | {e.event_type}: {e.summary}")
+        lines.append(
+            f"  [{e.timestamp}] [{e.actor}] step={e.step} | {e.event_type}: {e.summary}"
+        )
         if e.details:
             lines.append(f"    {e.details[:300]}")
     return "<episodic_memory>\n" + "\n".join(lines) + "\n</episodic_memory>"
@@ -58,6 +64,15 @@ def _format_resource(entries) -> str:
     return "<resource_memory>\n" + "\n".join(lines) + "\n</resource_memory>"
 
 
+def _format_vault(entries) -> str:
+    if not entries:
+        return ""
+    lines = []
+    for e in entries:
+        lines.append(f"  [{e.entry_type}] {e.key}: {e.value}")
+    return "<knowledge_vault>\n" + "\n".join(lines) + "\n</knowledge_vault>"
+
+
 class ActiveRetrieval:
     """
     Implements MIRIX Active Retrieval (Section 3.2 of the paper).
@@ -87,16 +102,56 @@ class ActiveRetrieval:
         Active Retrieval: search all stores in parallel, tag results by source.
         Returns a multi-tag context string ready for LLM injection.
         """
+        return "\n\n".join(
+            text for text in self.retrieve_with_labels(topic, max_per_store).values() if text
+        )
+
+    def retrieve_with_labels(self, topic: str, max_per_store: int = 5) -> dict[str, str]:
+        """
+        Active Retrieval with explicit source labels.
+
+        Returns a dict mapping store name to its tagged context string.
+        Empty stores return empty strings, making it easy to select only the
+        sources an agent needs (e.g., semantic + vault for general knowledge).
+        """
         tasks = {
-            "core":       lambda: self._core.search(topic),
-            "episodic":   lambda: self._episodic.search(topic, max_per_store),
-            "semantic":   lambda: self._semantic.search(topic, max_per_store),
+            "core": lambda: self._core.search(topic),
+            "episodic": lambda: self._episodic.search(topic, max_per_store),
+            "semantic": lambda: self._semantic.search(topic, max_per_store),
             "procedural": lambda: self._procedural.search(topic),
-            "resource":   lambda: self._resource.search(topic, max_per_store),
+            "resource": lambda: self._resource.search(topic, max_per_store),
+            "vault": lambda: self._vault.search(topic),
         }
 
         results = {}
-        with ThreadPoolExecutor(max_workers=5) as ex:
+        with ThreadPoolExecutor(max_workers=6) as ex:
+            futures = {ex.submit(fn): name for name, fn in tasks.items()}
+            for future in as_completed(futures):
+                name = futures[future]
+                try:
+                    results[name] = future.result(timeout=5)
+                except Exception:
+                    results[name] = []
+
+        return {
+            "core": _format_core(results.get("core", [])),
+            "episodic": _format_episodic(results.get("episodic", [])),
+            "semantic": _format_semantic(results.get("semantic", [])),
+            "procedural": _format_procedural(results.get("procedural", [])),
+            "resource": _format_resource(results.get("resource", [])),
+            "vault": _format_vault(results.get("vault", [])),
+        }
+        tasks = {
+            "core": lambda: self._core.search(topic),
+            "episodic": lambda: self._episodic.search(topic, max_per_store),
+            "semantic": lambda: self._semantic.search(topic, max_per_store),
+            "procedural": lambda: self._procedural.search(topic),
+            "resource": lambda: self._resource.search(topic, max_per_store),
+            "vault": lambda: self._vault.search(topic),
+        }
+
+        results = {}
+        with ThreadPoolExecutor(max_workers=6) as ex:
             futures = {ex.submit(fn): name for name, fn in tasks.items()}
             for future in as_completed(futures):
                 name = futures[future]
@@ -108,11 +163,12 @@ class ActiveRetrieval:
         parts = []
         core_str = _format_core(results.get("core", []))
         epis_str = _format_episodic(results.get("episodic", []))
-        sem_str  = _format_semantic(results.get("semantic", []))
+        sem_str = _format_semantic(results.get("semantic", []))
         proc_str = _format_procedural(results.get("procedural", []))
-        res_str  = _format_resource(results.get("resource", []))
+        res_str = _format_resource(results.get("resource", []))
+        vault_str = _format_vault(results.get("vault", []))
 
-        for s in (core_str, epis_str, sem_str, proc_str, res_str):
+        for s in (core_str, epis_str, sem_str, proc_str, res_str, vault_str):
             if s:
                 parts.append(s)
 

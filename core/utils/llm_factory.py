@@ -65,11 +65,9 @@ class LLMFactory:
                 "X-Title": "MAS-Agent",
             }
         elif provider == "vertex":
-            # Vertex OpenAI-compatible endpoint requires publisher prefix
             if "/" not in model:
                 model = f"google/{model}"
             if api_key and api_key.lower() not in ("", "none"):
-                # API key goes as query param, not header
                 separator = "&" if "?" in base_url else "?"
                 base_url = f"{base_url}{separator}key={api_key}"
                 api_key = "unused-vertex-api-key"

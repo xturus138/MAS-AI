@@ -13,16 +13,18 @@ DIRECT INSTRUCTIONS & STRICT RULES:
 2. Grouping: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys.
 3. Formatting: You MUST output exactly in the format below. No conversational filler or introductory text.
 
+GENERAL KNOWLEDGE (from prior experience and UI repository):
+{general_knowledge}
+
+Use this only to improve UI element classification; do not invent elements not visible in the screenshot.
+
 OUTPUT FORMAT:
 SEMANTIC_MAP:
 [[ID]]: [UI Element Type] - [Visible Text or Icon Description]
 ...
 SUMMARY: [One clear sentence describing the overall screen layout and available actions.]"""
 
-# Few-Shot Examples for output format locking
-# Format: (role, content) tuples compatible with ChatPromptTemplate
 FEW_SHOT_EXAMPLES = [
-    # Example 1: Notes App Dashboard
     (
         "human",
         """App Context: Notes App
@@ -37,7 +39,6 @@ Elements: [{{"i": 1, "t": "Catatan"}}, {{"i": 2, "t": "Semua"}}, {{"i": 3, "t": 
 [3]: Floating Action Button (FAB) - + (Add new note)
 SUMMARY: The screen displays the main dashboard of a notes application with a list filter and a floating action button to create a new note."""
     ),
-    # Example 2: Login Screen
     (
         "human",
         """App Context: E-commerce Login
@@ -53,7 +54,6 @@ Elements: [{{"i": 1, "t": "Email"}}, {{"i": 2, "t": "Password"}}, {{"i": 3, "t":
 [4]: Text Link - Forgot Password?
 SUMMARY: The screen displays a login form with email and password input fields, a primary login button, and a password recovery link."""
     ),
-    # Example 3: Product Detail with Keyboard
     (
         "human",
         """App Context: Product Search

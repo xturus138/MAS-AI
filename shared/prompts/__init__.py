@@ -5,7 +5,7 @@ This package contains prompt templates and few-shot examples for all LLM agents.
 Prompts follow best practices from the Prompt Engineering literature:
 - Few-Shot Learning for output format locking
 - Chain-of-Thought (CoT) for reasoning before action
-- ReAct pattern for decision-making
+- LLM-based agent routing via LangGraph Command(goto) for decision-making
 - Directional Stimulus for focused evaluation
 """
 

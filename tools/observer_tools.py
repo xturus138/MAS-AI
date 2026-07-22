@@ -116,14 +116,11 @@ class ObserverTools:
 
             img_h, img_w = img.shape[:2]
 
-            # Detect source coordinate system from first element
             scale_x, scale_y = 1.0, 1.0
             if elements:
                 first = elements[0]
                 bounds = first.get("bounds", [])
                 if len(bounds) >= 4:
-                    # XML bounds are typically in device coordinates (e.g., 720x1600)
-                    # Need to scale to actual screenshot dimensions
                     max_x = max(el.get("bounds", [0, 0, 0, 0])[2] for el in elements if len(el.get("bounds", [])) >= 4) or 720
                     max_y = max(el.get("bounds", [0, 0, 0, 0])[3] for el in elements if len(el.get("bounds", [])) >= 4) or 1600
                     if max_x > 0 and max_y > 0:
@@ -139,19 +136,17 @@ class ObserverTools:
                 if len(ann_bounds) != 4:
                     continue
 
-                # Scale coordinates to match screenshot dimensions
                 x1 = int(ann_bounds[0] * scale_x)
                 y1 = int(ann_bounds[1] * scale_y)
                 x2 = int(ann_bounds[2] * scale_x)
                 y2 = int(ann_bounds[3] * scale_y)
 
-                # Different colors for XML vs vision elements
                 if el_source == "xml":
-                    color = (0, 165, 255)  # Orange for XML
+                    color = (0, 165, 255)
                 elif el_type == "container":
-                    color = (0, 0, 255)  # Red for vision containers
+                    color = (0, 0, 255)
                 else:
-                    color = (255, 0, 0)    # Blue for vision text
+                    color = (255, 0, 0)
 
                 thickness = 2 if el_type == "container" else 1
                 cv2.rectangle(img, (x1, y1), (x2, y2), color, thickness)

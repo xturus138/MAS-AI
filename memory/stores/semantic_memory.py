@@ -117,7 +117,6 @@ class SemanticMemoryStore:
         except Exception:
             pass
 
-        # Fallback: return most-recently-updated entries if FTS finds nothing
         if not results:
             cur = self._conn.execute(
                 "SELECT name, summary, details, source, screen_context, bounds_json "

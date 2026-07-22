@@ -3,11 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Suppress noisy third-party warnings before any heavy imports
 os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
 os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
 
-# HuggingFace Hub timeout settings (in seconds)
 os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", os.getenv("HF_HUB_DOWNLOAD_TIMEOUT", "300"))
 os.environ.setdefault("HF_HUB_ETAG_TIMEOUT", os.getenv("HF_HUB_ETAG_TIMEOUT", "300"))
 
@@ -17,7 +15,6 @@ OUTPUT_DIR    = os.getenv("OUTPUT_DIR", "outputs")
 MAX_TOKENS    = int(os.getenv("MAX_TOKENS", "4000"))
 LOCAL_LLM_URL = os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1")
 
-# 9Router (OpenAI compatible local endpoint) - MAS-AI model
 NINEROUTER_BASE_URL = os.getenv("NINEROUTER_BASE_URL", "http://localhost:20128/v1")
 NINEROUTER_API_KEY = os.getenv("NINEROUTER_API_KEY", "not-needed-for-local")
 NINEROUTER_MODEL = os.getenv("NINEROUTER_MODEL", "MAS-AI")
@@ -25,24 +22,19 @@ NINEROUTER_MODEL = os.getenv("NINEROUTER_MODEL", "MAS-AI")
 CURSOR_API_KEY = os.getenv("CURSOR_API_KEY", "")
 CURSOR_BASE_URL = os.getenv("CURSOR_BASE_URL", "https://api2.cursor.sh")
 
-# Azure OpenAI configuration
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT", "https://masaiskripsi.openai.azure.com/openai/v1")
 AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY", "")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-06-01")
 
-# BlueSminds AI configuration
 BLUESMINDS_API_KEY = os.getenv("BLUESMINDS_API_KEY", "")
 BLUESMINDS_BASE_URL = os.getenv("BLUESMINDS_BASE_URL", "https://api.bluesminds.com/v1")
 
-# LLM7 configuration
 LLM7_API_KEY = os.getenv("LLM7_API_KEY", "")
 LLM7_BASE_URL = os.getenv("LLM7_BASE_URL", "https://api.llm7.io/v1")
 
-# Alibaba Cloud MaaS configuration
 ALIBABA_API_KEY = os.getenv("ALIBABA_API_KEY", "")
 ALIBABA_BASE_URL = os.getenv("ALIBABA_BASE_URL", "https://ws-uzp67h5dtqgxfa3h.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1")
 
-# Vertex AI configuration
 VERTEX_PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "mas-ai-497913")
 VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "global")
 VERTEX_ENDPOINT = os.getenv("VERTEX_ENDPOINT", "openapi")
@@ -65,7 +57,6 @@ PROVIDER_URLS: dict = {
     "gemini":     "https://generativelanguage.googleapis.com/v1beta/openai/",
     "google":     "https://generativelanguage.googleapis.com/v1beta/openai/",
     "9router":    os.getenv("NINEROUTER_BASE_URL", "http://localhost:20128/v1"),
-    # Azure uses per-deployment endpoints, not a shared URL
     "azure":      AZURE_OPENAI_ENDPOINT if AZURE_OPENAI_ENDPOINT else "",
 }
 
@@ -79,30 +70,24 @@ def _resolve_api_key(provider: str, key_env_var: str) -> str:
     if provider_key and provider_key.lower() != "none":
         return provider_key
 
-    # Robust fallback for Google / Gemini provider keys
     if provider in ("gemini", "google"):
         for alt_var in ("GEMINI_API_KEY", "GOOGLE_API_KEY"):
             alt_key = os.getenv(alt_var)
             if alt_key and alt_key.lower() != "none":
                 return alt_key
 
-    # Fallback for 9Router
     if provider == "9router":
         return os.getenv("9ROUTER_API_KEY", "not-needed-for-local")
 
-    # Vertex AI: return empty string so adapter knows to try ADC
     if provider == "vertex":
         return os.getenv("VERTEX_API_KEY", "")
 
-    # Alibaba Cloud MaaS: return empty string if not set (no fallback to OPENROUTER)
     if provider == "alibaba":
         return os.getenv("ALIBABA_API_KEY", "")
 
-    # LLM7: return empty string if not set (no fallback to OPENROUTER)
     if provider == "llm7":
         return os.getenv("LLM7_API_KEY", "")
 
-    # BlueSminds: return empty string if not set
     if provider == "bluesminds":
         return os.getenv("BLUESMINDS_API_KEY", "")
 
@@ -137,8 +122,7 @@ FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
 FIGMA_FILE_URL     = os.getenv("FIGMA_URL_QA", "")
 FIGMA_REQUEST_TIMEOUT = int(os.getenv("FIGMA_REQUEST_TIMEOUT", "300"))
 
-# Observer Mode (XML-first hybrid or pure vision)
-OBSERVER_MODE = os.getenv("OBSERVER_MODE", "xml_first").lower()  # "xml_first" or "pure_vision"
+OBSERVER_MODE = os.getenv("OBSERVER_MODE", "xml_first").lower()
 
 print(f"[*] Environment Loaded:")
 print(f"    - Observer Mode:      {OBSERVER_MODE}")
@@ -153,7 +137,12 @@ TOKEN_WARN_THRESHOLD = float(os.getenv("TOKEN_WARN_THRESHOLD", "0.75"))
 
 WORKFLOW_STRATEGY = os.getenv("WORKFLOW_STRATEGY", "predefined").lower()
 
-# Performance Tuning (non-breaking, opt-in)
-ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == "true"  # Skip sleep if UI stable
-PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"  # Parallel loading+UI change
-OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"  # Cache LLM results for identical screens
+ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == "true"
+PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"
+OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"
+
+# --- Observer DSE uncertainty (Phase 1: measurement only) ---
+OBSERVER_UNCERTAINTY_ENABLED = os.getenv("OBSERVER_UNCERTAINTY_ENABLED", "false").lower() == "true"
+OBSERVER_UNCERTAINTY_SAMPLES = int(os.getenv("OBSERVER_UNCERTAINTY_SAMPLES", "5"))
+# Provisional, literature-inspired value. NOT validated. See docs/observer-uncertainty.md.
+OBSERVER_UNCERTAINTY_TEMPERATURE = float(os.getenv("OBSERVER_UNCERTAINTY_TEMPERATURE", "1.0"))

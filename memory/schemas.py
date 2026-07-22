@@ -4,6 +4,7 @@ from typing import List
 
 @dataclass
 class CoreEntry:
+    """Core store — immutable session facts. CoALA extension (not in original 4 types)."""
     key: str
     value: str
     updated_at: str = ""
@@ -11,27 +12,30 @@ class CoreEntry:
 
 @dataclass
 class EpisodicEntry:
-    event_type: str       # "observer_analysis" | "action_executed" | "verification" | "orchestrator_decision"
+    """Episodic store — long-term memory of past experiences/events."""
+    event_type: str
     summary: str
     details: str
-    actor: str            # "observer" | "decider" | "executor" | "reflector" | "orchestrator"
+    actor: str
     timestamp: str
     step: int
 
 
 @dataclass
 class SemanticEntry:
-    name: str             # widget label / entity identifier
-    summary: str          # one-line description
-    details: str          # extended context (bounds, screen, function)
-    source: str           # "observer" | "inferred"
-    screen_context: str   # screen on which this was observed
-    bounds: List[int] = field(default_factory=list)  # [x1, y1, x2, y2]
+    """Semantic store — UI concepts/widget descriptions for cross-step recall."""
+    name: str
+    summary: str
+    details: str
+    source: str
+    screen_context: str
+    bounds: List[int] = field(default_factory=list)
 
 
 @dataclass
 class ProceduralEntry:
-    entry_type: str       # "workflow" | "bridge"
+    """Procedural store — ordered task sub-steps. CoALA extension (not in original 4 types)."""
+    entry_type: str
     description: str
     steps: List[str]
     tcs_id: str
@@ -39,9 +43,10 @@ class ProceduralEntry:
 
 @dataclass
 class ResourceEntry:
+    """Resource store — binary assets (screenshots, Figma gold standard)."""
     title: str
     summary: str
-    resource_type: str    # "screenshot" | "annotated_screenshot" | "figma_gold" | "figma_composite"
+    resource_type: str
     path: str
     step: int
     timestamp: str
@@ -49,7 +54,8 @@ class ResourceEntry:
 
 @dataclass
 class VaultEntry:
-    entry_type: str       # "credential" | "api_key" | "device_id"
+    """Knowledge Vault — domain heuristics accumulated across runs."""
+    entry_type: str
     key: str
     value: str
-    sensitivity: str      # "low" | "medium" | "high"
+    sensitivity: str

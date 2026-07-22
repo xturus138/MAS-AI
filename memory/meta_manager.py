@@ -10,10 +10,22 @@ from memory.retrieval.active_retrieval import ActiveRetrieval
 
 class MIRIXMemorySystem:
     """
-    The Meta Memory Manager.
+    The Meta Memory Manager (MIRIX).
 
-    This is the single gateway all agents call for memory I/O.
-    No agent reads from or writes to any store directly.
+    Single gateway for all agent memory I/O. No agent reads from or writes
+    to any store directly. Implements 6 memory stores based on the CoALA
+    framework plus MIRIX extensions:
+
+    Long-Term Memories:
+      - Episodic   (SQLite+FTS5): Timestamped event log for self-evaluation
+      - Semantic   (SQLite+FTS5): UI concepts/widget descriptions for cross-step recall
+      - Procedural (JSON):        Ordered sub-steps from scenario.xlsx
+      - Core       (JSON):        Immutable session facts (task_goal, expected_result)
+      - Resource   (JSON+disk):   Binary assets (Figma gold standard, screenshots)
+      - Vault      (JSON):        Domain heuristics accumulated across runs
+
+    Short-Term (not stored here):
+      - Working Memory: AgentState TypedDict, ephemeral per-step
 
     Two operations:
       retrieve(topic)  — Active Retrieval: parallel search, tagged context string
@@ -24,13 +36,11 @@ class MIRIXMemorySystem:
         self.session_id = session_id
         self.output_dir = output_dir
 
-        # Session-specific stores (discarded after each run)
         self.core       = CoreMemoryStore(session_id, output_dir)
         self.episodic   = EpisodicMemoryStore(session_id, output_dir)
         self.procedural = ProceduralMemoryStore(session_id, output_dir)
         self.resource   = ResourceMemoryStore(session_id, output_dir)
 
-        # Persistent stores — use cross_run_dir if provided so knowledge survives across runs
         persistent_dir  = cross_run_dir if cross_run_dir else output_dir
         self.semantic   = SemanticMemoryStore(session_id, persistent_dir)
         self.vault      = KnowledgeVaultStore(session_id, persistent_dir)
@@ -40,7 +50,6 @@ class MIRIXMemorySystem:
             self.procedural, self.resource, self.vault,
         )
 
-    # ── Public API ────────────────────────────────────────────────────────────
 
     def retrieve(self, topic: str, max_per_store: int = 5) -> str:
         """
@@ -89,7 +98,6 @@ class MIRIXMemorySystem:
                     store_name = futures[future]
                     print(f"[MIRIX] Warning: {store_name} update failed: {e}")
 
-    # ── Convenience helpers used by runner at session init ────────────────────
 
     def init_session(self, scenario: dict, tcs_id: str, figma_context: dict):
         """
@@ -121,7 +129,6 @@ class MIRIXMemorySystem:
                 }
             })
 
-        # Persist Figma Gold Standard image to disk → Resource Memory
         figma_b64 = figma_context.get("figma_end_screenshot_b64", "")
         if figma_b64:
             self.resource.save_figma_gold(figma_b64, self.output_dir)

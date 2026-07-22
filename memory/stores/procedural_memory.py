@@ -55,7 +55,6 @@ class ProceduralMemoryStore:
                     steps=e.get("steps", []),
                     tcs_id=e.get("tcs_id", ""),
                 ))
-        # Always return the full entry list if search returns nothing
         if not results:
             results = [
                 ProceduralEntry(

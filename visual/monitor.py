@@ -53,7 +53,6 @@ class VisualMonitor:
             height_ratio = height / max(1, self.device_h)
             structural_class = any(token in class_name for token in ("FrameLayout", "LinearLayout", "ViewGroup"))
 
-            # Full-screen / broad structural wrappers from XML should not be painted.
             if not actionable and role == "view" and structural_class and area_ratio >= 0.05:
                 return False
             if not actionable and width_ratio >= 0.85 and height_ratio >= 0.20:

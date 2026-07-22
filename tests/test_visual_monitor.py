@@ -3,7 +3,6 @@ from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Add project root to path so we can import visual.monitor
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
@@ -43,11 +42,10 @@ def test_monitor_no_crash_when_overlay_none():
     """All public methods must be safe to call when overlay is None (monitor disabled)."""
     from visual.monitor import VisualMonitor
     m = VisualMonitor(device_w=1080, device_h=2400)
-    # _overlay is None by default before start()
     m.on_observer([{"bounds": [0, 0, 100, 100]}])
     m.on_decider({"bounds": [10, 10, 80, 80]})
     m.on_executor(540, 1200)
-    m.stop()  # must not raise
+    m.stop()
 
 
 def test_monitor_start_scrcpy_not_found():

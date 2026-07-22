@@ -24,9 +24,19 @@ from core.utils.output_writer import write_run_overview, write_run_index as _wri
 from core.utils.output_manager import create_run_output, write_latest_index, compute_run_root
 
 
-def run_predefined():
+def run_predefined(xlsx_path: str = "", figma_url: str | None = None):
     """
     Entry point for the Predefined (Scenario-Based) workflow.
+
+    Parameters
+    ----------
+    xlsx_path:
+        Absolute (or CWD-relative) path to the scenario.xlsx to run.
+        Falls back to ``scenario.xlsx`` in the current working directory
+        when not supplied (legacy behaviour).
+    figma_url:
+        Figma file URL for visual validation.  Overrides ``FIGMA_URL_QA``
+        from .env when provided.
 
     Flow per scenario:
       1. MIRIXMemorySystem init  →  2. Figma discovery  →  3. memory.init_session()
@@ -35,14 +45,14 @@ def run_predefined():
     """
     print("[*] Starting PREDEFINED Workflow...")
 
-    # ── Shared output roots ─────────────────────────────────────────────────
     run_root, date_str, run_number = compute_run_root("predefined")
     all_run_metrics = []
     os.makedirs(run_root, exist_ok=True)
     print(f"[*] Run root: {run_root}")
 
-    # ── Infrastructure (Once per run) ─────────────────────────────────────────
-    figma_adapter = build_figma_adapter_from_prompt(access_token=config.FIGMA_ACCESS_TOKEN)
+    figma_adapter = build_figma_adapter_from_prompt(
+        access_token=config.FIGMA_ACCESS_TOKEN, figma_url=figma_url or None
+    )
     device_adapter = ADBAdapter(config.TARGET_DEVICE).connect()
     obs_tools = ObserverTools(device_adapter)
     exe_tools = ExecutorTools(device_adapter)
@@ -54,18 +64,16 @@ def run_predefined():
     )
     monitor.start()
 
-    # ── Load Scenarios ────────────────────────────────────────────────────────
-    xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
+    if not xlsx_path:
+        xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
     if not os.path.exists(xlsx_path):
-        print(f"[-] Excel file not found at {xlsx_path}.")
+        print(f"[-] scenario.xlsx not found at: {xlsx_path}")
         return
 
     scenarios = load_scenarios(xlsx_path)
     if not scenarios:
         print("[-] No valid scenarios extracted.")
         return
-
-    # ── Execute Each Scenario ─────────────────────────────────────────────────
 
     try:
         for scenario_index, target_scenario in enumerate(scenarios):
@@ -80,26 +88,22 @@ def run_predefined():
             cross_run_dir = paths.shared_memory_dir
             write_latest_index(paths)
 
-            # ── MIRIX Memory System (one per scenario) ────────────────────────────
             memory = MIRIXMemorySystem(
                 session_id=session_id,
                 output_dir=output_dir,
                 cross_run_dir=cross_run_dir,
             )
 
-            # ── Process Logger (one per scenario) ────────────────────────────────
             logger = ProcessLogger(output_dir)
             logger.log("RUNNER", f"Scenario {scenario_index + 1}/{len(scenarios)} started",
                        f"tcs_id={tcs_id}  session_id={session_id}\n"
                        f"mode=predefined  output_dir={output_dir}")
 
-            # ── LLMs ──────────────────────────────────────────────────────────────
             perception_llm   = LLMFactory.create("observer",      session_id=session_id, log_dir=paths.llm_logs_dir)
             strategic_llm    = LLMFactory.create("decider",       session_id=session_id, log_dir=paths.llm_logs_dir)
             reflector_llm    = LLMFactory.create("reflector",     session_id=session_id, log_dir=paths.llm_logs_dir)
             orchestrator_llm = LLMFactory.create("orchestrator",  session_id=session_id, log_dir=paths.llm_logs_dir)
 
-            # ── Agents (all receive the shared memory + logger instances) ─────────
             orchestrator = PredefinedOrchestrator(
                 llm=orchestrator_llm, figma_adapter=figma_adapter, memory=memory, logger=logger
             )
@@ -109,7 +113,6 @@ def run_predefined():
             reflector = ReflectorAgent(reflector_llm, memory=memory, logger=logger, device=device_adapter)
             recorder  = RecorderAgent(memory=memory, logger=logger)
 
-            # ── Figma Discovery ───────────────────────────────────────────────────
             logger.log("RUNNER", "Starting Figma pre-scenario discovery")
             figma_context = orchestrator.pre_scenario_discovery(
                 scenario=target_scenario,
@@ -120,26 +123,21 @@ def run_predefined():
                        f"start_node={figma_context.get('figma_start_node_id', '')}\n"
                        f"end_node={figma_context.get('figma_end_node_id', '')}")
 
-            # ── Bootstrap MIRIX Memory from scenario + figma context ──────────────
             memory.init_session(
                 scenario=target_scenario,
                 tcs_id=tcs_id,
                 figma_context=figma_context,
             )
 
-            # ── Build Graph ───────────────────────────────────────────────────────
             app = build_predefined_graph(observer, decider, executor, reflector, orchestrator)
 
-            # ── Initial AgentState (slim working-memory only) ─────────────────────
             initial_state: AgentState = {
-                # Control
                 "tcs_id":                   tcs_id,
                 "session_id":               session_id,
                 "sender":                   "START",
                 "next_agent":               "",
                 "current_step":             0,
                 "is_completed":             False,
-                # Current-step working memory
                 "screenshot_path":          "",
                 "output_dir":               output_dir,
                 "step_dir":                 "",
@@ -152,23 +150,18 @@ def run_predefined():
                 "action_plan":              {},
                 "execution_result":         "",
                 "last_reflector_passed":    True,
-                # Observer output
                 "observer_analysis":        "",
                 "observer_analysis_step":   -1,
                 "widgets":                  [],
-                # MIRIX
                 "memory_context":           "",
-                # Orchestrator control
                 "current_sub_step_index":   0,
                 "orchestrator_instruction": "",
                 "is_final_step":            False,
                 "is_first_verify_attempt":  True,
                 "step_retry_count":         0,
-                # Stagnation / recovery
                 "stagnation_count":         0,
                 "recovery_attempts":        0,
                 "last_agent_calls":         [],
-                # Research metrics
                 "start_time":               0.0,
                 "end_time":                 0.0,
                 "steps_completed_count":    0,
@@ -195,12 +188,10 @@ def run_predefined():
                        f"status={status}  cycles={final_state.get('current_step', 0)}\n"
                        f"stagnation={stagnation}  is_completed={is_completed}")
 
-            # ── Finalize: write metrics + episodic history to disk ────────────────
             metrics = recorder.finalize_run_metrics(final_state, shared_dir=run_root)
             if metrics:
                 all_run_metrics.append(metrics)
 
-            # ── Write run_overview.md (human-readable summary) ─────────────────
             steps_data = []
             if memory is not None:
                 episodes = memory.episodic.all_as_dicts()
@@ -240,7 +231,6 @@ def run_predefined():
             print(f"Figma  : {'Enabled' if figma_context.get('figma_enabled') else 'Text-only fallback'}")
             print(f"Results: {output_dir}")
 
-            # ── Bridge navigation to next scenario ────────────────────────────────
             if scenario_index < len(scenarios) - 1 and figma_adapter:
                 next_scenario   = scenarios[scenario_index + 1]
                 next_menu       = next_scenario.get("navigation_context", "")
@@ -254,10 +244,8 @@ def run_predefined():
                         print(f"[Predefined] Injecting {len(bridge_steps)} bridge step(s) into next scenario")
                         scenarios[scenario_index + 1]["sub_steps"] = bridge_steps + next_scenario["sub_steps"]
 
-        # ── Merged Run-Level Output ───────────────────────────────────────────
         RecorderAgent.write_run_summary(all_run_metrics, run_root)
 
-        # ── Mode-level run_index.json ──────────────────────────────────────────
         _write_run_index(run_root, all_run_metrics)
         mode_root = os.path.join(config.OUTPUT_DIR, "runs", "predefined")
         _write_run_index(mode_root, all_run_metrics)
