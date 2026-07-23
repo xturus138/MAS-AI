@@ -88,6 +88,12 @@ class ObserverAgent:
             manifest = service.measure(messages, widgets, scenario_desc, step_dir)
             self._log("DSE uncertainty measured",
                       f"dir={manifest.get('uncertainty_dir')}", level=_LL.DEBUG)
+            explanation = manifest.get("explanation")
+            if explanation:
+                print(f"[Uncertainty] {explanation}")
+            elif not any(w.get("raw_dse", 0) > 0 for w in manifest.get("widgets", [])):
+                measured = manifest.get("widgets_measured", len(manifest.get("widgets", [])))
+                print(f"[Uncertainty] No disagreement detected across {measured} widgets.")
             return manifest.get("uncertainty_dir", "")
         except TemperatureRejectedError as e:
             self._log("DSE uncertainty aborted (temperature rejected)", str(e),
