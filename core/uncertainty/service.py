@@ -63,16 +63,16 @@ class ObserverUncertaintyService:
         parsed = [parse_semantic_map(o) for o in raw_outputs]
 
         max_widgets = getattr(self.cfg, "max_widgets", None)
-        measured_widgets = widgets
-        skipped_widgets = []
+        widgets_measured_count = len(widgets)
+        widgets_skipped_count = 0
         if max_widgets is not None and len(widgets) > max_widgets:
-            measured_widgets = widgets[:max_widgets]
-            skipped_widgets = widgets[max_widgets:]
+            widgets_measured_count = max_widgets
+            widgets_skipped_count = len(widgets) - max_widgets
 
         per_widget = []
-        for w in widgets:
+        for idx, w in enumerate(widgets):
             wid = w.get("id")
-            if w in skipped_widgets:
+            if max_widgets is not None and idx >= max_widgets:
                 per_widget.append({
                     "element_id": wid,
                     "measurement_status": "skipped_widget_cap",
@@ -139,8 +139,8 @@ class ObserverUncertaintyService:
             "raw_samples": raw_outputs,
             "sampling_failures": sampling_failures,
             "max_widgets": max_widgets,
-            "widgets_measured": len(measured_widgets),
-            "widgets_skipped": len(skipped_widgets),
+            "widgets_measured": widgets_measured_count,
+            "widgets_skipped": widgets_skipped_count,
             "explanation": explanation,
             "widgets": per_widget,
         }

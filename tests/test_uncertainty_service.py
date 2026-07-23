@@ -166,6 +166,34 @@ class TestService(unittest.TestCase):
         self.assertNotIn("text", by_id[2])
         self.assertNotIn("role", by_id[3])
 
+    def test_widget_cap_uses_position_not_value_equality(self):
+        # Two widgets that are equal by value (same id/text/role) — an artificial,
+        # adversarial construction to prove the cap classification is positional,
+        # not a `w in skipped_widgets` value-equality membership check. If it were
+        # value-based, the first (measured) widget would be misclassified as
+        # skipped too, since it's equal-by-value to the second (actually skipped)
+        # widget.
+        cfg = UncertaintyConfig(enabled=True, samples=5, temperature=1.0,
+                                provider="stub", model="m", judge_model="m",
+                                max_widgets=1)
+        svc = ObserverUncertaintyService(llm=None, clusterer=_ExactMatchClusterer(),
+                                         cfg=cfg, prompt_hash="x")
+        widgets = [
+            {"id": 1, "text": "Login", "xml_role": "button"},
+            {"id": 1, "text": "Login", "xml_role": "button"},
+        ]
+        samples = ["[1]: Button - Login"] * 5
+        with tempfile.TemporaryDirectory() as d:
+            manifest = svc.measure_from_samples(samples, widgets, "s", d)
+
+        self.assertEqual(manifest["widgets_measured"], 1)
+        self.assertEqual(manifest["widgets_skipped"], 1)
+
+        entries = manifest["widgets"]
+        self.assertEqual(len(entries), 2)
+        self.assertEqual(entries[0]["measurement_status"], "ok")
+        self.assertEqual(entries[1]["measurement_status"], "skipped_widget_cap")
+
 
 if __name__ == "__main__":
     unittest.main()
