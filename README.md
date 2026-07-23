@@ -39,6 +39,8 @@ Five specialized agents work in a loop:
 | **Reflector** | "Did it work?" (Verifies actions achieved the intended result) |
 | **Orchestrator** | "What's next?" (Coordinates the overall flow and decides which agent runs next) |
 
+When DSE finds genuine disagreement between samples, it also generates a short plain-English explanation of what disagreed — printed to the CLI and collected into `run_overview.md`'s "Observer Uncertainty" section.
+
 ### Memory System (MIRIX)
 
 The agents remember things across steps using a structured memory system designed called MIRIX. It has six different "memory stores":

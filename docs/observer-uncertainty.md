@@ -144,3 +144,31 @@ python tests/run_observer_uncertainty.py --image "path\annotated.png" --elements
 The self-test verifies one cluster → normalized `0.0`; `[3,2]` → raw ≈ `0.673`,
 normalized ≈ `0.418`; five clusters → normalized ≈ `1.0`; and that no threshold-based or
 accepted/rejected/pass/fail decision is produced.
+
+## 10. Uncertainty Explanations (XAI layer)
+
+When at least one widget in a step has `raw_dse > 0`, one additional LLM call
+(reusing the Observer's own LLM client — no new provider config) generates a
+plain-English explanation of what disagreed, using the existing cluster data.
+This is a **reporting layer only** — it never affects DSE measurement, never
+gates the workflow, and is subject to the same measurement-only guarantees as
+DSE itself.
+
+The explanation is:
+- Printed to the CLI as `[Uncertainty] <explanation>` (or
+  `[Uncertainty] No disagreement detected across N widgets.` when nothing
+  needed explaining — this line requires no LLM call).
+- Written to `{step_dir}/uncertainty/explanation.txt`, only when an
+  explanation was successfully generated (absence signals either "nothing
+  uncertain" or "generation failed" — both are non-fatal to the run).
+- Collected into a `## Observer Uncertainty` section in the run's
+  `run_overview.md`, listing every step that produced one, in step order.
+
+The explanation is prohibited from using judgment/decision language
+(uncertain, unreliable, failed, correct, pass, fail, accepted, rejected,
+etc. — see `core/uncertainty/banned_words.py` for the exact list). If the
+LLM's response uses a banned word, it is retried once with a stricter
+reminder; if the retry still violates the rule, the explanation is discarded
+entirely (same as any other generation failure) rather than shown with the
+violation. See `docs/observer-uncertainty-explanations-design.md` for the
+full design.
