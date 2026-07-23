@@ -146,3 +146,6 @@ OBSERVER_UNCERTAINTY_ENABLED = os.getenv("OBSERVER_UNCERTAINTY_ENABLED", "false"
 OBSERVER_UNCERTAINTY_SAMPLES = int(os.getenv("OBSERVER_UNCERTAINTY_SAMPLES", "5"))
 # Provisional, literature-inspired value. NOT validated. See docs/observer-uncertainty.md.
 OBSERVER_UNCERTAINTY_TEMPERATURE = float(os.getenv("OBSERVER_UNCERTAINTY_TEMPERATURE", "1.0"))
+# Cost cap: entailment clustering issues up to 2 judge calls per (sample, existing cluster)
+# per widget. Widgets beyond this count are skipped and recorded, not silently dropped.
+OBSERVER_UNCERTAINTY_MAX_WIDGETS = int(os.getenv("OBSERVER_UNCERTAINTY_MAX_WIDGETS", "20"))

@@ -4,7 +4,7 @@ import os
 import time
 
 import cv2
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import convert_to_messages
 from langgraph.types import Command
 
 from core.models.state import AgentState
@@ -56,7 +56,7 @@ class ObserverAgent:
 
     def _maybe_run_uncertainty(self, enabled, builder, scenario_desc,
                                navigation_context, elements_json, img_b64,
-                               widgets, step_dir) -> str:
+                               widgets, step_dir, general_knowledge="No relevant prior UI knowledge.") -> str:
         """When enabled, run M fresh independent DSE samples (never the cached/normal
         response). Returns the uncertainty artifact dir path, or "" when disabled/failed.
         DSE is measurement only and never affects the returned Observer analysis."""
@@ -70,15 +70,17 @@ class ObserverAgent:
                 provider=getattr(self.llm, "provider", "unknown"),
                 model=getattr(self.llm, "model_name", "unknown"),
                 judge_model=getattr(self.llm, "model_name", "unknown"),
+                max_widgets=config.OBSERVER_UNCERTAINTY_MAX_WIDGETS,
             )
-            messages = ChatPromptTemplate.from_messages(
+            messages = convert_to_messages(
                 builder.build(
                     scenario_desc=scenario_desc,
                     navigation_context=navigation_context,
                     elements_json=elements_json,
                     img_b64=img_b64,
+                    general_knowledge=general_knowledge,
                 )
-            ).format_messages()
+            )
             service = ObserverUncertaintyService(
                 llm=self.llm,
                 clusterer=EntailmentClusterer(self.llm),
@@ -609,11 +611,14 @@ class ObserverAgent:
                 navigation_context=navigation_context,
                 elements_json=elements_json,
                 img_b64=img_b64,
+                general_knowledge=general_knowledge,
             )
-            from langchain_core.prompts import ChatPromptTemplate
-            # built already contains fully-resolved text (no templating needed),
-            # so pass through ChatPromptTemplate.from_messages for message objects.
-            messages = ChatPromptTemplate.from_messages(built).format_messages()
+            # built already contains fully-resolved text with no template variables
+            # left to fill, so convert straight to message objects — do NOT route
+            # through ChatPromptTemplate.from_messages().format_messages(), which
+            # re-templates literal braces (e.g. JSON in elements_json) and raises
+            # KeyError on real screen data.
+            messages = convert_to_messages(built)
 
             self._log(
                 "LLM call started (multimodal screen interpretation)", level=_LL.DEBUG
@@ -730,6 +735,7 @@ class ObserverAgent:
                 enabled=True, builder=unc_builder, scenario_desc=scenario_desc,
                 navigation_context=navigation_context, elements_json=unc_elements_json,
                 img_b64=unc_img_b64, widgets=final_widget_set, step_dir=step_dir,
+                general_knowledge=general_knowledge,
             )
 
         return {

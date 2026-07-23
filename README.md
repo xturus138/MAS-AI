@@ -29,7 +29,7 @@ The framework runs on your computer and controls an Android device (physical pho
 
 ### The Agent Team
 
-Five specialized agents work in a loop:
+Five specialized agents work in a loop — Observer → Decider → Executor → Reflector → back to Orchestrator:
 
 | Agent | Job |
 |-------|-----|
@@ -38,6 +38,14 @@ Five specialized agents work in a loop:
 | **Executor** | "Do it" (Translates decisions into actual screen touches and inputs) |
 | **Reflector** | "Did it work?" (Verifies actions achieved the intended result) |
 | **Orchestrator** | "What's next?" (Coordinates the overall flow and decides which agent runs next) |
+
+The first four live in `agents/`. The Orchestrator lives in `core/workflow/{mode}/orchestrator.py` instead, since its logic differs meaningfully between predefined (linear step pipeline + retry/bridge-navigation logic) and autonomous (LLM-driven `Command(goto=...)` routing) modes.
+
+### Observer Uncertainty (Experimental, Off by Default)
+
+The Observer can optionally run **Discrete Semantic Entropy (DSE)** measurement — generating several independent re-interpretations of the same screen and measuring how much they agree, as a signal of how confident the perception step actually is. This is **measurement only**: it never affects what the Observer returns, never gates the Decider/Executor/Reflector, and computes no pass/fail verdict — it just writes raw entropy numbers to disk for later analysis.
+
+It's disabled by default (`OBSERVER_UNCERTAINTY_ENABLED=false`) because it's expensive — when enabled, every single Observer step in `main.py` blocks until DSE finishes sampling and clustering every widget on screen, which can add minutes per step. See [docs/observer-uncertainty.md](docs/observer-uncertainty.md) for the full design, and `tests/uncertainty_menu.py` for an interactive way to test it in isolation without running the full framework.
 
 When DSE finds genuine disagreement between samples, it also generates a short plain-English explanation of what disagreed — printed to the CLI and collected into `run_overview.md`'s "Observer Uncertainty" section.
 
@@ -58,7 +66,7 @@ This keeps the working state small while allowing rich context retrieval when ag
 
 ### 1. Predefined Mode (Script-Based)
 
-You define test scenarios in an Excel file (`scenario.xlsx`). Each scenario has numbered steps like:
+You define test scenarios in an Excel file (`scenario.xlsx`) inside a scenario folder (e.g. `scenarios/notes/scenario.xlsx`), selected via `SCENARIO_DIR` in `.env`. Each scenario has numbered steps like:
 1. Click "Login" button
 2. Enter email address
 3. Enter password
@@ -93,22 +101,26 @@ Metrics I track:
 
 ```
 MAS AI/
-├── agents/              # The five agent implementations
+├── agents/              # Observer, Decider, Executor, Reflector, Recorder
 ├── core/                # Models, ports, workflow runners, utilities
 │   ├── models/          # AgentState (LangGraph TypedDict)
 │   ├── ports/           # Abstract interfaces (ILLMClient, IDeviceClient)
-│   ├── workflow/        # Predefined + autonomous graph definitions
+│   ├── workflow/        # Predefined + autonomous graphs (Orchestrator lives here)
+│   ├── uncertainty/     # Observer DSE uncertainty measurement (Phase 1, optional)
 │   └── utils/           # LLM factory, pricing, output manager, process logger, etc.
 ├── memory/              # MIRIX memory system (6 stores)
 │   └── retrieval/       # Active retrieval across Episodic + Semantic stores
-├── shared/              # Config + optimized LLM prompts
+├── shared/              # Config + LLM prompts (per-agent, few-shot)
 ├── adapters/            # Device (ADB), LLM (LangChain), Figma
 ├── tools/               # Executor tools (ADB), observer tools (screenshot/OCR)
 ├── visual/              # PyQt5 real-time monitoring overlay
 ├── analysis/            # Run comparison tools
 ├── scripts/             # Maintenance (cleanup outputs, etc.)
 ├── tests/               # Standalone integration scripts (not pytest)
-├── scenario.xlsx        # Test scenarios and steps
+├── scenarios/           # Scenario folders, each with its own scenario.xlsx
+│   ├── notes/
+│   └── chitchat/
+├── docs/                # Design docs, uncertainty spec, prompting notes
 ├── main.py              # Entry point
 ├── PROVIDER_SWITCH.md   # LLM provider quick-switch cheat sheet
 └── outputs/             # Test results and artifacts
@@ -144,12 +156,13 @@ cp .env.example .env
 python main.py
 ```
 
-Results saved to `outputs/{mode}/{scenario_id}_{timestamp}/`
+Results saved to `outputs/runs/{mode}/{date}/{tcs_id}__{timestamp}/`, with per-step artifacts (screenshots, XML dumps, LLM logs, memory snapshots) under a `steps/NNN/` subfolder.
 
 ## Documentation
 
 * [Prompt Engineering Plan](docs/promptingplan.md): How I optimized LLM prompts for each agent
-* [Memory System](docs/mirix_memory.md): Detailed MIRIX architecture (if migrating from older version)
+* [Observer Uncertainty](docs/observer-uncertainty.md): DSE uncertainty measurement design, config, and how to test it standalone
+* [Predefined Workflow Diagram Gaps](docs/predefined-workflow-diagram-gaps.md): Known differences between the thesis architecture diagram and the actual code
 
 ## Research Context
 

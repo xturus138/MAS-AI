@@ -99,14 +99,26 @@ Configured via three env vars in `shared/config.py` (disabled by default; disabl
 zero behavior change to the existing Observer workflow):
 
 ```
-OBSERVER_UNCERTAINTY_ENABLED=false     # default OFF
-OBSERVER_UNCERTAINTY_SAMPLES=5         # M, provisional
-OBSERVER_UNCERTAINTY_TEMPERATURE=1.0   # provisional, literature-inspired, NOT validated
+OBSERVER_UNCERTAINTY_ENABLED=false      # default OFF
+OBSERVER_UNCERTAINTY_SAMPLES=5          # M, provisional
+OBSERVER_UNCERTAINTY_TEMPERATURE=1.0    # provisional, literature-inspired, NOT validated
+OBSERVER_UNCERTAINTY_MAX_WIDGETS=20     # cost cap; widgets beyond this are skipped and recorded
 ```
 
 When enabled, `M` fresh independent samples are always generated after the normal Observer
 response — even on a cache hit. The cached/normal response is preserved for the workflow but
 is never counted as a DSE sample.
+
+Entailment clustering issues up to 2 judge LLM calls per (sample, existing cluster) per widget,
+so cost scales with widget count. `OBSERVER_UNCERTAINTY_MAX_WIDGETS` caps how many widgets on a
+screen get measured per step; any widget beyond the cap gets a `measurement_status:
+"skipped_widget_cap"` entry instead of silently being dropped, and the manifest records
+`max_widgets`, `widgets_measured`, and `widgets_skipped`.
+
+**Raw DSE is the primary result** — it follows the paper directly (natural-log entropy over
+cluster probabilities, unbounded, in nats). **Normalized DSE is a secondary, derived
+presentation** (0-1, divided by `ln(effective_M)`) meant for dashboards/thresholds, not the
+measurement of record.
 
 ## 8. Where artifacts are written
 

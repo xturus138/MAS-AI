@@ -1,0 +1,37 @@
+# Normalize line endings deterministically, independent of any machine's
+# core.autocrlf setting. This repo's system git had core.autocrlf=true, which
+# (combined with files that already had CRLF) produced doubled-CR (\r\r\n)
+# corruption in the venv and broke Python's parser. Pinning text to LF here
+# prevents that class of corruption on checkout/normalization.
+
+# Default: let git detect text vs binary, and store/checkout text as LF.
+* text=auto eol=lf
+
+# Source and text formats: always LF.
+*.py    text eol=lf
+*.pyi   text eol=lf
+*.txt   text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.cfg   text eol=lf
+*.ini   text eol=lf
+*.toml  text eol=lf
+*.sh    text eol=lf
+
+# Windows-only scripts: keep CRLF so they run correctly under cmd/PowerShell.
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=crlf
+
+# Binary assets: never touch line endings.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.xlsx  binary
+*.db    binary
+*.pyc   binary

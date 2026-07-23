@@ -60,22 +60,32 @@ def run_self_test() -> int:
         ([f"[1]: C{i} - z{i}" for i in range(5)], None, 1.0, "ok"),
     ]
     ok = True
+    case_labels = [
+        "all 5 samples identical (expect zero entropy)",
+        "3-vs-2 split across two clusters (expect partial entropy)",
+        "5 samples, all distinct (expect max normalized entropy)",
+    ]
     with tempfile.TemporaryDirectory() as d:
         for i, (samples, exp_raw, exp_norm, exp_status) in enumerate(cases):
             m = svc.measure_from_samples(samples, widgets, "Login screen",
                                          os.path.join(d, str(i)))
             w = m["widgets"][0]
+            case_ok = True
             if exp_raw is not None and abs(w["raw_dse"] - exp_raw) > 1e-6:
-                print(f"[FAIL] case {i}: raw_dse={w['raw_dse']} exp={exp_raw}"); ok = False
+                print(f"[FAIL] case {i}: raw_dse={w['raw_dse']} exp={exp_raw}"); ok = False; case_ok = False
             if abs(w["normalized_dse"] - exp_norm) > 1e-6:
-                print(f"[FAIL] case {i}: norm={w['normalized_dse']} exp={exp_norm}"); ok = False
+                print(f"[FAIL] case {i}: norm={w['normalized_dse']} exp={exp_norm}"); ok = False; case_ok = False
             if w["measurement_status"] != exp_status:
-                print(f"[FAIL] case {i}: status={w['measurement_status']}"); ok = False
+                print(f"[FAIL] case {i}: status={w['measurement_status']}"); ok = False; case_ok = False
             if w["threshold"] is not None or m["threshold"] is not None:
-                print(f"[FAIL] case {i}: threshold not null"); ok = False
+                print(f"[FAIL] case {i}: threshold not null"); ok = False; case_ok = False
             blob = json.dumps(m).lower()
             if any(b in blob for b in ("accepted", "rejected", '"pass"', '"fail"')):
-                print(f"[FAIL] case {i}: decision word present"); ok = False
+                print(f"[FAIL] case {i}: decision word present"); ok = False; case_ok = False
+            status_tag = "OK" if case_ok else "FAIL"
+            print(f"[{status_tag}] case {i} ({case_labels[i]}): "
+                  f"raw_dse={w['raw_dse']:.6f} normalized_dse={w['normalized_dse']:.6f} "
+                  f"clusters={len(w['clusters'])} status={w['measurement_status']}")
 
     print("[OK] self-test passed" if ok else "[FAIL] self-test failed")
     return 0 if ok else 1
@@ -128,11 +138,14 @@ def run_real(args) -> int:
 
     llm = LLMFactory.create("observer")
     builder = _make_builder()
-    from langchain_core.prompts import ChatPromptTemplate
-    messages = ChatPromptTemplate.from_messages(
+    from langchain_core.messages import convert_to_messages
+    # convert_to_messages does not re-template already-resolved content (unlike
+    # ChatPromptTemplate.from_messages().format_messages(), which chokes on the
+    # literal braces in JSON elements_json/general_knowledge text).
+    messages = convert_to_messages(
         builder.build(ctx["scenario_desc"], ctx["navigation_context"],
                       elements_json, img_b64)
-    ).format_messages()
+    )
 
     cfg = UncertaintyConfig(
         enabled=True, samples=config.OBSERVER_UNCERTAINTY_SAMPLES,

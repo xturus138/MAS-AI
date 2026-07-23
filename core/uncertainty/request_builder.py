@@ -52,8 +52,10 @@ class ObserverSemanticRequestBuilder:
     def prompt_hash(self) -> str:
         return self._prompt_hash
 
-    def build(self, scenario_desc, navigation_context, elements_json, img_b64) -> list:
-        messages = [("system", self._system_prompt)]
+    def build(self, scenario_desc, navigation_context, elements_json, img_b64,
+              general_knowledge="No relevant prior UI knowledge.") -> list:
+        system_text = self._system_prompt.format(general_knowledge=general_knowledge)
+        messages = [("system", system_text)]
         for role, content in self._few_shot:
             messages.append((role, content))
         human_text = self._human_template.format(

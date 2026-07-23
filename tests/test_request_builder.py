@@ -54,6 +54,49 @@ class TestRequestBuilder(unittest.TestCase):
         self.assertEqual(len(b.prompt_hash), 64)
         int(b.prompt_hash, 16)  # raises if not hex
 
+    def test_convert_to_messages_does_not_crash_on_general_knowledge_placeholder(self):
+        """Regression test: SYSTEM_PROMPT contains a {general_knowledge} placeholder.
+        convert_to_messages(...) — the exact call both production and DSE call sites
+        use — must not raise, and the placeholder must actually be substituted, not
+        left literal."""
+        from langchain_core.messages import convert_to_messages
+
+        b = _make()
+        built = b.build(
+            "Notes App", "N/A", '[{"i":1,"t":"Catatan"}]', "ZmFrZQ==",
+            general_knowledge="Prior UI fact: buttons are usually bottom-right.",
+        )
+        msgs = convert_to_messages(built)
+        system_content = msgs[0].content
+        self.assertNotIn("{general_knowledge}", system_content)
+        self.assertIn("Prior UI fact: buttons are usually bottom-right.", system_content)
+
+    def test_convert_to_messages_uses_default_general_knowledge_when_omitted(self):
+        from langchain_core.messages import convert_to_messages
+
+        b = _make()
+        built = b.build("Notes App", "N/A", '[]', "ZmFrZQ==")
+        msgs = convert_to_messages(built)
+        self.assertIn("No relevant prior UI knowledge.", msgs[0].content)
+
+    def test_convert_to_messages_does_not_crash_on_json_braces_in_elements(self):
+        """Regression test: elements_json (real JSON, contains literal braces) must
+        survive convert_to_messages() unmodified. ChatPromptTemplate.from_messages()
+        .format_messages() re-templates this and raises KeyError on real screen data —
+        convert_to_messages() must not."""
+        from langchain_core.messages import convert_to_messages
+
+        b = _make()
+        built = b.build(
+            "Notes App", "N/A",
+            '[{"i": 1, "t": "Catatan"}, {"i": 2, "t": "Semua"}]',
+            "ZmFrZQ==",
+        )
+        msgs = convert_to_messages(built)
+        human_content = msgs[-1].content
+        text_part = next(p["text"] for p in human_content if p["type"] == "text")
+        self.assertIn('{"i": 1, "t": "Catatan"}', text_part)
+
 
 if __name__ == "__main__":
     unittest.main()
