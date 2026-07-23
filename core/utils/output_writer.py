@@ -1,5 +1,6 @@
 """Output writer: human-readable summaries, archiving old runs."""
 
+import glob
 import os
 import json
 import re
@@ -120,6 +121,25 @@ def write_run_overview(
             verdict = sd.get("verdict", "")
             lines.append(f"| {sd.get('step_number', '?')} | {instr} | {action} | {verdict} |")
         lines.append("")
+
+    explanation_files = sorted(
+        glob.glob(os.path.join(output_dir, "steps", "*", "uncertainty", "explanation.txt"))
+    )
+    if explanation_files:
+        lines.append("## Observer Uncertainty")
+        lines.append("")
+        for exp_path in explanation_files:
+            step_folder = os.path.basename(os.path.dirname(os.path.dirname(exp_path)))
+            step_num_str = step_folder.split("_")[0].lstrip("0") or "0"
+            try:
+                with open(exp_path, encoding="utf-8") as f:
+                    text = f.read()
+            except Exception:
+                continue
+            lines.append(f"### Step {step_num_str}")
+            lines.append("")
+            lines.append(text)
+            lines.append("")
 
     lines.append("## Final Verdict")
     lines.append("")
