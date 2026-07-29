@@ -1,11 +1,14 @@
+import base64
 import json
 import math
+import mimetypes
 import os
 import time
 
 import cv2
 from langchain_core.messages import convert_to_messages
 from langgraph.types import Command
+from pydantic import BaseModel, Field
 
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
@@ -20,8 +23,31 @@ from core.uncertainty.service import ObserverUncertaintyService, TemperatureReje
 from core.utils.process_logger import LogLevel as _LL
 from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 from shared import config
-from shared.prompts.observer_prompts import FEW_SHOT_EXAMPLES, SYSTEM_PROMPT
+from shared.prompts.observer_prompts import (
+    FEW_SHOT_EXAMPLES,
+    GROUNDING_PROMPT,
+    SYSTEM_PROMPT,
+)
 from shared.utils.llm_utils import encode_image as _encode_image_shared
+
+
+class _GroundedWidget(BaseModel):
+    """One widget as returned by the zero-shot VLM grounding call. See
+    GROUNDING_PROMPT (shared/prompts/observer_prompts.py) for the exact
+    instructions this schema is paired with."""
+
+    label: str = Field(description="Visible text, or a brief description if none")
+    type: str = Field(
+        description="One of BUTTON, TEXT, PICTOGRAM, TOOLBAR, NAVIGATION_BAR, "
+        "TEXT_INPUT, LIST_ITEM, CHECKBOX"
+    )
+    box_2d: list[int] = Field(
+        description="[ymin, xmin, ymax, xmax], normalized 0-1000, top-left origin"
+    )
+
+
+class _GroundingResult(BaseModel):
+    widgets: list[_GroundedWidget]
 
 
 class ObserverAgent:
@@ -494,6 +520,120 @@ class ObserverAgent:
             cv_elements, ocr_elements, image_height, is_kb_shown
         )
 
+    def _detect_widgets_via_llm(
+        self,
+        raw_path: str,
+        image_width: int,
+        image_height: int,
+    ) -> list:
+        """Zero-shot VLM widget grounding — one multimodal LLM call that
+        returns widgets directly, replacing detect_visual_elements +
+        ocr_extract_text + _merge_and_filter entirely. See GROUNDING_PROMPT
+        (shared/prompts/observer_prompts.py) for validation numbers and
+        citations. Raises on failure — analyze() is responsible for the
+        cv_ocr fallback, so a caller that wants that safety net must catch.
+
+        Sends the raw screenshot bytes unresized (matches what was actually
+        validated: 66.7-72.7% recall@IoU0.5 on real Screen Annotation ground
+        truth). box_2d comes back normalized 0-1000 [ymin,xmin,ymax,xmax]
+        regardless of what resolution the model internally processes the
+        image at, so this is correct without needing to track a resize
+        scale factor — unlike the classical pipeline's annotate_screenshot
+        scaling bug fixed earlier this session.
+        """
+        with open(raw_path, "rb") as f:
+            img_bytes = f.read()
+        img_b64 = base64.b64encode(img_bytes).decode("utf-8")
+        mime_type = mimetypes.guess_type(raw_path)[0] or "image/png"
+
+        messages = convert_to_messages(
+            [
+                (
+                    "human",
+                    [
+                        {"type": "text", "text": GROUNDING_PROMPT},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:{mime_type};base64,{img_b64}"},
+                        },
+                    ],
+                ),
+            ]
+        )
+
+        structured_llm = self.llm.with_structured_output(_GroundingResult)
+
+        backoff = 1.0
+        result = None
+        last_err = None
+        for attempt in range(4):
+            try:
+                result = structured_llm.invoke(
+                    messages,
+                    temperature=0.0,
+                    config={"tags": ["observer", "grounding"], "timeout": 45.0},
+                )
+                break
+            except Exception as e:  # noqa: BLE001
+                last_err = e
+                err_str = str(e)
+                is_429 = (
+                    "429" in err_str
+                    or "rate" in err_str.lower()
+                    or "too many requests" in err_str.lower()
+                )
+                if is_429 and attempt < 3:
+                    self._log(
+                        f"Grounding call rate limited, retrying in {backoff:.1f}s",
+                        err_str,
+                        level=_LL.WARN,
+                    )
+                    time.sleep(backoff)
+                    backoff = min(backoff * 2, 16.0)
+                    continue
+                raise
+
+        if result is None:
+            raise last_err or RuntimeError("LLM grounding call failed with no result")
+
+        final_widget_set = []
+        for idx, w in enumerate(result.widgets, start=1):
+            if len(w.box_2d) != 4:
+                continue
+            ymin, xmin, ymax, xmax = w.box_2d
+            x1 = round(min(xmin, xmax) / 1000 * image_width)
+            y1 = round(min(ymin, ymax) / 1000 * image_height)
+            x2 = round(max(xmin, xmax) / 1000 * image_width)
+            y2 = round(max(ymin, ymax) / 1000 * image_height)
+            x1 = max(0, min(x1, image_width))
+            x2 = max(0, min(x2, image_width))
+            y1 = max(0, min(y1, image_height))
+            y2 = max(0, min(y2, image_height))
+            if x2 <= x1 or y2 <= y1:
+                continue
+
+            is_text_only = w.type.strip().upper() == "TEXT"
+            final_widget_set.append(
+                {
+                    "id": idx,
+                    "bounds": [x1, y1, x2, y2],
+                    "cv_bounds": [x1, y1, x2, y2],
+                    "text": w.label,
+                    "type": "text_stub" if is_text_only else "container",
+                    "class": "StaticText" if is_text_only else "Interactive",
+                    "resource_id": "none",
+                    "llm_type": w.type,
+                    "source": "llm_grounding",
+                }
+            )
+
+        self._log(
+            "LLM grounding complete",
+            f"widgets={len(final_widget_set)}",
+            level=_LL.DEBUG,
+        )
+        return final_widget_set
+
     def analyze(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
         print(
@@ -549,13 +689,36 @@ class ObserverAgent:
         image_height = img.shape[0] if img is not None else 1920
         image_width = img.shape[1] if img is not None else 1080
 
-        print("[Observer] Running Canny+OCR vision pipeline...")
-        final_widget_set = self._run_canny_pipeline(
-            raw_path, ocr_path, cv_path, image_height, is_kb_shown
-        )
-        observation_source = "vision"
+        detection_method = config.OBSERVER_DETECTION_METHOD
         confidence_score = 1.0
         fallback_reason = ""
+
+        if detection_method == "llm":
+            print("[Observer] Running LLM widget grounding...")
+            try:
+                final_widget_set = self._detect_widgets_via_llm(
+                    raw_path, image_width, image_height
+                )
+                observation_source = "vision_llm_grounding"
+            except Exception as e:  # noqa: BLE001 — a bad screen must not kill the run
+                print(
+                    f"[Observer] LLM grounding failed ({e}), falling back to Canny+OCR"
+                )
+                self._log(
+                    "LLM grounding failed, falling back to cv_ocr",
+                    str(e),
+                    level=_LL.WARN,
+                )
+                final_widget_set = self._run_canny_pipeline(
+                    raw_path, ocr_path, cv_path, image_height, is_kb_shown
+                )
+                observation_source = "vision_cv_ocr_fallback"
+        else:
+            print("[Observer] Running Canny+OCR vision pipeline...")
+            final_widget_set = self._run_canny_pipeline(
+                raw_path, ocr_path, cv_path, image_height, is_kb_shown
+            )
+            observation_source = "vision"
 
         print("[Observer] Dumping XML hierarchy for coordinate refinement...")
         xml_data = self.dump_hierarchy.invoke({"save_path": xml_path})

@@ -124,8 +124,21 @@ FIGMA_REQUEST_TIMEOUT = int(os.getenv("FIGMA_REQUEST_TIMEOUT", "300"))
 
 OBSERVER_MODE = os.getenv("OBSERVER_MODE", "xml_first").lower()
 
+# "llm" — zero-shot VLM grounding (Gemini prompt call, one round-trip per
+#         screen, returns widgets directly). Default as of 2026-07-29.
+#         Validated: 66.7-72.7% recall@IoU0.5 on real Screen Annotation
+#         ground truth vs ~35-46% for the classical pipeline; see
+#         Dokumen Kepake/memory/thesis_vlm_grounding_alternative.md.
+# "cv_ocr" — legacy Canny edge detection + region-fill detection + EasyOCR +
+#            merge_and_filter. Kept as a rollback path, not removed, in case
+#            the LLM call is unavailable or a screen needs the free/local
+#            fallback. ObserverAgent.analyze() also falls back to this
+#            automatically if the LLM grounding call fails after retries.
+OBSERVER_DETECTION_METHOD = os.getenv("OBSERVER_DETECTION_METHOD", "llm").lower()
+
 print(f"[*] Environment Loaded:")
 print(f"    - Observer Mode:      {OBSERVER_MODE}")
+print(f"    - Observer Detection: {OBSERVER_DETECTION_METHOD}")
 print(f"    - Observer Model:     {OBSERVER_MODEL}")
 print(f"    - Decider Model:      {DECIDER_MODEL}")
 print(f"    - Reflector Model:    {REFLECTOR_MODEL}")
@@ -141,10 +154,28 @@ ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == 
 PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"
 OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"
 
+# --- Observer production-call temperature ---
+# T=0.1 follows Farquhar, Kossen, Kuhn, Gal, "Detecting hallucinations in large language models
+# using semantic entropy" (Nature 630:625-630, 2024) — their own low-temperature "best
+# generation" baseline, used to assess model accuracy, paired with T=1.0 for the separate
+# uncertainty-sampling calls below. Consolidated onto this single paper on 2026-07-23 as MAS
+# AI's sole methodological reference for the whole DSE feature (previously attributed to Xia et
+# al. 2025's Survey, which was itself just reproducing this paper's protocol — see the Dokumen
+# Kepake checklist for the full consolidation note).
+OBSERVER_TEMPERATURE = float(os.getenv("OBSERVER_TEMPERATURE", "0.1"))
+
 # --- Observer DSE uncertainty (Phase 1: measurement only) ---
 OBSERVER_UNCERTAINTY_ENABLED = os.getenv("OBSERVER_UNCERTAINTY_ENABLED", "false").lower() == "true"
-OBSERVER_UNCERTAINTY_SAMPLES = int(os.getenv("OBSERVER_UNCERTAINTY_SAMPLES", "5"))
-# Provisional, literature-inspired value. NOT validated. See docs/observer-uncertainty.md.
+# M=10 follows Farquhar et al. 2024 (Nature) directly and verbatim: "We use ten generations to
+# compute entropy, selected using analysis in Supplementary Fig. 2." Reverted from M=20 (which
+# was Xia et al.'s own separate reproduction number, not this paper's) on 2026-07-23 to fully
+# consolidate the feature onto one single source paper. Literature-grounded, still NOT
+# empirically validated for this Observer/Android-GUI domain. See docs/observer-uncertainty.md.
+OBSERVER_UNCERTAINTY_SAMPLES = int(os.getenv("OBSERVER_UNCERTAINTY_SAMPLES", "10"))
+# T=1.0 uncertainty-sampling temperature, same Farquhar et al. 2024 source as above. That paper
+# also specifies nucleus sampling (P=0.9) and top-K sampling (K=50) alongside T=1.0 — MAS AI
+# does not currently configure these two (not all providers expose top-K), a minor documented
+# gap, not blocking. NOT independently validated. See docs/observer-uncertainty.md.
 OBSERVER_UNCERTAINTY_TEMPERATURE = float(os.getenv("OBSERVER_UNCERTAINTY_TEMPERATURE", "1.0"))
 # Cost cap: entailment clustering issues up to 2 judge calls per (sample, existing cluster)
 # per widget. Widgets beyond this count are skipped and recorded, not silently dropped.
