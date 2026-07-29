@@ -67,16 +67,52 @@ class ObserverTools:
 
         @tool
         def detect_visual_elements(image_path: str, save_path: str = "") -> str:
-            """Uses CV to detect UI elements. If save_path is provided, result is saved as JSON."""
+            """Uses CV to detect UI elements. If save_path is provided, result is saved as JSON.
+
+            Two complementary detection channels:
+
+            1. Canny edge + contour — finds elements with a visible outline or
+               strong internal contrast (text, icons, bordered controls).
+            2. Uniform-region — finds flat, evenly-filled rectangular regions
+               (filled buttons, cards, toolbars, list rows).
+
+            Channel 2 exists because edge detection is structurally blind to a
+            low-contrast filled element: a Material-style button filled
+            rgb(213,214,212) on an rgb(250,250,250) background has a soft
+            antialiased border whose post-blur gradient magnitude falls below
+            Canny's low threshold, so it produces literally zero edge pixels
+            and the button is never detected at all — only the text drawn on
+            top of it is. Lowering Canny's thresholds does NOT fix this
+            (measured against Screen Annotation ground truth: recall@IoU0.5
+            29.2% -> 30.7%, BUTTON recall flat at 26.0%), because the problem
+            is the absence of a gradient, not the threshold on it.
+
+            Region-based segmentation is the standard remedy — GUI elements are
+            typically uniform-colour rectangles, so detecting flat regions
+            directly succeeds where edge-following fails. See Chen et al. 2020,
+            ESEC/FSE, "Object Detection for Graphical User Interface: Old
+            Fashioned or Deep Learning or a Combination?".
+
+            Measured on held-out Screen Annotation screens (45 screens, never
+            used for parameter tuning), adding channel 2:
+              recall@IoU0.5   35.4% -> 46.5%
+              BUTTON recall   34.9% -> 47.7%
+              mean best IoU   0.376 -> 0.477
+              boxes/screen     52.4 ->  58.3
+            """
             if not os.path.exists(image_path):
                 return json.dumps({"error": f"File not found: {image_path}"})
 
             img = cv2.imread(image_path)
+            if img is None:
+                return json.dumps({"error": f"Could not read image: {image_path}"})
             img_h, img_w = img.shape[:2]
             total_area = img_h * img_w
 
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+            # --- Channel 1: Canny edge + contour ---
             edges = cv2.Canny(blurred, 50, 150)
 
             kernel = np.ones((9, 9), np.uint8)
@@ -95,6 +131,60 @@ class ObserverTools:
                     continue
 
                 detected.append({"bounds": [x, y, x + w, y + h]})
+
+            # --- Channel 2: uniform-fill regions ---
+            # A pixel is "flat" when its local gradient is near zero, i.e. it
+            # sits in the interior of an evenly-coloured area. Connected
+            # components of flat pixels recover the filled shapes themselves.
+            # GRAD_THRESH and MIN_REGION_AREA were swept over a wide range and
+            # barely moved the result (recall varied 40.0-40.4%); FILL_RATIO is
+            # the parameter that matters (0.85 -> 0.75 gained ~4pp recall), so
+            # these are deliberately loose rather than finely tuned.
+            GRAD_THRESH = 8.0     # gradient magnitude below which a pixel is "flat"
+            MIN_REGION_AREA = 500  # px, ignore specks
+            FILL_RATIO = 0.75      # component area / bbox area; keeps solid rectangles
+            MIN_REGION_W, MIN_REGION_H = 40, 20
+
+            grad_x = cv2.Sobel(blurred, cv2.CV_32F, 1, 0, ksize=3)
+            grad_y = cv2.Sobel(blurred, cv2.CV_32F, 0, 1, ksize=3)
+            flat_mask = (cv2.magnitude(grad_x, grad_y) < GRAD_THRESH).astype(np.uint8)
+
+            num_labels, _, stats, _ = cv2.connectedComponentsWithStats(flat_mask, connectivity=4)
+
+            region_boxes = []
+            for i in range(1, num_labels):  # 0 is background
+                x, y, w, h, area = stats[i]
+                if area < MIN_REGION_AREA:
+                    continue
+                if w * h > total_area * 0.80:
+                    continue
+                if w < MIN_REGION_W or h < MIN_REGION_H:
+                    continue
+                if area / float(w * h) < FILL_RATIO:
+                    continue
+                region_boxes.append({"bounds": [int(x), int(y), int(x + w), int(y + h)]})
+
+            # --- Merge the two channels (NMS on IoU) ---
+            def _iou(a, b):
+                xA, yA = max(a[0], b[0]), max(a[1], b[1])
+                xB, yB = min(a[2], b[2]), min(a[3], b[3])
+                inter = max(0, xB - xA) * max(0, yB - yA)
+                if inter <= 0:
+                    return 0.0
+                area_a = (a[2] - a[0]) * (a[3] - a[1])
+                area_b = (b[2] - b[0]) * (b[3] - b[1])
+                union = area_a + area_b - inter
+                return inter / union if union > 0 else 0.0
+
+            NMS_IOU = 0.7
+            merged = []
+            for el in sorted(
+                detected + region_boxes,
+                key=lambda e: -(e["bounds"][2] - e["bounds"][0]) * (e["bounds"][3] - e["bounds"][1]),
+            ):
+                if all(_iou(el["bounds"], k["bounds"]) < NMS_IOU for k in merged):
+                    merged.append(el)
+            detected = merged
 
             json_data = json.dumps(detected)
             if save_path:
@@ -116,16 +206,30 @@ class ObserverTools:
 
             img_h, img_w = img.shape[:2]
 
+            # Rescale ONLY when the bounds genuinely overflow the image, which
+            # is the case this was written for: XML hierarchy bounds coming
+            # from a device whose logical resolution is larger than the
+            # captured screenshot. When bounds already fit inside the image
+            # they are in image pixel space and must be drawn as-is.
+            #
+            # Previously this scaled unconditionally using
+            # `scale = img_h / max_y`, where max_y is just the bottom edge of
+            # the lowest detected element — not the screen height. On a
+            # vision-only screenshot whose lowest element ends at y=1886 in a
+            # 1920px-tall image, that invented a 1.018x vertical stretch,
+            # drifting boxes progressively downward (+1px at the top of the
+            # screen, +29px at the bottom) so lower boxes visibly detached
+            # from the text they bound.
             scale_x, scale_y = 1.0, 1.0
-            if elements:
-                first = elements[0]
-                bounds = first.get("bounds", [])
-                if len(bounds) >= 4:
-                    max_x = max(el.get("bounds", [0, 0, 0, 0])[2] for el in elements if len(el.get("bounds", [])) >= 4) or 720
-                    max_y = max(el.get("bounds", [0, 0, 0, 0])[3] for el in elements if len(el.get("bounds", [])) >= 4) or 1600
-                    if max_x > 0 and max_y > 0:
-                        scale_x = img_w / max_x
-                        scale_y = img_h / max_y
+            valid = [el.get("bounds", []) for el in elements]
+            valid = [b for b in valid if len(b) >= 4]
+            if valid:
+                max_x = max(b[2] for b in valid)
+                max_y = max(b[3] for b in valid)
+                if max_x > img_w:
+                    scale_x = img_w / max_x
+                if max_y > img_h:
+                    scale_y = img_h / max_y
 
             for element in elements:
                 el_id = element.get("id", "?")

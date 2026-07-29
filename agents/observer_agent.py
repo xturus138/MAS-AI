@@ -226,51 +226,102 @@ class ObserverAgent:
             distance = ((cx_a - cx_b) ** 2 + (cy_a - cy_b) ** 2) ** 0.5
             return distance < threshold
 
-        merged = []
-        used_ocr = set()
+        # Match every (cv, ocr) pair first, instead of greedily claiming OCR
+        # text one CV box at a time. Canny edge detection routinely splits a
+        # single line of text into multiple adjacent contours (e.g. one word
+        # per contour when there's visible letter-spacing) — see Chen et al.
+        # 2020, ESEC/FSE, "Object Detection for Graphical User Interface: Old
+        # Fashioned or Deep Learning or a Combination?", which documents this
+        # exact fragmentation for Canny/contour-based GUI detectors (REMAUI)
+        # and prescribes non-maximum suppression to consolidate duplicate
+        # candidate boxes rather than keeping them as separate detections.
+        # Without this, whichever CV box matched an OCR block first "won" the
+        # text and every other CV box matching the *same* OCR block became a
+        # separate, textless duplicate widget instead of being merged in.
+        def is_inside(cv_bounds, ocr_bounds):
+            return (
+                ocr_bounds[0] >= cv_bounds[0] - 10
+                and ocr_bounds[1] >= cv_bounds[1] - 10
+                and ocr_bounds[2] <= cv_bounds[2] + 10
+                and ocr_bounds[3] <= cv_bounds[3] + 10
+            )
 
-        for cv_el in filtered_cv:
+        # IoU and boxes_nearby both degrade as an OCR line gets longer / has
+        # more words: IoU shrinks because one word's area is a smaller and
+        # smaller fraction of the whole line's area, and boxes_nearby's
+        # center-to-center distance grows for words far from the line's
+        # midpoint. Both were only ever validated against a 2-word line
+        # ("Test description"); on longer real lines (5-10 words) the
+        # trailing/leading words fall under the 0.1 IoU floor and past the
+        # 25px distance floor, so they're never claimed by the OCR block and
+        # are left as separate per-word CV fragments — the same
+        # over-segmentation symptom, just for longer lines. A word's CENTER
+        # falling inside the OCR line's bounds is invariant to line length
+        # and catches every word on the line regardless of position.
+        def center_inside(inner_bounds, outer_bounds, pad=6):
+            cx = (inner_bounds[0] + inner_bounds[2]) / 2
+            cy = (inner_bounds[1] + inner_bounds[3]) / 2
+            return (
+                outer_bounds[0] - pad <= cx <= outer_bounds[2] + pad
+                and outer_bounds[1] - pad <= cy <= outer_bounds[3] + pad
+            )
+
+        ocr_to_cv = {}
+        for cv_idx, cv_el in enumerate(filtered_cv):
             cv_bounds = cv_el["bounds"]
-            matched_text = []
-            matched_ocr_bounds = []
-
             for ocr_idx, ocr_el in enumerate(filtered_ocr):
-                if ocr_idx in used_ocr:
-                    continue
                 ocr_bounds = ocr_el["bounds"]
-
-                is_inside = (
-                    ocr_bounds[0] >= cv_bounds[0] - 10
-                    and ocr_bounds[1] >= cv_bounds[1] - 10
-                    and ocr_bounds[2] <= cv_bounds[2] + 10
-                    and ocr_bounds[3] <= cv_bounds[3] + 10
-                )
-
                 if (
-                    is_inside
+                    is_inside(cv_bounds, ocr_bounds)
+                    or center_inside(cv_bounds, ocr_bounds)
                     or compute_iou(cv_bounds, ocr_bounds) > 0.1
                     or boxes_nearby(cv_bounds, ocr_bounds)
                 ):
-                    matched_text.append(ocr_el.get("text", ""))
-                    matched_ocr_bounds.append(ocr_bounds)
-                    used_ocr.add(ocr_idx)
+                    ocr_to_cv.setdefault(ocr_idx, []).append(cv_idx)
 
-            if matched_ocr_bounds:
-                all_x1 = min(b[0] for b in matched_ocr_bounds)
-                all_y1 = min(b[1] for b in matched_ocr_bounds)
-                all_x2 = max(b[2] for b in matched_ocr_bounds)
-                all_y2 = max(b[3] for b in matched_ocr_bounds)
-                click_bounds = [all_x1, all_y1, all_x2, all_y2]
-            else:
-                click_bounds = cv_bounds
+        merged = []
+        used_ocr = set()
+        used_cv = set()
 
-            entry = {
-                "bounds": click_bounds,
-                "cv_bounds": cv_bounds,
-                "text": " ".join(matched_text) if matched_text else "",
+        # One widget per matched OCR block, unioning the bounds of every CV
+        # box that matched it (NMS-style consolidation instead of duplicates).
+        for ocr_idx, cv_idxs in ocr_to_cv.items():
+            ocr_bounds = filtered_ocr[ocr_idx]["bounds"]
+            all_bounds = [ocr_bounds] + [filtered_cv[i]["bounds"] for i in cv_idxs]
+            all_x1 = min(b[0] for b in all_bounds)
+            all_y1 = min(b[1] for b in all_bounds)
+            all_x2 = max(b[2] for b in all_bounds)
+            all_y2 = max(b[3] for b in all_bounds)
+
+            merged.append({
+                # cv_bounds must be the SAME union as bounds, not just the
+                # first matching CV fragment. annotate_screenshot() draws
+                # using cv_bounds preferentially (tools/observer_tools.py:134
+                # `element.get("cv_bounds") or element.get("bounds", [])`),
+                # so leaving this as only cv_idxs[0] drew a box around
+                # whichever word's contour happened to be detected first
+                # (OpenCV contour order isn't left-to-right) — the widget's
+                # bounds/text were correctly merged, but the rendered
+                # rectangle silently only covered one fragment.
+                "bounds": [all_x1, all_y1, all_x2, all_y2],
+                "cv_bounds": [all_x1, all_y1, all_x2, all_y2],
+                "text": filtered_ocr[ocr_idx].get("text", ""),
                 "type": "container",
-            }
-            merged.append(entry)
+            })
+            used_ocr.add(ocr_idx)
+            used_cv.update(cv_idxs)
+
+        # CV boxes that matched no OCR text at all keep the old behaviour —
+        # a textless container widget (e.g. an icon-only button).
+        for cv_idx, cv_el in enumerate(filtered_cv):
+            if cv_idx in used_cv:
+                continue
+            merged.append({
+                "bounds": cv_el["bounds"],
+                "cv_bounds": cv_el["bounds"],
+                "text": "",
+                "type": "container",
+            })
 
         for ocr_idx, ocr_el in enumerate(filtered_ocr):
             if ocr_idx not in used_ocr:
@@ -629,6 +680,7 @@ class ObserverAgent:
                 try:
                     response = self.llm.invoke(
                         messages,
+                        temperature=config.OBSERVER_TEMPERATURE,
                         config={
                             "tags": ["observer", f"step_{current_step}"],
                             "timeout": 45.0,
