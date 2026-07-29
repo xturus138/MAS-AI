@@ -2,6 +2,17 @@
 
 Copy-paste the block you want into `.env` to swap all 4 agents at once.
 
+**Observer requirement (2026-07-29):** `OBSERVER_DETECTION_METHOD` defaults to
+`"llm"` — the Observer now sends the screenshot straight to `OBSERVER_MODEL`
+for widget grounding via `with_structured_output(...)`, not just semantic
+interpretation. Whatever you set `OBSERVER_MODEL`/`OBSERVER_PROVIDER` to must
+support **vision input + reliable structured/function-calling output**
+(validated against Gemini). If you swap Observer to a text-only or
+function-calling-unreliable model, either verify grounding still works or set
+`OBSERVER_DETECTION_METHOD=cv_ocr` to fall back to the classical Canny+OCR
+pipeline, which has no such requirement. Decider/Reflector/Orchestrator are
+unaffected by this constraint.
+
 ## Gemini (Google AI Studio / Developer API — free tier available)
 
 ```bash
