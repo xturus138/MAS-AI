@@ -1,0 +1,165 @@
+{
+  "screen_id": "19117",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Header Text - CLASSCRAFT",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "CLASSCRAFT",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        147,
+        630,
+        932,
+        710
+      ],
+      "ground_truth_bounds_px": [
+        134,
+        603,
+        938,
+        725
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.5004024235381879,
+      "predicted_description": "Subtitle Text - Companion App",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Companion App",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        307,
+        743,
+        772,
+        806
+      ],
+      "ground_truth_bounds_px": [
+        307,
+        732,
+        775,
+        811
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Section Header - Sign in",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Sign in",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        417,
+        899,
+        662,
+        981
+      ],
+      "ground_truth_bounds_px": [
+        412,
+        874,
+        667,
+        992
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.0,
+      "predicted_description": "Button - WITH GOOGLE",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "G WITH GOOGLE",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        147,
+        1085,
+        933,
+        1231
+      ],
+      "ground_truth_bounds_px": [
+        146,
+        1082,
+        932,
+        1232
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Text Separator - OR",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "OR",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        495,
+        1323,
+        584,
+        1371
+      ],
+      "ground_truth_bounds_px": [
+        494,
+        1305,
+        586,
+        1382
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Button - WITH USERNAME",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        147,
+        1465,
+        933,
+        1611
+      ],
+      "ground_truth_bounds_px": [
+        144,
+        1463,
+        937,
+        1612
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 1.3321790402101223,
+      "predicted_description": "Button/Text Link - CREATE STUDENT ACCOUNT",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "CREATE STUDENT ACCOUNT",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        217,
+        1734,
+        863,
+        1774
+      ],
+      "ground_truth_bounds_px": [
+        13,
+        1687,
+        1066,
+        1809
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 1,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 408.7,
+  "llm_calls": 189,
+  "input_tokens": 50626,
+  "output_tokens": 2167,
+  "cost_usd": 0.0954,
+  "tokens_unavailable": false,
+  "widgets_detected": 8,
+  "widgets_measured": 8,
+  "dse_min": 0.0,
+  "dse_max": 1.332,
+  "dse_avg": 0.507
+}

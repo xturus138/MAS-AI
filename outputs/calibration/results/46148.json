@@ -1,0 +1,81 @@
+{
+  "screen_id": "46148",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 1.1682824501765625,
+      "predicted_description": "Text - on 3.2.14",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "on 3.2.14",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        44,
+        90,
+        62
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        29,
+        136,
+        73
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 1.0296530140645737,
+      "predicted_description": "Header Text - Network Preferences",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Network Preferences",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        172,
+        44,
+        368,
+        62
+      ],
+      "ground_truth_bounds_px": [
+        146,
+        28,
+        387,
+        70
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 1.4978661367769952,
+      "predicted_description": "Text - Setup An...",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Setup An",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        451,
+        44,
+        540,
+        62
+      ],
+      "ground_truth_bounds_px": [
+        451,
+        37,
+        536,
+        64
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 7,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 1129.9,
+  "llm_calls": 255,
+  "input_tokens": 65395,
+  "output_tokens": 3109,
+  "cost_usd": 0.1261,
+  "tokens_unavailable": false,
+  "widgets_detected": 10,
+  "widgets_measured": 10,
+  "dse_min": 0.0,
+  "dse_max": 1.498,
+  "dse_avg": 0.621
+}

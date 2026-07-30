@@ -1,0 +1,123 @@
+{
+  "screen_id": "17729",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.8018185525433372,
+      "predicted_description": "Icon Button - Back",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "arrow backward",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        66,
+        117,
+        91,
+        171
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        62,
+        145,
+        219
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - Privacy",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Privacy",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        147,
+        119,
+        298,
+        180
+      ],
+      "ground_truth_bounds_px": [
+        150,
+        111,
+        297,
+        175
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.0,
+      "predicted_description": "Text Block - We respect your privacy. We may collect information about your phone and use of the app to improve our products and to provide you with more relevant content and personalized suggestions about features.",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "We respect your privacy. We may collect information about your phone and use of the app to improve our products and to provide you with more relevant content and personalized suggestions about features.",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        31,
+        300,
+        1048,
+        482
+      ],
+      "ground_truth_bounds_px": [
+        25,
+        290,
+        1054,
+        482
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Text Link - Privacy Policy",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Privacy Policy",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        31,
+        553,
+        254,
+        595
+      ],
+      "ground_truth_bounds_px": [
+        25,
+        542,
+        256,
+        596
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Text Link - Your Privacy in HERE WeGo",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Your Privacy in HERE WeGo",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        31,
+        668,
+        473,
+        707
+      ],
+      "ground_truth_bounds_px": [
+        30,
+        657,
+        478,
+        709
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 3,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 385.9,
+  "llm_calls": 183,
+  "input_tokens": 50998,
+  "output_tokens": 2267,
+  "cost_usd": 0.0969,
+  "tokens_unavailable": false,
+  "widgets_detected": 8,
+  "widgets_measured": 8,
+  "dse_min": 0.0,
+  "dse_max": 0.802,
+  "dse_avg": 0.417
+}

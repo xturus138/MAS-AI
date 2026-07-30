@@ -1,0 +1,438 @@
+{
+  "screen_id": "18397",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Header Text - GIFS + EMOJIS",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "GIFS + EMOJIS",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        184,
+        51,
+        356,
+        75
+      ],
+      "ground_truth_bounds_px": [
+        181,
+        44,
+        355,
+        78
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Tab Button - GIFS",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        14,
+        122,
+        259,
+        223
+      ],
+      "ground_truth_bounds_px": [
+        19,
+        115,
+        264,
+        229
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Tab Button - EMOJIS",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        281,
+        122,
+        516,
+        223
+      ],
+      "ground_truth_bounds_px": [
+        275,
+        117,
+        517,
+        229
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Jyn Erso Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon illustration of a woman with brown hair and a pink smile .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        286,
+        135,
+        395
+      ],
+      "ground_truth_bounds_px": [
+        27,
+        283,
+        135,
+        395
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Jyn Erso (Alternate) Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon drawing of a woman with brown hair and a pink lip .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        153,
+        286,
+        260,
+        395
+      ],
+      "ground_truth_bounds_px": [
+        150,
+        284,
+        262,
+        396
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Cassian Andor Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon drawing of a man with a beard and a smile on his face .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        278,
+        286,
+        385,
+        395
+      ],
+      "ground_truth_bounds_px": [
+        276,
+        285,
+        388,
+        396
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Death Trooper Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon drawing of a robot 's head with a skull and two eyes .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        404,
+        286,
+        511,
+        395
+      ],
+      "ground_truth_bounds_px": [
+        400,
+        285,
+        510,
+        395
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Bistan Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon illustration of a girl with brown hair and a pink lip .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        413,
+        135,
+        521
+      ],
+      "ground_truth_bounds_px": [
+        27,
+        411,
+        136,
+        521
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Bodhi Rook Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon character with a beard and goggles on his head .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        153,
+        413,
+        260,
+        521
+      ],
+      "ground_truth_bounds_px": [
+        150,
+        411,
+        262,
+        522
+      ]
+    },
+    {
+      "element_id": 10,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Chirrut Îmwe Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon drawing of a man with a bandage on his head and a smile on his face .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        278,
+        413,
+        385,
+        521
+      ],
+      "ground_truth_bounds_px": [
+        276,
+        411,
+        386,
+        521
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Saw Gerrera Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon of a man with a beard and a pacifier in his mouth .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        404,
+        413,
+        511,
+        521
+      ],
+      "ground_truth_bounds_px": [
+        401,
+        411,
+        511,
+        522
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Baze Malbus Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon of a man with long hair and a beard .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        539,
+        135,
+        647
+      ],
+      "ground_truth_bounds_px": [
+        26,
+        537,
+        137,
+        649
+      ]
+    },
+    {
+      "element_id": 13,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Moroff Emoji",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a cartoon of a monster with a beard and wings sitting on top of a laptop .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        278,
+        539,
+        385,
+        647
+      ],
+      "ground_truth_bounds_px": [
+        275,
+        536,
+        387,
+        650
+      ]
+    },
+    {
+      "element_id": 14,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Director Krennic Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon of a man with a serious look on his face .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        404,
+        539,
+        511,
+        647
+      ],
+      "ground_truth_bounds_px": [
+        401,
+        536,
+        512,
+        651
+      ]
+    },
+    {
+      "element_id": 15,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Death Trooper Helmet Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon of a man with long hair and a beard .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        0,
+        135,
+        665
+      ],
+      "ground_truth_bounds_px": [
+        26,
+        537,
+        137,
+        649
+      ]
+    },
+    {
+      "element_id": 16,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Shoretrooper Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white helmet with a red star on it is on a black background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        153,
+        665,
+        260,
+        774
+      ],
+      "ground_truth_bounds_px": [
+        148,
+        663,
+        260,
+        776
+      ]
+    },
+    {
+      "element_id": 17,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Galen Erso Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon drawing of a boy with gray hair and brown eyes smiling .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        278,
+        665,
+        385,
+        774
+      ],
+      "ground_truth_bounds_px": [
+        275,
+        664,
+        387,
+        776
+      ]
+    },
+    {
+      "element_id": 18,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Lyra Erso Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon drawing of a person 's face with a pink lip .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        404,
+        665,
+        511,
+        774
+      ],
+      "ground_truth_bounds_px": [
+        399,
+        663,
+        512,
+        777
+      ]
+    },
+    {
+      "element_id": 19,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Death Star Gunner Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon drawing of a kylo ren helmet with a hood .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        791,
+        135,
+        897
+      ],
+      "ground_truth_bounds_px": [
+        25,
+        791,
+        136,
+        898
+      ]
+    },
+    {
+      "element_id": 20,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Imperial Officer Emoji",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a cartoon of a man wearing a hat and a military uniform .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        153,
+        791,
+        260,
+        897
+      ],
+      "ground_truth_bounds_px": [
+        148,
+        789,
+        262,
+        898
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 0,
+  "skipped_parse_failure": 3,
+  "elapsed_seconds": 1253.3,
+  "llm_calls": 570,
+  "input_tokens": 117801,
+  "output_tokens": 5379,
+  "cost_usd": 0.2251,
+  "tokens_unavailable": false,
+  "widgets_detected": 23,
+  "widgets_measured": 20,
+  "dse_min": 0.325,
+  "dse_max": 1.359,
+  "dse_avg": 1.069
+}

@@ -1,0 +1,207 @@
+{
+  "screen_id": "17737",
+  "widgets": [
+    {
+      "element_id": 3,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Dialog Title - Brightness Settings Access",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Brightness Settings Access",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        108,
+        756,
+        684,
+        808
+      ],
+      "ground_truth_bounds_px": [
+        95,
+        738,
+        710,
+        819
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Dialog Message - To set the brightness of device we need the access of Write Settings",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "To set the brightness of device we need the access of Write Settings",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        108,
+        899,
+        943,
+        1002
+      ],
+      "ground_truth_bounds_px": [
+        90,
+        882,
+        963,
+        1013
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.8979457248567797,
+      "predicted_description": "Button - Cancel",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Cancel",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        67,
+        1048,
+        540,
+        1164
+      ],
+      "ground_truth_bounds_px": [
+        86,
+        1038,
+        544,
+        1161
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Button - Settings",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Settings",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        540,
+        1048,
+        1013,
+        1164
+      ],
+      "ground_truth_bounds_px": [
+        549,
+        1036,
+        1002,
+        1161
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.8979457248567797,
+      "predicted_description": "Dialog Title - Complete action using",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Complete action using",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        63,
+        1238,
+        535,
+        1288
+      ],
+      "ground_truth_bounds_px": [
+        1,
+        1186,
+        1076,
+        1332
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 0.8018185525433372,
+      "predicted_description": "Option Button - iBOLT Dock'n Drive",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        1340,
+        1080,
+        1482
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1334,
+        1077,
+        1480
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 0.8018185525433372,
+      "predicted_description": "Option Button - Android Auto",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        1482,
+        1080,
+        1624
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1482,
+        1076,
+        1628
+      ]
+    },
+    {
+      "element_id": 10,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "Button - JUST ONCE",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "JUST ONCE",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        605,
+        1680,
+        826,
+        1743
+      ],
+      "ground_truth_bounds_px": [
+        597,
+        1653,
+        838,
+        1766
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "Button - ALWAYS",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "ALWAYS",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        859,
+        1680,
+        1031,
+        1743
+      ],
+      "ground_truth_bounds_px": [
+        844,
+        1655,
+        1041,
+        1766
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 5,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 1032.6,
+  "llm_calls": 363,
+  "input_tokens": 79986,
+  "output_tokens": 3426,
+  "cost_usd": 0.1508,
+  "tokens_unavailable": false,
+  "widgets_detected": 14,
+  "widgets_measured": 14,
+  "dse_min": 0.0,
+  "dse_max": 1.03,
+  "dse_avg": 0.739
+}

@@ -1,0 +1,270 @@
+{
+  "screen_id": "34439",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Icon Button - Back",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a blue arrow pointing to the left on a white background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        26,
+        54,
+        48,
+        79
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        29,
+        71,
+        104
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.6730116670092565,
+      "predicted_description": "Header Text - 324 32nd Ave, San Francisco, CA 941...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "324 32nd Ave, San Francisco, CA 941...",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        78,
+        43,
+        534,
+        71
+      ],
+      "ground_truth_bounds_px": [
+        76,
+        37,
+        535,
+        69
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 1.0888999753452238,
+      "predicted_description": "Text Link - Street View",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Street View",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        78,
+        76,
+        186,
+        97
+      ],
+      "ground_truth_bounds_px": [
+        80,
+        72,
+        187,
+        99
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Navigation Arrow Button - Left navigation arrow",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white l shaped object is sitting on the ground .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        106,
+        718,
+        160,
+        760
+      ],
+      "ground_truth_bounds_px": [
+        92,
+        707,
+        164,
+        774
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 1.4184836619456562,
+      "predicted_description": "Navigation Arrow Button - Right navigation arrow",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white arrow is painted on the side of a road .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        388,
+        756,
+        442,
+        813
+      ],
+      "ground_truth_bounds_px": [
+        375,
+        743,
+        454,
+        822
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 1.4184836619456564,
+      "predicted_description": "Navigation Arrow Button - Forward navigation arrow",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white arrow pointing to the right on a gray surface .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        184,
+        819,
+        285,
+        881
+      ],
+      "ground_truth_bounds_px": [
+        173,
+        812,
+        293,
+        890
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Logo - Google logo",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a close up of the google logo on a gray background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        9,
+        863,
+        82,
+        887
+      ],
+      "ground_truth_bounds_px": [
+        5,
+        858,
+        85,
+        891
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Text Link - Report a problem",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Report a problem 2016 Google",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        336,
+        881,
+        444,
+        897
+      ],
+      "ground_truth_bounds_px": [
+        332,
+        875,
+        536,
+        898
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - © 2016 Google",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Report a problem 2016 Google",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        446,
+        881,
+        539,
+        897
+      ],
+      "ground_truth_bounds_px": [
+        332,
+        875,
+        536,
+        898
+      ]
+    },
+    {
+      "element_id": 10,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "System Navigation Button - Back",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white triangle on a black background that looks like a triangle with a diagonal line going through it .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        106,
+        916,
+        130,
+        942
+      ],
+      "ground_truth_bounds_px": [
+        99,
+        907,
+        139,
+        946
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "System Navigation Button - Home",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white circle on a black background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        257,
+        916,
+        283,
+        942
+      ],
+      "ground_truth_bounds_px": [
+        248,
+        907,
+        289,
+        946
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "System Navigation Button - Recents",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white square on a black background with a shadow .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        410,
+        916,
+        434,
+        942
+      ],
+      "ground_truth_bounds_px": [
+        401,
+        908,
+        442,
+        946
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 0,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 967.0,
+  "llm_calls": 388,
+  "input_tokens": 84838,
+  "output_tokens": 3262,
+  "cost_usd": 0.1566,
+  "tokens_unavailable": false,
+  "widgets_detected": 12,
+  "widgets_measured": 12,
+  "dse_min": 0.0,
+  "dse_max": 1.418,
+  "dse_avg": 0.785
+}

@@ -1,0 +1,186 @@
+{
+  "screen_id": "60363",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.6730116670092565,
+      "predicted_description": "Icon Button - Back arrow",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "arrow backward",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        52,
+        111,
+        96,
+        157
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        143,
+        209
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - \"Test description\"",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Test description",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        158,
+        111,
+        537,
+        171
+      ],
+      "ground_truth_bounds_px": [
+        160,
+        104,
+        537,
+        163
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Header/Toolbar - Top toolbar container",
+      "ground_truth_type": "TOOLBAR",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        73,
+        1080,
+        211
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        1080,
+        209
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Image/Logo - Progressive series logo",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a pink and blue sticker with a white border and a white exclamation point .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        55,
+        300,
+        195,
+        453
+      ],
+      "ground_truth_bounds_px": [
+        43,
+        288,
+        210,
+        465
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.5004024235381879,
+      "predicted_description": "Text - \"Progressive series\"",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Progressive series",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        254,
+        357,
+        735,
+        413
+      ],
+      "ground_truth_bounds_px": [
+        243,
+        334,
+        742,
+        415
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.8979457248567797,
+      "predicted_description": "Text Block - Test description details",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "There are 10 questions in this test. The first time that you take the test, it is timed. You have 8 minutes to finish the test. Later you can change between timed and un-timed modes.",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        52,
+        574,
+        1024,
+        841
+      ],
+      "ground_truth_bounds_px": [
+        43,
+        554,
+        1036,
+        842
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.0,
+      "predicted_description": "Button - \"View a sample test\"",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "View a sample test",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        51,
+        1388,
+        1028,
+        1553
+      ],
+      "ground_truth_bounds_px": [
+        51,
+        1386,
+        1027,
+        1553
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 0.0,
+      "predicted_description": "Button - \"Continue to the test\"",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Continue to the test",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        51,
+        1576,
+        1028,
+        1743
+      ],
+      "ground_truth_bounds_px": [
+        50,
+        1574,
+        1027,
+        1743
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 1,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 685.6,
+  "llm_calls": 206,
+  "input_tokens": 55074,
+  "output_tokens": 2346,
+  "cost_usd": 0.1037,
+  "tokens_unavailable": false,
+  "widgets_detected": 9,
+  "widgets_measured": 9,
+  "dse_min": 0.0,
+  "dse_max": 0.898,
+  "dse_avg": 0.405
+}

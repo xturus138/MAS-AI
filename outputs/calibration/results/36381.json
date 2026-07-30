@@ -1,0 +1,270 @@
+{
+  "screen_id": "36381",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.5004024235381879,
+      "predicted_description": "Icon Button - Back",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "arrow backward",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        52,
+        111,
+        95,
+        157
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        143,
+        209
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - Settings",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Settings",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        189,
+        111,
+        383,
+        169
+      ],
+      "ground_truth_bounds_px": [
+        186,
+        106,
+        382,
+        163
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.8979457248567797,
+      "predicted_description": "Header Bar - Toolbar",
+      "ground_truth_type": "TOOLBAR",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        67,
+        1080,
+        211
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        1080,
+        209
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.9433483923290391,
+      "predicted_description": "Text Label - Auto offline",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Auto offline",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        42,
+        261,
+        234,
+        294
+      ],
+      "ground_truth_bounds_px": [
+        34,
+        246,
+        243,
+        300
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.0,
+      "predicted_description": "Text Label - Auto like",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Auto like",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        42,
+        357,
+        204,
+        394
+      ],
+      "ground_truth_bounds_px": [
+        38,
+        344,
+        206,
+        402
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.0,
+      "predicted_description": "Description Text - The app will automatically like you offline",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "The app will automatically like you offline",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        42,
+        413,
+        715,
+        449
+      ],
+      "ground_truth_bounds_px": [
+        41,
+        400,
+        717,
+        452
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.8018185525433372,
+      "predicted_description": "Toggle Switch - Auto like switch (On)",
+      "ground_truth_type": "SWITCH",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        941,
+        374,
+        1029,
+        428
+      ],
+      "ground_truth_bounds_px": [
+        910,
+        361,
+        1041,
+        436
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 1.4184836619456564,
+      "predicted_description": "Container Row - Auto like row",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        307,
+        1080,
+        497
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        304,
+        1079,
+        500
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 0.0,
+      "predicted_description": "Text Label - Auto follow",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Auto follow",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        42,
+        551,
+        255,
+        588
+      ],
+      "ground_truth_bounds_px": [
+        41,
+        538,
+        259,
+        596
+      ]
+    },
+    {
+      "element_id": 10,
+      "raw_dse": 0.0,
+      "predicted_description": "Description Text - The app will automatically follow you offline",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "The app will automatically follow you offline",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        42,
+        607,
+        758,
+        643
+      ],
+      "ground_truth_bounds_px": [
+        40,
+        594,
+        766,
+        646
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 0.8979457248567797,
+      "predicted_description": "Toggle Switch - Auto follow switch (Off)",
+      "ground_truth_type": "SWITCH",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        919,
+        568,
+        1010,
+        622
+      ],
+      "ground_truth_bounds_px": [
+        905,
+        555,
+        1038,
+        630
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Container Row - Auto follow row",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        499,
+        1080,
+        689
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        496,
+        1079,
+        692
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 1,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 830.3,
+  "llm_calls": 340,
+  "input_tokens": 75308,
+  "output_tokens": 3123,
+  "cost_usd": 0.1411,
+  "tokens_unavailable": false,
+  "widgets_detected": 13,
+  "widgets_measured": 13,
+  "dse_min": 0.0,
+  "dse_max": 1.418,
+  "dse_avg": 0.55
+}
