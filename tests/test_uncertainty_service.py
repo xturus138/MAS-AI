@@ -40,7 +40,7 @@ class TestService(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             manifest = svc.measure_from_samples(samples, WIDGETS, "Login screen", d)
         w = manifest["widgets"][0]
-        self.assertAlmostEqual(w["normalized_dse"], 0.0, places=6)
+        self.assertAlmostEqual(w["raw_dse"], 0.0, places=6)
         self.assertEqual(w["measurement_status"], "ok")
         self.assertIsNone(w["threshold"])
         self.assertEqual(w["calibration_status"], "not_calibrated")
@@ -53,7 +53,6 @@ class TestService(unittest.TestCase):
             manifest = svc.measure_from_samples(samples, WIDGETS, "Login screen", d)
         w = manifest["widgets"][0]
         self.assertAlmostEqual(w["raw_dse"], 0.6730116670, places=6)
-        self.assertAlmostEqual(w["normalized_dse"], 0.4181656601, places=6)
 
     def test_insufficient_samples_status(self):
         svc = ObserverUncertaintyService(llm=None, clusterer=_ExactMatchClusterer(),
@@ -61,7 +60,7 @@ class TestService(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             manifest = svc.measure_from_samples(["[1]: Button - Login"], WIDGETS, "s", d)
         w = manifest["widgets"][0]
-        self.assertEqual(w["normalized_dse"], 0.0)
+        self.assertEqual(w["raw_dse"], 0.0)
         self.assertEqual(w["measurement_status"], "insufficient_samples")
 
     def test_partial_failure_uses_effective_m(self):

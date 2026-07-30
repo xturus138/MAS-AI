@@ -36,23 +36,26 @@ Clustering (`core/uncertainty/clusterer.py`, `EntailmentClusterer`) is
 - **Raw pairwise decisions saved.** Every pairwise judgement (`a`, `b`, `a_entails_b`,
   `b_entails_a`, `merged`, `context`) is recorded in the artifacts for audit.
 
-## 3. DSE formulas
+## 3. DSE formula
 
-Pure math lives in `core/uncertainty/dse.py` (single source of truth, natural log):
+Pure math lives in `core/uncertainty/dse.py` (single source of truth, natural log). Matches
+Farquhar et al. 2024's discrete semantic entropy formula exactly, with no added rescaling:
 
 - **Raw DSE:** `raw = -Σ p_k · ln(p_k)` where `p_k = count_k / effective_M`.
-- **Normalized DSE:** `normalized = raw / ln(effective_M)`, returning `0.0` when
-  `effective_M <= 1`.
 - **`effective_M`** is the number of **successfully-parsed samples** — the sum of the
   cluster counts — **not** the configured sample count `M`. A sample that failed to
   produce or parse a SEMANTIC_MAP for a widget does not contribute.
+
+An earlier version of this code also computed a "normalized DSE" (`raw / ln(effective_M)`,
+rescaled to 0-1) as a secondary, MAS-AI-invented convenience value. This was **removed on
+2026-07-24** because the paper does not do this rescaling anywhere — keeping only `raw_dse`
+means MAS AI's entropy number is exactly, not approximately, Farquhar et al. 2024's formula.
 
 The service (`core/uncertainty/service.py`) marks `measurement_status="insufficient_samples"`
 when `effective_M <= 1`, distinguishing a "could not measure" `0.0` from a genuine
 single-cluster `0.0` (`measurement_status="ok"`).
 
-Reference values: `[5]` → raw `0.0`, normalized `0.0`; `[3,2]` → raw ≈ `0.6730`,
-normalized ≈ `0.4182`; `[1,1,1,1,1]` → raw `ln 5 ≈ 1.6094`, normalized `1.0`.
+Reference values (raw DSE only): `[5]` → `0.0`; `[3,2]` → `≈0.6730`; `[1,1,1,1,1]` → `ln 5 ≈ 1.6094`.
 
 ## 4. Low DSE means consistency, NOT correctness
 
@@ -72,7 +75,10 @@ All of the following are **PENDING** research work and are out of scope for Phas
   prompt experiments can be compared.
 - **Temperature evaluation — PENDING.** The sampling temperature value is unvalidated
   (`temperature_status="provisional_not_evaluated"`).
-- **Sample-count (M) evaluation — PENDING.** The number of samples is provisional.
+- **Sample-count (M) evaluation — PENDING.** `M=10` is adopted verbatim from Farquhar, Kossen,
+  Kuhn, Gal, *Detecting hallucinations in large language models using semantic entropy* (Nature
+  630:625-630, 2024) — "We use ten generations to compute entropy" — not derived from this
+  project's own data. Still provisional for this domain until validated empirically.
 - **Threshold calibration — PENDING.** No threshold is ever hardcoded. Artifacts store
   `threshold: null` and `calibration_status: "not_calibrated"`. Outputs are never
   classified as certain/uncertain, accepted/rejected, or pass/fail.
@@ -99,11 +105,29 @@ Configured via three env vars in `shared/config.py` (disabled by default; disabl
 zero behavior change to the existing Observer workflow):
 
 ```
+OBSERVER_TEMPERATURE=0.1                # production-call temperature, see below
 OBSERVER_UNCERTAINTY_ENABLED=false      # default OFF
-OBSERVER_UNCERTAINTY_SAMPLES=5          # M, provisional
-OBSERVER_UNCERTAINTY_TEMPERATURE=1.0    # provisional, literature-inspired, NOT validated
+OBSERVER_UNCERTAINTY_SAMPLES=10         # M, literature-grounded (see below), not domain-validated
+OBSERVER_UNCERTAINTY_TEMPERATURE=1.0    # literature-grounded, NOT domain-validated
 OBSERVER_UNCERTAINTY_MAX_WIDGETS=20     # cost cap; widgets beyond this are skipped and recorded
 ```
+
+`M=10` and the `OBSERVER_TEMPERATURE=0.1` / `OBSERVER_UNCERTAINTY_TEMPERATURE=1.0` split both
+follow Farquhar, Kossen, Kuhn, Gal, *Detecting hallucinations in large language models using
+semantic entropy* (Nature 630:625-630, 2024) — their own protocol samples one low-temperature
+(T=0.1) "best generation" production answer, plus ten additional samples at T=1.0 ("We use ten
+generations to compute entropy, selected using analysis in Supplementary Fig. 2") for the
+entropy estimate. This paper is MAS AI's single fixed methodological reference for the entire
+DSE feature (consolidated 2026-07-23 — it independently contains the generation protocol, the
+entailment-clustering algorithm, the DSE formula itself, the correctness-check prompt, and the
+AUROC/rejection-accuracy/AURAC threshold metrics, so no other paper is needed for any step).
+Chosen over sweeping the values on MAS AI's own data, since a full per-parameter sweep was
+judged too costly for the scope of this work; see the Dokumen Kepake checklist for the citations
+that justify why a sweep would normally be expected, and why adopting this paper's numbers
+directly was chosen instead. Adopting the literature's values is not the same as validating them
+for this Observer/Android-GUI domain — see section 5. Note: the paper's protocol also specifies
+nucleus sampling (P=0.9) and top-K sampling (K=50) alongside T=1.0; MAS AI does not currently
+configure these two (not all providers expose top-K), a documented gap, not a blocker.
 
 When enabled, `M` fresh independent samples are always generated after the normal Observer
 response — even on a cache hit. The cached/normal response is preserved for the workflow but
@@ -129,8 +153,9 @@ Per step, under `{step_dir}/uncertainty/` (`core/uncertainty/artifacts.py`):
   (null), `calibration_status`, raw sampled outputs, sampling failures, and the per-widget
   results.
 - **`widgets.json`** — the per-widget results array: responses, clusters, cluster
-  probabilities, pairwise entailment decisions, raw and normalized DSE, effective sample
-  count, parse failures, and status fields.
+  probabilities, pairwise entailment decisions, raw DSE, effective sample count, parse
+  failures, and status fields. (No normalized/rescaled DSE — removed 2026-07-24 to match
+  Farquhar et al. 2024's formula exactly; see section 3 above.)
 
 Secrets (`api_key`, `token`, `authorization`, `apikey`, `access_token`) are stripped before
 writing. No API keys, tokens, or `.env` contents are ever written.
@@ -153,9 +178,9 @@ python tests/run_observer_uncertainty.py --step-dir "outputs\runs\predefined\...
 python tests/run_observer_uncertainty.py --image "path\annotated.png" --elements "path\merged.json" --output-dir "outputs\uncertainty_test"
 ```
 
-The self-test verifies one cluster → normalized `0.0`; `[3,2]` → raw ≈ `0.673`,
-normalized ≈ `0.418`; five clusters → normalized ≈ `1.0`; and that no threshold-based or
-accepted/rejected/pass/fail decision is produced.
+The self-test verifies one cluster → raw `0.0`; `[3,2]` → raw ≈ `0.673`; five distinct
+clusters → raw = `ln(5) ≈ 1.609`; and that no threshold-based or accepted/rejected/pass/fail
+decision is produced.
 
 ## 10. Uncertainty Explanations (XAI layer)
 

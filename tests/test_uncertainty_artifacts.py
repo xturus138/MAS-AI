@@ -17,7 +17,7 @@ class TestArtifacts(unittest.TestCase):
                 "calibration_status": "not_calibrated",
                 "temperature_application": "requested_not_verified",
             }
-            per_widget = [{"element_id": 1, "normalized_dse": 0.0}]
+            per_widget = [{"element_id": 1, "raw_dse": 0.0}]
             out = write_uncertainty_artifacts(d, manifest, per_widget)
             self.assertTrue(os.path.isdir(out))
             with open(os.path.join(out, "manifest.json"), encoding="utf-8") as f:

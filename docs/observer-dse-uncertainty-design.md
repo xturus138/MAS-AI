@@ -39,7 +39,7 @@ core/uncertainty/
 ├── request_builder.py        # ObserverSemanticRequestBuilder (+ runtime prompt_hash)
 ├── semantic_parser.py        # parse SEMANTIC_MAP text -> {element_id: semantic_string}
 ├── clusterer.py              # SemanticClusterer (ABC) + EntailmentClusterer
-├── dse.py                    # pure math: raw_dse(counts), normalized_dse(counts)
+├── dse.py                    # pure math: raw_dse(counts) — paper-exact, no normalization
 ├── service.py                # ObserverUncertaintyService (orchestrates the pipeline)
 └── artifacts.py              # write uncertainty JSON under {step_dir}/uncertainty/
 
@@ -72,9 +72,10 @@ Env-driven, following `shared/config.py` conventions. Added to `shared/config.py
 `.env.example`:
 
 ```
+OBSERVER_TEMPERATURE=0.1               # production-call temperature (Farquhar et al. 2024, Nature)
 OBSERVER_UNCERTAINTY_ENABLED=false     # default OFF; disabled = zero behavior change
-OBSERVER_UNCERTAINTY_SAMPLES=5         # M, provisional
-OBSERVER_UNCERTAINTY_TEMPERATURE=1.0   # provisional, literature-inspired, NOT validated
+OBSERVER_UNCERTAINTY_SAMPLES=10        # M, literature-grounded (Farquhar et al. 2024, "ten generations"), not domain-validated
+OBSERVER_UNCERTAINTY_TEMPERATURE=1.0   # literature-grounded (same source), NOT domain-validated
 ```
 
 - Sample count and temperature are provisional configuration values, not validated research
@@ -144,15 +145,13 @@ def raw_dse(cluster_counts: list[int]) -> float:
         p = c / effective_m
         entropy -= p * math.log(p)     # natural log
     return entropy
-
-def normalized_dse(cluster_counts: list[int]) -> float:
-    effective_m = sum(cluster_counts)
-    if effective_m <= 1:
-        return 0.0
-    return raw_dse(cluster_counts) / math.log(effective_m)
 ```
 
-- `p_k` and normalization use **`effective_M`** (successfully-parsed samples), NOT configured M.
+No normalization/rescaling step is applied (removed 2026-07-24) — this is deliberately exactly
+Farquhar et al. 2024's discrete semantic entropy formula, `p(cluster) = count/M`, nothing added
+on top, so MAS AI's DSE value is directly the paper's value, not a derived rescaling of it.
+
+- `p_k` uses **`effective_M`** (successfully-parsed samples), NOT configured M.
 - `measurement_status` is set by the **service**, not the math:
   - `effective_M <= 1` -> `0.0` numerically AND `measurement_status="insufficient_samples"`
     (distinct from a genuine single-cluster `0.0`, which is `measurement_status="ok"`), so
@@ -198,7 +197,7 @@ Run-level manifest + per-widget results. Contains:
   configured sample count; effective sample count; provisional temperature +
   `temperature_status`; `threshold: null`; `calibration_status`; `measurement_status`;
 - raw sampled outputs; parsed response per widget ID; semantic clusters + members; cluster
-  probabilities; pairwise entailment decisions (with context); raw DSE; normalized DSE;
+  probabilities; pairwise entailment decisions (with context); raw DSE;
   parsing/sampling failures.
 
 No API keys, tokens, or `.env` contents are ever written.
@@ -211,7 +210,6 @@ Per-widget result shape:
   "responses": [],
   "clusters": [],
   "raw_dse": 0.0,
-  "normalized_dse": 0.0,
   "sample_count": 5,
   "effective_sample_count": 5,
   "temperature": 1.0,
@@ -292,7 +290,7 @@ Focused tests (project standalone convention; no assumption of a pytest suite; n
 
 ## 13. Documentation
 
-`docs/observer-uncertainty.md` explaining: semantic clustering; raw DSE; normalized DSE; why
+`docs/observer-uncertainty.md` explaining: semantic clustering; raw DSE (paper-exact, no normalization); why
 low DSE means semantic consistency, not correctness; current experimental status (prompt
 selection pending, temperature evaluation pending, threshold calibration pending); how to
 enable; where artifacts are written; the temperature-enforcement limitation.
@@ -302,9 +300,9 @@ enable; where artifacts are written; the temperature-enforcement limitation.
 ## 14. Acceptance criteria
 
 - Uncertainty toggled via config; current Observer workflow backward-compatible; repeated
-  outputs preserved; semantic clustering auditable; raw + normalized DSE correct; no threshold
-  or reliability decision invented; prompt + temperature explicitly marked unvalidated; focused
-  tests pass; docs accurate; no secrets or unrelated user changes modified.
+  outputs preserved; semantic clustering auditable; raw DSE correct and paper-exact; no
+  threshold or reliability decision invented; prompt + temperature explicitly marked
+  unvalidated; focused tests pass; docs accurate; no secrets or unrelated user changes modified.
 
 ## 15. Remaining research work (out of scope for Phase 1)
 

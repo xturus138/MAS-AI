@@ -7,7 +7,7 @@ measure() samples the LLM then delegates to measure_from_samples(); tests and
 from core.uncertainty.artifacts import write_uncertainty_artifacts
 from core.uncertainty.explainer import explain_step_uncertainty
 from core.uncertainty.clusterer import WidgetContext
-from core.uncertainty.dse import normalized_dse, raw_dse
+from core.uncertainty.dse import raw_dse
 from core.uncertainty.semantic_parser import parse_semantic_map
 
 _TEMP_REJECT_MARKERS = (
@@ -95,10 +95,10 @@ class ObserverUncertaintyService:
             cluster_result = self.clusterer.cluster(responses, ctx)
             counts = cluster_result.counts
             effective_m = sum(counts)
-            # raw_dse (nats, unbounded) is the paper-faithful primary result.
-            # normalized_dse (0-1) is a derived, secondary presentation for dashboards.
+            # raw_dse (nats, unbounded) is the paper-faithful result — matches
+            # Farquhar et al. 2024's discrete semantic entropy formula exactly, with
+            # no added normalization (removed 2026-07-24 to stay paper-exact).
             r = raw_dse(counts)
-            n = normalized_dse(counts)
             status = "insufficient_samples" if effective_m <= 1 else "ok"
 
             per_widget.append({
@@ -110,7 +110,6 @@ class ObserverUncertaintyService:
                 "cluster_probabilities": [c / effective_m for c in counts] if effective_m else [],
                 "pairwise_entailment": [pd.__dict__ for pd in cluster_result.pairwise],
                 "raw_dse": r,
-                "normalized_dse": n,
                 "sample_count": self.cfg.samples,
                 "effective_sample_count": effective_m,
                 "parse_failures": parse_failures,

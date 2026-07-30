@@ -11,6 +11,7 @@ that prompt/temperature/sample-count/threshold are NOT validated.
 """
 import argparse
 import json
+import math
 import os
 import sys
 import tempfile
@@ -55,26 +56,24 @@ def run_self_test() -> int:
                                      cfg=cfg, prompt_hash="selftest")
 
     cases = [
-        (["[1]: Button - Login"] * 5, 0.0, 0.0, "ok"),
-        ((["[1]: A - x"] * 3) + (["[1]: B - y"] * 2), 0.6730116670, 0.4181656601, "ok"),
-        ([f"[1]: C{i} - z{i}" for i in range(5)], None, 1.0, "ok"),
+        (["[1]: Button - Login"] * 5, 0.0, "ok"),
+        ((["[1]: A - x"] * 3) + (["[1]: B - y"] * 2), 0.6730116670, "ok"),
+        ([f"[1]: C{i} - z{i}" for i in range(5)], math.log(5), "ok"),
     ]
     ok = True
     case_labels = [
         "all 5 samples identical (expect zero entropy)",
         "3-vs-2 split across two clusters (expect partial entropy)",
-        "5 samples, all distinct (expect max normalized entropy)",
+        "5 samples, all distinct (expect max entropy, ln(5))",
     ]
     with tempfile.TemporaryDirectory() as d:
-        for i, (samples, exp_raw, exp_norm, exp_status) in enumerate(cases):
+        for i, (samples, exp_raw, exp_status) in enumerate(cases):
             m = svc.measure_from_samples(samples, widgets, "Login screen",
                                          os.path.join(d, str(i)))
             w = m["widgets"][0]
             case_ok = True
             if exp_raw is not None and abs(w["raw_dse"] - exp_raw) > 1e-6:
                 print(f"[FAIL] case {i}: raw_dse={w['raw_dse']} exp={exp_raw}"); ok = False; case_ok = False
-            if abs(w["normalized_dse"] - exp_norm) > 1e-6:
-                print(f"[FAIL] case {i}: norm={w['normalized_dse']} exp={exp_norm}"); ok = False; case_ok = False
             if w["measurement_status"] != exp_status:
                 print(f"[FAIL] case {i}: status={w['measurement_status']}"); ok = False; case_ok = False
             if w["threshold"] is not None or m["threshold"] is not None:
@@ -84,7 +83,7 @@ def run_self_test() -> int:
                 print(f"[FAIL] case {i}: decision word present"); ok = False; case_ok = False
             status_tag = "OK" if case_ok else "FAIL"
             print(f"[{status_tag}] case {i} ({case_labels[i]}): "
-                  f"raw_dse={w['raw_dse']:.6f} normalized_dse={w['normalized_dse']:.6f} "
+                  f"raw_dse={w['raw_dse']:.6f} "
                   f"clusters={len(w['clusters'])} status={w['measurement_status']}")
 
     print("[OK] self-test passed" if ok else "[FAIL] self-test failed")
@@ -158,7 +157,7 @@ def run_real(args) -> int:
     manifest = svc.measure(messages, widgets, ctx["scenario_desc"], out_dir)
     print(f"[OK] artifacts written to {manifest.get('uncertainty_dir')}")
     for w in manifest["widgets"]:
-        print(f"  id={w['element_id']} norm_dse={w['normalized_dse']:.4f} "
+        print(f"  id={w['element_id']} raw_dse={w['raw_dse']:.4f} "
               f"status={w['measurement_status']} eff_M={w['effective_sample_count']}")
     return 0
 
