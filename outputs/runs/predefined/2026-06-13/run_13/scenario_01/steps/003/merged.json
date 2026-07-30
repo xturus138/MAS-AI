@@ -1,0 +1,492 @@
+[
+    {
+        "bounds": [
+            500,
+            1001,
+            600,
+            1068
+        ],
+        "cv_bounds": [
+            500,
+            1001,
+            600,
+            1068
+        ],
+        "text": "Miring",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Miring",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            600,
+            1001,
+            700,
+            1068
+        ],
+        "cv_bounds": [
+            600,
+            1001,
+            700,
+            1068
+        ],
+        "text": "Garis bawah",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Garis bawah",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            300,
+            1001,
+            400,
+            1068
+        ],
+        "cv_bounds": [
+            300,
+            1001,
+            400,
+            1068
+        ],
+        "text": "Memperkecil teks",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Memperkecil teks",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            0,
+            1001,
+            100,
+            1068
+        ],
+        "cv_bounds": [
+            0,
+            1001,
+            100,
+            1068
+        ],
+        "text": "Daftar periksa",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Daftar periksa",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            400,
+            1001,
+            500,
+            1068
+        ],
+        "cv_bounds": [
+            400,
+            1001,
+            500,
+            1068
+        ],
+        "text": "Tebal",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Tebal",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            200,
+            1001,
+            300,
+            1068
+        ],
+        "cv_bounds": [
+            200,
+            1001,
+            300,
+            1068
+        ],
+        "text": "Memperbesar teks",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Memperbesar teks",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            100,
+            1001,
+            200,
+            1068
+        ],
+        "cv_bounds": [
+            100,
+            1001,
+            200,
+            1068
+        ],
+        "text": "Sorotan",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Sorotan",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            40,
+            345,
+            164,
+            374
+        ],
+        "cv_bounds": [
+            146,
+            351,
+            165,
+            375
+        ],
+        "text": "Mulai tulis",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            110,
+            348,
+            140,
+            375
+        ],
+        "cv_bounds": [
+            110,
+            348,
+            140,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            346,
+            108,
+            375
+        ],
+        "cv_bounds": [
+            41,
+            346,
+            108,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            211,
+            261,
+            298,
+            291
+        ],
+        "cv_bounds": [
+            211,
+            261,
+            298,
+            291
+        ],
+        "text": "karakter",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "0 karakter",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            44,
+            261,
+            122,
+            291
+        ],
+        "cv_bounds": [
+            44,
+            261,
+            122,
+            291
+        ],
+        "text": "13 Juni 11:04",
+        "type": "container",
+        "id": 12,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "13 Juni",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            40,
+            263,
+            111,
+            287
+        ],
+        "cv_bounds": [
+            40,
+            263,
+            111,
+            287
+        ],
+        "text": "",
+        "type": "container",
+        "id": 13,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "cv_bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "text": "Judul",
+        "type": "container",
+        "id": 14,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Judul",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "Kembali",
+        "type": "container",
+        "id": 15,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            609,
+            83,
+            683,
+            157
+        ],
+        "cv_bounds": [
+            609,
+            83,
+            683,
+            157
+        ],
+        "text": "Ulangi",
+        "type": "container",
+        "id": 16,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Ulangi",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            513,
+            83,
+            587,
+            157
+        ],
+        "cv_bounds": [
+            513,
+            83,
+            587,
+            157
+        ],
+        "text": "Urungkan",
+        "type": "container",
+        "id": 17,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Urungkan",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            0,
+            172,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            1600
+        ],
+        "text": "On-Screen Keyboard",
+        "type": "container",
+        "id": 18,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "content",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "id": 19,
+        "bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "cv_bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "text": "Mulai tulis Buat pemetaan pikiran",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/rich_editor",
+        "xml_label": "Mulai tulis Buat pemetaan pikiran",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 20,
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 21,
+        "bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "text": "ll_note_edit",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/ll_note_edit",
+        "xml_label": "ll_note_edit",
+        "xml_role": "view",
+        "xml_actionable": true
+    },
+    {
+        "id": 22,
+        "bounds": [
+            700,
+            1001,
+            720,
+            1068
+        ],
+        "cv_bounds": [
+            700,
+            1001,
+            720,
+            1068
+        ],
+        "text": "Kotak centang",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/bullet",
+        "xml_label": "Kotak centang",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

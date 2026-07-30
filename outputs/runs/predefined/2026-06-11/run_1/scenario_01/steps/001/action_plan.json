@@ -1,0 +1,10 @@
+{
+    "reasoning": "The user wants to open the 'Xiaomi Notes' application. The episodic memory confirms this is the first step in the workflow for task NOTE-001. Since the application is not explicitly mentioned as being open, I will initiate the start_app action.",
+    "action_type": "start_app",
+    "intent": "Open Xiaomi Notes application",
+    "target_id": -1,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "com.miui.notes",
+    "is_completed": false
+}

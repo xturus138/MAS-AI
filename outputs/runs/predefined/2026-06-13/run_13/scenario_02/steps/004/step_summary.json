@@ -1,0 +1,9 @@
+{
+  "step_number": 4,
+  "step_instruction": "Pengguna klik teks \"selesai\" dan melihat di tampilan apakah sudah tersimpan",
+  "action_type": "click",
+  "target_widget_id": 16,
+  "verdict": "PASSED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

@@ -1,0 +1,6 @@
+{
+    "tcs_id": "NOTE-001",
+    "passed": true,
+    "figma_discrepancies": "The live screenshot contains different content than the static Figma mockup, which is expected as the Figma file represents a generic state. The structural layout (list of notes with a search bar and bottom navigation) is correctly maintained.",
+    "expected_result": "Catatan tersimpan dan terlihat di daftar utama dengan judul \"Rencana Skripsi 2026\"."
+}

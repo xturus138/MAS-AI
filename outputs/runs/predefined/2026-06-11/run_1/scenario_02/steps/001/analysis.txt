@@ -1,0 +1,15 @@
+SEMANTIC_MAP:
+[1, 8, 9, 10, 11]: Folder list selection buttons.
+[2, 6, 62]: Text label indicating the current view is "Catatan" (Notes).
+[3]: Action bar container.
+[4]: Folder management button.
+[5]: Settings button.
+[7, 28]: Search bar with "Cari catatan" (Search notes) text placeholder.
+[12, 13, 14, 15, 16]: Individual note containers or group items.
+[17]: Floating action button (FAB) to create a new note.
+[18, 58, 59, 63]: Bottom navigation bar with "Tugas" (Tasks) tab.
+[19]: "Tugas" button.
+[30, 31]: Folder organization layout.
+[35]: Filter label showing "Semua" (All).
+
+SUMMARY: The screen displays the main note-taking interface, featuring a search bar, folder management, a list of existing notes, a floating action button for creating new content, and a bottom navigation bar to switch between notes and tasks.

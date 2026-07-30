@@ -1,0 +1,18 @@
+[
+  {
+    "title": "figma_gold_standard",
+    "summary": "Figma end-state Gold Standard for final verification",
+    "resource_type": "figma_gold",
+    "path": "outputs\\runs\\predefined\\2026-06-13\\run_11\\scenario_01\\figma\\end_state.png",
+    "step": 0,
+    "timestamp": "2026-06-13T10:44:00"
+  },
+  {
+    "title": "post_action_step_1",
+    "summary": "Post-action screenshot after step 1",
+    "resource_type": "screenshot",
+    "path": "outputs\\runs\\predefined\\2026-06-13\\run_11\\scenario_01\\steps\\001\\post_action.png",
+    "step": 1,
+    "timestamp": "2026-06-13T10:45:02"
+  }
+]

@@ -1,0 +1,435 @@
+[
+    {
+        "bounds": [
+            310,
+            802,
+            409,
+            830
+        ],
+        "cv_bounds": [
+            310,
+            802,
+            409,
+            830
+        ],
+        "text": "Folder baru",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Folder baru",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            33,
+            718,
+            687,
+            859
+        ],
+        "cv_bounds": [
+            33,
+            718,
+            687,
+            859
+        ],
+        "text": "fold_folder_dialog_create_folder_layout",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "fold_folder_dialog_create_folder_layout",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            606,
+            646,
+            628,
+            672
+        ],
+        "cv_bounds": [
+            606,
+            646,
+            628,
+            672
+        ],
+        "text": "24",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "24",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            122,
+            640,
+            591,
+            677
+        ],
+        "cv_bounds": [
+            122,
+            640,
+            591,
+            677
+        ],
+        "text": "Tidak Dikategorikan",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Tidak Dikategorikan",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            119,
+            645,
+            193,
+            674
+        ],
+        "cv_bounds": [
+            119,
+            645,
+            193,
+            674
+        ],
+        "text": "",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            617,
+            539,
+            628,
+            565
+        ],
+        "cv_bounds": [
+            617,
+            539,
+            628,
+            565
+        ],
+        "text": "0",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "0",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            122,
+            533,
+            602,
+            570
+        ],
+        "cv_bounds": [
+            122,
+            533,
+            602,
+            570
+        ],
+        "text": "suitmedia",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "suitmedia",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            619,
+            432,
+            628,
+            458
+        ],
+        "cv_bounds": [
+            619,
+            432,
+            628,
+            458
+        ],
+        "text": "1",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "1",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            122,
+            426,
+            604,
+            463
+        ],
+        "cv_bounds": [
+            122,
+            426,
+            604,
+            463
+        ],
+        "text": "PROKSI",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "PROKSI",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            617,
+            325,
+            628,
+            351
+        ],
+        "cv_bounds": [
+            617,
+            325,
+            628,
+            351
+        ],
+        "text": "3",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "3",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            122,
+            319,
+            602,
+            356
+        ],
+        "cv_bounds": [
+            122,
+            319,
+            602,
+            356
+        ],
+        "text": "PKM-KC",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "PKM-KC",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            606,
+            218,
+            628,
+            244
+        ],
+        "cv_bounds": [
+            606,
+            218,
+            628,
+            244
+        ],
+        "text": "28",
+        "type": "container",
+        "id": 12,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "28",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            122,
+            212,
+            591,
+            249
+        ],
+        "cv_bounds": [
+            122,
+            212,
+            591,
+            249
+        ],
+        "text": "Semua",
+        "type": "container",
+        "id": 13,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Semua",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            63,
+            209,
+            107,
+            253
+        ],
+        "cv_bounds": [
+            63,
+            209,
+            107,
+            253
+        ],
+        "text": "fold_folder_dialog_item_tick",
+        "type": "container",
+        "id": 14,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "fold_folder_dialog_item_tick",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            314,
+            97,
+            405,
+            142
+        ],
+        "cv_bounds": [
+            314,
+            97,
+            405,
+            142
+        ],
+        "text": "Folder",
+        "type": "container",
+        "id": 15,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Folder",
+        "xml_role": "text",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "Kembali",
+        "type": "container",
+        "id": 16,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "Sampah",
+        "type": "container",
+        "id": 17,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Sampah",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 18,
+        "bounds": [
+            33,
+            183,
+            687,
+            707
+        ],
+        "cv_bounds": [
+            33,
+            183,
+            687,
+            707
+        ],
+        "text": "fold_folder_dialog_rv",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/fold_folder_dialog_rv",
+        "xml_label": "fold_folder_dialog_rv",
+        "xml_role": "list",
+        "xml_actionable": true
+    },
+    {
+        "id": 19,
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

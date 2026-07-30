@@ -1,0 +1,9 @@
+{
+  "step_number": 3,
+  "step_instruction": "Pengguna memasukkan judul: \"Rencana Skripsi 2026\".",
+  "action_type": "none",
+  "target_widget_id": -1,
+  "verdict": "FAILED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

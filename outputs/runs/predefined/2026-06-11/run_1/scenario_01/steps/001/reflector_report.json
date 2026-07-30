@@ -1,0 +1,17 @@
+{
+    "passed": true,
+    "is_system_error": false,
+    "reasoning": "ADB foreground check: current='com.miui.notes' expected='com.miui.notes' → PASS",
+    "step_index": 0,
+    "figma_enabled": false,
+    "figma_discrepancies": "",
+    "verification_chain": {
+        "loading_done": null,
+        "loading_reasoning": null,
+        "ui_changed": null,
+        "ui_change_reasoning": null,
+        "short_circuit": "start_app_adb",
+        "expected_package": "com.miui.notes",
+        "current_package": "com.miui.notes"
+    }
+}

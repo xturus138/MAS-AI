@@ -1,0 +1,83 @@
+SEMANTIC_MAP:
+[1]: Text - Tugas Catatan
+[2]: Text - Catatan
+[3]: View - miuix_navigation_bar_item_icon_container
+[4]: View - miuix_navigation_bar_item_icon_container
+[5]: Text - 1 Mei
+[6]: Text - Mei
+[7]: Text - 4,5 juta initial
+[8]: View/Container - No visible text
+[9]: View/Container - No visible text
+[10]: Text - mfisolution
+[11]: Icon Button - Ketuk untuk buat catatan
+[12]: Text - Mei
+[13]: Text - Pahami Agregat dan variant dalam multi agent
+[14]: View/Container - No visible text
+[15]: View/Container - No visible text
+[16]: View/Container - No visible text
+[17]: View/Container - content
+[18]: View/Container - No visible text
+[19]: View/Container - No visible text
+[20]: View/Container - No visible text
+[21]: Text - Catatan Skripsi Selamanya
+[22]: View/Container - No visible text
+[23]: View/Container - No visible text
+[24]: Text - Mel
+[25]: Text - Catatan Bersama
+[26]: View/Container - No visible text
+[27]: Text - Catatan Responsi Bu dian 07-05-26
+[28]: View/Container - No visible text
+[29]: View/Container - No visible text
+[30]: View/Container - No visible text
+[31]: View/Container - No visible text
+[32]: Text - 10:13
+[33]: View/Container - No visible text
+[34]: Text - 1. Harus pararel mengerjakannya jangan stuck d Obs ..
+[35]: View/Container - No visible text
+[36]: View/Container - No visible text
+[37]: View/Container - content
+[38]: View/Container - No visible text
+[39]: View/Container - No visible text
+[40]: Text - Catatan skripsi
+[41]: View/Container - No visible text
+[42]: Text - 11:05
+[43]: View/Container - No visible text
+[44]: View/Container - No visible text
+[45]: Text - Selesaikan implementasi Multi-Agent Swarm untuk p ..
+[46]: View/Container - No visible text
+[47]: View/Container - No visible text
+[48]: View/Container - No visible text
+[49]: Text - Rencana Skripsi 2026
+[50]: View/Container - No visible text
+[51]: View/Container - No visible text
+[52]: View/Container - No visible text
+[53]: Text - Tidak Dikategorikan
+[54]: View/Container - Tidak Semua suitmedia PKM-KC
+[55]: Text - PROKSI
+[56]: Text - PKM-KC
+[57]: Text - Semua
+[58]: Text/Search Label - Cari catatan
+[59]: View/Container - No visible text
+[60]: View/Container - No visible text
+[61]: Text - Catatan
+[62]: Image Icon - action_menu_item_child_icon
+[63]: Image Icon - action_menu_item_child_icon
+[64]: Button - data_folder_list_layout
+[65]: View - Catatan
+[66]: Button - action_bar_container
+[67]: Button - Folder
+[68]: Button - Setelan
+[69]: Button - search_bar
+[70]: Button - data_folder_list_layout
+[71]: Button - data_folder_list_layout
+[72]: Button - data_folder_list_layout
+[73]: Button - data_folder_list_layout
+[74]: Button - note_group
+[75]: Button - note_group
+[76]: Button - note_group
+[77]: Button - note_group
+[78]: Button - note_group
+[79]: Button - miuix_bottom_navigation_bar
+[80]: Button - Tugas
+[81]: Button - note_group
+SUMMARY: The screen shows the Xiaomi Notes app with a notes list, category/filter chips, a search bar, top action icons, multiple note-group buttons, a floating create-note icon button, and bottom navigation buttons for notes/tasks-related sections.

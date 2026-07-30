@@ -1,0 +1,12 @@
+{
+  "tcs_id": "NOTE-001",
+  "navigation_context": "Xiaomi Notes",
+  "scenario_desc": "Membuat catatan baru",
+  "test_type": "Pos.",
+  "user_role": "User",
+  "task_goal": "Membuat catatan baru",
+  "expected_result": "Catatan tersimpan dan terlihat di daftar utama dengan judul \"Rencana Skripsi 2026\".",
+  "figma_enabled": "True",
+  "figma_end_node_id": "12:471",
+  "figma_start_node_id": "10:5"
+}

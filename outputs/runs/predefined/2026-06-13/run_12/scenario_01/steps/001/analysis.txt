@@ -1,0 +1,80 @@
+SEMANTIC_MAP:
+[1]: Text Label - Tugas Catatan
+[2]: Header Text - Catatan
+[3]: Icon Button - miuix_navigation_bar_item_icon_container
+[4]: Icon Button - miuix_navigation_bar_item_icon_container
+[5]: Date Label - 16 April
+[6]: Note Preview Text - Notulensi 15 April:
+[7]: Blank Text Element - Empty
+[8]: Blank Text Element - Empty
+[9]: Note Title Text - Notulensi Rapat Jaist
+[10]: Blank Text Element - Empty
+[11]: Blank Text Element - Empty
+[12]: Placeholder Text - Ketuk untuk buat catatan
+[13]: Date Label - 1 Mei
+[14]: Month Label - Mei
+[15]: Note Preview Text - 4,5 juta initial
+[16]: Blank Text Element - Empty
+[17]: Blank Text Element - Empty
+[18]: Note Title Text - mfisolution
+[19]: Month Label - Mei
+[20]: Note Title/Preview Text - Pahami Agregat dan variant dalam multi agent
+[21]: Blank Text Element - Empty
+[22]: Blank Text Element - Empty
+[23]: Blank Text Element - Empty
+[24]: Content Container - content
+[25]: Blank Text Element - Empty
+[26]: Blank Text Element - Empty
+[27]: Blank Text Element - Empty
+[28]: Note Title Text - Catatan Skripsi Selamanya
+[29]: Blank Text Element - Empty
+[30]: Blank Text Element - Empty
+[31]: Text Label - Mel
+[32]: Note Preview Text - Catatan Bersama:
+[33]: Blank Text Element - Empty
+[34]: Note Title Text - Catatan Responsi Bu dian 07-05-26
+[35]: Blank Text Element - Empty
+[36]: Blank Text Element - Empty
+[37]: Blank Text Element - Empty
+[38]: Blank Text Element - Empty
+[39]: Time Label - 10:13
+[40]: Blank Text Element - Empty
+[41]: Blank Text Element - Empty
+[42]: Blank Text Element - Empty
+[43]: Blank Text Element - Empty
+[44]: Note Preview Text - Harus pararel mengerjakannya jangan stuck di obs _
+[45]: Blank Text Element - Empty
+[46]: Blank Text Element - Empty
+[47]: Note Title Text - Catatan skripsi
+[48]: Blank Text Element - Empty
+[49]: Blank Text Element - Empty
+[50]: Category/Folder Text - Tidak Dikategorikan
+[51]: Category/Folder Text - Tidak Semua suitmedia PKM-KC
+[52]: Category/Folder Text - PROKSI
+[53]: Category/Folder Text - PKM-KC
+[54]: Filter Tab/Button - Semua
+[55]: Search Field - Cari catatan
+[56]: Blank Text Element - Empty
+[57]: Blank Text Element - Empty
+[58]: Bottom Navigation Label - Catatan
+[59]: Action Icon Button - action_menu_item_child_icon
+[60]: Action Icon Button - action_menu_item_child_icon
+[61]: List/Folder Container - data_folder_list_layout
+[62]: Header/Navigation Text - Catatan
+[63]: Top App Bar Container - action_bar_container
+[64]: Bottom Navigation Label - Folder
+[65]: Bottom Navigation Label - Setelan
+[66]: Search Bar Container - search_bar
+[67]: List/Folder Container - data_folder_list_layout
+[68]: List/Folder Container - data_folder_list_layout
+[69]: List/Folder Container - data_folder_list_layout
+[70]: List/Folder Container - data_folder_list_layout
+[71]: Note Item Container - note_group
+[72]: Note Item Container - note_group
+[73]: Note Item Container - note_group
+[74]: Note Item Container - note_group
+[75]: Note Item Container - note_group
+[76]: Bottom Navigation Bar - miuix_bottom_navigation_bar
+[77]: Bottom Navigation Label - Tugas
+[78]: Note Item Container - note_group
+SUMMARY: The screen shows a notes app list view with a top title area, search field, category/filter row, multiple note item cards, action icons, a floating add button, and a bottom navigation bar.

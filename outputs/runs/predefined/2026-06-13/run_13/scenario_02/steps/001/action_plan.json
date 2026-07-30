@@ -1,0 +1,10 @@
+{
+    "reasoning": "1) Intent analysis: The step asks the user to click the \"Tugas\" button in the bottom navigation bar to switch from Notes to Tasks. 2) UI element mapping: In the screen map, [80] is explicitly labeled \"Button - Tugas\", which matches the requested bottom navigation item. 3) Action selection: This is a non-input navigation step, so the correct action is click. 4) Target verification: The current screen appears to be the Catatan/notes list, and the Tugas button is visible; the step is not yet completed because the Tasks tab is not clearly active.",
+    "action_type": "click",
+    "intent": "Open the Tugas tab from the bottom navigation bar",
+    "target_id": 80,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

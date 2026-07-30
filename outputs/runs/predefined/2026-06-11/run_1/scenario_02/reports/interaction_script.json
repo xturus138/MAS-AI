@@ -1,0 +1,39 @@
+{
+  "tcs_id": "NOTE-002",
+  "total_steps": 4,
+  "recording_status": "Success",
+  "actions": [
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Navigate to the tasks section",
+      "details": "Clicked (537, 1541)",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:55:38",
+      "step": 1
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Initiate task creation by clicking the floating add button.",
+      "details": "Clicked (601, 1363)",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:55:50",
+      "step": 2
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Memasukkan konten tugas baru",
+      "details": "Set text via resource_id com.miui.notes:id/rich_editor: Kerjain Skripsinya",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:56:03",
+      "step": 3
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Klik tombol Selesai untuk menyimpan tugas",
+      "details": "Clicked (624, 1413)",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:56:14",
+      "step": 4
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+    "timestamp": "2026-06-13 11:10:10",
+    "total_scenarios": 2,
+    "passed_scenarios": 2,
+    "overall_pass_rate": 100.0,
+    "total_tokens": 104742,
+    "total_cost_usd": 0.0,
+    "total_duration_seconds": 398.35,
+    "total_physical_actions": 9,
+    "total_recovery_attempts": 0,
+    "avg_coverage_rate": 100.0,
+    "avg_tool_precision": 100.0,
+    "scenario_details": [
+        {
+            "tcs_id": "NOTE-001",
+            "status": "SUCCESS",
+            "tokens": 58337,
+            "duration_seconds": 221.15,
+            "coverage_rate": 100.0
+        },
+        {
+            "tcs_id": "NOTE-002",
+            "status": "SUCCESS",
+            "tokens": 46405,
+            "duration_seconds": 177.2,
+            "coverage_rate": 100.0
+        }
+    ]
+}

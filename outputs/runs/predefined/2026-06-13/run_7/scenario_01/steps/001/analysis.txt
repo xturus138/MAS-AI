@@ -1,0 +1,14 @@
+SEMANTIC_MAP:
+[1, 78]: Navigation Items - Tugas
+[5, 14, 19, 39]: Metadata/Date - Date markers
+[6, 9, 15, 18, 20, 28, 32, 34, 43, 48, 52, 53]: Content/Text - Note snippets and titles
+[56, 57, 67]: Search Interface - Search bar and icon
+[59, 63]: Header - "Catatan"
+[62, 68, 69, 70, 71]: Layout Container - List structure
+[64]: Container - Action bar
+[65]: Navigation Item - Folder
+[66]: Navigation Item - Setelan (Settings)
+[72, 73, 74, 75, 76, 79]: Note Item - Individual note cards
+[77]: Navigation Bar - Bottom navigation menu
+
+SUMMARY: The screen displays a notes application dashboard featuring a search bar, a categorized list of notes, a bottom navigation menu for "Catatan" and "Tugas", and a settings icon.

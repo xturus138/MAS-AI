@@ -1,0 +1,28 @@
+SEMANTIC_MAP:
+[1]: Folder navigation/list access button
+[2]: Header title indicating current section is "Catatan" (Notes)
+[3]: Action bar container
+[4]: Folder management button
+[5]: Settings menu button
+[6]: Screen title "Catatan"
+[7]: Search bar interface
+[8-11]: Folder list items
+[12-16]: Individual note list items
+[17]: Floating action button to create a new note
+[18]: Bottom navigation bar container
+[19]: Navigation item for "Tugas" (Tasks)
+[20]: Icon for folder list
+[21]: Action bar overlay layout
+[22]: Action bar container
+[23-24]: Action menu icons
+[25]: Header layout
+[26]: Movable header container
+[27-28]: Search input field with placeholder "Cari catatan"
+[29]: Sticky header element
+[30-31]: Folder layout and tag containers
+[35]: Tab label "Semua" (All)
+[58-59]: Navigation icon containers
+[62]: Label for "Catatan"
+[63]: Label for "Tugas"
+
+SUMMARY: This is the main screen of the Xiaomi Notes app, displaying a list of existing notes and folders with options to search, manage folders, access settings, switch to tasks, and create a new note.

@@ -1,0 +1,47 @@
+{
+  "tcs_id": "NOTE-001",
+  "total_steps": 5,
+  "recording_status": "Success",
+  "actions": [
+    {
+      "event_type": "execution",
+      "summary": "No action required \u2014 step already satisfied",
+      "details": "No Action Required (Step already satisfied)",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:03:37",
+      "step": 1
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Open the new note creation screen by tapping the plus add button",
+      "details": "Clicked (601, 1363)",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:04:04",
+      "step": 2
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Enter the note title \"Rencana Skripsi 2026\" into the title field",
+      "details": "Typed: Rencana Skripsi 2026",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:04:58",
+      "step": 3
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Enter the note body content into the main note input field",
+      "details": "Set text via resource_id com.miui.notes:id/rich_editor: Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:05:37",
+      "step": 4
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Return from note editor to the main notes list so the saved note can be verified",
+      "details": "Clicked (74, 120)",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:06:22",
+      "step": 5
+    }
+  ]
+}

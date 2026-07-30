@@ -1,0 +1,1011 @@
+[
+    {
+        "bounds": [
+            38,
+            657,
+            237,
+            693
+        ],
+        "cv_bounds": [
+            40,
+            661,
+            110,
+            689
+        ],
+        "text": "focus skripsinya",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            114,
+            660,
+            241,
+            693
+        ],
+        "cv_bounds": [
+            114,
+            660,
+            241,
+            693
+        ],
+        "text": "",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            523,
+            606,
+            599,
+            634
+        ],
+        "cv_bounds": [
+            523,
+            606,
+            599,
+            634
+        ],
+        "text": "",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            389,
+            606,
+            465,
+            634
+        ],
+        "cv_bounds": [
+            389,
+            606,
+            465,
+            634
+        ],
+        "text": "",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            601,
+            663,
+            637
+        ],
+        "cv_bounds": [
+            254,
+            606,
+            329,
+            638
+        ],
+        "text": "4. Uncertainty itu hanya side effect saja bukan main",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            606,
+            69,
+            633
+        ],
+        "cv_bounds": [
+            41,
+            606,
+            69,
+            633
+        ],
+        "text": "",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            602,
+            605,
+            663,
+            634
+        ],
+        "cv_bounds": [
+            602,
+            605,
+            663,
+            634
+        ],
+        "text": "",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            468,
+            605,
+            520,
+            638
+        ],
+        "cv_bounds": [
+            468,
+            605,
+            520,
+            638
+        ],
+        "text": "",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            332,
+            605,
+            386,
+            634
+        ],
+        "cv_bounds": [
+            332,
+            605,
+            386,
+            634
+        ],
+        "text": "",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            215,
+            605,
+            251,
+            634
+        ],
+        "cv_bounds": [
+            215,
+            605,
+            251,
+            634
+        ],
+        "text": "",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            74,
+            605,
+            212,
+            638
+        ],
+        "cv_bounds": [
+            74,
+            605,
+            212,
+            638
+        ],
+        "text": "",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            511,
+            542,
+            564,
+            570
+        ],
+        "cv_bounds": [
+            511,
+            542,
+            564,
+            570
+        ],
+        "text": "",
+        "type": "container",
+        "id": 12,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            42,
+            533,
+            558,
+            570
+        ],
+        "cv_bounds": [
+            295,
+            538,
+            366,
+            566
+        ],
+        "text": "flow 3. Lanjut ke lain untuk eksperimen nya_",
+        "type": "container",
+        "id": 13,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            189,
+            538,
+            244,
+            566
+        ],
+        "cv_bounds": [
+            189,
+            538,
+            244,
+            566
+        ],
+        "text": "",
+        "type": "container",
+        "id": 14,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            153,
+            538,
+            186,
+            566
+        ],
+        "cv_bounds": [
+            153,
+            538,
+            186,
+            566
+        ],
+        "text": "",
+        "type": "container",
+        "id": 15,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            538,
+            68,
+            565
+        ],
+        "cv_bounds": [
+            41,
+            538,
+            68,
+            565
+        ],
+        "text": "",
+        "type": "container",
+        "id": 16,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            368,
+            537,
+            508,
+            569
+        ],
+        "cv_bounds": [
+            368,
+            537,
+            508,
+            569
+        ],
+        "text": "",
+        "type": "container",
+        "id": 17,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            246,
+            537,
+            292,
+            566
+        ],
+        "cv_bounds": [
+            246,
+            537,
+            292,
+            566
+        ],
+        "text": "",
+        "type": "container",
+        "id": 18,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            73,
+            537,
+            150,
+            570
+        ],
+        "cv_bounds": [
+            73,
+            537,
+            150,
+            570
+        ],
+        "text": "",
+        "type": "container",
+        "id": 19,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            567,
+            470,
+            617,
+            498
+        ],
+        "cv_bounds": [
+            567,
+            470,
+            617,
+            498
+        ],
+        "text": "",
+        "type": "container",
+        "id": 20,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            68,
+            465,
+            672,
+            503
+        ],
+        "cv_bounds": [
+            158,
+            470,
+            259,
+            498
+        ],
+        "text": "Hitung treshold uncertainty seperti Haikal dan ariq:",
+        "type": "container",
+        "id": 21,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            470,
+            68,
+            497
+        ],
+        "cv_bounds": [
+            41,
+            470,
+            68,
+            497
+        ],
+        "text": "",
+        "type": "container",
+        "id": 22,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            620,
+            469,
+            675,
+            501
+        ],
+        "cv_bounds": [
+            620,
+            469,
+            675,
+            501
+        ],
+        "text": "",
+        "type": "container",
+        "id": 23,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            489,
+            469,
+            564,
+            498
+        ],
+        "cv_bounds": [
+            489,
+            469,
+            564,
+            498
+        ],
+        "text": "",
+        "type": "container",
+        "id": 24,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            400,
+            469,
+            486,
+            501
+        ],
+        "cv_bounds": [
+            400,
+            469,
+            486,
+            501
+        ],
+        "text": "",
+        "type": "container",
+        "id": 25,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            263,
+            469,
+            397,
+            502
+        ],
+        "cv_bounds": [
+            263,
+            469,
+            397,
+            502
+        ],
+        "text": "",
+        "type": "container",
+        "id": 26,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            73,
+            469,
+            155,
+            502
+        ],
+        "cv_bounds": [
+            73,
+            469,
+            155,
+            502
+        ],
+        "text": "",
+        "type": "container",
+        "id": 27,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            150,
+            403,
+            222,
+            434
+        ],
+        "cv_bounds": [
+            150,
+            403,
+            222,
+            434
+        ],
+        "text": "",
+        "type": "container",
+        "id": 28,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            38,
+            398,
+            660,
+            435
+        ],
+        "cv_bounds": [
+            582,
+            402,
+            667,
+            434
+        ],
+        "text": "observer agent untuk menghitung uncertainty doang-",
+        "type": "container",
+        "id": 29,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            224,
+            402,
+            296,
+            430
+        ],
+        "cv_bounds": [
+            224,
+            402,
+            296,
+            430
+        ],
+        "text": "",
+        "type": "container",
+        "id": 30,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            40,
+            402,
+            148,
+            430
+        ],
+        "cv_bounds": [
+            40,
+            402,
+            148,
+            430
+        ],
+        "text": "",
+        "type": "container",
+        "id": 31,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            446,
+            401,
+            580,
+            434
+        ],
+        "cv_bounds": [
+            446,
+            401,
+            580,
+            434
+        ],
+        "text": "",
+        "type": "container",
+        "id": 32,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            299,
+            401,
+            442,
+            434
+        ],
+        "cv_bounds": [
+            299,
+            401,
+            442,
+            434
+        ],
+        "text": "",
+        "type": "container",
+        "id": 33,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            348,
+            65,
+            374
+        ],
+        "cv_bounds": [
+            41,
+            348,
+            65,
+            374
+        ],
+        "text": "",
+        "type": "container",
+        "id": 34,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            513,
+            347,
+            582,
+            375
+        ],
+        "cv_bounds": [
+            513,
+            347,
+            582,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 35,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            343,
+            616,
+            379
+        ],
+        "cv_bounds": [
+            146,
+            347,
+            229,
+            378
+        ],
+        "text": "1. Harus pararel mengerjakannya jangan stuck di",
+        "type": "container",
+        "id": 36,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            70,
+            347,
+            142,
+            375
+        ],
+        "cv_bounds": [
+            70,
+            347,
+            142,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 37,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            584,
+            346,
+            613,
+            375
+        ],
+        "cv_bounds": [
+            584,
+            346,
+            613,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 38,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            426,
+            346,
+            510,
+            379
+        ],
+        "cv_bounds": [
+            426,
+            346,
+            510,
+            379
+        ],
+        "text": "",
+        "type": "container",
+        "id": 39,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            233,
+            346,
+            425,
+            379
+        ],
+        "cv_bounds": [
+            233,
+            346,
+            425,
+            379
+        ],
+        "text": "",
+        "type": "container",
+        "id": 40,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            205,
+            261,
+            312,
+            291
+        ],
+        "cv_bounds": [
+            205,
+            261,
+            312,
+            291
+        ],
+        "text": "19 Mei 10:01 163 karakter",
+        "type": "container",
+        "id": 41,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "153 karakter",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            116,
+            261,
+            166,
+            291
+        ],
+        "cv_bounds": [
+            116,
+            261,
+            166,
+            291
+        ],
+        "text": "",
+        "type": "container",
+        "id": 42,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "10:01",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            44,
+            261,
+            116,
+            291
+        ],
+        "cv_bounds": [
+            44,
+            261,
+            116,
+            291
+        ],
+        "text": "",
+        "type": "container",
+        "id": 43,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "19 Mei",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "cv_bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "text": "Catatan skripsi",
+        "type": "container",
+        "id": 44,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Catatan skripsi",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            41,
+            190,
+            183,
+            227
+        ],
+        "cv_bounds": [
+            41,
+            190,
+            183,
+            227
+        ],
+        "text": "",
+        "type": "container",
+        "id": 45,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "",
+        "type": "container",
+        "id": 46,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "",
+        "type": "container",
+        "id": 47,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Lainnya",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            520,
+            83,
+            594,
+            157
+        ],
+        "cv_bounds": [
+            520,
+            83,
+            594,
+            157
+        ],
+        "text": "",
+        "type": "container",
+        "id": 48,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Berbagi catatan ini",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 49,
+        "bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "cv_bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "text": "1. Harus pararel mengerjakannya jangan stuck di observer agent untuk menghitung uncertainty doang.\n2. Hitung treshold uncertainty seperti Haikal dan ariq.\n3. Lanjut ke flow lain untuk eksperimen nya.\n4. Uncertainty itu hanya side effect saja bukan main focus skripsinya.",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/rich_editor",
+        "xml_label": "1. Harus pararel mengerjakannya jangan stuck di observer agent untuk menghitung uncertainty doang.\n2. Hitung treshold uncertainty seperti Haikal dan ariq.\n3. Lanjut ke flow lain untuk eksperimen nya.\n4. Uncertainty itu hanya side effect saja bukan main focus skripsinya.",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 50,
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 51,
+        "bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "text": "ll_note_edit",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/ll_note_edit",
+        "xml_label": "ll_note_edit",
+        "xml_role": "view",
+        "xml_actionable": true
+    }
+]

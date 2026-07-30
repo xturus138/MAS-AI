@@ -1,0 +1,10 @@
+{
+    "reasoning": "1) Intent analysis: Pengguna diminta menekan teks/tombol \"Selesai\" untuk menyimpan tugas yang sudah diisi, lalu nantinya memverifikasi tugas tersimpan di daftar utama. 2) UI element mapping: Screen map menunjukkan [16] Button - Selesai, yang merupakan kontrol yang tepat untuk menyelesaikan/menyimpan editor tugas. Field [9] sudah berisi \"Kerjain Skripsinya\", sehingga langkah input sebelumnya sudah terpenuhi. 3) Action selection: Karena instruksi utama saat ini adalah klik teks \"Selesai\", gunakan action_type 'click'. 4) Target verification: Target [16] tersedia secara eksplisit sebagai Button - Selesai; langkah ini belum selesai karena layar masih menampilkan editor dan keyboard, jadi perlu klik tombol tersebut.",
+    "action_type": "click",
+    "intent": "Menekan tombol Selesai untuk menyimpan tugas dan kembali/menampilkan tugas tersimpan di daftar utama",
+    "target_id": 16,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

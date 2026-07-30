@@ -1,0 +1,32 @@
+SEMANTIC_MAP:
+[1]: Text Content - pengujian aplikasi Android:
+[2]: View/Empty Element - no visible text
+[3]: View/Empty Element - no visible text
+[4]: View/Empty Element - no visible text
+[5]: Text Content - Selesaikan implementasi Multi-Agent Swarm untuk
+[6]: View/Empty Element - no visible text
+[7]: View/Empty Element - no visible text
+[8]: View/Empty Element - no visible text
+[9]: Status Text - 13 Juni 11:04 60 karakter
+[10]: Status Text - 11:04
+[11]: Date Text - 13 Juni
+[12]: Text Input Field - Rencana Skripsi 2026
+[13]: View/Empty Element - no visible text
+[14]: View/Empty Element - no visible text
+[15]: Icon Button - Kembali
+[16]: Icon Button - Selesai
+[17]: Icon Button - Ulangi
+[18]: Icon Button - Urungkan
+[19]: On-Screen Keyboard - visible keyboard block
+[20]: Text Input Field - Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.
+[21]: Button/Toolbar Container - action_bar_container
+[22]: View/Editor Container - ll_note_edit
+[23]: Button - Daftar periksa
+[24]: Button - Sorotan
+[25]: Button - Memperbesar teks
+[26]: Button - Memperkecil teks
+[27]: Button - Tebal
+[28]: Button - Miring
+[29]: Button - Garis bawah
+[30]: Button - Kotak centang
+SUMMARY: The screen shows a Xiaomi Notes editing view with title and note text fields, navigation and undo/redo controls, formatting toolbar buttons, and the on-screen keyboard displayed.

@@ -1,0 +1,24 @@
+SEMANTIC_MAP:
+[1]: Formatting Button - Miring
+[2]: Formatting Button - Garis bawah
+[3]: Formatting Button - Memperkecil teks
+[4]: Formatting Button - Daftar periksa
+[5]: Formatting Button - Tebal
+[6]: Formatting Button - Memperbesar teks
+[7]: Formatting Button - Sorotan
+[8]: Text Placeholder - Mulai tulis
+[9]: View/Container - No visible text
+[10]: View/Container - No visible text
+[11]: Text Label - karakter
+[12]: Text Label - 13 Juni 11:04
+[13]: View/Container - No visible text
+[14]: Text Input Field - Judul
+[15]: Icon Button - Kembali
+[16]: Icon Button - Ulangi
+[17]: Icon Button - Urungkan
+[18]: On-Screen Keyboard - Keyboard block
+[19]: Text Input Field - Mulai tulis Buat pemetaan pikiran
+[20]: Button/Toolbar Container - action_bar_container
+[21]: View/Editor Container - ll_note_edit
+[22]: Formatting Button - Kotak centang
+SUMMARY: The screen shows a note editing interface with a title field, note body area, timestamp and character text, navigation and undo/redo icon buttons, a formatting toolbar, and an on-screen keyboard.

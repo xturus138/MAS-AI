@@ -1,0 +1,9 @@
+{
+  "step_number": 2,
+  "step_instruction": "Pengguna klik tombol \"+\" (tambah) untuk membuat tugas baru",
+  "action_type": "click",
+  "target_widget_id": 6,
+  "verdict": "PASSED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

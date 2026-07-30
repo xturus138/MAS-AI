@@ -1,0 +1,68 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260727_114552_579965",
+  "prompt_tokens": 863,
+  "completion_tokens": 351,
+  "total_tokens": 1214,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 2 (text=(none), role=(unknown)):\n    - 7x: System Navigation Button - Home\n    - 3x: Navigation Button - Home\n- Widget 3 (text=(none), role=(unknown)):\n    - 6x: System Navigation Button - Back\n    - 3x: Navigation Button - Back\n    - 1x: Navigation Bar Button - Back\n- Widget 4 (text=(none), role=(unknown)):\n    - 1x: Divider/Container - Bottom navigation bar background\n    - 1x: Navigation Bar Background - Black Bar\n    - 1x: Divider - System bar separator\n    - 1x: Divider - System Navigation Bar Border\n    - 1x: Visual Divider - Bottom screen line\n    - 3x: System Navigation Bar Container - Bottom bar background\n    - 1x: Visual Divider - Bottom bar separator\n    - 1x: Container - Navigation Bar\n- Widget 5 (text=Log Already have an account? In, role=(unknown)):\n    - 9x: Text Link - Already have an account? Log In\n    - 1x: Interactive Text - Already have an account? Log In\n- Widget 7 (text=(none), role=(unknown)):\n    - 5x: Divider - Left line separator\n    - 2x: Divider - Left line of the \"OR\" separator\n    - 1x: Visual Divider Line\n    - 2x: Horizontal Divider - Left section of divider\n- Widget 8 (text=(none), role=(unknown)):\n    - 4x: Divider - Center separator icon/bullet\n    - 1x: Text Label - \"OR\" (or decorative dot) in separator\n    - 2x: Text - OR (Divider label)\n    - 1x: Graphical Element - Divider separator point\n    - 1x: Divider Label / Placeholder\n    - 1x: Divider - Center separator\n- Widget 9 (text=G CONTINUE WITH GOOGLE, role=(unknown)):\n    - 9x: Button - CONTINUE WITH GOOGLE\n    - 1x: Button - \"CONTINUE WITH GOOGLE\" with Google icon\n- Widget 10 (text=f CONTINUE WITH FACEBOOK, role=(unknown)):\n    - 9x: Button - CONTINUE WITH FACEBOOK\n    - 1x: Button - \"CONTINUE WITH FACEBOOK\" with Facebook icon\n- Widget 11 (text=odbo, role=(unknown)):\n    - 5x: Logo/Image - odvo (ooVoo)\n    - 5x: Logo Image - ooVoo\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.4.7",
+      "langchain": "1.2.15"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

@@ -1,0 +1,21 @@
+SEMANTIC_MAP:
+[1]: Text - Tidak ada tugas di sini
+[2]: Unlabeled UI Element - No visible text or icon
+[3]: Unlabeled UI Element - No visible text or icon
+[4]: Unlabeled UI Element - No visible text or icon
+[5]: Unlabeled UI Element - No visible text or icon
+[6]: Text/Header - Tugas
+[7]: Image/Icon - action_menu_item_child_icon
+[8]: On-Screen Keyboard - On-Screen Keyboard
+[9]: Input Field - Kerjain Skripsinya
+[10]: View/Tab Label - Tugas
+[11]: Button/Container - action_bar_container
+[12]: Button - Setelan
+[13]: Button - search_bar
+[14]: Scroll Container - editor_scroll_view
+[15]: Button - group_tag_custom
+[16]: Button - Selesai
+[17]: Icon Button - iv_tag_custom
+[18]: Bottom Navigation Bar - miuix_bottom_navigation_bar
+[19]: Button/Tab - Catatan
+SUMMARY: The screen shows a Xiaomi Notes task editing interface with a task input field, reminder/settings controls, a done button, bottom navigation, and an on-screen keyboard displayed.

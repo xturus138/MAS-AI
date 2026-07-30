@@ -1,0 +1,300 @@
+[
+    {
+        "bounds": [
+            40,
+            345,
+            164,
+            374
+        ],
+        "cv_bounds": [
+            146,
+            351,
+            165,
+            375
+        ],
+        "text": "Mulai tulis",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            110,
+            348,
+            140,
+            375
+        ],
+        "cv_bounds": [
+            110,
+            348,
+            140,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            346,
+            108,
+            375
+        ],
+        "cv_bounds": [
+            41,
+            346,
+            108,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            211,
+            261,
+            298,
+            291
+        ],
+        "cv_bounds": [
+            211,
+            261,
+            298,
+            291
+        ],
+        "text": "karakter",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "0 karakter",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            44,
+            261,
+            122,
+            291
+        ],
+        "cv_bounds": [
+            44,
+            261,
+            122,
+            291
+        ],
+        "text": "13 Juni 11:04",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "13 Juni",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            40,
+            263,
+            111,
+            287
+        ],
+        "cv_bounds": [
+            40,
+            263,
+            111,
+            287
+        ],
+        "text": "",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "cv_bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "text": "Rencana Skripsi 2026",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Rencana Skripsi 2026",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            42,
+            191,
+            196,
+            227
+        ],
+        "cv_bounds": [
+            42,
+            191,
+            196,
+            227
+        ],
+        "text": "",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            205,
+            190,
+            326,
+            233
+        ],
+        "cv_bounds": [
+            205,
+            190,
+            326,
+            233
+        ],
+        "text": "",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "Kembali",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "Selesai",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Selesai",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 12,
+        "bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "cv_bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "text": "Mulai tulis Buat pemetaan pikiran",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/rich_editor",
+        "xml_label": "Mulai tulis Buat pemetaan pikiran",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 13,
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 14,
+        "bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "text": "ll_note_edit",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/ll_note_edit",
+        "xml_label": "ll_note_edit",
+        "xml_role": "view",
+        "xml_actionable": true
+    }
+]

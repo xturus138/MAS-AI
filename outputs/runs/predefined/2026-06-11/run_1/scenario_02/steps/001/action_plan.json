@@ -1,0 +1,10 @@
+{
+    "reasoning": "1) Analyze user intent: Navigate to the 'Tugas' section. 2) Identify UI element: Element 19 is the 'Tugas' (Tasks) button in the navigation bar. 3) Select action type: Click to switch views. 4) Verify: Action aligns with step 1 of the workflow.",
+    "action_type": "click",
+    "intent": "Navigate to the tasks section",
+    "target_id": 19,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

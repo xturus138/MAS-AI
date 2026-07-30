@@ -1,0 +1,29 @@
+SEMANTIC_MAP:
+[1]: Text input field containing the note body content.
+[2]: Text input field containing the note title.
+[3]: Container for the top action bar navigation and command items.
+[4]: Navigation button to return to the previous screen.
+[5]: Undo button to revert the last action.
+[6]: Redo button to re-apply the last action.
+[7]: Action button to save or finalize the note.
+[8]: Primary layout container for the note editing area.
+[9]: Button to insert a checklist into the note.
+[10]: Button to highlight text.
+[11]: Button to increase font size.
+[12]: Button to decrease font size, currently active/selected.
+[13]: Button to apply bold formatting.
+[14]: Button to apply italic formatting.
+[15]: Button to apply underline formatting.
+[16]: Button to insert a checkbox.
+[17]: Overlay layout for the action bar.
+[18]: Action bar header component.
+[19]: Header view component.
+[20]: Grouping view for editing elements.
+[21]: Content container.
+[22]: Nested header layout.
+[23]: Container for additional note metadata.
+[24]: Text label indicating the note length (50 characters).
+[25]: Text label indicating the date (11 June).
+[28]: Toolbar container for formatting and editing tools.
+
+SUMMARY: This is a note-taking interface in Xiaomi Notes that provides text entry fields for a title and body, along with a toolbar for text formatting, list creation, and navigation controls.

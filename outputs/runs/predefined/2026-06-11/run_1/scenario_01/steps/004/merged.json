@@ -1,0 +1,632 @@
+[
+    {
+        "raw_id": 65,
+        "label": "Rencana Skripsi 2026",
+        "role": "input",
+        "bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "cv_bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "center": [
+            360,
+            209
+        ],
+        "actionable": true,
+        "state": {
+            "enabled": true,
+            "focused": true,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.EditText",
+        "resource_id": "com.miui.notes:id/note_title",
+        "id": 1
+    },
+    {
+        "raw_id": 72,
+        "label": "Mulai tulis Buat pemetaan pikiran",
+        "role": "input",
+        "bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "cv_bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "center": [
+            360,
+            583
+        ],
+        "actionable": true,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "main_content",
+        "class": "android.widget.EditText",
+        "resource_id": "com.miui.notes:id/rich_editor",
+        "id": 2
+    },
+    {
+        "raw_id": 50,
+        "label": "action_bar_container",
+        "role": "button",
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "center": [
+            360,
+            86
+        ],
+        "actionable": true,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.FrameLayout",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "id": 3
+    },
+    {
+        "raw_id": 53,
+        "label": "Kembali",
+        "role": "icon_button",
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "center": [
+            74,
+            120
+        ],
+        "actionable": true,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.ImageView",
+        "resource_id": "com.miui.notes:id/home",
+        "id": 4
+    },
+    {
+        "raw_id": 57,
+        "label": "Selesai",
+        "role": "icon_button",
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "center": [
+            653,
+            120
+        ],
+        "actionable": true,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.ImageView",
+        "resource_id": "com.miui.notes:id/done",
+        "id": 5
+    },
+    {
+        "raw_id": 64,
+        "label": "ll_note_edit",
+        "role": "view",
+        "bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "center": [
+            360,
+            497
+        ],
+        "actionable": true,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "main_content",
+        "class": "android.widget.LinearLayout",
+        "resource_id": "com.miui.notes:id/ll_note_edit",
+        "id": 6
+    },
+    {
+        "raw_id": 46,
+        "label": "action_bar_overlay_layout",
+        "role": "view",
+        "bounds": [
+            0,
+            0,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            1600
+        ],
+        "center": [
+            360,
+            800
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "main_content",
+        "class": "android.widget.FrameLayout",
+        "resource_id": "com.miui.notes:id/action_bar_overlay_layout",
+        "id": 7
+    },
+    {
+        "raw_id": 51,
+        "label": "action_bar",
+        "role": "view",
+        "bounds": [
+            0,
+            68,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            68,
+            720,
+            172
+        ],
+        "center": [
+            360,
+            120
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.view.ViewGroup",
+        "resource_id": "com.miui.notes:id/action_bar",
+        "id": 8
+    },
+    {
+        "raw_id": 52,
+        "label": "header",
+        "role": "view",
+        "bounds": [
+            37,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            690,
+            157
+        ],
+        "center": [
+            363,
+            120
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.LinearLayout",
+        "resource_id": "com.miui.notes:id/header",
+        "id": 9
+    },
+    {
+        "raw_id": 56,
+        "label": "edit_group",
+        "role": "view",
+        "bounds": [
+            594,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            594,
+            83,
+            690,
+            157
+        ],
+        "center": [
+            642,
+            120
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.LinearLayout",
+        "resource_id": "com.miui.notes:id/edit_group",
+        "id": 10
+    },
+    {
+        "raw_id": 58,
+        "label": "content",
+        "role": "view",
+        "bounds": [
+            0,
+            172,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            1600
+        ],
+        "center": [
+            360,
+            886
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "main_content",
+        "class": "android.widget.FrameLayout",
+        "resource_id": "android:id/content",
+        "id": 11
+    },
+    {
+        "raw_id": 60,
+        "label": "nested_header_layout",
+        "role": "view",
+        "bounds": [
+            0,
+            172,
+            720,
+            1517
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            1517
+        ],
+        "center": [
+            360,
+            844
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "main_content",
+        "class": "android.widget.FrameLayout",
+        "resource_id": "com.miui.notes:id/nested_header_layout",
+        "id": 12
+    },
+    {
+        "raw_id": 66,
+        "label": "note_extra_info",
+        "role": "view",
+        "bounds": [
+            22,
+            261,
+            698,
+            291
+        ],
+        "cv_bounds": [
+            22,
+            261,
+            698,
+            291
+        ],
+        "center": [
+            360,
+            276
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.view.ViewGroup",
+        "resource_id": "com.miui.notes:id/note_extra_info",
+        "id": 13
+    },
+    {
+        "raw_id": 71,
+        "label": "0 karakter",
+        "role": "text",
+        "bounds": [
+            211,
+            261,
+            298,
+            291
+        ],
+        "cv_bounds": [
+            211,
+            261,
+            298,
+            291
+        ],
+        "center": [
+            254,
+            276
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.TextView",
+        "resource_id": "com.miui.notes:id/text_count",
+        "id": 14
+    },
+    {
+        "raw_id": 68,
+        "label": "11 Juni",
+        "role": "text",
+        "bounds": [
+            44,
+            261,
+            120,
+            291
+        ],
+        "cv_bounds": [
+            44,
+            261,
+            120,
+            291
+        ],
+        "center": [
+            82,
+            276
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.TextView",
+        "resource_id": "com.miui.notes:id/date",
+        "id": 15
+    },
+    {
+        "raw_id": 69,
+        "label": "13:53",
+        "role": "text",
+        "bounds": [
+            120,
+            261,
+            172,
+            291
+        ],
+        "cv_bounds": [
+            120,
+            261,
+            172,
+            291
+        ],
+        "center": [
+            146,
+            276
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.TextView",
+        "resource_id": "com.miui.notes:id/time",
+        "id": 16
+    },
+    {
+        "raw_id": 70,
+        "label": "text_count_divider",
+        "role": "image",
+        "bounds": [
+            172,
+            267,
+            211,
+            286
+        ],
+        "cv_bounds": [
+            172,
+            267,
+            211,
+            286
+        ],
+        "center": [
+            191,
+            276
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "header",
+        "class": "android.widget.ImageView",
+        "resource_id": "com.miui.notes:id/text_count_divider",
+        "id": 17
+    },
+    {
+        "raw_id": 39,
+        "label": "content",
+        "role": "view",
+        "bounds": [
+            0,
+            1517,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            1517,
+            720,
+            1600
+        ],
+        "center": [
+            360,
+            1558
+        ],
+        "actionable": false,
+        "state": {
+            "enabled": true,
+            "focused": false,
+            "checked": false,
+            "selected": false,
+            "scrollable": false,
+            "password": false
+        },
+        "source": "xml",
+        "group": "main_content",
+        "class": "android.widget.FrameLayout",
+        "resource_id": "android:id/content",
+        "id": 18
+    }
+]

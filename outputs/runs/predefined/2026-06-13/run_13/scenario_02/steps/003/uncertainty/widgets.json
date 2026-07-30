@@ -1,0 +1,1699 @@
+[
+  {
+    "element_id": 1,
+    "text": "Tidak ada tugas di sini",
+    "role": "text",
+    "responses": [
+      "Placeholder Text - Tidak ada tugas di sini",
+      "Placeholder Text - Tidak ada tugas di sini",
+      "Placeholder Text - Tidak ada tugas di sini",
+      "Placeholder Text - Tidak ada tugas di sini",
+      "Placeholder Text - Tidak ada tugas di sini"
+    ],
+    "clusters": [
+      [
+        "Placeholder Text - Tidak ada tugas di sini",
+        "Placeholder Text - Tidak ada tugas di sini",
+        "Placeholder Text - Tidak ada tugas di sini",
+        "Placeholder Text - Tidak ada tugas di sini",
+        "Placeholder Text - Tidak ada tugas di sini"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Placeholder Text - Tidak ada tugas di sini",
+        "b": "Placeholder Text - Tidak ada tugas di sini",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Placeholder Text - Tidak ada tugas di sini",
+        "b": "Placeholder Text - Tidak ada tugas di sini",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Placeholder Text - Tidak ada tugas di sini",
+        "b": "Placeholder Text - Tidak ada tugas di sini",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Placeholder Text - Tidak ada tugas di sini",
+        "b": "Placeholder Text - Tidak ada tugas di sini",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 2,
+    "text": "",
+    "role": "",
+    "responses": [
+      "Unidentified UI elements (no visible text or clear function)",
+      "Unidentified UI elements (no visible text or distinguishable role)",
+      "Unidentified UI elements (no visible text or clear role)",
+      "Unidentified UI elements (no visible text or distinct role)"
+    ],
+    "clusters": [
+      [
+        "Unidentified UI elements (no visible text or clear function)",
+        "Unidentified UI elements (no visible text or distinguishable role)",
+        "Unidentified UI elements (no visible text or clear role)",
+        "Unidentified UI elements (no visible text or distinct role)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Unidentified UI elements (no visible text or distinguishable role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 2,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or clear role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 2,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or distinct role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 2,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 4,
+    "parse_failures": 1,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 3,
+    "text": "",
+    "role": "",
+    "responses": [
+      "Unidentified UI elements (no visible text or clear function)",
+      "Unidentified UI elements (no visible text or distinguishable role)",
+      "Unidentified UI elements (no visible text or clear role)",
+      "Unidentified UI elements (no visible text or distinct role)"
+    ],
+    "clusters": [
+      [
+        "Unidentified UI elements (no visible text or clear function)",
+        "Unidentified UI elements (no visible text or distinguishable role)",
+        "Unidentified UI elements (no visible text or clear role)",
+        "Unidentified UI elements (no visible text or distinct role)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Unidentified UI elements (no visible text or distinguishable role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 3,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or clear role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 3,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or distinct role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 3,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 4,
+    "parse_failures": 1,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 4,
+    "text": "",
+    "role": "",
+    "responses": [
+      "Unidentified UI elements (no visible text or clear function)",
+      "Unidentified UI elements (no visible text or distinguishable role)",
+      "Unidentified UI elements (no visible text or clear role)",
+      "Unidentified UI elements (no visible text or distinct role)"
+    ],
+    "clusters": [
+      [
+        "Unidentified UI elements (no visible text or clear function)",
+        "Unidentified UI elements (no visible text or distinguishable role)",
+        "Unidentified UI elements (no visible text or clear role)",
+        "Unidentified UI elements (no visible text or distinct role)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Unidentified UI elements (no visible text or distinguishable role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 4,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or clear role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 4,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or distinct role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 4,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 4,
+    "parse_failures": 1,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 5,
+    "text": "",
+    "role": "",
+    "responses": [
+      "Unidentified UI elements (no visible text or clear function)",
+      "Unidentified UI elements (no visible text or distinguishable role)",
+      "Unidentified UI elements (no visible text or clear role)",
+      "Unidentified UI elements (no visible text or distinct role)"
+    ],
+    "clusters": [
+      [
+        "Unidentified UI elements (no visible text or clear function)",
+        "Unidentified UI elements (no visible text or distinguishable role)",
+        "Unidentified UI elements (no visible text or clear role)",
+        "Unidentified UI elements (no visible text or distinct role)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Unidentified UI elements (no visible text or distinguishable role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 5,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or clear role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 5,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Unidentified UI elements (no visible text or distinct role)",
+        "b": "Unidentified UI elements (no visible text or clear function)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 5,
+          "role": "",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 4,
+    "parse_failures": 1,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 6,
+    "text": "Tugas",
+    "role": "text",
+    "responses": [
+      "Header/Title Text - Tugas",
+      "Header/Title Text - Tugas",
+      "Header Text - Tugas",
+      "Header/Title Text - Tugas",
+      "Header/Title Text - Tugas"
+    ],
+    "clusters": [
+      [
+        "Header/Title Text - Tugas",
+        "Header/Title Text - Tugas",
+        "Header Text - Tugas",
+        "Header/Title Text - Tugas",
+        "Header/Title Text - Tugas"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Header/Title Text - Tugas",
+        "b": "Header/Title Text - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Header Text - Tugas",
+        "b": "Header/Title Text - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Header/Title Text - Tugas",
+        "b": "Header/Title Text - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Header/Title Text - Tugas",
+        "b": "Header/Title Text - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "text",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 7,
+    "text": "action_menu_item_child_icon",
+    "role": "image",
+    "responses": [
+      "Action Menu Icon Button - action_menu_item_child_icon",
+      "Icon Button - Action menu item (settings/more options)",
+      "Icon Button - Action menu item (settings/overflow)",
+      "Icon Button - Action menu icon (top right area)",
+      "Icon Button - Action menu item (settings/more options)"
+    ],
+    "clusters": [
+      [
+        "Action Menu Icon Button - action_menu_item_child_icon",
+        "Icon Button - Action menu item (settings/more options)",
+        "Icon Button - Action menu item (settings/overflow)",
+        "Icon Button - Action menu item (settings/more options)"
+      ],
+      [
+        "Icon Button - Action menu icon (top right area)"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.8,
+      0.2
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - Action menu item (settings/more options)",
+        "b": "Action Menu Icon Button - action_menu_item_child_icon",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 7,
+          "role": "image",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Icon Button - Action menu item (settings/overflow)",
+        "b": "Action Menu Icon Button - action_menu_item_child_icon",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 7,
+          "role": "image",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Icon Button - Action menu icon (top right area)",
+        "b": "Action Menu Icon Button - action_menu_item_child_icon",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 7,
+          "role": "image",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Icon Button - Action menu item (settings/more options)",
+        "b": "Action Menu Icon Button - action_menu_item_child_icon",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 7,
+          "role": "image",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.5004024235381879,
+    "normalized_dse": 0.31091750708257115,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 8,
+    "text": "On-Screen Keyboard",
+    "role": "button",
+    "responses": [
+      "On-Screen Keyboard (grouped as single block)",
+      "On-Screen Keyboard (grouped as single block)",
+      "On-Screen Keyboard (grouped as single block)",
+      "On-Screen Keyboard (grouped as single block)",
+      "On-Screen Keyboard (grouped as single block)"
+    ],
+    "clusters": [
+      [
+        "On-Screen Keyboard (grouped as single block)",
+        "On-Screen Keyboard (grouped as single block)",
+        "On-Screen Keyboard (grouped as single block)",
+        "On-Screen Keyboard (grouped as single block)",
+        "On-Screen Keyboard (grouped as single block)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "On-Screen Keyboard (grouped as single block)",
+        "b": "On-Screen Keyboard (grouped as single block)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "On-Screen Keyboard (grouped as single block)",
+        "b": "On-Screen Keyboard (grouped as single block)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "On-Screen Keyboard (grouped as single block)",
+        "b": "On-Screen Keyboard (grouped as single block)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "On-Screen Keyboard (grouped as single block)",
+        "b": "On-Screen Keyboard (grouped as single block)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 9,
+    "text": "rich_editor",
+    "role": "input",
+    "responses": [
+      "Rich Text Input Field - rich_editor",
+      "Rich Text Input Field - Editor area",
+      "Rich Text Input Field - Editor area",
+      "Rich Text Input Field - Editor area",
+      "Rich Text Input Field - Editor area for note/task content"
+    ],
+    "clusters": [
+      [
+        "Rich Text Input Field - rich_editor",
+        "Rich Text Input Field - Editor area",
+        "Rich Text Input Field - Editor area",
+        "Rich Text Input Field - Editor area",
+        "Rich Text Input Field - Editor area for note/task content"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Rich Text Input Field - Editor area",
+        "b": "Rich Text Input Field - rich_editor",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "input",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Rich Text Input Field - Editor area",
+        "b": "Rich Text Input Field - rich_editor",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "input",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Rich Text Input Field - Editor area",
+        "b": "Rich Text Input Field - rich_editor",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "input",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Rich Text Input Field - Editor area for note/task content",
+        "b": "Rich Text Input Field - rich_editor",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "input",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 10,
+    "text": "Tugas",
+    "role": "view",
+    "responses": [
+      "Tab/View Label - Tugas",
+      "Tab/View Label - Tugas",
+      "Tab/View Selector - Tugas",
+      "Tab/View Label - Tugas",
+      "Tab/View Selector - Tugas (active)"
+    ],
+    "clusters": [
+      [
+        "Tab/View Label - Tugas",
+        "Tab/View Label - Tugas",
+        "Tab/View Label - Tugas"
+      ],
+      [
+        "Tab/View Selector - Tugas"
+      ],
+      [
+        "Tab/View Selector - Tugas (active)"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.6,
+      0.2,
+      0.2
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Tab/View Label - Tugas",
+        "b": "Tab/View Label - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 10,
+          "role": "view",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Tab/View Selector - Tugas",
+        "b": "Tab/View Label - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 10,
+          "role": "view",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Tab/View Label - Tugas",
+        "b": "Tab/View Label - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 10,
+          "role": "view",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Tab/View Selector - Tugas (active)",
+        "b": "Tab/View Label - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 10,
+          "role": "view",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Tab/View Selector - Tugas (active)",
+        "b": "Tab/View Selector - Tugas",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 10,
+          "role": "view",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.9502705392332347,
+    "normalized_dse": 0.5904362833084089,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 11,
+    "text": "action_bar_container",
+    "role": "button",
+    "responses": [
+      "Action Bar Container - action_bar_container",
+      "Action Bar Container - Top navigation bar",
+      "Action Bar Container - Top navigation bar",
+      "Action Bar Container - Top navigation bar",
+      "Action Bar Container - Top navigation bar"
+    ],
+    "clusters": [
+      [
+        "Action Bar Container - action_bar_container"
+      ],
+      [
+        "Action Bar Container - Top navigation bar",
+        "Action Bar Container - Top navigation bar",
+        "Action Bar Container - Top navigation bar",
+        "Action Bar Container - Top navigation bar"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.2,
+      0.8
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Action Bar Container - Top navigation bar",
+        "b": "Action Bar Container - action_bar_container",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 11,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - Top navigation bar",
+        "b": "Action Bar Container - action_bar_container",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 11,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - Top navigation bar",
+        "b": "Action Bar Container - Top navigation bar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 11,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - Top navigation bar",
+        "b": "Action Bar Container - action_bar_container",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 11,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - Top navigation bar",
+        "b": "Action Bar Container - Top navigation bar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 11,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - Top navigation bar",
+        "b": "Action Bar Container - action_bar_container",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 11,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - Top navigation bar",
+        "b": "Action Bar Container - Top navigation bar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 11,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.5004024235381879,
+    "normalized_dse": 0.31091750708257115,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 12,
+    "text": "Setelan",
+    "role": "button",
+    "responses": [
+      "Settings Button - Setelan",
+      "Button - Setelan (Settings)",
+      "Button - Setelan (Settings)",
+      "Button - Setelan (Settings)",
+      "Button - Setelan (Settings)"
+    ],
+    "clusters": [
+      [
+        "Settings Button - Setelan",
+        "Button - Setelan (Settings)",
+        "Button - Setelan (Settings)",
+        "Button - Setelan (Settings)",
+        "Button - Setelan (Settings)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Button - Setelan (Settings)",
+        "b": "Settings Button - Setelan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Setelan (Settings)",
+        "b": "Settings Button - Setelan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Setelan (Settings)",
+        "b": "Settings Button - Setelan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Setelan (Settings)",
+        "b": "Settings Button - Setelan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 13,
+    "text": "search_bar",
+    "role": "button",
+    "responses": [
+      "Search Bar Button - search_bar",
+      "Button - Search bar",
+      "Button - Search bar",
+      "Button - Search bar",
+      "Button - Search bar"
+    ],
+    "clusters": [
+      [
+        "Search Bar Button - search_bar",
+        "Button - Search bar",
+        "Button - Search bar",
+        "Button - Search bar",
+        "Button - Search bar"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Button - Search bar",
+        "b": "Search Bar Button - search_bar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Search bar",
+        "b": "Search Bar Button - search_bar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Search bar",
+        "b": "Search Bar Button - search_bar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Search bar",
+        "b": "Search Bar Button - search_bar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 14,
+    "text": "edit_panel",
+    "role": "button",
+    "responses": [
+      "Edit Panel Button - edit_panel",
+      "Button - Edit panel toolbar",
+      "Button - Edit panel (formatting toolbar)",
+      "Button - Edit panel (formatting toolbar)",
+      "Button - Edit panel (formatting toolbar)"
+    ],
+    "clusters": [
+      [
+        "Edit Panel Button - edit_panel"
+      ],
+      [
+        "Button - Edit panel toolbar",
+        "Button - Edit panel (formatting toolbar)",
+        "Button - Edit panel (formatting toolbar)",
+        "Button - Edit panel (formatting toolbar)"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.2,
+      0.8
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Button - Edit panel toolbar",
+        "b": "Edit Panel Button - edit_panel",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 14,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Edit panel (formatting toolbar)",
+        "b": "Edit Panel Button - edit_panel",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 14,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Edit panel (formatting toolbar)",
+        "b": "Button - Edit panel toolbar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 14,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Edit panel (formatting toolbar)",
+        "b": "Edit Panel Button - edit_panel",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 14,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Edit panel (formatting toolbar)",
+        "b": "Button - Edit panel toolbar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 14,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Edit panel (formatting toolbar)",
+        "b": "Edit Panel Button - edit_panel",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 14,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Edit panel (formatting toolbar)",
+        "b": "Button - Edit panel toolbar",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 14,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.5004024235381879,
+    "normalized_dse": 0.31091750708257115,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 15,
+    "text": "editor_scroll_view",
+    "role": "scroll_container",
+    "responses": [
+      "Scrollable Content Area - editor_scroll_view",
+      "Scroll Container - Editor scroll view",
+      "Scroll Container - Editor scroll view",
+      "Scroll Container - Editor scroll view",
+      "Scroll Container - Editor scroll view"
+    ],
+    "clusters": [
+      [
+        "Scrollable Content Area - editor_scroll_view",
+        "Scroll Container - Editor scroll view",
+        "Scroll Container - Editor scroll view",
+        "Scroll Container - Editor scroll view",
+        "Scroll Container - Editor scroll view"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Scroll Container - Editor scroll view",
+        "b": "Scrollable Content Area - editor_scroll_view",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 15,
+          "role": "scroll_container",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Scroll Container - Editor scroll view",
+        "b": "Scrollable Content Area - editor_scroll_view",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 15,
+          "role": "scroll_container",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Scroll Container - Editor scroll view",
+        "b": "Scrollable Content Area - editor_scroll_view",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 15,
+          "role": "scroll_container",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Scroll Container - Editor scroll view",
+        "b": "Scrollable Content Area - editor_scroll_view",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 15,
+          "role": "scroll_container",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 16,
+    "text": "group_tag_custom",
+    "role": "button",
+    "responses": [
+      "Custom Tag Group Button - group_tag_custom",
+      "Button - Custom group tag",
+      "Button - Custom group tag",
+      "Button - Custom tag group",
+      "Button - Custom group tag"
+    ],
+    "clusters": [
+      [
+        "Custom Tag Group Button - group_tag_custom",
+        "Button - Custom group tag",
+        "Button - Custom group tag",
+        "Button - Custom tag group",
+        "Button - Custom group tag"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Button - Custom group tag",
+        "b": "Custom Tag Group Button - group_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 16,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Custom group tag",
+        "b": "Custom Tag Group Button - group_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 16,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Custom tag group",
+        "b": "Custom Tag Group Button - group_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 16,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Custom group tag",
+        "b": "Custom Tag Group Button - group_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 16,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 17,
+    "text": "Selesai",
+    "role": "button",
+    "responses": [
+      "Primary Button - Selesai",
+      "Button - Selesai (Done/Finish)",
+      "Button - Selesai (Done)",
+      "Button - Selesai (Done)",
+      "Button - Selesai (Done/Finish)"
+    ],
+    "clusters": [
+      [
+        "Primary Button - Selesai"
+      ],
+      [
+        "Button - Selesai (Done/Finish)",
+        "Button - Selesai (Done)",
+        "Button - Selesai (Done)",
+        "Button - Selesai (Done/Finish)"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.2,
+      0.8
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Button - Selesai (Done/Finish)",
+        "b": "Primary Button - Selesai",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 17,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Selesai (Done)",
+        "b": "Primary Button - Selesai",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 17,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Selesai (Done)",
+        "b": "Button - Selesai (Done/Finish)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 17,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Selesai (Done)",
+        "b": "Primary Button - Selesai",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 17,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Selesai (Done)",
+        "b": "Button - Selesai (Done/Finish)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 17,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Selesai (Done/Finish)",
+        "b": "Primary Button - Selesai",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 17,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Button - Selesai (Done/Finish)",
+        "b": "Button - Selesai (Done/Finish)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 17,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.5004024235381879,
+    "normalized_dse": 0.31091750708257115,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 18,
+    "text": "iv_tag_custom",
+    "role": "icon_button",
+    "responses": [
+      "Icon Button - iv_tag_custom",
+      "Icon Button - Custom tag icon",
+      "Icon Button - Custom tag icon",
+      "Icon Button - Custom tag icon",
+      "Icon Button - Custom tag icon"
+    ],
+    "clusters": [
+      [
+        "Icon Button - iv_tag_custom",
+        "Icon Button - Custom tag icon",
+        "Icon Button - Custom tag icon",
+        "Icon Button - Custom tag icon",
+        "Icon Button - Custom tag icon"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - Custom tag icon",
+        "b": "Icon Button - iv_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 18,
+          "role": "icon_button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Icon Button - Custom tag icon",
+        "b": "Icon Button - iv_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 18,
+          "role": "icon_button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Icon Button - Custom tag icon",
+        "b": "Icon Button - iv_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 18,
+          "role": "icon_button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Icon Button - Custom tag icon",
+        "b": "Icon Button - iv_tag_custom",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 18,
+          "role": "icon_button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 19,
+    "text": "Catatan",
+    "role": "button",
+    "responses": [
+      "Tab Button - Catatan",
+      "Tab/Button - Catatan (Notes)",
+      "Tab/Button - Catatan (Notes)",
+      "Tab/Button - Catatan (Notes)",
+      "Tab/Button - Catatan (Notes)"
+    ],
+    "clusters": [
+      [
+        "Tab Button - Catatan",
+        "Tab/Button - Catatan (Notes)",
+        "Tab/Button - Catatan (Notes)",
+        "Tab/Button - Catatan (Notes)",
+        "Tab/Button - Catatan (Notes)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Tab/Button - Catatan (Notes)",
+        "b": "Tab Button - Catatan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 19,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Tab/Button - Catatan (Notes)",
+        "b": "Tab Button - Catatan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 19,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Tab/Button - Catatan (Notes)",
+        "b": "Tab Button - Catatan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 19,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      },
+      {
+        "a": "Tab/Button - Catatan (Notes)",
+        "b": "Tab Button - Catatan",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 19,
+          "role": "button",
+          "screen_desc": "Membuat Tugas Baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  }
+]

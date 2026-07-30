@@ -1,0 +1,28 @@
+SEMANTIC_MAP:
+[1]: Text input field for creating or editing note content.
+[2]: Header or status indicator labeled "Tugas".
+[3]: Action bar container for top-level navigation or settings.
+[4]: Settings button.
+[5]: Text label "Tugas".
+[6]: Search functionality button.
+[7]: Edit panel access button.
+[8]: Scrollable area containing the note editing interface.
+[9]: Button to manage custom group tags.
+[10]: "Selesai" (Done) button to save or exit.
+[11]: Icon button for tag customization.
+[12]: Bottom navigation bar.
+[13]: "Catatan" (Notes) navigation category.
+[14]: Layout overlay for the action bar.
+[15]: Primary action bar container.
+[16]: Action menu icon.
+[17]: Grouping layout container.
+[18]: Movable container within the action bar.
+[19]: Linear layout for scrollable content.
+[20]: Container indicating an empty task list.
+[21]: Placeholder image for empty state.
+[22]: Text label "Tidak ada tugas di sini" (No tasks here).
+[23]: Container for the task editor interface.
+[28]: Navigation bar item container.
+[29]: Navigation bar item container.
+
+SUMMARY: This is the task creation and editing interface of a notes application, featuring a rich text editor, task categorization options, and an empty state indicator for the current view.

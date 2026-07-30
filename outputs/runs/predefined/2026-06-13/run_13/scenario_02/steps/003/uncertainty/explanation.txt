@@ -1,0 +1,9 @@
+Widget 7: 4 descriptions called it "Action Menu Icon Button," 1 called it "Icon Button" with location note "top right area." Same underlying role, differ only in phrasing and detail.
+
+Widget 10: 3 descriptions called it "Tab/View Label," 1 called it "Tab/View Selector," 1 called it "Tab/View Selector (active)." Clusters split on whether widget is passive label or interactive selector, and whether it is currently active.
+
+Widget 11: 4 descriptions called it "Action Bar Container - Top navigation bar," 1 called it "Action Bar Container - action_bar_container." Same role, differ only in whether description restated the raw ID or provided a human-readable label.
+
+Widget 14: 4 descriptions called it "Button - Edit panel toolbar," 1 called it "Edit Panel Button - edit_panel." Same role, differ only in phrasing.
+
+Widget 17: 4 descriptions called it "Button - Selesai (Done/Finish)" with translation note, 1 called it "Primary Button - Selesai." Differ on whether button is styled as primary; underlying role and text identical.

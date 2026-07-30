@@ -1,0 +1,28 @@
+SEMANTIC_MAP:
+[1]: Text input area for the main body of the note, currently prompting "Mulai tulis Buat pemetaan pikiran".
+[2]: Text input field for the note title.
+[3]: Container for the primary action bar.
+[4]: Back button to exit the note editor.
+[5]: Undo button.
+[6]: Redo button.
+[7]: Main container for the note editing area.
+[8]: Button to insert a checklist.
+[9]: Button to apply highlighting to text.
+[10]: Button to increase text size.
+[11]: Button to decrease text size.
+[12]: Button to apply bold formatting.
+[13]: Button to apply italic formatting.
+[14]: Button to apply underline formatting.
+[15]: Button to toggle checkbox functionality.
+[16]: Overlay layout container for the action bar.
+[17]: Action bar container.
+[18]: Header section container.
+[19]: Editing group container.
+[20]: Main content area container.
+[21]: Layout container for the nested header.
+[22]: Container for extra note information.
+[23]: Text label displaying the current character count (0 karakter).
+[24]: Text label displaying the current date (11 Juni).
+[27]: Toolbar container at the bottom of the screen.
+
+SUMMARY: The screen is a note-taking interface featuring a title input, a main body text editor, and a toolbar containing various text formatting and formatting utility options.

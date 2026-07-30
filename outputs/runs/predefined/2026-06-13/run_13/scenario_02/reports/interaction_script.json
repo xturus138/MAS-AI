@@ -1,0 +1,39 @@
+{
+  "tcs_id": "NOTE-002",
+  "total_steps": 4,
+  "recording_status": "Success",
+  "actions": [
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Open the Tugas tab from the bottom navigation bar",
+      "details": "Clicked (537, 1541)",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:07:39",
+      "step": 1
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Open the new task creation screen by tapping the add/create button",
+      "details": "Clicked (601, 1363)",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:08:05",
+      "step": 2
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Memasukkan konten tugas baru ke field editor",
+      "details": "Set text via resource_id com.miui.notes:id/rich_editor: Kerjain Skripsinya",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:09:05",
+      "step": 3
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Menekan tombol Selesai untuk menyimpan tugas dan kembali/menampilkan tugas tersimpan di daftar utama",
+      "details": "Clicked (624, 1413)",
+      "actor": "executor",
+      "timestamp": "2026-06-13T11:09:35",
+      "step": 4
+    }
+  ]
+}

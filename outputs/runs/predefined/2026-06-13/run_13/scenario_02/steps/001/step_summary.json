@@ -1,0 +1,9 @@
+{
+  "step_number": 1,
+  "step_instruction": "Pengguna klik tombol \"tugas\" pada menu navigasi bawah",
+  "action_type": "click",
+  "target_widget_id": 80,
+  "verdict": "PASSED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

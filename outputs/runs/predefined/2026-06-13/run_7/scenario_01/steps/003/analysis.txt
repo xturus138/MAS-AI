@@ -1,0 +1,8 @@
+SEMANTIC_MAP:
+[1-40]: Editable Text Content - Textual content of the note
+[41]: Metadata Text - Date and character count
+[44]: Editable Title Field - Catatan skripsi
+[49]: Main Text Body - Full text content container
+[50]: Action Bar Container - Top navigation and action icons
+[51]: Text Editor Container - Main editable note body
+SUMMARY: The screen displays a note-taking interface containing a title, metadata, and an editable multi-line text body with various selectable text segments.

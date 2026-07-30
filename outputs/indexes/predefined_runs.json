@@ -1,0 +1,82 @@
+[
+  {
+    "session_id": "NOTE-001_20260611_135339",
+    "date": "2026-06-11",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-11\\run_1\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-002_20260611_135502",
+    "date": "2026-06-11",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-11\\run_1\\scenario_02"
+  },
+  {
+    "session_id": "NOTE-001_20260613_092440",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_1\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_093639",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_2\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_093812",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_3\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_094600",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_4\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_095308",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_5\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_095735",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_6\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_101148",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_7\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_102605",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_8\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_103207",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_9\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_103512",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_10\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_104309",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_11\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_105207",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_12\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-001_20260613_110211",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_13\\scenario_01"
+  },
+  {
+    "session_id": "NOTE-002_20260613_110646",
+    "date": "2026-06-13",
+    "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_13\\scenario_02"
+  }
+]

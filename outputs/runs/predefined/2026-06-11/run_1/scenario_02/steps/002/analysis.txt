@@ -1,0 +1,24 @@
+SEMANTIC_MAP:
+[1]: Container for the "Tugas" (Task) tab indicator.
+[2]: Container for the top action bar.
+[3]: Button for settings access.
+[4]: Text header displaying "Tugas".
+[5]: Search bar for filtering tasks.
+[6]: Floating action button for creating a new task.
+[7]: Bottom navigation bar.
+[8]: Tab button for "Catatan" (Notes).
+[9]: Overlay layout for the action bar.
+[10]: Action bar container.
+[11]: Icon representing an action menu item.
+[12]: Group container for layout organization.
+[13]: Movable container within the action bar.
+[14]: Layout container for the scrollable content area.
+[15]: View indicating an empty state for the task list.
+[16]: Image associated with the empty state.
+[17]: Text label stating "Tidak ada tugas di sini" (No tasks here).
+[18]: Navigation icon container for the "Catatan" tab.
+[19]: Navigation icon container for the "Tugas" tab.
+[20]: Text label for the "Catatan" tab.
+[21]: Text label for the "Tugas" tab.
+
+SUMMARY: The screen displays an empty task management interface with a bottom navigation bar to switch between notes and tasks, and a button to initiate a new task creation.

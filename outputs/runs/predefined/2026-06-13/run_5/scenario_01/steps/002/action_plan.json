@@ -1,0 +1,10 @@
+{
+    "reasoning": "LLM output parsing failed after recovery attempts: None",
+    "action_type": "none",
+    "intent": "Fallback due to LLM output format error",
+    "target_id": -1,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": true
+}

@@ -1,0 +1,15 @@
+{
+    "passed": false,
+    "is_system_error": true,
+    "reasoning": "[SYSTEM_ERROR] Failed to parse LLM output after 2 attempts: None",
+    "step_index": 2,
+    "figma_enabled": false,
+    "figma_discrepancies": "",
+    "verification_chain": {
+        "loading_done": true,
+        "loading_reasoning": "Loading check returned None (assuming loaded)",
+        "ui_changed": true,
+        "ui_change_reasoning": "UI change check returned None (assuming changed)",
+        "short_circuit": null
+    }
+}

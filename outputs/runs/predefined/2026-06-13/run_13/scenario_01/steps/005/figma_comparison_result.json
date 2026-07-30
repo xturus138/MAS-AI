@@ -1,0 +1,6 @@
+{
+    "tcs_id": "NOTE-001",
+    "passed": true,
+    "figma_discrepancies": "Compared with the Figma reference, the live app includes a visible search bar below the title while the gold reference emphasizes category tabs immediately under the header; the surrounding existing notes and dates differ because the live device has different data. The live note date/time shows \"11:05\" rather than the Figma sample date \"15 April\". These are not failures because the core layout and required saved note title at the top match the expected final state.",
+    "expected_result": "Catatan tersimpan dan terlihat di daftar utama dengan judul \"Rencana Skripsi 2026\"."
+}

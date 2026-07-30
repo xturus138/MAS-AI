@@ -1,0 +1,9 @@
+{
+  "step_number": 3,
+  "step_instruction": "Pengguna Memasukkan konten \"Kerjain Skripsinya\"",
+  "action_type": "input",
+  "target_widget_id": 9,
+  "verdict": "PASSED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

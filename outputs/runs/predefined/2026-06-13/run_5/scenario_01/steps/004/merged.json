@@ -1,0 +1,1265 @@
+[
+    {
+        "bounds": [
+            51,
+            1173,
+            245,
+            1205
+        ],
+        "cv_bounds": [
+            51,
+            1173,
+            245,
+            1205
+        ],
+        "text": "Saat ini terhubung",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Saat ini terhubung",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            103,
+            1176,
+            134,
+            1202
+        ],
+        "cv_bounds": [
+            103,
+            1176,
+            134,
+            1202
+        ],
+        "text": "",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            47,
+            1176,
+            100,
+            1202
+        ],
+        "cv_bounds": [
+            47,
+            1176,
+            100,
+            1202
+        ],
+        "text": "",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            650,
+            1155,
+            669,
+            1185
+        ],
+        "cv_bounds": [
+            650,
+            1155,
+            669,
+            1185
+        ],
+        "text": "",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "arrow_right",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            546,
+            1148,
+            650,
+            1192
+        ],
+        "cv_bounds": [
+            546,
+            1148,
+            650,
+            1192
+        ],
+        "text": "",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "widget_frame",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            1135,
+            347,
+            1173
+        ],
+        "cv_bounds": [
+            51,
+            1135,
+            347,
+            1173
+        ],
+        "text": "radit @IMMORTALDEITY",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "radit@IMMORTALDEITY",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            1047,
+            669,
+            1109
+        ],
+        "cv_bounds": [
+            51,
+            1047,
+            669,
+            1109
+        ],
+        "text": "Perangkat disambungkan",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Perangkat disambungkan",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            1065,
+            157,
+            1095
+        ],
+        "cv_bounds": [
+            48,
+            1065,
+            157,
+            1095
+        ],
+        "text": "",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            45,
+            931,
+            102,
+            961
+        ],
+        "cv_bounds": [
+            47,
+            934,
+            100,
+            964
+        ],
+        "text": "digit",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            568,
+            907,
+            631,
+            929
+        ],
+        "cv_bounds": [
+            568,
+            907,
+            631,
+            929
+        ],
+        "text": "",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            510,
+            903,
+            567,
+            929
+        ],
+        "cv_bounds": [
+            510,
+            903,
+            567,
+            929
+        ],
+        "text": "",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            900,
+            635,
+            962
+        ],
+        "cv_bounds": [
+            51,
+            900,
+            635,
+            962
+        ],
+        "text": "Sambungkan perangkat baru menggunakan kode enam",
+        "type": "container",
+        "id": 12,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Sambungkan perangkat baru menggunakan kode enam digit",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            302,
+            903,
+            353,
+            929
+        ],
+        "cv_bounds": [
+            302,
+            903,
+            353,
+            929
+        ],
+        "text": "",
+        "type": "container",
+        "id": 13,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            191,
+            903,
+            299,
+            933
+        ],
+        "cv_bounds": [
+            191,
+            903,
+            299,
+            933
+        ],
+        "text": "",
+        "type": "container",
+        "id": 14,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            47,
+            903,
+            188,
+            933
+        ],
+        "cv_bounds": [
+            47,
+            903,
+            188,
+            933
+        ],
+        "text": "",
+        "type": "container",
+        "id": 15,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            650,
+            879,
+            669,
+            909
+        ],
+        "cv_bounds": [
+            650,
+            879,
+            669,
+            909
+        ],
+        "text": "",
+        "type": "container",
+        "id": 16,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "arrow_right",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            869,
+            241,
+            899
+        ],
+        "cv_bounds": [
+            48,
+            868,
+            241,
+            901
+        ],
+        "text": "penyambungan",
+        "type": "container",
+        "id": 17,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            453,
+            831,
+            519,
+            860
+        ],
+        "cv_bounds": [
+            453,
+            831,
+            519,
+            860
+        ],
+        "text": "",
+        "type": "container",
+        "id": 18,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            826,
+            635,
+            900
+        ],
+        "cv_bounds": [
+            51,
+            826,
+            635,
+            900
+        ],
+        "text": "Sambungkan perangkat dengan kode",
+        "type": "container",
+        "id": 19,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Sambungkan perangkat dengan kode penyambungan",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            217,
+            831,
+            346,
+            864
+        ],
+        "cv_bounds": [
+            217,
+            831,
+            346,
+            864
+        ],
+        "text": "",
+        "type": "container",
+        "id": 20,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            831,
+            212,
+            865
+        ],
+        "cv_bounds": [
+            48,
+            831,
+            212,
+            865
+        ],
+        "text": "",
+        "type": "container",
+        "id": 21,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            745,
+            143,
+            771
+        ],
+        "cv_bounds": [
+            107,
+            746,
+            144,
+            773
+        ],
+        "text": "kode QR",
+        "type": "container",
+        "id": 22,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            746,
+            105,
+            772
+        ],
+        "cv_bounds": [
+            48,
+            746,
+            105,
+            772
+        ],
+        "text": "",
+        "type": "container",
+        "id": 23,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            712,
+            654,
+            774
+        ],
+        "cv_bounds": [
+            51,
+            712,
+            654,
+            774
+        ],
+        "text": "Sambungkan perangkat baru menggunakan pemindai",
+        "type": "container",
+        "id": 24,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Sambungkan perangkat baru menggunakan pemindai kode QR",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            356,
+            715,
+            507,
+            745
+        ],
+        "cv_bounds": [
+            356,
+            715,
+            507,
+            745
+        ],
+        "text": "",
+        "type": "container",
+        "id": 25,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            302,
+            715,
+            353,
+            741
+        ],
+        "cv_bounds": [
+            302,
+            715,
+            353,
+            741
+        ],
+        "text": "",
+        "type": "container",
+        "id": 26,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            191,
+            715,
+            299,
+            745
+        ],
+        "cv_bounds": [
+            191,
+            715,
+            299,
+            745
+        ],
+        "text": "",
+        "type": "container",
+        "id": 27,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            47,
+            715,
+            188,
+            745
+        ],
+        "cv_bounds": [
+            47,
+            715,
+            188,
+            745
+        ],
+        "text": "",
+        "type": "container",
+        "id": 28,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            524,
+            679,
+            567,
+            709
+        ],
+        "cv_bounds": [
+            524,
+            679,
+            567,
+            709
+        ],
+        "text": "",
+        "type": "container",
+        "id": 29,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            453,
+            679,
+            519,
+            708
+        ],
+        "cv_bounds": [
+            453,
+            679,
+            519,
+            708
+        ],
+        "text": "",
+        "type": "container",
+        "id": 30,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            674,
+            564,
+            712
+        ],
+        "cv_bounds": [
+            51,
+            674,
+            564,
+            712
+        ],
+        "text": "Sambungkan perangkat dengan kode QR",
+        "type": "container",
+        "id": 31,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Sambungkan perangkat dengan kode QR",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            217,
+            679,
+            346,
+            712
+        ],
+        "cv_bounds": [
+            217,
+            679,
+            346,
+            712
+        ],
+        "text": "",
+        "type": "container",
+        "id": 32,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            679,
+            212,
+            713
+        ],
+        "cv_bounds": [
+            48,
+            679,
+            212,
+            713
+        ],
+        "text": "",
+        "type": "container",
+        "id": 33,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            590,
+            261,
+            622
+        ],
+        "cv_bounds": [
+            51,
+            590,
+            261,
+            622
+        ],
+        "text": "192.168.11.81:39515",
+        "type": "container",
+        "id": 34,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "192.168.11.81:39515",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            552,
+            259,
+            590
+        ],
+        "cv_bounds": [
+            51,
+            552,
+            259,
+            590
+        ],
+        "text": "Alamat IP & Port",
+        "type": "container",
+        "id": 35,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Alamat IP & Port",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            177,
+            557,
+            202,
+            585
+        ],
+        "cv_bounds": [
+            177,
+            557,
+            202,
+            585
+        ],
+        "text": "",
+        "type": "container",
+        "id": 36,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            143,
+            557,
+            173,
+            585
+        ],
+        "cv_bounds": [
+            143,
+            557,
+            173,
+            585
+        ],
+        "text": "",
+        "type": "container",
+        "id": 37,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            557,
+            138,
+            586
+        ],
+        "cv_bounds": [
+            48,
+            557,
+            138,
+            586
+        ],
+        "text": "",
+        "type": "container",
+        "id": 38,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            468,
+            163,
+            500
+        ],
+        "cv_bounds": [
+            51,
+            468,
+            163,
+            500
+        ],
+        "text": "Redmi 13C",
+        "type": "container",
+        "id": 39,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Redmi 13C",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            471,
+            118,
+            497
+        ],
+        "cv_bounds": [
+            48,
+            471,
+            118,
+            497
+        ],
+        "text": "",
+        "type": "container",
+        "id": 40,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            430,
+            255,
+            468
+        ],
+        "cv_bounds": [
+            51,
+            430,
+            255,
+            468
+        ],
+        "text": "Nama perangkat",
+        "type": "container",
+        "id": 41,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Nama perangkat",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            435,
+            124,
+            464
+        ],
+        "cv_bounds": [
+            48,
+            435,
+            124,
+            464
+        ],
+        "text": "",
+        "type": "container",
+        "id": 42,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            346,
+            412,
+            378
+        ],
+        "cv_bounds": [
+            51,
+            346,
+            412,
+            378
+        ],
+        "text": "Mode debug saat Wi-Fi terhubung",
+        "type": "container",
+        "id": 43,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Mode debug saat Wi-Fi terhubung",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            0,
+            282,
+            720,
+            404
+        ],
+        "cv_bounds": [
+            0,
+            282,
+            720,
+            404
+        ],
+        "text": "",
+        "type": "container",
+        "id": 44,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            238,
+            349,
+            301,
+            375
+        ],
+        "cv_bounds": [
+            238,
+            349,
+            301,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 45,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            113,
+            349,
+            184,
+            379
+        ],
+        "cv_bounds": [
+            113,
+            349,
+            184,
+            379
+        ],
+        "text": "",
+        "type": "container",
+        "id": 46,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            349,
+            112,
+            375
+        ],
+        "cv_bounds": [
+            48,
+            349,
+            112,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 47,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            308,
+            329,
+            346
+        ],
+        "cv_bounds": [
+            51,
+            308,
+            329,
+            346
+        ],
+        "text": "Proses debug nirkabel",
+        "type": "container",
+        "id": 48,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Proses debug nirkabel",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            139,
+            313,
+            224,
+            347
+        ],
+        "cv_bounds": [
+            139,
+            313,
+            224,
+            347
+        ],
+        "text": "",
+        "type": "container",
+        "id": 49,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            313,
+            136,
+            342
+        ],
+        "cv_bounds": [
+            48,
+            313,
+            136,
+            342
+        ],
+        "text": "",
+        "type": "container",
+        "id": 50,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            578,
+            313,
+            669,
+            373
+        ],
+        "cv_bounds": [
+            578,
+            313,
+            669,
+            373
+        ],
+        "text": "",
+        "type": "container",
+        "id": 51,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "widget_frame",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            179,
+            584,
+            251
+        ],
+        "cv_bounds": [
+            48,
+            179,
+            584,
+            251
+        ],
+        "text": "Proses debug nirkabel",
+        "type": "container",
+        "id": 52,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Proses debug nirkabel",
+        "xml_role": "text",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            396,
+            192,
+            585,
+            239
+        ],
+        "cv_bounds": [
+            396,
+            192,
+            585,
+            239
+        ],
+        "text": "",
+        "type": "container",
+        "id": 53,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            226,
+            192,
+            379,
+            248
+        ],
+        "cv_bounds": [
+            226,
+            192,
+            379,
+            248
+        ],
+        "text": "",
+        "type": "container",
+        "id": 54,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "",
+        "type": "container",
+        "id": 55,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 56,
+        "bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.android.settings:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 57,
+        "bounds": [
+            0,
+            404,
+            720,
+            526
+        ],
+        "cv_bounds": [
+            0,
+            404,
+            720,
+            526
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 58,
+        "bounds": [
+            0,
+            526,
+            720,
+            648
+        ],
+        "cv_bounds": [
+            0,
+            526,
+            720,
+            648
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 59,
+        "bounds": [
+            0,
+            648,
+            720,
+            800
+        ],
+        "cv_bounds": [
+            0,
+            648,
+            720,
+            800
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 60,
+        "bounds": [
+            0,
+            800,
+            720,
+            988
+        ],
+        "cv_bounds": [
+            0,
+            800,
+            720,
+            988
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 61,
+        "bounds": [
+            0,
+            1109,
+            720,
+            1231
+        ],
+        "cv_bounds": [
+            0,
+            1109,
+            720,
+            1231
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

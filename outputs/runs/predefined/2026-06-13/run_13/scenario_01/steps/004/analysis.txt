@@ -1,0 +1,16 @@
+SEMANTIC_MAP:
+[1]: Placeholder/Text Prompt - Mulai tulis
+[2]: Unlabeled UI Element - No visible text
+[3]: Unlabeled UI Element - No visible text
+[4]: Text Label - karakter
+[5]: Text Label - 13 Juni 11:04
+[6]: Unlabeled UI Element - No visible text
+[7]: Input Field - Rencana Skripsi 2026
+[8]: Unlabeled UI Element - No visible text
+[9]: Unlabeled UI Element - No visible text
+[10]: Icon Button - Kembali
+[11]: Icon Button - Selesai
+[12]: Input Field - Mulai tulis Buat pemetaan pikiran
+[13]: Button/Action Bar Container - action_bar_container
+[14]: View/Editor Container - ll_note_edit
+SUMMARY: The screen shows a Xiaomi Notes editing view with navigation buttons, a title input, date and character count text, a main note input area, and several unlabeled UI elements or containers.

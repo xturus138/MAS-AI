@@ -1,0 +1,1290 @@
+[
+  {
+    "element_id": 1,
+    "responses": [
+      "Placeholder Text - Mulai tulis (hint text in note body area)",
+      "Placeholder Text - Mulai tulis",
+      "Placeholder Text - Mulai tulis",
+      "Placeholder Text - Mulai tulis",
+      "Placeholder Text - Mulai tulis"
+    ],
+    "clusters": [
+      [
+        "Placeholder Text - Mulai tulis (hint text in note body area)",
+        "Placeholder Text - Mulai tulis",
+        "Placeholder Text - Mulai tulis",
+        "Placeholder Text - Mulai tulis",
+        "Placeholder Text - Mulai tulis"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Placeholder Text - Mulai tulis",
+        "b": "Placeholder Text - Mulai tulis (hint text in note body area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Placeholder Text - Mulai tulis",
+        "b": "Placeholder Text - Mulai tulis (hint text in note body area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Placeholder Text - Mulai tulis",
+        "b": "Placeholder Text - Mulai tulis (hint text in note body area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Placeholder Text - Mulai tulis",
+        "b": "Placeholder Text - Mulai tulis (hint text in note body area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 1,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 2,
+    "responses": [
+      "Icon Button - (unnamed icon, top toolbar area)",
+      "Icon Button - (unlabeled toolbar icon)",
+      "Toolbar Icon - (unidentified icon)",
+      "Toolbar Icon - (unspecified icon)",
+      "Icon Button - (unlabeled, top toolbar)"
+    ],
+    "clusters": [
+      [
+        "Icon Button - (unnamed icon, top toolbar area)",
+        "Icon Button - (unlabeled toolbar icon)",
+        "Toolbar Icon - (unidentified icon)",
+        "Toolbar Icon - (unspecified icon)",
+        "Icon Button - (unlabeled, top toolbar)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - (unlabeled toolbar icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 2,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unidentified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 2,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unspecified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 2,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - (unlabeled, top toolbar)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 2,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 3,
+    "responses": [
+      "Icon Button - (unnamed icon, top toolbar area)",
+      "Icon Button - (unlabeled toolbar icon)",
+      "Toolbar Icon - (unidentified icon)",
+      "Toolbar Icon - (unspecified icon)",
+      "Icon Button - (unlabeled, top toolbar)"
+    ],
+    "clusters": [
+      [
+        "Icon Button - (unnamed icon, top toolbar area)",
+        "Icon Button - (unlabeled toolbar icon)",
+        "Toolbar Icon - (unidentified icon)",
+        "Toolbar Icon - (unspecified icon)",
+        "Icon Button - (unlabeled, top toolbar)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - (unlabeled toolbar icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 3,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unidentified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 3,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unspecified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 3,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - (unlabeled, top toolbar)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 3,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 4,
+    "responses": [
+      "Status Text - karakter (character count indicator)",
+      "Status Text - karakter",
+      "Status Text - karakter (character count indicator)",
+      "Status Text - karakter",
+      "Status Text - karakter"
+    ],
+    "clusters": [
+      [
+        "Status Text - karakter (character count indicator)",
+        "Status Text - karakter",
+        "Status Text - karakter (character count indicator)",
+        "Status Text - karakter",
+        "Status Text - karakter"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Status Text - karakter",
+        "b": "Status Text - karakter (character count indicator)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 4,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Status Text - karakter (character count indicator)",
+        "b": "Status Text - karakter (character count indicator)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 4,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Status Text - karakter",
+        "b": "Status Text - karakter (character count indicator)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 4,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Status Text - karakter",
+        "b": "Status Text - karakter (character count indicator)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 4,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 5,
+    "responses": [
+      "Timestamp Text - 13 Juni 11:04 (note creation/edit date)",
+      "Timestamp Text - 13 Juni 11:04",
+      "Timestamp Text - 13 Juni 11:04",
+      "Timestamp Text - 13 Juni 11:04",
+      "Timestamp Text - 13 Juni 11:04"
+    ],
+    "clusters": [
+      [
+        "Timestamp Text - 13 Juni 11:04 (note creation/edit date)"
+      ],
+      [
+        "Timestamp Text - 13 Juni 11:04",
+        "Timestamp Text - 13 Juni 11:04",
+        "Timestamp Text - 13 Juni 11:04",
+        "Timestamp Text - 13 Juni 11:04"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.2,
+      0.8
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Timestamp Text - 13 Juni 11:04",
+        "b": "Timestamp Text - 13 Juni 11:04 (note creation/edit date)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 5,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Timestamp Text - 13 Juni 11:04",
+        "b": "Timestamp Text - 13 Juni 11:04 (note creation/edit date)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 5,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Timestamp Text - 13 Juni 11:04",
+        "b": "Timestamp Text - 13 Juni 11:04",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 5,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Timestamp Text - 13 Juni 11:04",
+        "b": "Timestamp Text - 13 Juni 11:04 (note creation/edit date)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 5,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Timestamp Text - 13 Juni 11:04",
+        "b": "Timestamp Text - 13 Juni 11:04",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 5,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Timestamp Text - 13 Juni 11:04",
+        "b": "Timestamp Text - 13 Juni 11:04 (note creation/edit date)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 5,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Timestamp Text - 13 Juni 11:04",
+        "b": "Timestamp Text - 13 Juni 11:04",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 5,
+          "role": "text",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.5004024235381879,
+    "normalized_dse": 0.31091750708257115,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 6,
+    "responses": [
+      "Icon Button - (unnamed icon, top toolbar area)",
+      "Icon Button - (unlabeled toolbar icon)",
+      "Toolbar Icon - (unidentified icon)",
+      "Toolbar Icon - (unspecified icon)",
+      "Icon Button - (unlabeled, top toolbar)"
+    ],
+    "clusters": [
+      [
+        "Icon Button - (unnamed icon, top toolbar area)",
+        "Icon Button - (unlabeled toolbar icon)",
+        "Toolbar Icon - (unidentified icon)",
+        "Toolbar Icon - (unspecified icon)",
+        "Icon Button - (unlabeled, top toolbar)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - (unlabeled toolbar icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unidentified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unspecified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - (unlabeled, top toolbar)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 6,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 7,
+    "responses": [
+      "Text Input Field - Rencana Skripsi 2026 (note title field)",
+      "Text Input Field - Rencana Skripsi 2026 (note title)",
+      "Title Input Field - Rencana Skripsi 2026",
+      "Text Input Field - Rencana Skripsi 2026 (note title)",
+      "Title Input Field - Rencana Skripsi 2026"
+    ],
+    "clusters": [
+      [
+        "Text Input Field - Rencana Skripsi 2026 (note title field)",
+        "Text Input Field - Rencana Skripsi 2026 (note title)",
+        "Title Input Field - Rencana Skripsi 2026",
+        "Text Input Field - Rencana Skripsi 2026 (note title)",
+        "Title Input Field - Rencana Skripsi 2026"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Text Input Field - Rencana Skripsi 2026 (note title)",
+        "b": "Text Input Field - Rencana Skripsi 2026 (note title field)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 7,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Title Input Field - Rencana Skripsi 2026",
+        "b": "Text Input Field - Rencana Skripsi 2026 (note title field)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 7,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Text Input Field - Rencana Skripsi 2026 (note title)",
+        "b": "Text Input Field - Rencana Skripsi 2026 (note title field)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 7,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Title Input Field - Rencana Skripsi 2026",
+        "b": "Text Input Field - Rencana Skripsi 2026 (note title field)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 7,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 8,
+    "responses": [
+      "Icon Button - (unnamed icon, top toolbar area)",
+      "Icon Button - (unlabeled toolbar icon)",
+      "Toolbar Icon - (unidentified icon)",
+      "Toolbar Icon - (unspecified icon)",
+      "Icon Button - (unlabeled, top toolbar)"
+    ],
+    "clusters": [
+      [
+        "Icon Button - (unnamed icon, top toolbar area)",
+        "Icon Button - (unlabeled toolbar icon)",
+        "Toolbar Icon - (unidentified icon)",
+        "Toolbar Icon - (unspecified icon)",
+        "Icon Button - (unlabeled, top toolbar)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - (unlabeled toolbar icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unidentified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unspecified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - (unlabeled, top toolbar)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 8,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 9,
+    "responses": [
+      "Icon Button - (unnamed icon, top toolbar area)",
+      "Icon Button - (unlabeled toolbar icon)",
+      "Toolbar Icon - (unidentified icon)",
+      "Toolbar Icon - (unspecified icon)",
+      "Icon Button - (unlabeled, top toolbar)"
+    ],
+    "clusters": [
+      [
+        "Icon Button - (unnamed icon, top toolbar area)",
+        "Icon Button - (unlabeled toolbar icon)",
+        "Toolbar Icon - (unidentified icon)",
+        "Toolbar Icon - (unspecified icon)",
+        "Icon Button - (unlabeled, top toolbar)"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - (unlabeled toolbar icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unidentified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Toolbar Icon - (unspecified icon)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - (unlabeled, top toolbar)",
+        "b": "Icon Button - (unnamed icon, top toolbar area)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 9,
+          "role": "",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 10,
+    "responses": [
+      "Icon Button (Back) - Kembali (navigate back)",
+      "Icon Button - Kembali (back/navigate up)",
+      "Icon Button - Kembali (back/navigation arrow, top-left)",
+      "Icon Button - Kembali (back/navigate up)",
+      "Icon Button (Back) - Kembali"
+    ],
+    "clusters": [
+      [
+        "Icon Button (Back) - Kembali (navigate back)",
+        "Icon Button - Kembali (back/navigate up)",
+        "Icon Button - Kembali (back/navigation arrow, top-left)",
+        "Icon Button - Kembali (back/navigate up)",
+        "Icon Button (Back) - Kembali"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - Kembali (back/navigate up)",
+        "b": "Icon Button (Back) - Kembali (navigate back)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 10,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - Kembali (back/navigation arrow, top-left)",
+        "b": "Icon Button (Back) - Kembali (navigate back)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 10,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - Kembali (back/navigate up)",
+        "b": "Icon Button (Back) - Kembali (navigate back)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 10,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button (Back) - Kembali",
+        "b": "Icon Button (Back) - Kembali (navigate back)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 10,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 11,
+    "responses": [
+      "Icon Button (Done) - Selesai (confirm/save action, checkmark icon top-right)",
+      "Icon Button - Selesai (done/confirm)",
+      "Icon Button - Selesai (checkmark/done, top-right)",
+      "Icon Button - Selesai (done/confirm)",
+      "Icon Button (Done/Confirm) - Selesai"
+    ],
+    "clusters": [
+      [
+        "Icon Button (Done) - Selesai (confirm/save action, checkmark icon top-right)",
+        "Icon Button - Selesai (checkmark/done, top-right)"
+      ],
+      [
+        "Icon Button - Selesai (done/confirm)",
+        "Icon Button - Selesai (done/confirm)",
+        "Icon Button (Done/Confirm) - Selesai"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.4,
+      0.6
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Icon Button - Selesai (done/confirm)",
+        "b": "Icon Button (Done) - Selesai (confirm/save action, checkmark icon top-right)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 11,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - Selesai (checkmark/done, top-right)",
+        "b": "Icon Button (Done) - Selesai (confirm/save action, checkmark icon top-right)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 11,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - Selesai (done/confirm)",
+        "b": "Icon Button (Done) - Selesai (confirm/save action, checkmark icon top-right)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 11,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button - Selesai (done/confirm)",
+        "b": "Icon Button - Selesai (done/confirm)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 11,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button (Done/Confirm) - Selesai",
+        "b": "Icon Button (Done) - Selesai (confirm/save action, checkmark icon top-right)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 11,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Icon Button (Done/Confirm) - Selesai",
+        "b": "Icon Button - Selesai (done/confirm)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 11,
+          "role": "icon_button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.6730116670092565,
+    "normalized_dse": 0.4181656600790517,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 12,
+    "responses": [
+      "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body editor)",
+      "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body)",
+      "Body Input Field - Mulai tulis Buat pemetaan pikiran (note content area)",
+      "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body area)",
+      "Body Input Field - Mulai tulis Buat pemetaan pikiran"
+    ],
+    "clusters": [
+      [
+        "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body editor)",
+        "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body)",
+        "Body Input Field - Mulai tulis Buat pemetaan pikiran (note content area)",
+        "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body area)",
+        "Body Input Field - Mulai tulis Buat pemetaan pikiran"
+      ]
+    ],
+    "cluster_probabilities": [
+      1.0
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body)",
+        "b": "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body editor)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Body Input Field - Mulai tulis Buat pemetaan pikiran (note content area)",
+        "b": "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body editor)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body area)",
+        "b": "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body editor)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Body Input Field - Mulai tulis Buat pemetaan pikiran",
+        "b": "Text Input Area - Mulai tulis Buat pemetaan pikiran (note body editor)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 12,
+          "role": "input",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.0,
+    "normalized_dse": 0.0,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 13,
+    "responses": [
+      "Action Bar Container - (bottom toolbar/action bar)",
+      "Action Bar Container - (toolbar region)",
+      "Action Bar Container - (bottom toolbar area with formatting/action icons)",
+      "Action Bar Container - (toolbar/action bar block)",
+      "Action Bar Container - (toolbar/action bar block)"
+    ],
+    "clusters": [
+      [
+        "Action Bar Container - (bottom toolbar/action bar)"
+      ],
+      [
+        "Action Bar Container - (toolbar region)",
+        "Action Bar Container - (toolbar/action bar block)",
+        "Action Bar Container - (toolbar/action bar block)"
+      ],
+      [
+        "Action Bar Container - (bottom toolbar area with formatting/action icons)"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.2,
+      0.6,
+      0.2
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "Action Bar Container - (toolbar region)",
+        "b": "Action Bar Container - (bottom toolbar/action bar)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - (bottom toolbar area with formatting/action icons)",
+        "b": "Action Bar Container - (bottom toolbar/action bar)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - (bottom toolbar area with formatting/action icons)",
+        "b": "Action Bar Container - (toolbar region)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - (toolbar/action bar block)",
+        "b": "Action Bar Container - (bottom toolbar/action bar)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - (toolbar/action bar block)",
+        "b": "Action Bar Container - (toolbar region)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - (toolbar/action bar block)",
+        "b": "Action Bar Container - (bottom toolbar/action bar)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Action Bar Container - (toolbar/action bar block)",
+        "b": "Action Bar Container - (toolbar region)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 13,
+          "role": "button",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.9502705392332347,
+    "normalized_dse": 0.5904362833084089,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  },
+  {
+    "element_id": 14,
+    "responses": [
+      "View Container - ll_note_edit (main note editing view)",
+      "View Container - ll_note_edit (main note editing area)",
+      "Note Editor View - ll_note_edit (main editable note canvas)",
+      "View Container - ll_note_edit (main note editing canvas)",
+      "Note Editor View - ll_note_edit (main editing area)"
+    ],
+    "clusters": [
+      [
+        "View Container - ll_note_edit (main note editing view)",
+        "View Container - ll_note_edit (main note editing area)",
+        "Note Editor View - ll_note_edit (main editing area)"
+      ],
+      [
+        "Note Editor View - ll_note_edit (main editable note canvas)"
+      ],
+      [
+        "View Container - ll_note_edit (main note editing canvas)"
+      ]
+    ],
+    "cluster_probabilities": [
+      0.6,
+      0.2,
+      0.2
+    ],
+    "pairwise_entailment": [
+      {
+        "a": "View Container - ll_note_edit (main note editing area)",
+        "b": "View Container - ll_note_edit (main note editing view)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 14,
+          "role": "view",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Note Editor View - ll_note_edit (main editable note canvas)",
+        "b": "View Container - ll_note_edit (main note editing view)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 14,
+          "role": "view",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "View Container - ll_note_edit (main note editing canvas)",
+        "b": "View Container - ll_note_edit (main note editing view)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "neutral",
+        "merged": false,
+        "context": {
+          "element_id": 14,
+          "role": "view",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "View Container - ll_note_edit (main note editing canvas)",
+        "b": "Note Editor View - ll_note_edit (main editable note canvas)",
+        "a_entails_b": "neutral",
+        "b_entails_a": "entailment",
+        "merged": false,
+        "context": {
+          "element_id": 14,
+          "role": "view",
+          "screen_desc": "Membuat catatan baru"
+        }
+      },
+      {
+        "a": "Note Editor View - ll_note_edit (main editing area)",
+        "b": "View Container - ll_note_edit (main note editing view)",
+        "a_entails_b": "entailment",
+        "b_entails_a": "entailment",
+        "merged": true,
+        "context": {
+          "element_id": 14,
+          "role": "view",
+          "screen_desc": "Membuat catatan baru"
+        }
+      }
+    ],
+    "raw_dse": 0.9502705392332347,
+    "normalized_dse": 0.5904362833084089,
+    "sample_count": 5,
+    "effective_sample_count": 5,
+    "parse_failures": 0,
+    "temperature": 1.0,
+    "temperature_status": "provisional_not_evaluated",
+    "temperature_application": "requested_not_verified",
+    "threshold": null,
+    "calibration_status": "not_calibrated",
+    "measurement_status": "ok"
+  }
+]

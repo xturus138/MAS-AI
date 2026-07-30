@@ -1,0 +1,80 @@
+SEMANTIC_MAP:
+[1]: Text Label - Tugas Catatan
+[2]: Header Text - Catatan
+[3]: Navigation Icon Container - icon container
+[4]: Navigation Icon Container - icon container
+[5]: Text Label - 16 April
+[6]: Note Text - Notulensi 15 April:
+[7]: Empty Text/Area - no visible text
+[8]: Empty Text/Area - no visible text
+[9]: Note Title/Text - Notulensi Rapat Jaist
+[10]: Empty Text/Area - no visible text
+[11]: Empty Text/Area - no visible text
+[12]: Icon Button - Ketuk untuk buat catatan / plus add icon
+[13]: Text Label - 1 Mei
+[14]: Note Text - Mei
+[15]: Note Text - 4,5 juta initial
+[16]: Empty Text/Area - no visible text
+[17]: Empty Text/Area - no visible text
+[18]: Note Text - mfisolution
+[19]: Text Label - Mei
+[20]: Note Title/Text - Pahami Agregat dan variant dalam multi agent
+[21]: Empty Text/Area - no visible text
+[22]: Empty Text/Area - no visible text
+[23]: Empty Text/Area - no visible text
+[24]: Container View - content
+[25]: Empty Text/Area - no visible text
+[26]: Empty Text/Area - no visible text
+[27]: Empty Text/Area - no visible text
+[28]: Note Title/Text - Catatan Skripsi Selamanya
+[29]: Empty Text/Area - no visible text
+[30]: Empty Text/Area - no visible text
+[31]: Text Label - Mel
+[32]: Note Text - Catatan Bersama:
+[33]: Empty Text/Area - no visible text
+[34]: Note Title/Text - Catatan Responsi Bu dian 07-05-26
+[35]: Empty Text/Area - no visible text
+[36]: Empty Text/Area - no visible text
+[37]: Empty Text/Area - no visible text
+[38]: Empty Text/Area - no visible text
+[39]: Text Label - 10:13
+[40]: Empty Text/Area - no visible text
+[41]: Empty Text/Area - no visible text
+[42]: Empty Text/Area - no visible text
+[43]: Empty Text/Area - no visible text
+[44]: Note Text - Harus pararel mengerjakannya jangan stuck di obs _
+[45]: Empty Text/Area - no visible text
+[46]: Empty Text/Area - no visible text
+[47]: Note Text - Catatan skripsi
+[48]: Empty Text/Area - no visible text
+[49]: Empty Text/Area - no visible text
+[50]: Category/Folder Text - Tidak Dikategorikan
+[51]: Category/Folder View - Tidak Semua suitmedia PKM-KC
+[52]: Category Chip/Text - PROKSI
+[53]: Category Chip/Text - PKM-KC
+[54]: Filter Chip/Text - Semua
+[55]: Search Field/Button Text - Cari catatan
+[56]: Empty Text/Area - no visible text
+[57]: Empty Text/Area - no visible text
+[58]: Bottom Navigation Text - Catatan
+[59]: Image Icon - action menu item icon
+[60]: Image Icon - action menu item icon
+[61]: Button - data_folder_list_layout
+[62]: Container View - Catatan
+[63]: Button/Container - action_bar_container
+[64]: Button - Folder
+[65]: Button - Setelan
+[66]: Search Bar Button - search_bar
+[67]: Button - data_folder_list_layout
+[68]: Button - data_folder_list_layout
+[69]: Button - data_folder_list_layout
+[70]: Button - data_folder_list_layout
+[71]: Note Group Button - note_group
+[72]: Note Group Button - note_group
+[73]: Note Group Button - note_group
+[74]: Note Group Button - note_group
+[75]: Note Group Button - note_group
+[76]: Bottom Navigation Bar Button/Container - miuix_bottom_navigation_bar
+[77]: Bottom Navigation Button - Tugas
+[78]: Note Group Button - note_group
+SUMMARY: The screen shows the Xiaomi Notes list view with a header, action icons, a search bar, category filters, multiple note cards, a floating plus icon button, and bottom navigation for Catatan and Tugas.

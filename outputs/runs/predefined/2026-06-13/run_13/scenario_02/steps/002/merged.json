@@ -1,0 +1,377 @@
+[
+    {
+        "bounds": [
+            0,
+            1482,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            1482,
+            720,
+            1600
+        ],
+        "text": "Tugas Catatan",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "miuix_bottom_navigation_bar",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            152,
+            1545,
+            213,
+            1570
+        ],
+        "cv_bounds": [
+            152,
+            1545,
+            213,
+            1570
+        ],
+        "text": "Catatan",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Catatan",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            513,
+            1497,
+            561,
+            1545
+        ],
+        "cv_bounds": [
+            513,
+            1497,
+            561,
+            1545
+        ],
+        "text": "miuix_navigation_bar_item_icon_container",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "miuix_navigation_bar_item_icon_container",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            158,
+            1497,
+            206,
+            1545
+        ],
+        "cv_bounds": [
+            158,
+            1497,
+            206,
+            1545
+        ],
+        "text": "miuix_navigation_bar_item_icon_container",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "miuix_navigation_bar_item_icon_container",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            548,
+            1310,
+            655,
+            1417
+        ],
+        "cv_bounds": [
+            548,
+            1310,
+            655,
+            1417
+        ],
+        "text": "Ketuk untuk buat catatan",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Ketuk untuk buat catatan",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            232,
+            708,
+            488,
+            742
+        ],
+        "cv_bounds": [
+            232,
+            708,
+            488,
+            742
+        ],
+        "text": "Tidak ada tugas di sini",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Tidak ada tugas di sini",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            446,
+            712,
+            491,
+            739
+        ],
+        "cv_bounds": [
+            446,
+            712,
+            491,
+            739
+        ],
+        "text": "",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            417,
+            712,
+            444,
+            739
+        ],
+        "cv_bounds": [
+            417,
+            712,
+            444,
+            739
+        ],
+        "text": "",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            298,
+            712,
+            344,
+            739
+        ],
+        "cv_bounds": [
+            298,
+            712,
+            344,
+            739
+        ],
+        "text": "",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            229,
+            712,
+            296,
+            739
+        ],
+        "cv_bounds": [
+            229,
+            712,
+            296,
+            739
+        ],
+        "text": "",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            179,
+            192,
+            251
+        ],
+        "cv_bounds": [
+            48,
+            179,
+            192,
+            251
+        ],
+        "text": "Tugas",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Tugas",
+        "xml_role": "text",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            629,
+            96,
+            677,
+            144
+        ],
+        "cv_bounds": [
+            629,
+            96,
+            677,
+            144
+        ],
+        "text": "action_menu_item_child_icon",
+        "type": "container",
+        "id": 12,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "action_menu_item_child_icon",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "id": 13,
+        "bounds": [
+            370,
+            1482,
+            705,
+            1600
+        ],
+        "cv_bounds": [
+            370,
+            1482,
+            705,
+            1600
+        ],
+        "text": "Tugas",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_page_2",
+        "xml_label": "Tugas",
+        "xml_role": "view",
+        "xml_actionable": true
+    },
+    {
+        "id": 14,
+        "bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 15,
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "Setelan",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "Setelan",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 16,
+        "bounds": [
+            0,
+            269,
+            720,
+            270
+        ],
+        "cv_bounds": [
+            0,
+            269,
+            720,
+            270
+        ],
+        "text": "search_bar",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/search_bar",
+        "xml_label": "search_bar",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 17,
+        "bounds": [
+            15,
+            1482,
+            350,
+            1600
+        ],
+        "cv_bounds": [
+            15,
+            1482,
+            350,
+            1600
+        ],
+        "text": "Catatan",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_page_1",
+        "xml_label": "Catatan",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

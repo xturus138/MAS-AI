@@ -1,0 +1,6 @@
+{
+    "tcs_id": "NOTE-002",
+    "passed": true,
+    "figma_discrepancies": "Only minor acceptable differences are visible: status bar time/icons differ, screen scaling/cropping differs, and there are small variations in spacing, font rendering, shadow/rounding, and background shade. These are within ignored categories and do not affect the core UI, text, layout hierarchy, or functional state.",
+    "expected_result": "Tugas tersimpan dan terlihat di daftar utama dengan konten \"Kerjain Skripsinya\"."
+}

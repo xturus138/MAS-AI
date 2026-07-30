@@ -1,0 +1,19 @@
+SEMANTIC_MAP:
+[1]: Button - Tugas Catatan
+[2]: Text Label - Catatan
+[3]: Navigation Bar Icon Container - icon container
+[4]: Navigation Bar Icon Container - icon container
+[5]: Icon Button - Ketuk untuk buat catatan
+[6]: Empty State Text - Tidak ada tugas di sini
+[7]: View - no visible text
+[8]: View - no visible text
+[9]: View - no visible text
+[10]: View - no visible text
+[11]: Text Label - Tugas
+[12]: Image/Icon - action_menu_item_child_icon
+[13]: View - Tugas
+[14]: Button/Container - action_bar_container
+[15]: Button - Setelan
+[16]: Button - search_bar
+[17]: Button - Catatan
+SUMMARY: The screen shows a Xiaomi Notes task tab with an empty-state message, top action/search/settings controls, a floating create icon button, and bottom navigation between Catatan and Tugas.

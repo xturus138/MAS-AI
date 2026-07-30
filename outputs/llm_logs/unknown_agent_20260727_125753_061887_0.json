@@ -1,0 +1,68 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260727_125753_061887",
+  "prompt_tokens": 1677,
+  "completion_tokens": 756,
+  "total_tokens": 2433,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 1 (text=(none), role=(unknown)):\n    - 3x: Icon Button - Menu\n    - 1x: Navigation Bar Button - Back\n    - 2x: System Navigation Button - Back\n    - 2x: Navigation Button - Back\n    - 1x: Navigation Button - Menu\n    - 1x: Icon Button - Menu Drawer\n- Widget 2 (text=(none), role=(unknown)):\n    - 1x: System Navigation Button - Back\n    - 3x: Navigation Bar Button - Home\n    - 2x: Navigation Button - Home\n- Widget 3 (text=(none), role=(unknown)):\n    - 1x: System Navigation Button - Home\n    - 4x: Navigation Bar Button - Recents\n    - 1x: Header Button - Menu\n    - 1x: Category Icon - Furniture\n- Widget 4 (text=Furniture, role=(unknown)):\n    - 6x: Text - Furniture\n    - 2x: List Item - Furniture\n    - 1x: Category Text - Furniture\n    - 1x: List Item Text - Furniture\n- Widget 5 (text=(none), role=(unknown)):\n    - 4x: Icon - Furniture\n    - 3x: Category Icon - Furniture\n    - 1x: List Item Icon - Furniture\n    - 1x: Category Icon - Home & Garden\n    - 1x: Icon - Home & Garden\n- Widget 6 (text=Home & Garden, role=(unknown)):\n    - 3x: Text - Home\n    - 1x: List Item - Home & Garden\n    - 3x: Text Label - \"Home & Garden\"\n    - 1x: List Item Text - \"Home\"\n    - 1x: Category Text - Home\n    - 1x: List Item Text - Home & Garden\n- Widget 7 (text=(none), role=(unknown)):\n    - 3x: Text - &\n    - 1x: List Item Icon - Home & Garden\n    - 1x: Category Icon - Home & Garden\n    - 1x: Category Text - &\n    - 1x: List Item Text - Home & Garden\n- Widget 8 (text=(none), role=(unknown)):\n    - 4x: Text - Garden\n    - 1x: List Item Text - \"&\"\n    - 1x: List Item Text - Home & Garden\n- Widget 9 (text=(none), role=(unknown)):\n    - 4x: Icon - Home & Garden\n    - 1x: List Item Text - \"Garden\"\n    - 1x: Category Icon - Appliances\n    - 1x: Category Icon - Home & Garden\n    - 1x: Icon - Appliances\n- Widget 10 (text=Appliances, role=(unknown)):\n    - 7x: Text - Appliances\n    - 2x: List Item - Appliances\n    - 1x: List Item Text - Appliances\n- Widget 11 (text=(none), role=(unknown)):\n    - 4x: Icon - Appliances\n    - 1x: List Item Icon - Appliances\n    - 2x: Category Icon - Appliances\n    - 1x: Icon - Electronics & Computers\n- Widget 12 (text=Electronics & Computers, role=(unknown)):\n    - 3x: Text - Electronics\n    - 1x: List Item - Electronics & Computers\n    - 3x: Text Label - \"Electronics & Computers\"\n    - 2x: List Item Text - \"Electronics\"\n    - 1x: Category Text - Electronics\n- Widget 13 (text=(none), role=(unknown)):\n    - 3x: Text - &\n    - 1x: List Item Icon - Electronics & Computers\n    - 1x: Category Icon - Electronics & Computers\n    - 1x: Category Text - &\n    - 1x: List Item Text - Computers\n- Widget 14 (text=(none), role=(unknown)):\n    - 3x: Text - Computers\n    - 1x: List Item Text - \"&\"\n    - 1x: Category Icon - Pet Supplies\n    - 1x: Category Text - Computers\n    - 1x: Icon - Pet Supplies\n- Widget 15 (text=(none), role=(unknown)):\n    - 4x: Icon - Electronics & Computers\n    - 1x: List Item Text - \"Computers\"\n    - 1x: Category Icon - Baby\n    - 1x: Category Icon - Electronics & Computers\n    - 1x: Icon - Baby\n- Widget 16 (text=Pet Supplies, role=(unknown)):\n    - 3x: Text - Pet\n    - 1x: List Item - Pet Supplies\n    - 3x: Text Label - \"Pet Supplies\"\n    - 1x: List Item Text - \"Pet\"\n    - 1x: Category Text - Pet\n    - 1x: List Item Text - Pet Supplies\n- Widget 17 (text=(none), role=(unknown)):\n    - 2x: Text - Supplies\n    - 1x: Text Label - \"Supplies\" (for Pets)\n    - 1x: List Item Icon - Pet Supplies\n    - 2x: Category Icon - Pet Supplies\n    - 1x: List Item Text - Pet Supplies\n- Widget 18 (text=(none), role=(unknown)):\n    - 4x: Icon - Pet Supplies\n    - 1x: List Item Text - \"Supplies\"\n    - 1x: Category Text - Supplies\n    - 1x: List Item Text - Pet Supplies\n- Widget 19 (text=Baby, role=(unknown)):\n    - 6x: Text - Baby\n    - 2x: List Item - Baby\n    - 1x: Category Text - Baby\n    - 1x: List Item Text - Baby\n- Widget 20 (text=(none), role=(unknown)):\n    - 3x: Icon - Baby\n    - 3x: Icon - Baby Category\n    - 1x: List Item Icon - Baby\n    - 2x: Category Icon - Health & Beauty\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.4.7",
+      "langchain": "1.2.15"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

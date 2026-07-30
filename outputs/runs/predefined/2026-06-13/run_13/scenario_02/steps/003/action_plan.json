@@ -1,0 +1,10 @@
+{
+    "reasoning": "1) Intent analysis: Pengguna diminta memasukkan konten tugas dengan teks persis \"Kerjain Skripsinya\". 2) UI element mapping: Screen map menunjukkan [9] Input Field - rich_editor sebagai area input/editor untuk konten tugas. 3) Action selection: Untuk langkah mengetik, gunakan action_type 'input' langsung tanpa klik fokus terpisah. 4) Target verification: Tidak terlihat bahwa field rich_editor sudah berisi teks yang diminta, jadi langkah belum selesai dan perlu menginput teks ke target [9].",
+    "action_type": "input",
+    "intent": "Memasukkan konten tugas baru ke field editor",
+    "target_id": 9,
+    "text_payload": "Kerjain Skripsinya",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

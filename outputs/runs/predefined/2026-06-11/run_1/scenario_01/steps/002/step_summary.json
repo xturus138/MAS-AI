@@ -1,0 +1,9 @@
+{
+  "step_number": 2,
+  "step_instruction": "Pengguna klik tombol \"+\" (tambah) untuk membuat catatan baru.",
+  "action_type": "click",
+  "target_widget_id": 17,
+  "verdict": "PASSED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

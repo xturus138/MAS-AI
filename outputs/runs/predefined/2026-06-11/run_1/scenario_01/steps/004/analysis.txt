@@ -1,0 +1,18 @@
+SEMANTIC_MAP:
+[1]: Text input field for the note title, currently containing "Rencana Skripsi 2026".
+[2]: Text input field for the note body, currently containing "Mulai tulis Buat pemetaan pikiran".
+[3]: Container for top action bar elements.
+[4]: Navigation button to return to the previous screen.
+[5]: Action button to save or finalize the note.
+[6]: Main layout container for the note editing interface.
+[7]: Overlay layout for the action bar.
+[8]: Action bar header area.
+[9]: Top header section.
+[10]: Grouping container for edit-related elements.
+[11]: Main content area for the note.
+[12]: Nested layout for header information.
+[13]: Container displaying auxiliary note information.
+[14]: Text label displaying the current character count ("0 karakter").
+[15]: Text label displaying the current date ("11 Juni").
+
+SUMMARY: This is a note-editing interface screen where the user can input a title and body text for a new note, with visual indicators for character count and the date.

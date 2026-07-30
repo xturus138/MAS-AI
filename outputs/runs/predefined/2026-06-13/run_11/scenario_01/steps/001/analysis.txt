@@ -1,0 +1,80 @@
+SEMANTIC_MAP:
+[1]: Bottom Navigation/Text Group - Tugas Catatan
+[2]: Unlabeled UI Element - no visible text
+[3]: Unlabeled UI Element - no visible text
+[4]: Unlabeled UI Element - no visible text
+[5]: Date/Text Label - 16 April
+[6]: Note Text - Notulensi 15 April:
+[7]: Unlabeled UI Element - no visible text
+[8]: Unlabeled UI Element - no visible text
+[9]: Note Title/Text - Notulensi Rapat Jaist
+[10]: Unlabeled UI Element - no visible text
+[11]: Unlabeled UI Element - no visible text
+[12]: Unlabeled UI Element - no visible text
+[13]: Unlabeled UI Element - no visible text
+[14]: Date/Text Label - Mei
+[15]: Note Text - 4,5 juta initial
+[16]: Unlabeled UI Element - no visible text
+[17]: Unlabeled UI Element - no visible text
+[18]: Note Title/Text - mfisolution
+[19]: Date/Text Label - Mei
+[20]: Note Text - Pahami Agregat dan variant dalam multi agent
+[21]: Unlabeled UI Element - no visible text
+[22]: Unlabeled UI Element - no visible text
+[23]: Unlabeled UI Element - no visible text
+[24]: Unlabeled UI Element - no visible text
+[25]: Unlabeled UI Element - no visible text
+[26]: Unlabeled UI Element - no visible text
+[27]: Unlabeled UI Element - no visible text
+[28]: Note Title/Text - Catatan Skripsi Selamanya
+[29]: Unlabeled UI Element - no visible text
+[30]: Unlabeled UI Element - no visible text
+[31]: Date/Text Label - Mel
+[32]: Note Text - Catatan Bersama:
+[33]: Unlabeled UI Element - no visible text
+[34]: Note Title/Text - Catatan Responsi Bu dian 07-05-26
+[35]: Unlabeled UI Element - no visible text
+[36]: Unlabeled UI Element - no visible text
+[37]: Unlabeled UI Element - no visible text
+[38]: Unlabeled UI Element - no visible text
+[39]: Status Bar Time - 10:13
+[40]: Unlabeled UI Element - no visible text
+[41]: Unlabeled UI Element - no visible text
+[42]: Unlabeled UI Element - no visible text
+[43]: Unlabeled UI Element - no visible text
+[44]: Note Text - Harus pararel mengerjakannya jangan stuck di obs _
+[45]: Unlabeled UI Element - no visible text
+[46]: Unlabeled UI Element - no visible text
+[47]: Note Title/Text - Catatan skripsi
+[48]: Unlabeled UI Element - no visible text
+[49]: Unlabeled UI Element - no visible text
+[50]: Unlabeled UI Element - no visible text
+[51]: Category/Filter Text Group - Tidak Semua suitmedia PKM-KC
+[52]: Category/Filter Chip - PROKSI
+[53]: Unlabeled UI Element - no visible text
+[54]: Unlabeled UI Element - no visible text
+[55]: Search Field - Cari catatan
+[56]: Unlabeled UI Element - no visible text
+[57]: Unlabeled UI Element - no visible text
+[58]: Header Text - Catatan
+[59]: Unlabeled UI Element - no visible text
+[60]: Unlabeled UI Element - no visible text
+[61]: List Layout Container - data_folder_list_layout
+[62]: Navigation/Tab Label - Catatan
+[63]: Action Bar Container - action_bar_container
+[64]: Navigation/Tab Label - Folder
+[65]: Navigation/Tab Label - Setelan
+[66]: Search Bar Container - search_bar
+[67]: List Layout Container - data_folder_list_layout
+[68]: List Layout Container - data_folder_list_layout
+[69]: List Layout Container - data_folder_list_layout
+[70]: List Layout Container - data_folder_list_layout
+[71]: Note Card Container - note_group
+[72]: Note Card Container - note_group
+[73]: Note Card Container - note_group
+[74]: Note Card Container - note_group
+[75]: Note Card Container - note_group
+[76]: Bottom Navigation Bar - miuix_bottom_navigation_bar
+[77]: Bottom Navigation Item - Tugas
+[78]: Note Card Container - note_group
+SUMMARY: The screen shows a notes app list view with a header, search bar, category chips, multiple note cards, a floating plus button, and bottom navigation items.

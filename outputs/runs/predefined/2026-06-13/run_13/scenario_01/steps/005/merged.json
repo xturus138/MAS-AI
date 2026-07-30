@@ -1,0 +1,652 @@
+[
+    {
+        "bounds": [
+            37,
+            397,
+            361,
+            437
+        ],
+        "cv_bounds": [
+            257,
+            401,
+            358,
+            430
+        ],
+        "text": "pengujian aplikasi Android:",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            162,
+            401,
+            254,
+            433
+        ],
+        "cv_bounds": [
+            162,
+            401,
+            254,
+            433
+        ],
+        "text": "",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            401,
+            159,
+            434
+        ],
+        "cv_bounds": [
+            41,
+            401,
+            159,
+            434
+        ],
+        "text": "",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            564,
+            347,
+            636,
+            375
+        ],
+        "cv_bounds": [
+            564,
+            347,
+            636,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            38,
+            342,
+            640,
+            379
+        ],
+        "cv_bounds": [
+            480,
+            346,
+            561,
+            375
+        ],
+        "text": "Selesaikan implementasi Multi-Agent Swarm untuk",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            335,
+            346,
+            477,
+            379
+        ],
+        "cv_bounds": [
+            335,
+            346,
+            477,
+            379
+        ],
+        "text": "",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            173,
+            346,
+            332,
+            378
+        ],
+        "cv_bounds": [
+            173,
+            346,
+            332,
+            378
+        ],
+        "text": "",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            41,
+            346,
+            170,
+            375
+        ],
+        "cv_bounds": [
+            41,
+            346,
+            170,
+            375
+        ],
+        "text": "",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            211,
+            261,
+            309,
+            291
+        ],
+        "cv_bounds": [
+            211,
+            261,
+            309,
+            291
+        ],
+        "text": "13 Juni 11:04 60 karakter",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "50 karakter",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            122,
+            261,
+            172,
+            291
+        ],
+        "cv_bounds": [
+            122,
+            261,
+            172,
+            291
+        ],
+        "text": "11:04",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "11:04",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            44,
+            261,
+            122,
+            291
+        ],
+        "cv_bounds": [
+            44,
+            261,
+            122,
+            291
+        ],
+        "text": "13 Juni",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "13 Juni",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "cv_bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "text": "Rencana Skripsi 2026",
+        "type": "container",
+        "id": 12,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Rencana Skripsi 2026",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            42,
+            191,
+            196,
+            227
+        ],
+        "cv_bounds": [
+            42,
+            191,
+            196,
+            227
+        ],
+        "text": "",
+        "type": "container",
+        "id": 13,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            205,
+            190,
+            326,
+            233
+        ],
+        "cv_bounds": [
+            205,
+            190,
+            326,
+            233
+        ],
+        "text": "",
+        "type": "container",
+        "id": 14,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "Kembali",
+        "type": "container",
+        "id": 15,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "Selesai",
+        "type": "container",
+        "id": 16,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Selesai",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            520,
+            83,
+            594,
+            157
+        ],
+        "cv_bounds": [
+            520,
+            83,
+            594,
+            157
+        ],
+        "text": "Ulangi",
+        "type": "container",
+        "id": 17,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Ulangi",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            424,
+            83,
+            498,
+            157
+        ],
+        "cv_bounds": [
+            424,
+            83,
+            498,
+            157
+        ],
+        "text": "Urungkan",
+        "type": "container",
+        "id": 18,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Urungkan",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            0,
+            1517,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            1517,
+            720,
+            1600
+        ],
+        "text": "On-Screen Keyboard",
+        "type": "container",
+        "id": 19,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "content",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "id": 20,
+        "bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "cv_bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "text": "Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/rich_editor",
+        "xml_label": "Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 21,
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 22,
+        "bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "text": "ll_note_edit",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/ll_note_edit",
+        "xml_label": "ll_note_edit",
+        "xml_role": "view",
+        "xml_actionable": true
+    },
+    {
+        "id": 23,
+        "bounds": [
+            0,
+            1428,
+            100,
+            1495
+        ],
+        "cv_bounds": [
+            0,
+            1428,
+            100,
+            1495
+        ],
+        "text": "Daftar periksa",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/check",
+        "xml_label": "Daftar periksa",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 24,
+        "bounds": [
+            100,
+            1428,
+            200,
+            1495
+        ],
+        "cv_bounds": [
+            100,
+            1428,
+            200,
+            1495
+        ],
+        "text": "Sorotan",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/bg_highlight",
+        "xml_label": "Sorotan",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 25,
+        "bounds": [
+            200,
+            1428,
+            300,
+            1495
+        ],
+        "cv_bounds": [
+            200,
+            1428,
+            300,
+            1495
+        ],
+        "text": "Memperbesar teks",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/increase_font",
+        "xml_label": "Memperbesar teks",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 26,
+        "bounds": [
+            300,
+            1428,
+            400,
+            1495
+        ],
+        "cv_bounds": [
+            300,
+            1428,
+            400,
+            1495
+        ],
+        "text": "Memperkecil teks",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/reduce_font",
+        "xml_label": "Memperkecil teks",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 27,
+        "bounds": [
+            400,
+            1428,
+            500,
+            1495
+        ],
+        "cv_bounds": [
+            400,
+            1428,
+            500,
+            1495
+        ],
+        "text": "Tebal",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/bold",
+        "xml_label": "Tebal",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 28,
+        "bounds": [
+            500,
+            1428,
+            600,
+            1495
+        ],
+        "cv_bounds": [
+            500,
+            1428,
+            600,
+            1495
+        ],
+        "text": "Miring",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/italic",
+        "xml_label": "Miring",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 29,
+        "bounds": [
+            600,
+            1428,
+            700,
+            1495
+        ],
+        "cv_bounds": [
+            600,
+            1428,
+            700,
+            1495
+        ],
+        "text": "Garis bawah",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/underline",
+        "xml_label": "Garis bawah",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 30,
+        "bounds": [
+            700,
+            1428,
+            720,
+            1495
+        ],
+        "cv_bounds": [
+            700,
+            1428,
+            720,
+            1495
+        ],
+        "text": "Kotak centang",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/bullet",
+        "xml_label": "Kotak centang",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

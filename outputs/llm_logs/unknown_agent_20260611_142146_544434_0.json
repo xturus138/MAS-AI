@@ -1,0 +1,53 @@
+{
+  "agent": "unknown_agent",
+  "model": "google/gemini-2.5-flash",
+  "timestamp": "20260611_142146_544434",
+  "prompt_tokens": 5,
+  "completion_tokens": 1,
+  "total_tokens": 6,
+  "cost_usd": 4e-06,
+  "pricing_info": {
+    "model_id": "google/gemini-2.5-flash",
+    "canonical_id": "google/gemini-2.5-flash",
+    "input_cost_per_1M": 0.3,
+    "output_cost_per_1M": 2.5,
+    "in_pricing_table": true
+  },
+  "messages": [
+    {
+      "type": "human",
+      "data": {
+        "content": "Reply with exactly: OK",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "google/gemini-2.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model"
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "google/gemini-2.5-flash",
+      "model_name": "google/gemini-2.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

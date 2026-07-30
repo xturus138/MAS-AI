@@ -1,0 +1,80 @@
+SEMANTIC_MAP:
+[1]: Header Text - Tugas Catatan
+[2]: Icon/Button - no visible text
+[3]: Icon/Button - no visible text
+[4]: Icon/Button - no visible text
+[5]: Date/Label Text - 16 April
+[6]: Note Preview Text - Notulensi 15 April:
+[7]: Container/Spacer - no visible text
+[8]: Container/Spacer - no visible text
+[9]: Note Title Text - Notulensi Rapat Jaist
+[10]: Container/Spacer - no visible text
+[11]: Container/Spacer - no visible text
+[12]: Container/Spacer - no visible text
+[13]: Container/Spacer - no visible text
+[14]: Date/Label Text - Mei
+[15]: Note Preview Text - 4,5 juta initial
+[16]: Container/Spacer - no visible text
+[17]: Container/Spacer - no visible text
+[18]: Note Title Text - mfisolution
+[19]: Date/Label Text - Mei
+[20]: Note Preview Text - Pahami Agregat dan variant dalam multi agent
+[21]: Container/Spacer - no visible text
+[22]: Container/Spacer - no visible text
+[23]: Container/Spacer - no visible text
+[24]: Container/Spacer - no visible text
+[25]: Container/Spacer - no visible text
+[26]: Container/Spacer - no visible text
+[27]: Container/Spacer - no visible text
+[28]: Note Title Text - Catatan Skripsi Selamanya
+[29]: Container/Spacer - no visible text
+[30]: Container/Spacer - no visible text
+[31]: Label/Text - Mel
+[32]: Note Preview Text - Catatan Bersama:
+[33]: Container/Spacer - no visible text
+[34]: Note Title Text - Catatan Responsi Bu dian 07-05-26
+[35]: Container/Spacer - no visible text
+[36]: Container/Spacer - no visible text
+[37]: Container/Spacer - no visible text
+[38]: Container/Spacer - no visible text
+[39]: Status Bar Time - 10:13
+[40]: Container/Spacer - no visible text
+[41]: Container/Spacer - no visible text
+[42]: Container/Spacer - no visible text
+[43]: Container/Spacer - no visible text
+[44]: Note Preview Text - Harus pararel mengerjakannya jangan stuck di obs _
+[45]: Container/Spacer - no visible text
+[46]: Container/Spacer - no visible text
+[47]: Note Title Text - Catatan skripsi
+[48]: Container/Spacer - no visible text
+[49]: Container/Spacer - no visible text
+[50]: Container/Spacer - no visible text
+[51]: Note Title/Preview Text - Tidak Semua suitmedia PKM-KC
+[52]: Label/Text - PROKSI
+[53]: Container/Spacer - no visible text
+[54]: Container/Spacer - no visible text
+[55]: Search Field - Cari catatan
+[56]: Container/Spacer - no visible text
+[57]: Container/Spacer - no visible text
+[58]: Header/Tab Text - Catatan
+[59]: Container/Spacer - no visible text
+[60]: Container/Spacer - no visible text
+[61]: Layout Container - data_folder_list_layout
+[62]: Bottom Navigation Item - Catatan
+[63]: Action Bar Container - action_bar_container
+[64]: Navigation Tab/Button - Folder
+[65]: Navigation Tab/Button - Setelan
+[66]: Search Bar Container - search_bar
+[67]: List Layout Container - data_folder_list_layout
+[68]: List Layout Container - data_folder_list_layout
+[69]: List Layout Container - data_folder_list_layout
+[70]: List Layout Container - data_folder_list_layout
+[71]: Note Item Container - note_group
+[72]: Note Item Container - note_group
+[73]: Note Item Container - note_group
+[74]: Note Item Container - note_group
+[75]: Note Item Container - note_group
+[76]: Bottom Navigation Bar - miuix_bottom_navigation_bar
+[77]: Bottom Navigation Item - Tugas
+[78]: Note Item Container - note_group
+SUMMARY: The screen shows a Xiaomi Notes list view with a header, search bar, category/filter tabs, multiple note preview cards, a floating add button, and bottom navigation items.

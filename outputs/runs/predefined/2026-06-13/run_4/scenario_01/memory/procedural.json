@@ -1,0 +1,14 @@
+[
+  {
+    "entry_type": "workflow",
+    "description": "Membuat catatan baru",
+    "steps": [
+      "Pengguna membuka aplikasi Xiaomi Notes.",
+      "Pengguna klik tombol \"+\" (tambah) untuk membuat catatan baru.",
+      "Pengguna memasukkan judul: \"Rencana Skripsi 2026\".",
+      "Pengguna memasukkan isi catatan: \"Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.\"",
+      "Pengguna klik ikon kembali dan melihat di beranda apakah sudah tersimpan"
+    ],
+    "tcs_id": "NOTE-001"
+  }
+]

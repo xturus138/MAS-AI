@@ -1,0 +1,9 @@
+{
+  "step_number": 5,
+  "step_instruction": "Pengguna klik ikon kembali dan melihat di beranda apakah sudah tersimpan",
+  "action_type": "click",
+  "target_widget_id": 15,
+  "verdict": "PASSED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

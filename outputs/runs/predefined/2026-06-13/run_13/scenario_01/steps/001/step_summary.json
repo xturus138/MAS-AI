@@ -1,0 +1,9 @@
+{
+  "step_number": 1,
+  "step_instruction": "Pengguna membuka aplikasi Xiaomi Notes.",
+  "action_type": "none",
+  "target_widget_id": -1,
+  "verdict": "PASSED",
+  "has_screenshot": true,
+  "duration_seconds": null
+}

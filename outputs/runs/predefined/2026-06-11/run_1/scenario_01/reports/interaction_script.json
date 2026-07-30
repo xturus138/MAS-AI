@@ -1,0 +1,47 @@
+{
+  "tcs_id": "NOTE-001",
+  "total_steps": 5,
+  "recording_status": "Success",
+  "actions": [
+    {
+      "event_type": "execution",
+      "summary": "[OK] start_app: Open Xiaomi Notes application",
+      "details": "Started app: com.miui.notes",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:54:13",
+      "step": 1
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Klik tombol tambah untuk memulai pembuatan catatan baru",
+      "details": "Clicked (601, 1363)",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:54:19",
+      "step": 2
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Memasukkan judul catatan",
+      "details": "Set text via resource_id com.miui.notes:id/note_title: Rencana Skripsi 2026",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:54:32",
+      "step": 3
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Memasukkan isi catatan",
+      "details": "Set text via resource_id com.miui.notes:id/rich_editor: Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:54:44",
+      "step": 4
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Klik ikon kembali untuk menyimpan dan keluar ke beranda",
+      "details": "Clicked (74, 120)",
+      "actor": "executor",
+      "timestamp": "2026-06-11T13:54:55",
+      "step": 5
+    }
+  ]
+}

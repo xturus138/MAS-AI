@@ -1,0 +1,18 @@
+[
+  {
+    "session_id": "NOTE-001_20260611_135339",
+    "tcs_id": "NOTE-001",
+    "status": "SUCCESS",
+    "steps_completed": 5,
+    "duration_seconds": 0,
+    "timestamp": "2026-06-11 13:55:02"
+  },
+  {
+    "session_id": "NOTE-002_20260611_135502",
+    "tcs_id": "NOTE-002",
+    "status": "SUCCESS",
+    "steps_completed": 4,
+    "duration_seconds": 0,
+    "timestamp": "2026-06-11 13:56:21"
+  }
+]

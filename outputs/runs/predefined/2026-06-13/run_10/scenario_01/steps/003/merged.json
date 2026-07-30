@@ -1,0 +1,1140 @@
+[
+    {
+        "bounds": [
+            51,
+            1306,
+            260,
+            1344
+        ],
+        "cv_bounds": [
+            51,
+            1306,
+            260,
+            1344
+        ],
+        "text": "Kebijakan Privasi",
+        "type": "container",
+        "id": 1,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kebijakan Privasi",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            1310,
+            172,
+            1344
+        ],
+        "cv_bounds": [
+            48,
+            1310,
+            172,
+            1344
+        ],
+        "text": "",
+        "type": "container",
+        "id": 2,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            650,
+            1310,
+            669,
+            1340
+        ],
+        "cv_bounds": [
+            650,
+            1310,
+            669,
+            1340
+        ],
+        "text": "",
+        "type": "container",
+        "id": 3,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "arrow_right",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            1211,
+            669,
+            1273
+        ],
+        "cv_bounds": [
+            51,
+            1211,
+            669,
+            1273
+        ],
+        "text": "LAINNYA",
+        "type": "container",
+        "id": 4,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "LAINNYA",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            1064,
+            563,
+            1126
+        ],
+        "cv_bounds": [
+            51,
+            1064,
+            563,
+            1126
+        ],
+        "text": "Jangan ganggu dihidupkan",
+        "type": "container",
+        "id": 5,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Mainkan suara bahkan saat mode Hening atau Jangan ganggu dihidupkan",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            1099,
+            129,
+            1128
+        ],
+        "cv_bounds": [
+            48,
+            1099,
+            129,
+            1128
+        ],
+        "text": "",
+        "type": "container",
+        "id": 6,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            217,
+            1098,
+            338,
+            1127
+        ],
+        "cv_bounds": [
+            217,
+            1098,
+            338,
+            1127
+        ],
+        "text": "",
+        "type": "container",
+        "id": 7,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            143,
+            1071,
+            205,
+            1093
+        ],
+        "cv_bounds": [
+            143,
+            1071,
+            205,
+            1093
+        ],
+        "text": "",
+        "type": "container",
+        "id": 8,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            492,
+            1070,
+            543,
+            1093
+        ],
+        "cv_bounds": [
+            492,
+            1070,
+            543,
+            1093
+        ],
+        "text": "",
+        "type": "container",
+        "id": 9,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            0,
+            1000,
+            720,
+            1152
+        ],
+        "cv_bounds": [
+            0,
+            1000,
+            720,
+            1152
+        ],
+        "text": "Hening atau Mainkan suara bahkan saat mode",
+        "type": "container",
+        "id": 10,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            410,
+            1067,
+            489,
+            1097
+        ],
+        "cv_bounds": [
+            410,
+            1067,
+            489,
+            1097
+        ],
+        "text": "",
+        "type": "container",
+        "id": 11,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            344,
+            1067,
+            408,
+            1093
+        ],
+        "cv_bounds": [
+            344,
+            1067,
+            408,
+            1093
+        ],
+        "text": "",
+        "type": "container",
+        "id": 12,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            208,
+            1067,
+            289,
+            1093
+        ],
+        "cv_bounds": [
+            208,
+            1067,
+            289,
+            1093
+        ],
+        "text": "",
+        "type": "container",
+        "id": 13,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            1067,
+            141,
+            1093
+        ],
+        "cv_bounds": [
+            48,
+            1067,
+            141,
+            1093
+        ],
+        "text": "",
+        "type": "container",
+        "id": 14,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            1026,
+            368,
+            1064
+        ],
+        "cv_bounds": [
+            51,
+            1026,
+            368,
+            1064
+        ],
+        "text": "Pengingat prioritas tinggi",
+        "type": "container",
+        "id": 15,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Pengingat prioritas tinggi",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            183,
+            1031,
+            290,
+            1064
+        ],
+        "cv_bounds": [
+            183,
+            1031,
+            290,
+            1064
+        ],
+        "text": "",
+        "type": "container",
+        "id": 16,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            1031,
+            178,
+            1064
+        ],
+        "cv_bounds": [
+            48,
+            1031,
+            178,
+            1064
+        ],
+        "text": "",
+        "type": "container",
+        "id": 17,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            938,
+            669,
+            1000
+        ],
+        "cv_bounds": [
+            51,
+            938,
+            669,
+            1000
+        ],
+        "text": "Pengingat",
+        "type": "container",
+        "id": 18,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Pengingat",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            393,
+            796,
+            635,
+            858
+        ],
+        "cv_bounds": [
+            393,
+            796,
+            635,
+            858
+        ],
+        "text": "dimodifikasi",
+        "type": "container",
+        "id": 19,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Per tanggal dimodifikasi",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            0,
+            775,
+            720,
+            879
+        ],
+        "cv_bounds": [
+            0,
+            775,
+            720,
+            879
+        ],
+        "text": "Per tanggal Urutkan",
+        "type": "container",
+        "id": 20,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            650,
+            812,
+            669,
+            842
+        ],
+        "cv_bounds": [
+            650,
+            812,
+            669,
+            842
+        ],
+        "text": "",
+        "type": "container",
+        "id": 21,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "icon1",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            555,
+            799,
+            638,
+            829
+        ],
+        "cv_bounds": [
+            555,
+            799,
+            638,
+            829
+        ],
+        "text": "",
+        "type": "container",
+        "id": 22,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            393,
+            781,
+            669,
+            873
+        ],
+        "cv_bounds": [
+            393,
+            781,
+            669,
+            873
+        ],
+        "text": "",
+        "type": "container",
+        "id": 23,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "widget_frame",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            558,
+            707,
+            635,
+            739
+        ],
+        "cv_bounds": [
+            558,
+            707,
+            635,
+            739
+        ],
+        "text": "Sedang",
+        "type": "container",
+        "id": 24,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Sedang",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            704,
+            214,
+            742
+        ],
+        "cv_bounds": [
+            51,
+            704,
+            214,
+            742
+        ],
+        "text": "Ukuran huruf",
+        "type": "container",
+        "id": 25,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Ukuran huruf",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            48,
+            709,
+            141,
+            738
+        ],
+        "cv_bounds": [
+            48,
+            709,
+            141,
+            738
+        ],
+        "text": "",
+        "type": "container",
+        "id": 26,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            650,
+            708,
+            669,
+            738
+        ],
+        "cv_bounds": [
+            650,
+            708,
+            669,
+            738
+        ],
+        "text": "",
+        "type": "container",
+        "id": 27,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "icon1",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            609,
+            669,
+            671
+        ],
+        "cv_bounds": [
+            51,
+            609,
+            669,
+            671
+        ],
+        "text": "Gaya",
+        "type": "container",
+        "id": 28,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Gaya",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            51,
+            479,
+            543,
+            517
+        ],
+        "cv_bounds": [
+            51,
+            479,
+            543,
+            517
+        ],
+        "text": "Catatan terhapus yang berada di cloud",
+        "type": "container",
+        "id": 29,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Catatan terhapus yang berada di cloud",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            472,
+            484,
+            545,
+            513
+        ],
+        "cv_bounds": [
+            472,
+            484,
+            545,
+            513
+        ],
+        "text": "",
+        "type": "container",
+        "id": 30,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            438,
+            484,
+            467,
+            513
+        ],
+        "cv_bounds": [
+            438,
+            484,
+            467,
+            513
+        ],
+        "text": "",
+        "type": "container",
+        "id": 31,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            0,
+            446,
+            720,
+            550
+        ],
+        "cv_bounds": [
+            0,
+            446,
+            720,
+            550
+        ],
+        "text": "",
+        "type": "container",
+        "id": 32,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            154,
+            484,
+            270,
+            516
+        ],
+        "cv_bounds": [
+            154,
+            484,
+            270,
+            516
+        ],
+        "text": "",
+        "type": "container",
+        "id": 33,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            484,
+            150,
+            513
+        ],
+        "cv_bounds": [
+            48,
+            484,
+            150,
+            513
+        ],
+        "text": "",
+        "type": "container",
+        "id": 34,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            650,
+            483,
+            669,
+            513
+        ],
+        "cv_bounds": [
+            650,
+            483,
+            669,
+            513
+        ],
+        "text": "",
+        "type": "container",
+        "id": 35,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "arrow_right",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            360,
+            353,
+            635,
+            446
+        ],
+        "cv_bounds": [
+            360,
+            353,
+            635,
+            446
+        ],
+        "text": "dan Iainnya tugas;",
+        "type": "container",
+        "id": 36,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Hidupkan sinkronisasi cloud untuk catatan, tugas, dan lainnya",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            559,
+            418,
+            639,
+            448
+        ],
+        "cv_bounds": [
+            559,
+            418,
+            639,
+            448
+        ],
+        "text": "",
+        "type": "container",
+        "id": 37,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            511,
+            418,
+            556,
+            444
+        ],
+        "cv_bounds": [
+            511,
+            418,
+            556,
+            444
+        ],
+        "text": "",
+        "type": "container",
+        "id": 38,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            416,
+            386,
+            638,
+            416
+        ],
+        "cv_bounds": [
+            547,
+            389,
+            637,
+            415
+        ],
+        "text": "cloud untuk catatan;",
+        "type": "container",
+        "id": 39,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            479,
+            387,
+            545,
+            413
+        ],
+        "cv_bounds": [
+            479,
+            387,
+            545,
+            413
+        ],
+        "text": "",
+        "type": "container",
+        "id": 40,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            413,
+            387,
+            477,
+            413
+        ],
+        "cv_bounds": [
+            413,
+            387,
+            477,
+            413
+        ],
+        "text": "",
+        "type": "container",
+        "id": 41,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            355,
+            360,
+            445
+        ],
+        "cv_bounds": [
+            51,
+            355,
+            360,
+            445
+        ],
+        "text": "Xiaomi Cloud",
+        "type": "container",
+        "id": 42,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Xiaomi Cloud",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            49,
+            386,
+            136,
+            415
+        ],
+        "cv_bounds": [
+            49,
+            386,
+            136,
+            415
+        ],
+        "text": "",
+        "type": "container",
+        "id": 43,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            650,
+            385,
+            669,
+            415
+        ],
+        "cv_bounds": [
+            650,
+            385,
+            669,
+            415
+        ],
+        "text": "",
+        "type": "container",
+        "id": 44,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "arrow_right",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            401,
+            354,
+            638,
+            383
+        ],
+        "cv_bounds": [
+            510,
+            356,
+            638,
+            382
+        ],
+        "text": "Hidupkan sinkronisasi",
+        "type": "container",
+        "id": 45,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            404,
+            356,
+            508,
+            386
+        ],
+        "cv_bounds": [
+            404,
+            356,
+            508,
+            386
+        ],
+        "text": "",
+        "type": "container",
+        "id": 46,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            51,
+            291,
+            669,
+            353
+        ],
+        "cv_bounds": [
+            51,
+            291,
+            669,
+            353
+        ],
+        "text": "Layanan cloud",
+        "type": "container",
+        "id": 47,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Layanan cloud",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "bounds": [
+            141,
+            309,
+            205,
+            335
+        ],
+        "cv_bounds": [
+            141,
+            309,
+            205,
+            335
+        ],
+        "text": "",
+        "type": "container",
+        "id": 48,
+        "class": "Interactive",
+        "resource_id": "none"
+    },
+    {
+        "bounds": [
+            48,
+            179,
+            230,
+            251
+        ],
+        "cv_bounds": [
+            48,
+            179,
+            230,
+            251
+        ],
+        "text": "Catatan",
+        "type": "container",
+        "id": 49,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Catatan",
+        "xml_role": "text",
+        "xml_actionable": true
+    },
+    {
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "",
+        "type": "container",
+        "id": 50,
+        "class": "Interactive",
+        "resource_id": "none",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 51,
+        "bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 52,
+        "bounds": [
+            0,
+            353,
+            720,
+            446
+        ],
+        "cv_bounds": [
+            0,
+            353,
+            720,
+            446
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 53,
+        "bounds": [
+            0,
+            671,
+            720,
+            775
+        ],
+        "cv_bounds": [
+            0,
+            671,
+            720,
+            775
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 54,
+        "bounds": [
+            0,
+            1273,
+            720,
+            1377
+        ],
+        "cv_bounds": [
+            0,
+            1273,
+            720,
+            1377
+        ],
+        "text": "",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]
