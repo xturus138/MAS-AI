@@ -1,0 +1,156 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_194813_538212",
+  "prompt_tokens": 1988,
+  "completion_tokens": 172,
+  "total_tokens": 2160,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a strictly objective Computer Vision Perception Agent.\nYour ONLY job is to describe what is visible on the screen based on the provided image and elements list.\n\nDIRECT INSTRUCTIONS & STRICT RULES:\n1. Objectivity: Do NOT assume user intent or task goals. Only describe what is physically present.\n2. Grouping: If you see an On-Screen Keyboard, treat it as a single block. Do not analyze individual keys.\n3. Formatting: You MUST output exactly in the format below. No conversational filler or introductory text.\n\nGENERAL KNOWLEDGE (from prior experience and UI repository):\nNo relevant prior UI knowledge.\n\nUse this only to improve UI element classification; do not invent elements not visible in the screenshot.\n\nOUTPUT FORMAT:\nSEMANTIC_MAP:\n[[ID]]: [UI Element Type] - [Visible Text or Icon Description]\n...\nSUMMARY: [One clear sentence describing the overall screen layout and available actions.]",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "App Context: Notes App\nNavigation Path: N/A\nElements: [{{\"i\": 1, \"t\": \"Catatan\"}}, {{\"i\": 2, \"t\": \"Semua\"}}, {{\"i\": 3, \"t\": \"+\"}}]",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "ai",
+      "data": {
+        "content": "SEMANTIC_MAP:\n[1]: Header Text - Catatan\n[2]: Tab/Filter Button - Semua\n[3]: Floating Action Button (FAB) - + (Add new note)\nSUMMARY: The screen displays the main dashboard of a notes application with a list filter and a floating action button to create a new note.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "App Context: E-commerce Login\nNavigation Path: Login Screen\nElements: [{{\"i\": 1, \"t\": \"Email\"}}, {{\"i\": 2, \"t\": \"Password\"}}, {{\"i\": 3, \"t\": \"Login\"}}, {{\"i\": 4, \"t\": \"Forgot Password?\"}}]",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "ai",
+      "data": {
+        "content": "SEMANTIC_MAP:\n[1]: Input Field - Email\n[2]: Input Field - Password\n[3]: Primary Button - Login\n[4]: Text Link - Forgot Password?\nSUMMARY: The screen displays a login form with email and password input fields, a primary login button, and a password recovery link.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "App Context: Product Search\nNavigation Path: Search > Product Detail\nElements: [{{\"i\": 1, \"t\": \"Search products...\"}}, {{\"i\": 2, \"t\": \"Q\"}}, {{\"i\": 3, \"t\": \"W\"}}, {{\"i\": 4, \"t\": \"A\"}}, {{\"i\": 5, \"t\": \"S\"}}, {{\"i\": 6, \"t\": \"Add to Cart\"}}]",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "ai",
+      "data": {
+        "content": "SEMANTIC_MAP:\n[1]: Search Input Field - Search products...\n[2-5]: On-Screen Keyboard (grouped as single block)\n[6]: Primary Button - Add to Cart\nSUMMARY: The screen shows a product detail page with an active search field, on-screen keyboard displayed, and an add to cart button.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "ai",
+        "name": null,
+        "id": null,
+        "tool_calls": [],
+        "invalid_tool_calls": [],
+        "usage_metadata": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": [
+          {
+            "type": "text",
+            "text": "App Context: N/A (calibration: Screen Annotation sample, out-of-domain screen)\nNavigation Path: N/A\nElements: [13]{i,t,r}:\n  1,Back,\"\"\n  2,Settings,\"\"\n  3,Toolbar,\"\"\n  4,Auto offline,\"\"\n  5,Auto like,\"\"\n  6,The app will automatically like you offline,\"\"\n  7,Auto like switch,\"\"\n  8,Auto like row,\"\"\n  9,Auto follow,\"\"\n  10,The app will automatically follow you offline,\"\"\n  11,Auto follow switch,\"\"\n  12,Auto follow row,\"\"\n  13,Navigation Bar,\"\"\n\nEach element has id (i), text (t), and optional role (r) from XML metadata (e.g. icon_button, button, input, text). Use role to correctly classify interactive elements — an element with role=icon_button IS a clickable icon/button, not placeholder text.\n\nMap every ID in the screenshot to its generic UI function. Be objective. Do not reference any task or goal."
+          },
+          {
+            "type": "image_url",
+            "image_url": {
+              "url": "data:image/webp;base64,UklGRrIUAABXRUJQVlA4IKYUAACwcACdASoOAeABPp1GoEyloyMiIzFKKLATiWVu/AU0rjABqfkBBZtwvH/4HeLcTRlfqDCF/xP1291f9q3ZvmL/Xj9qveH/5frN6Kz1O/QA8uT9j/hh/xP/h/bHMXvKn+J7af9L4X+Mb2tJm7ytTLs/w0/5H9z8a/hLqBezd2p2D/a+gL7K/du++1IO73sAfqV6Df6/xCfvP+p/2/uDfyb+v/+r+//kZ9M39t+2vnr+s//f7h3l0eyr0gv3MBW3nfLeQ/Vbml57PD38hJ22QdJI35+6CsdnDr2UhqaLPX2ZcLDAJTd6lBC7ppSfxPaFDFECqwcpPUCkMDJv/JulVHAC+d9xVQ50pjSD0pv98YBmG0eBTDPZ1+dm9iTpKiefkcEzoLVp+vuS+FR0klhJlvKNkIw/yLsdfh+yyh0wPTwoSE+/tkF9ajxqUPgPmNxNFNzE/w1r2zyibY72p9MDxHSzG9/2vGYt/C1TCsjCFv2WWJCoxNbsARMjLxnkOzG75OgDFjg5WIe6X4NqVJXv6xbQ1WAi4bIigvtPl+w0jLzwfJl65at3N0aEowBc/f4ca4fI/heCQhCEIQUPlljv0+qxE59l3FqsmWvihWEHwmVLJYGVthWZmUktz2R6PHAapIjd8FOG2uvmK7fGkbTX7EltW63fHN/tymhJc7FIdg9idjMe6QWVcTxUW/+j8IbLS7ezbqeOvw/ZZQ6YIeoPcu99hUF9p1h7gYkNtG++4oKJcgfNTH1Eg0SFemMHrp16xnp/upHNR8pwY93VgmfjSdLeX+hQnRpxQ2QVr68MrIv+KvXTE73Yo4FmhXRa/Tw0+SY3lX0OQ0qzymFNsJvl8Kfh2fgNL612JHS4pasrnltPf4dz1Tk9C37LKHTBD1CTVfcGAfkRQSbMzJIj9V73ve925Wf/i65QcuFDaljBJ66e306dCn1yg5cKG1LGCT109vp06FPrlBy4UNqWMEnrp7fTp0KfXKDlwobUsYJPXT2+nToU+uUHLhQ2pYwSeunt9OnQp9coOXChtSxgk9dPb6dOhT65QcuFDaljBJ66e306dCn1yg5cKG1LGCT109vp06FPrlBxNYqy0nQWMEnrp7d3G4nubQ2LgmxQflQmr1sZoJBWTPVOQeR3BQbr4yCKY1V2SMUcNi4Ji0vi7aQ1e3bNaXZ6CtYJi+FN505IG9D3L5ALOMYr36WyIQoZeVLAAMV5xJe9Ufltyt58qUQTZKGJlece2cXXlpfk9JBKq7NUHCeNpe4+IUoMZ//deepXo8FnDyx5/ssBh9kHo7x/CWiIKAqBvu+CUMVW2SExQ78LghLcyj/Emy16V8K3V1KTFWxchjbiK4E8NIRkbtImUxmYfENDtec4aZK7vnk/+mdOy3HNbTmClaswBTcVVcmu4CiK8NM4kFbGp+U02r4ALaPq9E2z3Aud7rMZQWEPrKS2fO9ayhqRVTXdCMwglzg4OpVeNztaMaQG3z6Apyjv98N+NW4RIGuYNVaHDSJO26F68QbUSpJo1AQqhcCZ/5zT5RV0PX2Gt7nL2dpIJLaaS2O/vdmG9nDDA10K8bkK0WUXYEgWG7tnN9uOvpwcoW0i/6ZASETw8Jq9uEG7mHG9R2ttZxMf8jlFlSF6SYoT/yUhcI2G9Z38xFGrCOMCjjhnfJC86cGG4/hWqO7NUkB9HaTMBUJFG4KX+QXexvnNhHeeUMvJ5PQWkf9wnyrymy9S6f5y1180gpNrrGTXfkBAd5mDYjnUSH6mKOUNgX4io6tqT9QAlqXVKYTcE67g1yVgiuH7ClB/T3lyypSFKKBLyeVd8qs7yKlV+zXA3l8x9wkKYNzYXZ6ai/tCSEOWT1VMUcDB47WM6qN3P3TKgjWGSV7zF4a0WqA7+q3rTxOcgFjTqoIeD7G48KSsbRWbkcCJWKI+yrdXUFFflkETwNmBsmtfsr10fT6+d7NLAF7zJbVOlgUQGxoABHhBvUWblrQ81wgc+F/w2wglNURCYEa0WywTeUAMq7kUfrWXPV6F02UFU5//uqqIxWJ685RCvLOc2bhnSuX8Du/vAQWkX39UjDatC/gbcNHUUyK1lWa3bs3mJ5wGAcu004pl6IlA131CDN/qEYVzBt54bbsqjcBKWi25dWL/L47E8O7ZC/KdS/6Kl33TeCs9atVIw5K87JtiHRIPkbSbEXrNbridXdX3VKlvKge6ETZm0bxGrjtzJTQOWX7qMYH9zd0HTTUfdV9ANuAa5mED8U6+FJeaIf2td+45tuz60g4N5RhZqr/pDaV5fcqHcGeZVChjifW5fvRWtSgn4bPUVpH5XiFFHJpKtfsdXHNySz6KLHU9iAO3iDtxFczJ08VJC9B+UOxS/4/4vKQEcdFLNs84G5w0S/rvJfrpQoltRG4H+uvk78B5F7lkhy4thbqeYjRiDbxgB+LVQJ9W4b4A7FzAWoQLlOpvTI2wsRrgTSuzddP6Z8urF9Q1cpGuAbm2X7RiMUPZaab1JBlddd2zQJmVLjdiZTO9qHt1e3VMCKSrh3B0d2o8PSAAApvt+jfHy3OkrUFyavfRxmoNodHG8+hi0sgwobZcdcOkJ6m3KgN1h9xF+E6D1Dgx9KrQtxVJZI9+8tJ1ILes6iKp6+xB8ugbA7zD8KqCTcyM8Beqp7cyxy+XnVVX69OW+SahKKpNWPiaVmhlleuKWD8bLA29YP3iwV/yrgEXn+S8k2l3o95suJtOocGMBciWvdZd2CCgDnViEkhSgYI1nhxpS4+dbb8JsoSsifqzGAsPH5mBVznKzgov/svpKFYN8EzHJnH5PWHZtt+YAbRezX8F1Xs1pDLB4JEP6coy7YwOZlxjQQyUQn+o6V4jnBMrQPzXQQ4EzccsZjX56ztubi8UZbyvz6EST1n1mHYsDLF6EAjmj6VPb7Da52atMI6wz+5yws82zL+SRQi7P5yvgvxy1z+oZSgFVlvkEoWm8YS6xrE/zpMqJHQBa1jJcIcgaa0SzD2mpUAABEMwpXQN0vSOwk1CgxTzSiwBpioPa6gjEP4YLUxxwcdnKzvCBRG88VAqK6WfndSPlyBAL8MuEht6YkaLa86v6Kbz+y3xKeP/kxGv+6r7xVDX+mnulCUvlZV8gsj+txymEdd6p8U8FHRySqJ9g4ttuHFg0H2sPZ15qTQUcPJpU4bYR/0k+jel0DNFrli76BokTS1GI8O+vfKEDOyCEMTb+gDU+wy18aQiRhg30w3L2iJl5Rm4/0jJQg2Zf6cdJcR38Pir+yMOw4c141UHb8f7eIFsdCdF+mm1OgpZp2aqEPF0hyYMQnd0srnjofoywwruhz7UTTahmXAp1XVJQRTe4y70iy39FldPr6t1x3mdOA0L1fxDF9Oo7x16KlVPWT8veYSrt8+D0PrvN8124hB6a13hP4goBxTY615vpY0tZ+3lKDISDyRNonieMmhzJXziAFVfDkx6aB89ERAuCP+jRDDH/4dotaniiHqEWfw7HVznq2/lR74nOmy6IF3D+5GywMvUdeEv8HsfkwtIvkzFM2/0V5rMVp22X/+zasfobXnOrWLZ2jC14aQOm9Y+bZnnogXwJ+fcbvM8Hg7PhI5TYOW0wNG1+KhR8aiBkvtmc8germb5Fb85ClLqLoFvpP6cuZ/ynEp+RB9LYOAAApriCc7Qv5kWC5MmUCY+LSQJtEYTOrChcyvfYlWY34f47PK+hWQuzrceJwbAOexUv6EtjprGEsOY4F6Pm/01C9gwkaHMKniOOu8YNJhaP/RfyqAkYcX6P7NwGvYP2Crot8DJR3AwM/pu/m2hc3BgBQrq1GuGXyN7wPJ3H88kc4IFy33vIpOejBA+HBHw/vxTJXuxDMatGv/r4187ELbl6QFazqNkzQO5JPTB6oXXoknDge6IESwMxZVc0qnxuqTWgbDj3R8L2sH4Q7m5Ibbi58o/VbwUeBEI85FbTDVLPvEmWICjRZ45YyTSoKMiy40iPCyYmrB1luJvBWTBsKBfdgdMlNpfoP4XQ6eDHhn/382KJsHBCGE6KxcBKjE/XJ3PVe783LBx8Y9UGF5D1hN5+lqgi6ppMhFStciTugchuJBjHON+dvtaCo772dIL2R/VUbhO4jplOhf8ZtrPZJIXdaxA/om6uG9qYFGcdul4aoB1ikw8F28uxaEv88WGPSwZQThYeLhQkePr/0jKFp2yGQ1nDH5IXNKbPtoDAH+FZS8SffnUbS71Cdtb/sr40sz3L48cPp7GemoG8CvtV3wM7MZO57eytC6+0N1kQ4N/l5uvkKkvZEr9CQoW51Owk1ZUCaUVcAnvbseyNmJYKMjJvpOIXrulvAmk7//kujZkebDB9SZccKNK+bH+KxmC780hu6Xd9TNpYBrVopQtA9jl4bFc9GTHZa577ftvHFGS2pOthuX0nZyxuAkwAUboczGZ8S965S35V/Sua2U/Sz4DRtUOjW9gyUjuowhR8qIrLpCQkT+dDX1RgOplaGHlLgTdosLsqjKrvh9rDezYUnVXRBuBf5n1gV98HoCy333AkzUoNMAfhNivHqofJaeaiFuH9mNijEkXiPX7YR4PyHRrp3a9+JVqoGfiyvznx6ectqB7CM8knwGWzkgsjzCkJ6ciFW5Un5s/kFtMIVvHqQrbXrImw4q0IPMpSE7D0z1+Hqon995BmqjPaFI4oqFg9RE7Ug2b3HYEE1IwZV4cB46h92P7V/ngjmbdVvcXxTEMs6vNtbX7adN+16VuAIcPyBqepYA/WLQnhbQtF5/+vA/5O4/5cBxuuY8HJ8ECxzObiLg6cScIbD3JqDr0JkWEYR+JkTdX+XuOFA/NsJLH2SSw35eflacaTDKSUKeriq/O+Pz5uttkXSBQuSV4Mjz3crL+CL/ogtZ50yGGVxIJ8F4Co/u4fwwUmvedemcjYw7xYjoyi8q3SnJejJCx3Dm2ysIp91AL9MXu5e855wO0Kzw2RMiblpo3YcSD1olSJ8DvwDqk5qE/4hJqE5WCw4JQKY/B6rCPj8TL2IEnOWkFrGsoHC109XvJ9+9A3dnLVhOXQGkx8HJYyjD81DVQmaBF2D75yfIzvINNEZPrTJshHunVtBRYdGBcuBLUMPzfa71fXXiaohX7P6Kau8q0qgwnqapjpa395zwJaqHNZjoc5JbaW1zwUkoO4pN+Y7h+BeumjgHbWg/PM1MCWl+HdXuAW1U3ob1LZEkq0ApfidI7fPZNZjXffKracQHeu9iW3oeqXyczKaU90C0RWY4yCPHEfHZXC7jCInnuvrEvRIIkbj3mV+0Owdp9CD6cWixIX8NeFm4OFnY0t18wL9CLJJr8LHHvqPhfWvdcse+DP5i0PgMs/dP1rTZNMFtIPVh08eLhgq3pmxTRAuwGilzIP6ouQb0WLmeZ6y5sM901QBP6QzvYKZ6x2xrZHc1toTzdg0NYdK2AWwNvmlagVC6nXFW8t95Ms+6oWneArhtgDbqkJ0URVgu/4XGCrvxaI0qdmSxTQ5rIiUqp7eBPmwgd8/EOXODFKnEJAKwt/WTBFBsNW3fuyX55Ifr6jhS8Re6jdQvm6Zsm4AaHQNy7coiebIan4j4e9y+oGgKd+GMG/0/dWBfhGT1TmztbGRdSxGwMKWgub7wT4BMWtnJSgeLKvJ5ny1Qt8AXAEKuN6/FDM+sGbArUtKSN1Og7V7meUCXzmW06XF1SD/5BrcPuPEcPzGh/Ht+6sKcam7mX/ff32gBAsPelZL1HcXNrkNm0dOI1+l+bigLNbsjCfIWMSpLnnP0Arg/YXc0DxXmifZHrAvM1reEK59cYXwET6PqvQRXNieVTfkPlfcWiYIBlUeY4PoWzlGngicsmD+vLuHUEIHtHbHbo3QDrbEhfBMUOAaIUKq3G8ScLCgsTXZzAeJaSmUa1P4ZRTgBk5q1MKzUydDrYid+q6gNIEDRxwpoWdYdOd6g5WZBYLsu3XiCdF5ukaEQOCX2m6exbJaD+eHEVHxFUvBldoZYY3VCaESpahqzyIco5wQy7Q7+j3wHzkpeld3mYZIASZuFqlmkh3o1dZElzg181S8OdO4zV6rtzpo1KbKDOlfJxS7bGzY6Gq+Pcrjf9InXmhmkFqIL/xZnZtHsFD5IUzo/dlnDOv52rvHb0cgC/v6lC8BUSn+cVs5USL6w3JBldyOzAxuybZcSaH58zeFo3caaAwW5rKf4UrMIBgYJosBaaZwaTz1ZEhG6IcGtjMBMHYI8voLVczaRPMfblclOZc6oh7z5GsSBbff2uyosiP9sYYSb1b42YdW4cry2fY7dM3QLBIT0w1AHUbwMKIPbnmmGCKkvlPf8d9/Av312K/hpXLeLhBBwyKcXyIn4bXpecsIsO2zK9cMjYx38zNYtbLRFtEecYbnK/nlSvlmCiBS1M9ftBnfOt3tczh6zqroHNh7uxnpDKrn7vejvAUmEHXiTCRG4/kw67iwQ43B6TeiysXexB/QhgjSUChUqWJ1y/ZBRxoTyb5Ps8x50nfsLkD/eUxoOwCJZgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAClX3pya+nEiTweXxy/vY+8DMoeE4ABIafvAbjnqqKkCsQb8yDzX8nY+AruG1whuZpzPdYODTSeBj3m9IOOfZPbplF60dLlGfbKmwI06AL8j+dz57OMQNXCZKtqq+094MqGa7xVta6Bd+4acmAdx2wQRfNJIV0NmlpxVFTfGx1YP4vJ21T15xNKq1SFHjboXB37zGAl3uxaoqzLMR2BnOzq5t4VyDH3S/5V5PBvQ+AhUKue/W57q90pZD2A0+g1pTZYjPNmHrmR29k1//v1HDcVWTiT9MmWdx9g3x3Gk+SzHHHByX9P19eD1duLaE6lLNoGnqsQhsv488asWPtp0ST/kKwDR39EFSFGSfBUWOntFCS96L7NV2jtak/TK7C2st8MgR44ixOI3Y7JP7M9jJgOpZTdpjvCMzAqzPvkLGNC6fOSaBdrd9oybNNlCo5D4+46mubLduvVUSuiakJ73ikSP8uIZv2dtLDlcaFqh1ItbklJQ6+CCzHDt6/wAA="
+            }
+          }
+        ],
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": 1.0,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null,
+      "temperature": 1.0
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

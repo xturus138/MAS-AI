@@ -1,0 +1,438 @@
+{
+  "screen_id": "46338",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Icon Button - Back",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "arrow backward",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        38,
+        86,
+        109,
+        179
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        143,
+        208
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - Make a gift",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Make a gift",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        157,
+        84,
+        423,
+        142
+      ],
+      "ground_truth_bounds_px": [
+        162,
+        77,
+        422,
+        135
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 1.366158847569202,
+      "predicted_description": "Subtitle Text - costs 7 coins",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "costs 7 coins",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        157,
+        148,
+        407,
+        198
+      ],
+      "ground_truth_bounds_px": [
+        160,
+        140,
+        408,
+        194
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 2.3025850929940455,
+      "predicted_description": "Expandable List Header - Popular",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        213,
+        1080,
+        315
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        217,
+        1078,
+        498
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Flower bouquet",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a bouquet of flowers with a bow on a white background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        90,
+        361,
+        180,
+        459
+      ],
+      "ground_truth_bounds_px": [
+        72,
+        348,
+        194,
+        467
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Teddy bear",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a bouquet of flowers with a bow on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        361,
+        376,
+        459
+      ],
+      "ground_truth_bounds_px": [
+        72,
+        348,
+        194,
+        467
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Cat toy",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        361,
+        629,
+        453
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        217,
+        1078,
+        498
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Chocolate",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        369,
+        896,
+        451
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        217,
+        1078,
+        498
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 2.1639556568820564,
+      "predicted_description": "Expandable List Header - Flowers",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        505,
+        1080,
+        609
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        505,
+        1079,
+        790
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Tulips bouquet",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a bouquet of red roses with green leaves on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        653,
+        364,
+        753
+      ],
+      "ground_truth_bounds_px": [
+        74,
+        640,
+        196,
+        761
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Yellow flowers bouquet",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        653,
+        639,
+        751
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        505,
+        1079,
+        790
+      ]
+    },
+    {
+      "element_id": 13,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Red roses in pot",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        655,
+        902,
+        753
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        505,
+        1079,
+        790
+      ]
+    },
+    {
+      "element_id": 14,
+      "raw_dse": 2.0253262207700673,
+      "predicted_description": "Expandable List Header - Jewelry",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        799,
+        1080,
+        902
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        798,
+        1079,
+        1090
+      ]
+    },
+    {
+      "element_id": 15,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Ring box",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a ring with a blue stone in a red box .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        100,
+        950,
+        175,
+        1046
+      ],
+      "ground_truth_bounds_px": [
+        81,
+        938,
+        192,
+        1051
+      ]
+    },
+    {
+      "element_id": 16,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Heart pendants",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a ring with a blue stone in a red box .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        948,
+        356,
+        1046
+      ],
+      "ground_truth_bounds_px": [
+        81,
+        938,
+        192,
+        1051
+      ]
+    },
+    {
+      "element_id": 17,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "Grid Item - Flower ring",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a pair of heart shaped pendants with blue topaz on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        952,
+        633,
+        1044
+      ],
+      "ground_truth_bounds_px": [
+        279,
+        915,
+        541,
+        1074
+      ]
+    },
+    {
+      "element_id": 18,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Gold ring",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        948,
+        894,
+        1048
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        798,
+        1079,
+        1090
+      ]
+    },
+    {
+      "element_id": 19,
+      "raw_dse": 2.1639556568820564,
+      "predicted_description": "Expandable List Header - For ladies",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        1092,
+        1080,
+        1196
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1109,
+        1080,
+        1391
+      ]
+    },
+    {
+      "element_id": 20,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Grid Item - Blue high heel",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a pair of blue high heeled sandals with a bow on the back .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        90,
+        1246,
+        177,
+        1342
+      ],
+      "ground_truth_bounds_px": [
+        69,
+        1232,
+        190,
+        1349
+      ]
+    },
+    {
+      "element_id": 21,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Grid Item - Red high heel",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a pair of blue high heeled sandals with a bow on the back .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        1248,
+        360,
+        1340
+      ],
+      "ground_truth_bounds_px": [
+        69,
+        1232,
+        190,
+        1349
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 0,
+  "skipped_parse_failure": 9,
+  "elapsed_seconds": 2863.8,
+  "llm_calls": 1076,
+  "input_tokens": 197835,
+  "output_tokens": 6651,
+  "cost_usd": 0.3566,
+  "tokens_unavailable": false,
+  "widgets_detected": 29,
+  "widgets_measured": 20,
+  "dse_min": 0.0,
+  "dse_max": 2.303,
+  "dse_avg": 1.501
+}

@@ -1,0 +1,69 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_191738_340978",
+  "prompt_tokens": 1323,
+  "completion_tokens": 735,
+  "total_tokens": 2058,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 1 (text=Ants in phone, role=(unknown)):\n    - 8x: Header Text - Ants in phone\n    - 2x: Text - \"Ants in phone\"\n- Widget 2 (text=More options, role=(unknown)):\n    - 8x: Icon Button - More options\n    - 2x: Button - More Options (three vertical dots)\n- Widget 3 (text=Active icon, role=(unknown)):\n    - 3x: Status Icon - Active icon (Power icon)\n    - 2x: Icon - Active icon\n    - 4x: Icon - Power Icon\n    - 1x: Icon - Active\n- Widget 5 (text=Active switch, role=(unknown)):\n    - 6x: Switch Toggle - Active switch\n    - 3x: Toggle Switch - Active Switch (off state)\n    - 1x: Switch - Active status\n- Widget 6 (text=Active row, role=(unknown)):\n    - 3x: Settings Row - Active row\n    - 1x: Container - Active row\n    - 2x: List Item - Active row container\n    - 2x: Clickable Row - Active row\n    - 1x: Clickable Row - Active status option\n    - 1x: Container Row - Active row\n- Widget 7 (text=Time between ants icon, role=(unknown)):\n    - 1x: Status Icon - Time between ants icon (Clock icon)\n    - 3x: Icon - Time between ants icon\n    - 4x: Icon - Clock Icon\n    - 1x: Icon - Time between ants (clock symbol)\n    - 1x: Icon - Time between ants\n- Widget 9 (text=Time between ants row, role=(unknown)):\n    - 7x: Settings Row - Time between ants row\n    - 1x: Container - Time between ants row\n    - 1x: Clickable Row - Time between ants row\n    - 1x: Container Row - Time between ants row\n- Widget 10 (text=Play sounds icon, role=(unknown)):\n    - 1x: Status Icon - Play sounds icon (Speaker icon)\n    - 3x: Icon - Play sounds icon\n    - 5x: Icon - Speaker Icon\n    - 1x: Icon - Play sounds\n- Widget 12 (text=Play sounds switch, role=(unknown)):\n    - 7x: Switch Toggle - Play sounds switch\n    - 3x: Toggle Switch - Play sounds Switch (off state)\n- Widget 13 (text=Play sounds row, role=(unknown)):\n    - 4x: Settings Row - Play sounds row\n    - 1x: Container - Play sounds row\n    - 4x: List Item - Play sounds row container\n    - 1x: Clickable Row - Play sounds row\n- Widget 14 (text=Auto start on boot icon, role=(unknown)):\n    - 1x: Status Icon - Auto start on boot icon (Mobile icon)\n    - 4x: Icon - Auto start on boot icon\n    - 1x: Icon - Phone Icon\n    - 1x: Icon - Mobile device with gear icon\n    - 1x: Icon - Mobile device symbol\n    - 1x: Icon - Phone boot icon\n    - 1x: Icon - Auto start on boot (phone symbol)\n- Widget 16 (text=Auto start on boot switch, role=(unknown)):\n    - 5x: Switch Toggle - Auto start on boot switch\n    - 1x: Switch - Auto start on boot switch\n    - 3x: Toggle Switch - Auto start on boot Switch (on state)\n    - 1x: Switch - Auto start status\n- Widget 17 (text=Auto start on boot row, role=(unknown)):\n    - 8x: Settings Row - Auto start on boot row\n    - 1x: Container - Auto start on boot row\n    - 1x: Container Row - Auto start on boot row\n- Widget 18 (text=Statistics, role=(unknown)):\n    - 8x: Section Header - Statistics\n    - 1x: Text - \"Statistics\"\n    - 1x: Header Text - Statistics\n- Widget 19 (text=Ants header, role=(unknown)):\n    - 6x: Table Header - Ants\n    - 4x: Table Column Header - Ants\n- Widget 20 (text=Squashed header, role=(unknown)):\n    - 6x: Table Header - Squashed\n    - 4x: Table Column Header - Squashed\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "screen_id": "56373",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Icon Button - Back (Left Arrow)",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "arrow backward",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        36,
+        73,
+        106
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        29,
+        71,
+        104
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - Mix Pad",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Mix Pad",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        95,
+        56,
+        190,
+        81
+      ],
+      "ground_truth_bounds_px": [
+        93,
+        52,
+        190,
+        82
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.0,
+      "predicted_description": "Icon Button - Add (+)",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white plus sign on a black background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        475,
+        36,
+        540,
+        106
+      ],
+      "ground_truth_bounds_px": [
+        478,
+        37,
+        539,
+        97
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Interactive Element - Campfire sound (circular image on grid)",
+      "ground_truth_type": "IMAGE",
+      "ground_truth_text": "a radar screen shows a person with a fire in their face",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        222,
+        415,
+        318,
+        512
+      ],
+      "ground_truth_bounds_px": [
+        6,
+        182,
+        529,
+        739
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.6730116670092565,
+      "predicted_description": "Instruction Text - Drag sound to change audio position. Tap sound to edit audio properties.",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Drag sound to change audio position. Tap sound to edit audio properties.",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        84,
+        780,
+        456,
+        829
+      ],
+      "ground_truth_bounds_px": [
+        68,
+        772,
+        467,
+        834
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 3,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 559.8,
+  "llm_calls": 249,
+  "input_tokens": 60751,
+  "output_tokens": 2301,
+  "cost_usd": 0.1118,
+  "tokens_unavailable": false,
+  "widgets_detected": 8,
+  "widgets_measured": 8,
+  "dse_min": 0.0,
+  "dse_max": 1.609,
+  "dse_avg": 0.806
+}

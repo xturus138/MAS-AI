@@ -1,0 +1,69 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_193408_416405",
+  "prompt_tokens": 130,
+  "completion_tokens": 1,
+  "total_tokens": 131,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are assessing whether an automated description of a mobile app UI widget matches a human-verified ground-truth description of the same widget. Respond only with yes or no.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "We are assessing the quality of descriptions of a UI widget on the screen described as: N/A (calibration: Screen Annotation sample, out-of-domain screen)\nThe expected widget description is: a white arrow pointing to the right on a gray surface .\nThe proposed widget description is: Navigation Arrow Button - Forward navigation arrow\nWithin the context of this screen, does the proposed description mean the same as the expected description? Respond only with yes or no.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

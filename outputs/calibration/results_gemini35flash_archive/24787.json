@@ -1,0 +1,438 @@
+{
+  "screen_id": "24787",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.5004024235381879,
+      "predicted_description": "Icon Button - Menu",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a hamburger menu icon on a white background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        36,
+        83,
+        109,
+        169
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        142,
+        196
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.6931471805599453,
+      "predicted_description": "Input Field - Search or type URL",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Search or type URL",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        140,
+        83,
+        594,
+        169
+      ],
+      "ground_truth_bounds_px": [
+        219,
+        92,
+        591,
+        154
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "Icon Button - More options",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "three dots",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        988,
+        83,
+        1044,
+        169
+      ],
+      "ground_truth_bounds_px": [
+        960,
+        65,
+        1080,
+        186
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.0,
+      "predicted_description": "Icon - InBrowser Icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white ghost with a hat , sunglasses and a pipe .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        221,
+        227,
+        303,
+        323
+      ],
+      "ground_truth_bounds_px": [
+        213,
+        227,
+        309,
+        319
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - Waiting for: http://inbrowser",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "http://inbrowser",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        346,
+        227,
+        626,
+        323
+      ],
+      "ground_truth_bounds_px": [
+        355,
+        277,
+        626,
+        321
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 1.2275294114572126,
+      "predicted_description": "Icon Button - More options",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "three blue circles are lined up in a row on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        988,
+        227,
+        1044,
+        323
+      ],
+      "ground_truth_bounds_px": [
+        982,
+        233,
+        1050,
+        317
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 1.4978661367769952,
+      "predicted_description": "Icon Button - Back",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "arrow backward",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        221,
+        1555,
+        303,
+        1651
+      ],
+      "ground_truth_bounds_px": [
+        199,
+        1536,
+        324,
+        1662
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 1.6094379124341003,
+      "predicted_description": "Icon Button - Refresh",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a blue circle with an arrow pointing down in the middle .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        583,
+        1555,
+        665,
+        1651
+      ],
+      "ground_truth_bounds_px": [
+        579,
+        1563,
+        669,
+        1641
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Icon Button - Forward",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "arrow forward",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        945,
+        1555,
+        1027,
+        1651
+      ],
+      "ground_truth_bounds_px": [
+        945,
+        1563,
+        1027,
+        1641
+      ]
+    },
+    {
+      "element_id": 10,
+      "raw_dse": 0.0,
+      "predicted_description": "Button - NEW TAB",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "NEW TAB",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        529,
+        1690,
+        718,
+        1776
+      ],
+      "ground_truth_bounds_px": [
+        538,
+        1705,
+        711,
+        1764
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Text - Internet S...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Internet",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        32,
+        346,
+        167,
+        413
+      ],
+      "ground_truth_bounds_px": [
+        31,
+        350,
+        168,
+        396
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 0.8979457248567797,
+      "predicted_description": "Input Field - Input box",
+      "ground_truth_type": "TEXT_INPUT",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        38,
+        442,
+        167,
+        534
+      ],
+      "ground_truth_bounds_px": [
+        36,
+        438,
+        171,
+        532
+      ]
+    },
+    {
+      "element_id": 13,
+      "raw_dse": 1.3592367006650063,
+      "predicted_description": "Text - General t...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "General t",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        32,
+        787,
+        167,
+        845
+      ],
+      "ground_truth_bounds_px": [
+        34,
+        788,
+        166,
+        836
+      ]
+    },
+    {
+      "element_id": 14,
+      "raw_dse": 1.4978661367769952,
+      "predicted_description": "Button - April T...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "April T",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        54,
+        883,
+        167,
+        970
+      ],
+      "ground_truth_bounds_px": [
+        58,
+        894,
+        164,
+        957
+      ]
+    },
+    {
+      "element_id": 15,
+      "raw_dse": 1.4978661367769952,
+      "predicted_description": "Button - Bellagi...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Bellagi",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        54,
+        989,
+        167,
+        1075
+      ],
+      "ground_truth_bounds_px": [
+        59,
+        994,
+        164,
+        1055
+      ]
+    },
+    {
+      "element_id": 16,
+      "raw_dse": 1.4978661367769952,
+      "predicted_description": "Button - Good F...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Good P",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        54,
+        1094,
+        167,
+        1181
+      ],
+      "ground_truth_bounds_px": [
+        62,
+        1094,
+        162,
+        1153
+      ]
+    },
+    {
+      "element_id": 17,
+      "raw_dse": 1.4978661367769952,
+      "predicted_description": "Button - Good F...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Good F",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        54,
+        1200,
+        167,
+        1286
+      ],
+      "ground_truth_bounds_px": [
+        65,
+        1195,
+        163,
+        1253
+      ]
+    },
+    {
+      "element_id": 18,
+      "raw_dse": 0.8018185525433372,
+      "predicted_description": "Text - Tip: On both...",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Tip: On both search for \"I",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        22,
+        1690,
+        167,
+        1776
+      ],
+      "ground_truth_bounds_px": [
+        14,
+        1678,
+        166,
+        1776
+      ]
+    },
+    {
+      "element_id": 19,
+      "raw_dse": 1.2798542258336676,
+      "predicted_description": "Icon Button - Back",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white triangle on a black background is a very small triangle .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        194,
+        1805,
+        275,
+        1901
+      ],
+      "ground_truth_bounds_px": [
+        200,
+        1816,
+        276,
+        1889
+      ]
+    },
+    {
+      "element_id": 20,
+      "raw_dse": 0.9502705392332347,
+      "predicted_description": "Icon Button - Home",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white circle on a black background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        508,
+        1805,
+        572,
+        1901
+      ],
+      "ground_truth_bounds_px": [
+        499,
+        1816,
+        578,
+        1889
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 0,
+  "skipped_parse_failure": 1,
+  "elapsed_seconds": 2733.5,
+  "llm_calls": 742,
+  "input_tokens": 142596,
+  "output_tokens": 5116,
+  "cost_usd": 0.2599,
+  "tokens_unavailable": false,
+  "widgets_detected": 21,
+  "widgets_measured": 20,
+  "dse_min": 0.0,
+  "dse_max": 1.609,
+  "dse_avg": 1.023
+}

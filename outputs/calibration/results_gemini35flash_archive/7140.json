@@ -1,0 +1,375 @@
+{
+  "screen_id": "7140",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.8018185525433372,
+      "predicted_description": "Image - RealBlackLove logo",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "RealBlackLove",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        171,
+        104,
+        622,
+        165
+      ],
+      "ground_truth_bounds_px": [
+        166,
+        98,
+        629,
+        169
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Icon Button - Facebook icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white facebook logo in a circle on a black background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        806,
+        102,
+        878,
+        173
+      ],
+      "ground_truth_bounds_px": [
+        799,
+        90,
+        882,
+        179
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Icon Button - Twitter icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "twitter",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        899,
+        102,
+        971,
+        173
+      ],
+      "ground_truth_bounds_px": [
+        893,
+        92,
+        973,
+        177
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Icon Button - Instagram icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white instagram logo in a circle on a black background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        991,
+        102,
+        1063,
+        173
+      ],
+      "ground_truth_bounds_px": [
+        987,
+        92,
+        1067,
+        177
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 1.0296530140645737,
+      "predicted_description": "Image - Profile picture placeholder",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "person",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        31,
+        603,
+        387,
+        922
+      ],
+      "ground_truth_bounds_px": [
+        30,
+        613,
+        381,
+        938
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - Not straight? Rotate photo",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Not straight? Rotate photo",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        427,
+        816,
+        885,
+        860
+      ],
+      "ground_truth_bounds_px": [
+        421,
+        805,
+        895,
+        859
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "Icon Button - Rotate photo button",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a black arrow pointing in a circle on a white background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        451,
+        864,
+        517,
+        924
+      ],
+      "ground_truth_bounds_px": [
+        442,
+        859,
+        525,
+        930
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Button - Add Main Photo",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Add Main Photo",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        349,
+        1008,
+        730,
+        1058
+      ],
+      "ground_truth_bounds_px": [
+        348,
+        997,
+        733,
+        1063
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - Your Username:",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Your Username:",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        21,
+        1116,
+        399,
+        1158
+      ],
+      "ground_truth_bounds_px": [
+        17,
+        1105,
+        476,
+        1172
+      ]
+    },
+    {
+      "element_id": 10,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Input Field - Username input field",
+      "ground_truth_type": "TEXT_INPUT",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        491,
+        1100,
+        1058,
+        1208
+      ],
+      "ground_truth_bounds_px": [
+        485,
+        1095,
+        1061,
+        1209
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - Email Address:",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Email Address:",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        21,
+        1258,
+        375,
+        1300
+      ],
+      "ground_truth_bounds_px": [
+        22,
+        1245,
+        491,
+        1315
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Input Field - Email input field",
+      "ground_truth_type": "TEXT_INPUT",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        491,
+        1242,
+        1058,
+        1350
+      ],
+      "ground_truth_bounds_px": [
+        486,
+        1236,
+        1063,
+        1351
+      ]
+    },
+    {
+      "element_id": 13,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - Password:",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Password:",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        21,
+        1400,
+        271,
+        1442
+      ],
+      "ground_truth_bounds_px": [
+        18,
+        1384,
+        492,
+        1453
+      ]
+    },
+    {
+      "element_id": 14,
+      "raw_dse": 0.5004024235381879,
+      "predicted_description": "Input Field - Password input field",
+      "ground_truth_type": "TEXT_INPUT",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        491,
+        1384,
+        1058,
+        1492
+      ],
+      "ground_truth_bounds_px": [
+        486,
+        1380,
+        1062,
+        1495
+      ]
+    },
+    {
+      "element_id": 15,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - Retype Password:",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Retype Password:",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        21,
+        1542,
+        446,
+        1592
+      ],
+      "ground_truth_bounds_px": [
+        19,
+        1528,
+        462,
+        1599
+      ]
+    },
+    {
+      "element_id": 16,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Input Field - Retype Password input field",
+      "ground_truth_type": "TEXT_INPUT",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        491,
+        1526,
+        1058,
+        1634
+      ],
+      "ground_truth_bounds_px": [
+        486,
+        1520,
+        1058,
+        1636
+      ]
+    },
+    {
+      "element_id": 18,
+      "raw_dse": 0.8018185525433372,
+      "predicted_description": "Dropdown Selector - Country dropdown selector",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        495,
+        1668,
+        1058,
+        1770
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1645,
+        1079,
+        1787
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 1,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 858.7,
+  "llm_calls": 405,
+  "input_tokens": 86753,
+  "output_tokens": 4018,
+  "cost_usd": 0.1663,
+  "tokens_unavailable": false,
+  "widgets_detected": 18,
+  "widgets_measured": 18,
+  "dse_min": 0.0,
+  "dse_max": 1.03,
+  "dse_avg": 0.466
+}

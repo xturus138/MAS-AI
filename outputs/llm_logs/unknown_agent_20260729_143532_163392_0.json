@@ -1,0 +1,69 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_143532_163392",
+  "prompt_tokens": 818,
+  "completion_tokens": 321,
+  "total_tokens": 1139,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 4 (text=We are so excited you have chosen to use Glow to track your cycles and take control of your reproductive health! Please remember the more you log, the more accurate Glow becomes. Let's get started!, role=(unknown)):\n    - 8x: Body Text - We are so excited you have chosen to use Glow to track your cycles and take control of your reproductive health! Please remember the more you log, the more accurate Glow becomes. Let's get started!\n    - 1x: Description Text - Welcome message explaining how to use Glow to track reproductive health.\n    - 1x: Text - Welcome/Introduction body message\n- Widget 6 (text=Hide, role=(unknown)):\n    - 1x: Text Link - Hide\n    - 8x: Button - Hide\n    - 1x: Text Button - Hide\n- Widget 7 (text=Check out the Glow Community, role=(unknown)):\n    - 8x: Tooltip/Popup - Check out the Glow Community\n    - 1x: Text Bubble - Check out the Glow Community\n    - 1x: Tooltip Text - Check out the Glow Community\n- Widget 8 (text=G icon, role=(unknown)):\n    - 1x: Navigation Tab - G icon\n    - 3x: Navigation Button - G icon\n    - 1x: Navigation Icon - G icon\n    - 2x: Bottom Navigation Icon - G icon\n    - 1x: Bottom Navigation Tab - G icon\n    - 1x: Navigation Icon Button - G icon\n    - 1x: Navigation Tab Button - Glow (G) Icon\n- Widget 9 (text=Chat icon, role=(unknown)):\n    - 2x: Navigation Tab - Chat icon\n    - 3x: Navigation Button - Chat icon\n    - 1x: Navigation Icon - Chat icon\n    - 3x: Bottom Navigation Icon - Chat icon\n    - 1x: Navigation Icon Button - Chat icon\n- Widget 12 (text=Profile icon, role=(unknown)):\n    - 2x: Navigation Tab - Profile icon\n    - 3x: Navigation Button - Profile icon\n    - 1x: Navigation Icon - Profile icon\n    - 2x: Bottom Navigation Icon - Profile icon\n    - 1x: Navigation Icon Button - Profile icon\n    - 1x: Bottom Navigation Tab - Profile icon\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

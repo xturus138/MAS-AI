@@ -1,0 +1,69 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_151358_341789",
+  "prompt_tokens": 1160,
+  "completion_tokens": 453,
+  "total_tokens": 1613,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 1 (text=PLEASE CHOOSE, role=(unknown)):\n    - 5x: Label Text - PLEASE CHOOSE\n    - 5x: Text Header - PLEASE CHOOSE\n- Widget 2 (text=What's your budget?, role=(unknown)):\n    - 3x: Selector Button - What's your budget?\n    - 1x: List Item Button - What's your budget?\n    - 1x: Clickable Menu Item - What's your budget?\n    - 1x: Navigation List Item - What's your budget?\n    - 1x: List Item / Button - What's your budget?\n    - 1x: Navigation Button - What's your budget?\n    - 1x: List Item / Selection Button - What's your budget?\n    - 1x: Filter Button - What's your budget?\n- Widget 3 (text=What type of jewellery?, role=(unknown)):\n    - 3x: Selector Button - What type of jewellery?\n    - 1x: List Item Button - What type of jewellery?\n    - 1x: Clickable Menu Item - What type of jewellery?\n    - 1x: Navigation List Item - What type of jewellery?\n    - 1x: List Item / Button - What type of jewellery?\n    - 1x: Navigation Button - What type of jewellery?\n    - 1x: List Item / Selection Button - What type of jewellery?\n    - 1x: Filter Button - What type of jewellery?\n- Widget 4 (text=What type of material?, role=(unknown)):\n    - 4x: Selector Button - What type of material?\n    - 1x: List Item Button - What type of material?\n    - 1x: Clickable Menu Item - What type of material?\n    - 1x: Navigation List Item - What type of material?\n    - 1x: List Item / Button - What type of material?\n    - 1x: Navigation Button - What type of material?\n    - 1x: Filter Button - What type of material?\n- Widget 5 (text=Branco, role=(unknown)):\n    - 4x: Selector Button - Branco\n    - 1x: List Item Button - Branco\n    - 1x: Clickable Menu Item - Branco\n    - 1x: Navigation List Item - Branco\n    - 1x: List Item / Button - Branco\n    - 1x: Navigation Button - Branco\n    - 1x: Filter Button - Branco\n- Widget 6 (text=Show results (56), role=(unknown)):\n    - 2x: Action Button - Show results (56)\n    - 8x: Primary Button - Show results (56)\n- Widget 7 (text=Jewellery, role=(unknown)):\n    - 7x: Navigation Tab - Jewellery\n    - 2x: Bottom Navigation Tab - Jewellery\n    - 1x: Tab Bar Item - Jewellery (Diamond Icon)\n- Widget 8 (text=Find gift, role=(unknown)):\n    - 6x: Navigation Tab - Find gift\n    - 2x: Bottom Navigation Tab - Find gift\n    - 1x: Navigation Tab (Selected) - Find gift\n    - 1x: Tab Bar Item - Find gift (Gift Icon)\n- Widget 9 (text=Find store, role=(unknown)):\n    - 7x: Navigation Tab - Find store\n    - 2x: Bottom Navigation Tab - Find store\n    - 1x: Tab Bar Item - Find store (Location Icon)\n- Widget 10 (text=PANDORA Club, role=(unknown)):\n    - 7x: Navigation Tab - PANDORA Club\n    - 2x: Bottom Navigation Tab - PANDORA Club\n    - 1x: Tab Bar Item - PANDORA Club (Logo Icon)\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

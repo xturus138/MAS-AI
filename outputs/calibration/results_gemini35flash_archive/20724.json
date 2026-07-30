@@ -1,0 +1,186 @@
+{
+  "screen_id": "20724",
+  "widgets": [
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Image - ooVoo Logo",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "odvbo",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        160,
+        240,
+        379,
+        308
+      ],
+      "ground_truth_bounds_px": [
+        151,
+        234,
+        386,
+        319
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.0,
+      "predicted_description": "Button - CONTINUE WITH FACEBOOK",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "f CONTINUE WITH FACEBOOK",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        17,
+        348,
+        522,
+        407
+      ],
+      "ground_truth_bounds_px": [
+        16,
+        347,
+        522,
+        406
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.0,
+      "predicted_description": "Button - CONTINUE WITH GOOGLE",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "G+ CONTINUE WITH GOOGLE",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        17,
+        429,
+        522,
+        488
+      ],
+      "ground_truth_bounds_px": [
+        16,
+        427,
+        522,
+        486
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.6931471805599453,
+      "predicted_description": "Text - or",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "or",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        261,
+        510,
+        279,
+        527
+      ],
+      "ground_truth_bounds_px": [
+        258,
+        506,
+        281,
+        531
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.0,
+      "predicted_description": "Button - SIGN UP USING EMAIL",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "SIGN UP USING EMAIL",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        17,
+        544,
+        522,
+        603
+      ],
+      "ground_truth_bounds_px": [
+        16,
+        543,
+        523,
+        603
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.0,
+      "predicted_description": "Text - Already have an account?",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Already have an account?",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        120,
+        848,
+        356,
+        868
+      ],
+      "ground_truth_bounds_px": [
+        118,
+        842,
+        355,
+        871
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 0.0,
+      "predicted_description": "Text Link - Log In",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Log In",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        361,
+        848,
+        420,
+        868
+      ],
+      "ground_truth_bounds_px": [
+        360,
+        839,
+        422,
+        874
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Navigation Bar - System Navigation Bar",
+      "ground_truth_type": "NAVIGATION_BAR",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        897,
+        540,
+        960
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        900,
+        539,
+        960
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 1,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 676.6,
+  "llm_calls": 190,
+  "input_tokens": 50353,
+  "output_tokens": 2072,
+  "cost_usd": 0.0942,
+  "tokens_unavailable": false,
+  "widgets_detected": 9,
+  "widgets_measured": 9,
+  "dse_min": 0.0,
+  "dse_max": 0.693,
+  "dse_avg": 0.149
+}

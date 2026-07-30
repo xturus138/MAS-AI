@@ -1,0 +1,81 @@
+{
+  "screen_id": "57848",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - Fever Check Thermometer",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Fever Check Thermometer",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        41,
+        111,
+        674,
+        163
+      ],
+      "ground_truth_bounds_px": [
+        40,
+        106,
+        663,
+        165
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Icon Button - More options",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "three dots",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        1013,
+        108,
+        1030,
+        159
+      ],
+      "ground_truth_bounds_px": [
+        979,
+        75,
+        1080,
+        194
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Image - Thermometer icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "edit",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        336,
+        328,
+        743,
+        732
+      ],
+      "ground_truth_bounds_px": [
+        330,
+        311,
+        746,
+        734
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 5,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 417.6,
+  "llm_calls": 193,
+  "input_tokens": 55044,
+  "output_tokens": 2482,
+  "cost_usd": 0.1049,
+  "tokens_unavailable": false,
+  "widgets_detected": 8,
+  "widgets_measured": 8,
+  "dse_min": 0.0,
+  "dse_max": 0.802,
+  "dse_avg": 0.35
+}

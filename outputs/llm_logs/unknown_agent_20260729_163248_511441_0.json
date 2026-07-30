@@ -1,0 +1,69 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_163248_511441",
+  "prompt_tokens": 1319,
+  "completion_tokens": 749,
+  "total_tokens": 2068,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 1 (text=Toolbar, role=(unknown)):\n    - 1x: Toolbar - App Header Background\n    - 5x: Toolbar - Top action bar container\n    - 4x: Header Bar - Purple Toolbar\n- Widget 2 (text=Menu, role=(unknown)):\n    - 4x: Icon Button - Menu Icon\n    - 6x: Icon Button - Menu (Hamburger)\n- Widget 3 (text=All Categories, role=(unknown)):\n    - 9x: Header Text - All Categories\n    - 1x: Text - All Categories\n- Widget 4 (text=Search, role=(unknown)):\n    - 9x: Icon Button - Search Icon\n    - 1x: Icon Button - Search\n- Widget 5 (text=Cart, role=(unknown)):\n    - 5x: Icon Button - Cart Icon\n    - 5x: Icon Button - Cart (with notification badge)\n- Widget 6 (text=Jet Wholesale, role=(unknown)):\n    - 2x: List Item/Button - Jet Wholesale\n    - 1x: Navigation Link - Jet Wholesale\n    - 6x: List Item - Jet Wholesale\n    - 1x: List Item Button - \"Jet Wholesale\" with package icon\n- Widget 7 (text=New Year, Do You, role=(unknown)):\n    - 3x: List Item/Button - New Year, Do You\n    - 1x: Navigation Link - New Year, Do You\n    - 5x: List Item - New Year, Do You\n    - 1x: List Item Button - \"New Year, Do You\" with year icon\n- Widget 8 (text=Grocery, role=(unknown)):\n    - 7x: List Item/Button - Grocery\n    - 1x: Navigation Link - Grocery\n    - 1x: List Item Button - \"Grocery\" with apple icon\n    - 1x: List Item - Grocery\n- Widget 9 (text=Household Supplies, role=(unknown)):\n    - 3x: List Item/Button - Household Supplies\n    - 1x: Navigation Link - Household Supplies\n    - 5x: List Item - Household Supplies\n    - 1x: List Item Button - \"Household Supplies\" with jug icon\n- Widget 10 (text=Health & Beauty, role=(unknown)):\n    - 8x: List Item/Button - Health & Beauty\n    - 1x: Navigation Link - Health & Beauty\n    - 1x: List Item Button - \"Health & Beauty\" with medical cross icon\n- Widget 11 (text=Baby, role=(unknown)):\n    - 6x: List Item/Button - Baby\n    - 1x: Navigation Link - Baby\n    - 2x: List Item - Baby\n    - 1x: List Item Button - \"Baby\" with feeding bottle icon\n- Widget 12 (text=Pet Supplies, role=(unknown)):\n    - 3x: List Item/Button - Pet Supplies\n    - 1x: Navigation Link - Pet Supplies\n    - 5x: List Item - Pet Supplies\n    - 1x: List Item Button - \"Pet Supplies\" with fish icon\n- Widget 13 (text=Electronics & Computers, role=(unknown)):\n    - 4x: List Item/Button - Electronics & Computers\n    - 1x: Navigation Link - Electronics & Computers\n    - 4x: List Item - Electronics & Computers\n    - 1x: List Item Button - \"Electronics & Computers\" with camera icon\n- Widget 14 (text=Appliances, role=(unknown)):\n    - 4x: List Item/Button - Appliances\n    - 1x: Navigation Link - Appliances\n    - 4x: List Item - Appliances\n    - 1x: List Item Button - \"Appliances\" with square icon\n- Widget 15 (text=Home & Garden, role=(unknown)):\n    - 8x: List Item/Button - Home & Garden\n    - 1x: Navigation Link - Home & Garden\n    - 1x: List Item Button - \"Home & Garden\" with lamp icon\n- Widget 16 (text=Furniture, role=(unknown)):\n    - 7x: List Item/Button - Furniture\n    - 1x: Navigation Link - Furniture\n    - 1x: List Item - Furniture\n    - 1x: List Item Button - \"Furniture\" with chair icon\n- Widget 17 (text=Navigation Bar, role=(unknown)):\n    - 9x: Navigation Bar - Android System Navigation Bar\n    - 1x: Navigation Bar - System Navigation Bar\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

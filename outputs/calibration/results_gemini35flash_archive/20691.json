@@ -1,0 +1,228 @@
+{
+  "screen_id": "20691",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.0,
+      "predicted_description": "Tab Button - Notifications",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Notifications",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        80,
+        57,
+        188,
+        77
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        26,
+        270,
+        108
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Tab Button - Reminders",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "Reminders",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        361,
+        57,
+        449,
+        77
+      ],
+      "ground_truth_bounds_px": [
+        269,
+        27,
+        539,
+        108
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - Welcome to Glow!",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Welcome to Glow!",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        21,
+        132,
+        212,
+        153
+      ],
+      "ground_truth_bounds_px": [
+        18,
+        126,
+        216,
+        157
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Body Text - \"We are so excited you have chosen to use Glow to track your cycles and take control of your reproductive health! Please remember the more you log, the more accurate Glow becomes. Let's get started!\"",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "We are so excited you have chosen to use Glow to track your cycles and take control of your reproductive health! Please remember the more you log, the more accurate Glow becomes. Let's get started!",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        21,
+        173,
+        509,
+        270
+      ],
+      "ground_truth_bounds_px": [
+        18,
+        166,
+        519,
+        269
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.0,
+      "predicted_description": "Timestamp Text - 2 min. ago,",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "2 min. ago, Hide",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        21,
+        287,
+        110,
+        307
+      ],
+      "ground_truth_bounds_px": [
+        16,
+        281,
+        157,
+        309
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Button - Hide",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "2 min. ago, Hide",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        116,
+        287,
+        154,
+        307
+      ],
+      "ground_truth_bounds_px": [
+        16,
+        281,
+        157,
+        309
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "Tooltip Text - Check out the Glow Community",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Check out the Glow Community",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        68,
+        737,
+        215,
+        811
+      ],
+      "ground_truth_bounds_px": [
+        67,
+        736,
+        213,
+        802
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 1.8343719702816235,
+      "predicted_description": "Navigation Icon - G icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a gray letter g on a white background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        30,
+        837,
+        59,
+        872
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        814,
+        92,
+        895
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 1.5047882836811908,
+      "predicted_description": "Navigation Icon - Chat icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a gray speech bubble with a shadow on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        124,
+        837,
+        154,
+        873
+      ],
+      "ground_truth_bounds_px": [
+        117,
+        832,
+        162,
+        874
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 1.6957425341696346,
+      "predicted_description": "Navigation Icon - Profile icon",
+      "ground_truth_type": "NAVIGATION_BAR",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        0,
+        837,
+        482,
+        871
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        813,
+        539,
+        897
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 0,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 1233.5,
+  "llm_calls": 320,
+  "input_tokens": 73951,
+  "output_tokens": 2849,
+  "cost_usd": 0.1366,
+  "tokens_unavailable": false,
+  "widgets_detected": 10,
+  "widgets_measured": 10,
+  "dse_min": 0.0,
+  "dse_max": 1.834,
+  "dse_avg": 0.695
+}

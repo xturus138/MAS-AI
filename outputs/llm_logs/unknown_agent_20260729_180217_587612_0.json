@@ -1,0 +1,69 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_180217_587612",
+  "prompt_tokens": 1829,
+  "completion_tokens": 720,
+  "total_tokens": 2549,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 1 (text=GIFS + EMOJIS, role=(unknown)):\n    - 9x: Header Text - GIFS + EMOJIS\n    - 1x: Text - GIFS + EMOJIS\n- Widget 2 (text=GIFS, role=(unknown)):\n    - 9x: Tab Button - GIFS\n    - 1x: Button - GIFS\n- Widget 3 (text=EMOJIS, role=(unknown)):\n    - 9x: Tab Button - EMOJIS\n    - 1x: Button - EMOJIS\n- Widget 4 (text=Jyn Erso Emoji, role=(unknown)):\n    - 6x: Icon Button - Jyn Erso Emoji\n    - 2x: Grid Item - Jyn Erso Emoji\n    - 1x: Button - Jyn Erso Emoji\n    - 1x: Grid Item Button - Jyn Erso Emoji\n- Widget 5 (text=Jyn Erso (Alternate) Emoji, role=(unknown)):\n    - 5x: Icon Button - Jyn Erso (Alternate) Emoji\n    - 2x: Grid Item - Jyn Erso (Alternate) Emoji\n    - 1x: Button - Jyn Erso (Alternate) Emoji\n    - 1x: Grid Item Button - Jyn Erso (Alternate) Emoji\n    - 1x: Image Button - Jyn Erso (Alternate) Emoji\n- Widget 6 (text=Cassian Andor Emoji, role=(unknown)):\n    - 6x: Icon Button - Cassian Andor Emoji\n    - 2x: Grid Item - Cassian Andor Emoji\n    - 1x: Button - Cassian Andor Emoji\n    - 1x: Grid Item Button - Cassian Andor Emoji\n- Widget 7 (text=Death Trooper Emoji, role=(unknown)):\n    - 5x: Icon Button - Death Trooper Emoji\n    - 2x: Grid Item - Death Trooper Emoji\n    - 1x: Button - Death Trooper Emoji\n    - 1x: Grid Item Button - Death Trooper Emoji\n    - 1x: Image Button - Death Trooper Emoji\n- Widget 8 (text=Bistan Emoji, role=(unknown)):\n    - 6x: Icon Button - Bistan Emoji\n    - 2x: Grid Item - Bistan Emoji\n    - 1x: Button - Bistan Emoji\n    - 1x: Grid Item Button - Bistan Emoji\n- Widget 9 (text=Bodhi Rook Emoji, role=(unknown)):\n    - 6x: Icon Button - Bodhi Rook Emoji\n    - 2x: Grid Item - Bodhi Rook Emoji\n    - 1x: Button - Bodhi Rook Emoji\n    - 1x: Grid Item Button - Bodhi Rook Emoji\n- Widget 10 (text=Chirrut Îmwe Emoji, role=(unknown)):\n    - 5x: Icon Button - Chirrut Îmwe Emoji\n    - 2x: Grid Item - Chirrut Îmwe Emoji\n    - 1x: Button - Chirrut Îmwe Emoji\n    - 1x: Grid Item Button - Chirrut Îmwe Emoji\n    - 1x: Image Button - Chirrut Îmwe Emoji\n- Widget 11 (text=Saw Gerrera Emoji, role=(unknown)):\n    - 6x: Icon Button - Saw Gerrera Emoji\n    - 2x: Grid Item - Saw Gerrera Emoji\n    - 1x: Button - Saw Gerrera Emoji\n    - 1x: Grid Item Button - Saw Gerrera Emoji\n- Widget 12 (text=Baze Malbus Emoji, role=(unknown)):\n    - 6x: Icon Button - Baze Malbus Emoji\n    - 2x: Grid Item - Baze Malbus Emoji\n    - 1x: Button - Baze Malbus Emoji\n    - 1x: Grid Item Button - Baze Malbus Emoji\n- Widget 13 (text=Moroff Emoji, role=(unknown)):\n    - 6x: Icon Button - Moroff Emoji\n    - 2x: Grid Item - Moroff Emoji\n    - 1x: Button - Moroff Emoji\n    - 1x: Grid Item Button - Moroff Emoji\n- Widget 14 (text=Director Krennic Emoji, role=(unknown)):\n    - 5x: Icon Button - Director Krennic Emoji\n    - 2x: Grid Item - Director Krennic Emoji\n    - 1x: Button - Director Krennic Emoji\n    - 1x: Grid Item Button - Director Krennic Emoji\n    - 1x: Image Button - Director Krennic Emoji\n- Widget 15 (text=Death Trooper Helmet Emoji, role=(unknown)):\n    - 5x: Icon Button - Death Trooper Helmet Emoji\n    - 2x: Grid Item - Death Trooper Helmet Emoji\n    - 1x: Button - Death Trooper Helmet Emoji\n    - 1x: Grid Item Button - Death Trooper Helmet Emoji\n    - 1x: Image Button - Death Trooper Helmet Emoji\n- Widget 16 (text=Shoretrooper Emoji, role=(unknown)):\n    - 5x: Icon Button - Shoretrooper Emoji\n    - 2x: Grid Item - Shoretrooper Emoji\n    - 1x: Button - Shoretrooper Emoji\n    - 1x: Grid Item Button - Shoretrooper Emoji\n    - 1x: Image Button - Shoretrooper Emoji\n- Widget 17 (text=Galen Erso Emoji, role=(unknown)):\n    - 6x: Icon Button - Galen Erso Emoji\n    - 2x: Grid Item - Galen Erso Emoji\n    - 1x: Button - Galen Erso Emoji\n    - 1x: Grid Item Button - Galen Erso Emoji\n- Widget 18 (text=Lyra Erso Emoji, role=(unknown)):\n    - 5x: Icon Button - Lyra Erso Emoji\n    - 2x: Grid Item - Lyra Erso Emoji\n    - 1x: Button - Lyra Erso Emoji\n    - 1x: Grid Item Button - Lyra Erso Emoji\n    - 1x: Image Button - Lyra Erso Emoji\n- Widget 19 (text=Death Star Gunner Emoji, role=(unknown)):\n    - 6x: Icon Button - Death Star Gunner Emoji\n    - 2x: Grid Item - Death Star Gunner Emoji\n    - 1x: Button - Death Star Gunner Emoji\n    - 1x: Grid Item Button - Death Star Gunner Emoji\n- Widget 20 (text=Imperial Officer Emoji, role=(unknown)):\n    - 6x: Icon Button - Imperial Officer Emoji\n    - 2x: Grid Item - Imperial Officer Emoji\n    - 1x: Button - Imperial Officer Emoji\n    - 1x: Grid Item Button - Imperial Officer Emoji\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

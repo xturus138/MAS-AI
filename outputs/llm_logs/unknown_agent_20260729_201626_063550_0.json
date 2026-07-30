@@ -1,0 +1,69 @@
+{
+  "agent": "unknown_agent",
+  "model": "gemini-3.5-flash",
+  "timestamp": "20260729_201626_063550",
+  "prompt_tokens": 721,
+  "completion_tokens": 264,
+  "total_tokens": 985,
+  "cost_usd": 0.0,
+  "pricing_info": {
+    "model_id": "gemini-3.5-flash",
+    "canonical_id": "google/gemini-3.5-flash",
+    "input_cost_per_1M": 0.0,
+    "output_cost_per_1M": 0.0,
+    "in_pricing_table": false
+  },
+  "messages": [
+    {
+      "type": "system",
+      "data": {
+        "content": "You are a factual reporter of disagreement between multiple independent descriptions of the same UI widgets. You will be given, for each widget that had disagreement, its element ID, visible text, role, and the distinct descriptions grouped into clusters (each cluster is a set of descriptions that were judged to mean the same thing).\n\nFor each widget, write 1-2 sentences stating how many descriptions fell into each cluster and what each cluster said, in your own concise words. If the clusters differ only in wording (same underlying role, different phrasing), say so plainly. If the clusters describe conflicting roles or functions (e.g. one calls it a button, another calls it static text), say the readings conflict.\n\nSTRICT RULES:\n- Never use these words in any form: uncertain, unreliable, failed, wrong, correct, confident, accurate, reliable, good, bad, pass, fail, accepted, rejected, certain.\n- Never characterize whether the model performed well or poorly.\n- Never imply a threshold, score, or decision was made.\n- Only state what was described and how often — counts and content, nothing else.\n- Output plain text, one paragraph per widget, no headers or bullet points, no introductory or closing remarks.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "system",
+        "name": null,
+        "id": null
+      }
+    },
+    {
+      "type": "human",
+      "data": {
+        "content": "Screen: N/A (calibration: Screen Annotation sample, out-of-domain screen)\n\nWidgets with disagreement:\n\n- Widget 1 (text=Back, role=(unknown)):\n    - 8x: Icon Button - Back (Left Arrow)\n    - 1x: Navigation Button - Back Arrow\n    - 1x: Icon Button - Back\n- Widget 4 (text=Campfire sound, role=(unknown)):\n    - 4x: Image Button - Campfire sound\n    - 1x: Interactive Image Button - Campfire sound node on spatial grid\n    - 2x: Interactive Node - Campfire sound\n    - 1x: Interactive Marker - Campfire sound\n    - 1x: Interactive Icon - Campfire sound\n    - 1x: Interactive Icon - Campfire sound representation on grid\n- Widget 5 (text=Drag sound to change audio position. Tap sound to edit audio properties., role=(unknown)):\n    - 6x: Descriptive Text - Drag sound to change audio position. Tap sound to edit audio properties.\n    - 4x: Descriptive Text - Instructions: \"Drag sound to change audio position. Tap sound to edit audio properties.\"\n- Widget 6 (text=Back, role=(unknown)):\n    - 2x: Navigation Button - Back\n    - 6x: System Navigation Button - Back\n    - 2x: Navigation Button - Back (Triangle)\n- Widget 7 (text=Home, role=(unknown)):\n    - 2x: Navigation Button - Home\n    - 5x: System Navigation Button - Home\n    - 1x: Navigation Button - Home (bottom bar)\n    - 1x: Navigation Button - Home (Circle)\n    - 1x: System Navigation Button - Home (Circle)\n- Widget 8 (text=Overview, role=(unknown)):\n    - 2x: Navigation Button - Overview\n    - 5x: System Navigation Button - Overview\n    - 1x: Navigation Button - Overview (bottom bar)\n    - 2x: Navigation Button - Overview (Square)\n\nWrite the explanation now, following the system instructions exactly.",
+        "additional_kwargs": {},
+        "response_metadata": {},
+        "type": "human",
+        "name": null,
+        "id": null
+      }
+    }
+  ],
+  "metadata": {
+    "ls_provider": "openai",
+    "ls_model_name": "gemini-3.5-flash",
+    "ls_model_type": "chat",
+    "ls_temperature": null,
+    "ls_max_tokens": 20000,
+    "ls_integration": "langchain_chat_model",
+    "lc_versions": {
+      "langchain-core": "1.5.2",
+      "langchain": "1.3.14",
+      "langchain-openai": "1.4.1"
+    }
+  },
+  "tags": [],
+  "kwargs": {
+    "invocation_params": {
+      "model": "gemini-3.5-flash",
+      "model_name": "gemini-3.5-flash",
+      "stream": false,
+      "max_completion_tokens": 20000,
+      "_type": "openai-chat",
+      "stop": null
+    },
+    "options": {
+      "stop": null
+    },
+    "name": null,
+    "batch_size": 1
+  }
+}

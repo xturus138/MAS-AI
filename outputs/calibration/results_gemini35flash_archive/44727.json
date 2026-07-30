@@ -1,0 +1,123 @@
+{
+  "screen_id": "44727",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.6931471805599453,
+      "predicted_description": "Text Label - PLEASE CHOOSE",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "PLEASE CHOOSE",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        52,
+        240,
+        294,
+        273
+      ],
+      "ground_truth_bounds_px": [
+        43,
+        229,
+        297,
+        277
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 1.9730014063936123,
+      "predicted_description": "Selector Button - What's your budget?",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        26,
+        301,
+        1054,
+        444
+      ],
+      "ground_truth_bounds_px": [
+        26,
+        304,
+        1055,
+        442
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 1.9730014063936123,
+      "predicted_description": "Selector Button - What type of jewellery?",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        444,
+        1054,
+        586
+      ],
+      "ground_truth_bounds_px": [
+        25,
+        444,
+        1054,
+        584
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 1.7480673485460891,
+      "predicted_description": "Selector Button - What type of material?",
+      "ground_truth_type": "BUTTON",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        586,
+        1054,
+        728
+      ],
+      "ground_truth_bounds_px": [
+        24,
+        586,
+        1055,
+        725
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 1.7480673485460891,
+      "predicted_description": "Selector Button - Branco",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        26,
+        728,
+        1054,
+        870
+      ],
+      "ground_truth_bounds_px": [
+        25,
+        728,
+        1055,
+        867
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 5,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 1618.1,
+  "llm_calls": 383,
+  "input_tokens": 84235,
+  "output_tokens": 2849,
+  "cost_usd": 0.152,
+  "tokens_unavailable": false,
+  "widgets_detected": 10,
+  "widgets_measured": 10,
+  "dse_min": 0.5,
+  "dse_max": 1.973,
+  "dse_avg": 1.213
+}

@@ -1,0 +1,312 @@
+{
+  "screen_id": "40333",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.5004024235381879,
+      "predicted_description": "Header Text - Ants in phone",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Ants in phone",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        41,
+        111,
+        365,
+        171
+      ],
+      "ground_truth_bounds_px": [
+        41,
+        104,
+        362,
+        163
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.5004024235381879,
+      "predicted_description": "Icon Button - More options",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "three black dots are lined up in a row on a white background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        1002,
+        108,
+        1041,
+        161
+      ],
+      "ground_truth_bounds_px": [
+        981,
+        75,
+        1080,
+        194
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 1.2798542258336676,
+      "predicted_description": "Icon - Active icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a gray power button on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        65,
+        242,
+        124,
+        311
+      ],
+      "ground_truth_bounds_px": [
+        52,
+        234,
+        135,
+        319
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.8979457248567797,
+      "predicted_description": "Switch - Active switch",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Active",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        257,
+        910,
+        313
+      ],
+      "ground_truth_bounds_px": [
+        154,
+        244,
+        902,
+        317
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 1.6957425341696346,
+      "predicted_description": "List Item/Row - Active row",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        215,
+        1080,
+        357
+      ],
+      "ground_truth_bounds_px": [
+        16,
+        217,
+        1063,
+        348
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 1.4184836619456564,
+      "predicted_description": "Icon - Time between ants icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a clock icon with a shadow on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        66,
+        386,
+        123,
+        444
+      ],
+      "ground_truth_bounds_px": [
+        52,
+        373,
+        131,
+        452
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "List Item/Row - Time between ants row",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        357,
+        1080,
+        476
+      ],
+      "ground_truth_bounds_px": [
+        21,
+        352,
+        1058,
+        475
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 0.0,
+      "predicted_description": "Text Label - Play sounds",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Play sounds",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        163,
+        528,
+        449,
+        580
+      ],
+      "ground_truth_bounds_px": [
+        159,
+        509,
+        891,
+        580
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 0.6108643020548935,
+      "predicted_description": "Switch - Play sounds switch",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Play sounds",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        522,
+        910,
+        578
+      ],
+      "ground_truth_bounds_px": [
+        159,
+        509,
+        891,
+        580
+      ]
+    },
+    {
+      "element_id": 13,
+      "raw_dse": 1.1935496040981333,
+      "predicted_description": "List Item/Row - Play sounds row",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        476,
+        1080,
+        620
+      ],
+      "ground_truth_bounds_px": [
+        16,
+        477,
+        1062,
+        613
+      ]
+    },
+    {
+      "element_id": 14,
+      "raw_dse": 1.7480673485460891,
+      "predicted_description": "Icon - Auto start on boot icon",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a gray cell phone with a white screen on a white background .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        78,
+        664,
+        111,
+        724
+      ],
+      "ground_truth_bounds_px": [
+        54,
+        646,
+        134,
+        736
+      ]
+    },
+    {
+      "element_id": 15,
+      "raw_dse": 0.0,
+      "predicted_description": "Text Label - Auto start on boot",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Auto start on boot",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        162,
+        674,
+        592,
+        718
+      ],
+      "ground_truth_bounds_px": [
+        160,
+        659,
+        896,
+        725
+      ]
+    },
+    {
+      "element_id": 16,
+      "raw_dse": 1.1682824501765625,
+      "predicted_description": "Switch - Auto start on boot switch",
+      "ground_truth_type": "LABEL",
+      "ground_truth_text": "Auto start on boot",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        670,
+        930,
+        724
+      ],
+      "ground_truth_bounds_px": [
+        160,
+        659,
+        896,
+        725
+      ]
+    },
+    {
+      "element_id": 17,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "List Item/Row - Auto start on boot row",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        620,
+        1080,
+        766
+      ],
+      "ground_truth_bounds_px": [
+        10,
+        623,
+        1067,
+        761
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 6,
+  "skipped_parse_failure": 16,
+  "elapsed_seconds": 1637.7,
+  "llm_calls": 594,
+  "input_tokens": 120077,
+  "output_tokens": 7043,
+  "cost_usd": 0.2435,
+  "tokens_unavailable": false,
+  "widgets_detected": 36,
+  "widgets_measured": 20,
+  "dse_min": 0.0,
+  "dse_max": 1.748,
+  "dse_avg": 0.787
+}

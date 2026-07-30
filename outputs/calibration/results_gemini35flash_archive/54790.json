@@ -1,0 +1,354 @@
+{
+  "screen_id": "54790",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.9433483923290392,
+      "predicted_description": "Toolbar - Header Container",
+      "ground_truth_type": "TOOLBAR",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        67,
+        1080,
+        211
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        1080,
+        209
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.6730116670092565,
+      "predicted_description": "Icon Button - Menu",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "three bars",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        38,
+        96,
+        108,
+        173
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        60,
+        143,
+        209
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Header Text - All Categories",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "All Categories",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        162,
+        96,
+        524,
+        182
+      ],
+      "ground_truth_bounds_px": [
+        186,
+        106,
+        524,
+        165
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.3250829733914482,
+      "predicted_description": "Icon Button - Search",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a magnifying glass icon on a purple background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        859,
+        96,
+        918,
+        173
+      ],
+      "ground_truth_bounds_px": [
+        828,
+        75,
+        954,
+        194
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.6931471805599453,
+      "predicted_description": "Icon Button - Cart",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "shopping cart",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        977,
+        86,
+        1053,
+        173
+      ],
+      "ground_truth_bounds_px": [
+        952,
+        75,
+        1080,
+        192
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "List Item - Jet Wholesale",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        211,
+        1080,
+        361
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        211,
+        1080,
+        356
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 1.1682824501765625,
+      "predicted_description": "List Item - New Year, Do You",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        361,
+        1080,
+        509
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        354,
+        1078,
+        505
+      ]
+    },
+    {
+      "element_id": 8,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "List Item - Grocery",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        509,
+        1080,
+        657
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        505,
+        1079,
+        653
+      ]
+    },
+    {
+      "element_id": 9,
+      "raw_dse": 1.1682824501765625,
+      "predicted_description": "List Item - Household Supplies",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        657,
+        1080,
+        804
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        650,
+        1079,
+        801
+      ]
+    },
+    {
+      "element_id": 10,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "List Item - Health & Beauty",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        804,
+        1080,
+        952
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        801,
+        1079,
+        951
+      ]
+    },
+    {
+      "element_id": 11,
+      "raw_dse": 1.0888999753452235,
+      "predicted_description": "List Item - Baby",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        952,
+        1080,
+        1100
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        951,
+        1079,
+        1097
+      ]
+    },
+    {
+      "element_id": 12,
+      "raw_dse": 1.1682824501765625,
+      "predicted_description": "List Item - Pet Supplies",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        1100,
+        1080,
+        1248
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1095,
+        1080,
+        1242
+      ]
+    },
+    {
+      "element_id": 13,
+      "raw_dse": 1.1935496040981333,
+      "predicted_description": "List Item - Electronics & Computers",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        1248,
+        1080,
+        1396
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1242,
+        1080,
+        1393
+      ]
+    },
+    {
+      "element_id": 14,
+      "raw_dse": 1.1935496040981333,
+      "predicted_description": "List Item - Appliances",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        1396,
+        1080,
+        1544
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1391,
+        1080,
+        1539
+      ]
+    },
+    {
+      "element_id": 15,
+      "raw_dse": 0.639031859650177,
+      "predicted_description": "List Item - Home & Garden",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        1544,
+        1080,
+        1692
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1538,
+        1080,
+        1687
+      ]
+    },
+    {
+      "element_id": 16,
+      "raw_dse": 0.9404479886553263,
+      "predicted_description": "List Item - Furniture",
+      "ground_truth_type": "LIST_ITEM",
+      "ground_truth_text": "",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        0,
+        1692,
+        1080,
+        1795
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        1689,
+        1079,
+        1801
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 1,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 2030.9,
+  "llm_calls": 528,
+  "input_tokens": 106335,
+  "output_tokens": 4251,
+  "cost_usd": 0.1978,
+  "tokens_unavailable": false,
+  "widgets_detected": 17,
+  "widgets_measured": 17,
+  "dse_min": 0.325,
+  "dse_max": 1.194,
+  "dse_avg": 0.854
+}

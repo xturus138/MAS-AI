@@ -1,0 +1,165 @@
+{
+  "screen_id": "9623",
+  "widgets": [
+    {
+      "element_id": 1,
+      "raw_dse": 0.0,
+      "predicted_description": "Icon Button - Menu",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a white item with three lines on it .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        16,
+        43,
+        51,
+        82
+      ],
+      "ground_truth_bounds_px": [
+        0,
+        30,
+        70,
+        93
+      ]
+    },
+    {
+      "element_id": 2,
+      "raw_dse": 0.0,
+      "predicted_description": "Header Text - Music Library",
+      "ground_truth_type": "TEXT",
+      "ground_truth_text": "Music Library",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        189,
+        43,
+        351,
+        82
+      ],
+      "ground_truth_bounds_px": [
+        185,
+        42,
+        351,
+        79
+      ]
+    },
+    {
+      "element_id": 3,
+      "raw_dse": 0.0,
+      "predicted_description": "Icon Button - Search",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a magnifying glass icon on a white background .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        489,
+        43,
+        521,
+        82
+      ],
+      "ground_truth_bounds_px": [
+        476,
+        31,
+        540,
+        91
+      ]
+    },
+    {
+      "element_id": 4,
+      "raw_dse": 0.0,
+      "predicted_description": "Tab Button - Favorite",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a star with a music note inside of it .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        68,
+        96,
+        118,
+        161
+      ],
+      "ground_truth_bounds_px": [
+        66,
+        98,
+        116,
+        140
+      ]
+    },
+    {
+      "element_id": 5,
+      "raw_dse": 0.0,
+      "predicted_description": "Tab Button - Song",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "mic",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        192,
+        96,
+        230,
+        161
+      ],
+      "ground_truth_bounds_px": [
+        187,
+        96,
+        235,
+        139
+      ]
+    },
+    {
+      "element_id": 6,
+      "raw_dse": 0.0,
+      "predicted_description": "Tab Button - Artist",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a person is holding a cell phone in their hand .",
+      "correctness_label": "no",
+      "is_correct": false,
+      "widget_bounds_px": [
+        308,
+        96,
+        348,
+        161
+      ],
+      "ground_truth_bounds_px": [
+        304,
+        98,
+        352,
+        141
+      ]
+    },
+    {
+      "element_id": 7,
+      "raw_dse": 0.0,
+      "predicted_description": "Tab Button - Folder",
+      "ground_truth_type": "PICTOGRAM",
+      "ground_truth_text": "a gray icon of a folder with a few lines coming out of it .",
+      "correctness_label": "yes",
+      "is_correct": true,
+      "widget_bounds_px": [
+        424,
+        96,
+        470,
+        161
+      ],
+      "ground_truth_bounds_px": [
+        420,
+        99,
+        472,
+        142
+      ]
+    }
+  ],
+  "skipped_no_ground_truth_match": 3,
+  "skipped_parse_failure": 0,
+  "elapsed_seconds": 341.5,
+  "llm_calls": 205,
+  "input_tokens": 51806,
+  "output_tokens": 2110,
+  "cost_usd": 0.0967,
+  "tokens_unavailable": false,
+  "widgets_detected": 10,
+  "widgets_measured": 10,
+  "dse_min": 0.0,
+  "dse_max": 0.5,
+  "dse_avg": 0.15
+}
