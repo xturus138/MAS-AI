@@ -267,6 +267,13 @@ def main():
     p.add_argument("--out-dir", required=True)
     args = p.parse_args()
 
+    print(f"[INFO] Calibration mode: static Screen Annotation images only — "
+          f"no device attached, no uiautomator XML refinement is ever applied "
+          f"here (the shared 'Observer Mode' toggle from the live agent loop "
+          f"does not exist as a real switch in the code and has been removed). "
+          f"Widget detection uses OBSERVER_DETECTION_METHOD="
+          f"{config.OBSERVER_DETECTION_METHOD!r} via static_observer.py.")
+
     from core.utils.llm_factory import LLMFactory
 
     with open(args.sample, encoding="utf-8") as f:

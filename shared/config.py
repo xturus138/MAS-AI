@@ -122,8 +122,6 @@ FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
 FIGMA_FILE_URL     = os.getenv("FIGMA_URL_QA", "")
 FIGMA_REQUEST_TIMEOUT = int(os.getenv("FIGMA_REQUEST_TIMEOUT", "300"))
 
-OBSERVER_MODE = os.getenv("OBSERVER_MODE", "xml_first").lower()
-
 # "llm" — zero-shot VLM grounding (Gemini prompt call, one round-trip per
 #         screen, returns widgets directly). Default as of 2026-07-29.
 #         Validated: 66.7-72.7% recall@IoU0.5 on real Screen Annotation
@@ -137,7 +135,6 @@ OBSERVER_MODE = os.getenv("OBSERVER_MODE", "xml_first").lower()
 OBSERVER_DETECTION_METHOD = os.getenv("OBSERVER_DETECTION_METHOD", "llm").lower()
 
 print(f"[*] Environment Loaded:")
-print(f"    - Observer Mode:      {OBSERVER_MODE}")
 print(f"    - Observer Detection: {OBSERVER_DETECTION_METHOD}")
 print(f"    - Observer Model:     {OBSERVER_MODEL}")
 print(f"    - Decider Model:      {DECIDER_MODEL}")
