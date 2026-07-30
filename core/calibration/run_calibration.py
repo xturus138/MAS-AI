@@ -69,11 +69,14 @@ from shared.utils.llm_utils import encode_image
 
 _SCREEN_DESC = "N/A (calibration: Screen Annotation sample, out-of-domain screen)"
 
-# Real published rate for gemini-3.5-flash, checked 2026-07-27 against
-# ai.google.dev/gemini-api/docs/pricing. Only accurate while OBSERVER_MODEL
-# stays on this model — not looked up dynamically from the provider.
-_PRICE_PER_M_INPUT = 1.50
-_PRICE_PER_M_OUTPUT = 9.00
+# Real published rate for gemini-3.1-flash-lite, checked 2026-07-30 against
+# ai.google.dev/gemini-api/docs/pricing (text/image/video input tier; audio
+# input is priced higher at $0.50/M and isn't used here). Only accurate while
+# OBSERVER_MODEL stays on this model — not looked up dynamically from the
+# provider. Previously $1.50/$9.00 for gemini-3.5-flash before the 2026-07-30
+# switch to this ~6x cheaper model.
+_PRICE_PER_M_INPUT = 0.25
+_PRICE_PER_M_OUTPUT = 1.50
 
 
 def _estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
