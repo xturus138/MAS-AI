@@ -64,7 +64,7 @@ class LangChainAdapter(ILLMClient):
                 callbacks=callbacks,
             )
 
-        if provider == "anthropic":
+        if provider in ("anthropic", "qwen-anthropic"):
             from langchain_anthropic import ChatAnthropic
             return ChatAnthropic(
                 model=model_name,

@@ -35,6 +35,13 @@ LLM7_BASE_URL = os.getenv("LLM7_BASE_URL", "https://api.llm7.io/v1")
 ALIBABA_API_KEY = os.getenv("ALIBABA_API_KEY", "")
 ALIBABA_BASE_URL = os.getenv("ALIBABA_BASE_URL", "https://ws-uzp67h5dtqgxfa3h.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1")
 
+# Qwen via Alibaba DashScope (International) — same key, two API shapes:
+#   "qwen"           -> OpenAI-compatible endpoint  (ChatOpenAI branch)
+#   "qwen-anthropic" -> Anthropic-compatible endpoint (ChatAnthropic branch)
+QWEN_API_KEY = os.getenv("QWEN_API_KEY", "")
+QWEN_BASE_URL = os.getenv("QWEN_BASE_URL", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1")
+QWEN_ANTHROPIC_BASE_URL = os.getenv("QWEN_ANTHROPIC_BASE_URL", "https://dashscope-intl.aliyuncs.com/apps/anthropic")
+
 VERTEX_PROJECT_ID = os.getenv("VERTEX_PROJECT_ID", "mas-ai-497913")
 VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "global")
 VERTEX_ENDPOINT = os.getenv("VERTEX_ENDPOINT", "openapi")
@@ -51,6 +58,8 @@ PROVIDER_URLS: dict = {
     "cursor":     CURSOR_BASE_URL,
     "vertex":     VERTEX_BASE_URL,
     "alibaba":    ALIBABA_BASE_URL,
+    "qwen":       QWEN_BASE_URL,
+    "qwen-anthropic": QWEN_ANTHROPIC_BASE_URL,
     "llm7":       LLM7_BASE_URL,
     "bluesminds": BLUESMINDS_BASE_URL,
     "local":      os.getenv("LOCAL_LLM_URL", "http://localhost:11434/v1"),
@@ -84,6 +93,9 @@ def _resolve_api_key(provider: str, key_env_var: str) -> str:
 
     if provider == "alibaba":
         return os.getenv("ALIBABA_API_KEY", "")
+
+    if provider in ("qwen", "qwen-anthropic"):
+        return os.getenv("QWEN_API_KEY", "")
 
     if provider == "llm7":
         return os.getenv("LLM7_API_KEY", "")

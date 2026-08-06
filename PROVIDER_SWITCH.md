@@ -109,6 +109,51 @@ ORCHESTRATOR_MODEL=qwen-max
 
 ---
 
+## Qwen (Alibaba DashScope — International)
+
+Get an API key at https://home.qwencloud.com/api-keys. One key works against
+two different endpoint shapes — pick whichever `*_PROVIDER` matches how you
+want LangChain to talk to it:
+
+**OpenAI-compatible endpoint:**
+
+```bash
+OBSERVER_PROVIDER=qwen
+OBSERVER_MODEL=qwen3.8-max
+DECIDER_PROVIDER=qwen
+DECIDER_MODEL=qwen3.8-max
+REFLECTOR_PROVIDER=qwen
+REFLECTOR_MODEL=qwen3.8-max
+ORCHESTRATOR_PROVIDER=qwen
+ORCHESTRATOR_MODEL=qwen3.8-max
+```
+
+**Anthropic-compatible endpoint** (routes through `langchain_anthropic.ChatAnthropic`):
+
+```bash
+OBSERVER_PROVIDER=qwen-anthropic
+OBSERVER_MODEL=qwen3.8-max
+DECIDER_PROVIDER=qwen-anthropic
+DECIDER_MODEL=qwen3.8-max
+REFLECTOR_PROVIDER=qwen-anthropic
+REFLECTOR_MODEL=qwen3.8-max
+ORCHESTRATOR_PROVIDER=qwen-anthropic
+ORCHESTRATOR_MODEL=qwen3.8-max
+```
+
+**Requires:** `QWEN_API_KEY` in `.env` (same key for both variants).
+Base URLs default to `https://dashscope-intl.aliyuncs.com/compatible-mode/v1`
+(OpenAI shape) and `https://dashscope-intl.aliyuncs.com/apps/anthropic`
+(Anthropic shape) — override with `QWEN_BASE_URL` / `QWEN_ANTHROPIC_BASE_URL`
+if needed.
+
+Note: the Observer's default `OBSERVER_DETECTION_METHOD=llm` requires vision
+input + reliable structured/function-calling output (see the note at the top
+of this file) — verify grounding works on `qwen3.8-max` before relying on it,
+or set `OBSERVER_DETECTION_METHOD=cv_ocr` as a fallback.
+
+---
+
 ## BlueSminds AI (https://bluesminds.com)
 
 ```bash
