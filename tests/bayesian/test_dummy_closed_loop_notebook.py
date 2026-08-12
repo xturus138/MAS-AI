@@ -79,6 +79,21 @@ def test_notebook_reader_text_is_in_english():
         assert indonesian_phrase not in source
 
 
+def test_notebook_uses_a_controlled_oracle_and_random_distribution():
+    """Catch a return to arbitrary labels or a single lucky Random baseline."""
+    notebook = load_notebook()
+    source = "\n".join(
+        "".join(cell.get("source", [])) for cell in notebook["cells"]
+    )
+
+    assert "DUMMY_FAULT_THEMES" in source
+    assert "RANDOM_BASELINE_RUNS = 200" in source
+    assert "assert warm_start_bug_count >= 1" in source
+    assert "random_baseline_summary" in source
+    assert "for run_number in range(RANDOM_BASELINE_RUNS)" in source
+    assert "random_baseline_summary.csv" in source
+
+
 def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():
     """Catch invalid cost parsing or a seed policy that omits/duplicates a feature."""
     helpers = execute_tagged_cell("data_helpers")
@@ -112,7 +127,7 @@ def test_closed_loop_selects_every_case_once_and_audits_revealed_labels():
         costs=np.array([2.0, 3.0, 1.0, 4.0]),
         oracle=oracle,
         initial_indices=[0, 2],
-        beta=1.5,
+        kappa=1.5,
         cost_exponent=0.5,
         snapshot_counts={2},
         random_state=42,
