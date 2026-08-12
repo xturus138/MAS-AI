@@ -2,7 +2,7 @@
   "random_state": 42,
   "kappa": 1.5,
   "cost_exponent": 0.5,
-  "run_e5": false,
+  "run_e5": true,
   "e5_model_name": "intfloat/multilingual-e5-large-instruct",
   "dummy_fault_themes": {
     "message_delivery_and_read_state": [

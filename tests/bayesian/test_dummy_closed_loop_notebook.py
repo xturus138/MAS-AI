@@ -95,6 +95,19 @@ def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
     assert "random_baseline_summary" not in source
 
 
+def test_summary_measures_only_choices_made_after_warm_start():
+    """Avoid crediting the optimizer for a dummy bug already present in the seed."""
+    notebook = load_notebook()
+    source = "\n".join(
+        "".join(cell.get("source", [])) for cell in notebook["cells"]
+    )
+
+    assert "bo_selected_dummy_bugs_by_20_tests" in source
+    assert "normalized_auc_after_warm_start" in source
+    assert "additional_cost_after_warm_start" in source
+    assert "first_dummy_bug_position" not in source
+
+
 def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():
     """Catch invalid cost parsing or a seed policy that omits/duplicates a feature."""
     helpers = execute_tagged_cell("data_helpers")
