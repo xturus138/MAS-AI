@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NOTEBOOK = REPO_ROOT / "experiment" / "bayesian" / "bayesian_dummy_closed_loop.ipynb"
@@ -8,6 +11,19 @@ NOTEBOOK = REPO_ROOT / "experiment" / "bayesian" / "bayesian_dummy_closed_loop.i
 
 def load_notebook() -> dict:
     return json.loads(NOTEBOOK.read_text(encoding="utf-8"))
+
+
+def execute_tagged_cell(tag: str) -> dict:
+    notebook = load_notebook()
+    matching = [
+        cell
+        for cell in notebook["cells"]
+        if tag in cell.get("metadata", {}).get("tags", [])
+    ]
+    assert len(matching) == 1, f"Expected exactly one cell tagged {tag!r}"
+    namespace: dict = {}
+    exec("".join(matching[0]["source"]), namespace)
+    return namespace
 
 
 def test_notebook_exposes_executable_helper_contracts():
@@ -37,3 +53,50 @@ def test_notebook_contains_the_requested_experiment_outputs():
         "Iteration snapshots",
     ):
         assert required_section in source
+
+
+def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():
+    """Catch invalid cost parsing or a seed policy that omits/duplicates a feature."""
+    helpers = execute_tagged_cell("data_helpers")
+    cases = pd.DataFrame(
+        {
+            "TCS ID": ["B-002", "A-002", "B-001", "A-001"],
+            "Menu": ["B", "A", "B", "A"],
+        }
+    )
+
+    assert helpers["parse_minutes"]("13 mins") == 13.0
+    assert helpers["parse_minutes"](7) == 7.0
+    seed_indices = helpers["choose_initial_seed"](cases)
+    assert seed_indices == [2, 3]
+    assert cases.iloc[seed_indices]["Menu"].nunique() == 2
+
+
+def test_closed_loop_selects_every_case_once_and_audits_revealed_labels():
+    """Catch duplicate selection and training on labels not yet revealed."""
+    helpers = execute_tagged_cell("bo_helpers")
+    ids = np.array(["A-001", "A-002", "B-001", "B-002"])
+    matrix = np.array(
+        [[0.0, 0.0], [0.2, 0.1], [1.0, 0.9], [0.9, 1.0]], dtype=float
+    )
+    oracle = np.array([0, 1, 0, 1], dtype=int)
+
+    result, audit, _ = helpers["run_closed_loop"](
+        matrix=matrix,
+        ids=ids,
+        menus=np.array(["A", "A", "B", "B"]),
+        costs=np.array([2.0, 3.0, 1.0, 4.0]),
+        oracle=oracle,
+        initial_indices=[0, 2],
+        beta=1.5,
+        cost_exponent=0.5,
+        snapshot_counts={2},
+        random_state=42,
+    )
+
+    assert result["tcs_id"].tolist()[:2] == ["A-001", "B-001"]
+    assert set(result["tcs_id"]) == set(ids)
+    assert result["tcs_id"].is_unique
+    assert result["cumulative_bugs"].tolist()[-1] == 2
+    assert all(entry["training_indices"] == entry["revealed_indices"] for entry in audit)
+    assert all(entry["train_count"] == entry["revealed_count"] for entry in audit)
