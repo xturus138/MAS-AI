@@ -1,11 +1,9 @@
-import base64
 import json
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
-import cv2
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
@@ -23,9 +21,10 @@ from shared.prompts.reflector_prompts import (
 from shared.utils.llm_utils import encode_image as _encode_image_shared
 from shared.utils.llm_utils import extract_json_str_from_llm_output
 
-# "input" intentionally excluded: typing text changes the UI (text appears in the field)
-# and must be verified. Only scroll and none are truly non-visual.
-_NO_UI_CHANGE_REQUIRED = frozenset({"scroll", "none"})
+# Input can succeed without a large visual transition (for example a masked field),
+# while scroll can legitimately stop at a boundary. Both still continue to the
+# semantic validity check instead of failing at the coarse UI-change gate.
+_NO_UI_CHANGE_REQUIRED = frozenset({"input", "scroll", "none"})
 
 
 class LoadingCheckResult(BaseModel):
@@ -286,7 +285,7 @@ class ReflectorAgent:
         )
 
     def _invoke_with_json_recovery(
-        self, messages, max_retries: int = 2, temperature: Optional[float] = None
+        self, messages, max_retries: int = 2
     ) -> ValidityCheckResult:
         """Invoke structured LLM with automatic JSON extraction retry.
 
@@ -297,22 +296,13 @@ class ReflectorAgent:
         Args:
             messages: LangChain message list.
             max_retries: Number of retry attempts.
-            temperature: Optional temperature override for this call. Used by
-                self-consistency sampling to generate diverse reasoning paths.
         """
         last_error = None
         rate_limit_backoff = 1.0
 
-        if temperature is None:
-            llm = self._llm_validity
-            invoke_kwargs = {}
-        else:
-            llm = self.base_llm.with_structured_output(ValidityCheckResult)
-            invoke_kwargs = {"config": {"temperature": temperature}}
-
         for attempt in range(max_retries):
             try:
-                result = llm.invoke(messages, **invoke_kwargs)
+                result = self._llm_validity.invoke(messages)
                 if result is not None:
                     return result
                 print(
@@ -383,44 +373,6 @@ class ReflectorAgent:
             reasoning=f"[SYSTEM_ERROR] Failed to parse LLM output after {max_retries} attempts: {last_error}",
             figma_discrepancies="",
         )
-
-    def _self_consistency_evaluate(
-        self, messages, is_final: bool
-    ) -> tuple[str, ValidityCheckResult, dict]:
-        """Run 3 LLM calls with majority vote on verdict (self-consistency, every step).
-
-        ponytail: is_final kept in signature for call-site compat; no longer gates
-        sampling. Upgrade path: re-introduce final-only gate if token cost bites.
-        """
-        results: list[ValidityCheckResult] = []
-        verdicts: list[str] = []
-        for i in range(3):
-            result = self._invoke_with_json_recovery(
-                messages, temperature=0.7
-            )
-            results.append(result)
-            verdict = "PASSED" if result.passed else "FAILED"
-            verdicts.append(verdict)
-            if self.logger is not None:
-                self.logger.log(
-                    "REFLECTOR_SC",
-                    f"Path {i + 1}: {verdict}",
-                    result.reasoning[:200],
-                )
-            print(f"[Reflector] Self-consistency path {i + 1}: {verdict}")
-
-        pass_count = verdicts.count("PASSED")
-        final_verdict = "PASSED" if pass_count >= 2 else "FAILED"
-        agreement = pass_count if final_verdict == "PASSED" else (3 - pass_count)
-        majority_idx = verdicts.index(final_verdict)
-        majority_result = results[majority_idx]
-
-        vote_detail = {
-            "verdicts": verdicts,
-            "final": final_verdict,
-            "agreement": f"{agreement}/3",
-        }
-        return final_verdict, majority_result, vote_detail
 
     def _check_validity(
         self,
@@ -936,22 +888,32 @@ class ReflectorAgent:
                 )
 
         self._log("Call 3: Validity Check", level=_LL.DEBUG)
-        final_verdict, validity_result, vote_detail = self._self_consistency_evaluate(
-            messages, is_final=is_final_step
+        validity_result = self._check_validity(
+            screenshot_path=screenshot_path,
+            instruction=current_instruction,
+            is_final_step=is_final_step,
+            expected_result=expected_result,
+            figma_b64=figma_b64,
+            figma_enabled=figma_enabled,
+            memory_context=memory_context,
+            general_knowledge=general_knowledge,
+            loading_reasoning=loading_result.reasoning,
+            ui_change_reasoning=change_result.reasoning,
         )
-        passed = final_verdict == "PASSED"
+        passed = validity_result.passed
         reasoning = validity_result.reasoning
         figma_discrepancies = validity_result.figma_discrepancies or ""
 
-        print(f"[Reflector] Call 3 Validity: {final_verdict} | {reasoning}")
+        verdict = "PASSED" if passed else "FAILED"
+        print(f"[Reflector] Call 3 Validity: {verdict} | {reasoning}")
         self._log(
-            f"Call 3 Verdict: {final_verdict} (self-consistency {vote_detail['agreement']} | step {'final' if is_final_step else 'mid'})",
+            f"Call 3 Verdict: {verdict}",
             f"reasoning={reasoning}\nfigma_discrepancies={figma_discrepancies or 'N/A'}",
         )
         if figma_discrepancies:
             print(f"[Reflector] Figma Discrepancies: {figma_discrepancies}")
 
-        return_value = self._build_return(
+        return self._build_return(
             state=state,
             passed=passed,
             reasoning=reasoning,
@@ -974,5 +936,3 @@ class ReflectorAgent:
             is_final_step=is_final_step,
             expected_result=expected_result,
         )
-        state["reflector_vote_detail"] = json.dumps(vote_detail)
-        return return_value

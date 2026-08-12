@@ -13,13 +13,6 @@ python-dotenv
 toons
 tiktoken
 openpyxl
-mcp
-httpx
+requests
 PyQt5
 pywin32; sys_platform == "win32"
-matplotlib
-supervision
-ultralytics
-transformers
-huggingface-hub
-safetensors

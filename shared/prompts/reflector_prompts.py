@@ -1,17 +1,10 @@
 """
 Reflector Agent Prompts
 
-Implements: Self-Consistency
-Purpose: Improve verdict reliability by sampling multiple reasoning paths and
-taking a majority vote before declaring PASSED/FAILED.
-
-Self-consistency is realised in the agent layer (reflector_agent.py:
-_self_consistency_evaluate) which fires 3 LLM calls at temperature=0.7 and
-majority-votes the verdict on every reflection. Each individual call is guided
-by the Directional Stimulus blocks below — they direct the LLM's attention to
-relevant aspects (layout, text accuracy, missing elements) and away from
-irrelevant noise (system bar, compression artifacts). Directional Stimulus is
-the per-call steering; Self-Consistency is the aggregate reliability technique.
+Implements Directional Stimulus Prompting for the Reflector's loading,
+UI-change, and semantic-validity checks. The prompts direct attention to
+relevant evidence such as layout, text accuracy, and missing elements while
+ignoring system-bar differences and compression noise.
 """
 
 DIRECTIONAL_STIMULUS = """

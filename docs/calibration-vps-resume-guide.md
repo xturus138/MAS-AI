@@ -16,7 +16,7 @@ Key: your local `id_ed25519` (comment `raditya-vast`), already authorized on the
 ## 1. Check current progress
 
 ```bash
-ls outputs/calibration/results/*.json | wc -l
+ls experiment/calibration/results/*.json | wc -l
 ```
 
 Compares against the 400-screen target. Anything already there is safe — `run_calibration.py` skips completed screens automatically.
@@ -50,12 +50,12 @@ Inside tmux:
 ```bash
 cd ~/MAS-AI
 python3 core/calibration/run_calibration.py \
-  --sample outputs/calibration/screen_annotation_sample_400.json \
-  --images outputs/calibration/rico_images \
-  --out-dir outputs/calibration/results
+  --sample experiment/calibration/screen_annotation_sample_400.json \
+  --images experiment/calibration/rico_images \
+  --out-dir experiment/calibration/results
 ```
 
-This picks up automatically — it skips every screen that already has a `.json` in `outputs/calibration/results/`. No flags needed to control "how many" to do; it just keeps going until it's done all 400 or you stop it. Live output shows per-screen progress, cost, and a running ETA.
+This picks up automatically — it skips every screen that already has a `.json` in `experiment/calibration/results/`. No flags needed to control "how many" to do; it just keeps going until it's done all 400 or you stop it. Live output shows per-screen progress, cost, and a running ETA.
 
 **To stop after a while (e.g. once you're happy with the budget spent):** `Ctrl+c` inside the tmux pane. It's safe — the screen currently mid-flight may be lost, but every screen already written to a `.json` file is kept.
 
@@ -66,7 +66,7 @@ Then detach (`Ctrl+b`, `d`) and disconnect if you're not stopping it, or just ex
 After a run (whether it finished or you stopped it), each screen leaves a `_work_{screen_id}/` scratch folder next to its `.json` result. Safe to delete once you don't need to debug that screen:
 
 ```bash
-rm -rf outputs/calibration/results/_work_*
+rm -rf experiment/calibration/results/_work_*
 ```
 
 Only delete these — never delete the `.json` result files themselves.
@@ -75,8 +75,8 @@ Only delete these — never delete the `.json` result files themselves.
 
 ```bash
 python3 core/calibration/compute_calibration_report.py \
-  --results-dir outputs/calibration/results \
-  --out outputs/calibration/calibration_report.json
+  --results-dir experiment/calibration/results \
+  --out experiment/calibration/calibration_report.json
 ```
 
 Prints `N labeled widgets from N screens`, `AUROC=... AURAC=...`, and an auto-interpretation. Safe to re-run any time — it just recomputes from whatever `.json` files currently exist in `results/`.
@@ -86,8 +86,8 @@ Prints `N labeled widgets from N screens`, `AUROC=... AURAC=...`, and an auto-in
 Credentials are already cached on the VPS (`git config --global credential.helper store`), so no token prompt needed after the first time.
 
 ```bash
-git add -f outputs/calibration/calibration_report.json
-git add -f outputs/calibration/results/*.json
+git add -f experiment/calibration/calibration_report.json
+git add -f experiment/calibration/results/*.json
 git commit -m "calibration: N=<screen count>, AUROC=<value>"
 git push origin main
 ```
@@ -103,7 +103,7 @@ cd "C:\Users\radit\Project\VisualStudioProject\Skripsi\MAS AI"
 git pull MAS-AI main
 ```
 
-`outputs/calibration/calibration_report.json` and the per-screen result files will now be up to date locally.
+`experiment/calibration/calibration_report.json` and the per-screen result files will now be up to date locally.
 
 ## Repeat
 

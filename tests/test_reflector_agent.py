@@ -50,7 +50,7 @@ def _base_state(**overrides):
 
 
 
-def test_loading_short_circuit_returns_fail_without_calling_change_or_validity():
+def test_parallel_loading_failure_still_runs_change_but_skips_validity():
     agent = _make_agent()
     agent._llm_loading.invoke.return_value = LoadingCheckResult(
         loading_done=False, reasoning="Spinner visible"
@@ -59,7 +59,9 @@ def test_loading_short_circuit_returns_fail_without_calling_change_or_validity()
     result = agent.evaluate(_base_state())
 
     assert result["last_reflector_passed"] is False
-    agent._llm_change.invoke.assert_not_called()
+    # Loading and UI-change checks are intentionally submitted together in
+    # parallel mode; only the later validity call is short-circuited.
+    agent._llm_change.invoke.assert_called_once()
     agent._llm_validity.invoke.assert_not_called()
 
 

@@ -79,19 +79,20 @@ def test_notebook_reader_text_is_in_english():
         assert indonesian_phrase not in source
 
 
-def test_notebook_uses_a_controlled_oracle_and_random_distribution():
-    """Catch a return to arbitrary labels or a single lucky Random baseline."""
+def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
+    """Keep the experiment focused on the three requested representations."""
     notebook = load_notebook()
     source = "\n".join(
         "".join(cell.get("source", [])) for cell in notebook["cells"]
     )
 
     assert "DUMMY_FAULT_THEMES" in source
-    assert "RANDOM_BASELINE_RUNS = 200" in source
     assert "assert warm_start_bug_count >= 1" in source
-    assert "random_baseline_summary" in source
-    assert "for run_number in range(RANDOM_BASELINE_RUNS)" in source
-    assert "random_baseline_summary.csv" in source
+    assert "Warm-start results before Bayesian selection" in source
+    assert "All fixed dummy bugs for researcher inspection" in source
+    assert "How each method chooses test #10" in source
+    assert "run_random_baseline" not in source
+    assert "random_baseline_summary" not in source
 
 
 def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():

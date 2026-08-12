@@ -32,9 +32,9 @@ the user's own environment. See
 
 Usage:
     python core/calibration/run_calibration.py \\
-        --sample outputs/calibration/screen_annotation_sample_400.json \\
-        --images outputs/calibration/rico_images \\
-        --out-dir outputs/calibration/results
+        --sample experiment/calibration/screen_annotation_sample_400.json \\
+        --images experiment/calibration/rico_images \\
+        --out-dir experiment/calibration/results
 """
 import argparse
 import json

@@ -57,6 +57,35 @@ single-cluster `0.0` (`measurement_status="ok"`).
 
 Reference values (raw DSE only): `[5]` → `0.0`; `[3,2]` → `≈0.6730`; `[1,1,1,1,1]` → `ln 5 ≈ 1.6094`.
 
+### 3.1 Independent literature confirmation
+
+MAS AI's implementation is cross-checked against a second, independent source: *A Survey of
+Uncertainty Estimation Methods on Large Language Models* (`Dokumen Kepake/Referensi Jurnal
+Proksi/Riset Jepang/`). This paper is a survey, not the methodological reference — it does not
+replace Farquhar et al. 2024 above — but it independently reproduces the same method under the
+category "Semantic Clustering Methods" (its Figure 7, Section 3.5, and formula Appendix A.4),
+and its own equation for discrete semantic entropy, `U = -Σ p(R_k) log p(R_k)` with `p(R_k) =
+|R_k| / M`, is the same shape as `raw_dse()` above: entropy over per-cluster sample-frequency
+counts, no normalization added.
+
+Three points worth keeping straight when discussing this against both sources:
+
+- **Figure 7's four steps (generate → cluster → cluster-probability → entropy) are the shared
+  shape** of the whole "semantic clustering methods" family. They are not specific to DSE; Kuhn
+  et al. 2023's plain semantic entropy uses the same four steps.
+- **The two methods differ only in step 3** (how cluster probability is computed): Kuhn 2023
+  averages the model's real length-normalized token probabilities per cluster; Farquhar 2024
+  (MAS AI's method) uses plain frequency, `count_k / M`, disregarding token probabilities
+  entirely — this is the actual meaning of "discrete" in the name.
+- **Step 4's entropy formula is identical in both** methods; only its inputs differ, which is
+  why the two produce different numbers from the same samples.
+- The survey's own formulas use unsubscripted `log`, consistent with the natural-log convention
+  `dse.py` and Farquhar 2024 both use — no unit conflict between the two sources.
+- Neither the survey's main text nor its appendix documents the greedy
+  representative-only comparison in the clustering step (Section 7 above / Section 2 of this
+  file) — that implementation detail traces to Kuhn et al. 2023's original clustering algorithm
+  specifically, not to this survey.
+
 ## 4. Low DSE means consistency, NOT correctness
 
 **Low DSE means the Observer produced semantically consistent descriptions across

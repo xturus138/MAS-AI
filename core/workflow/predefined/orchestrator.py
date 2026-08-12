@@ -1,6 +1,4 @@
-import json
 import os
-import re
 from typing import TYPE_CHECKING, Any, Optional
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
@@ -78,79 +76,6 @@ class PredefinedOrchestrator:
     def _extract_json_from_llm_output(self, raw_output: str) -> Any:
         """Delegate to shared JSON parsing utility. Returns parsed dict/list or None."""
         return _parse_json_from_llm(raw_output)
-
-    def _extract_json_from_llm_output_LEGACY(self, raw_output: str) -> Any:
-        """[REFERENCE ONLY — replaced by parse_json_from_llm_output in llm_utils.py]"""
-        if not raw_output:
-            return None
-
-        cleaned = raw_output.strip()
-
-        if "<thinking>" in cleaned and "</thinking>" in cleaned:
-            start = cleaned.find("<thinking>")
-            end = cleaned.find("</thinking>")
-            if start != -1 and end != -1:
-                inner = cleaned[start + len("<thinking>") : end].strip()
-                try:
-                    return json.loads(inner)
-                except json.JSONDecodeError:
-                    pass
-                cleaned = inner
-
-        brace_depth = 0
-        json_start = -1
-        in_string = False
-        escape_next = False
-
-        for i, char in enumerate(cleaned):
-            if escape_next:
-                escape_next = False
-                continue
-            if char == "\\":
-                escape_next = True
-                continue
-            if char == '"' and not escape_next:
-                in_string = not in_string
-                continue
-            if in_string:
-                continue
-
-            if char == "{":
-                if brace_depth == 0:
-                    json_start = i
-                brace_depth += 1
-            elif char == "}":
-                brace_depth -= 1
-                if brace_depth == 0 and json_start != -1:
-                    candidate = cleaned[json_start : i + 1]
-                    try:
-                        return json.loads(candidate)
-                    except json.JSONDecodeError:
-                        continue
-
-        if json_start == -1 and "[" in cleaned:
-            bracket_depth = 0
-            arr_start = -1
-            for i, char in enumerate(cleaned):
-                if char == '"':
-                    in_string = not in_string
-                    continue
-                if in_string:
-                    continue
-                if char == "[":
-                    if bracket_depth == 0:
-                        arr_start = i
-                    bracket_depth += 1
-                elif char == "]":
-                    bracket_depth -= 1
-                    if bracket_depth == 0 and arr_start != -1:
-                        candidate = cleaned[arr_start : i + 1]
-                        try:
-                            return json.loads(candidate)
-                        except json.JSONDecodeError:
-                            continue
-
-        return None
 
     def _invoke_with_recovery(
         self, messages, model_class, structured_llm, max_retries: int = 2

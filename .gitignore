@@ -64,7 +64,8 @@ plan.md
 CLAUDE.md
 GEMINI.md
 chat.txt
-test/output_test
+tests/output_test/
+outputs/archive/
 metrics.md
 council-report-*.html
 council-transcript-*.md

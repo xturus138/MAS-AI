@@ -10,7 +10,7 @@ detected-widget count and wasting DSE sampling budget on empty duplicates.
 
 The fixture in `test_two_cv_boxes_matching_one_ocr_line_merge_into_one_widget`
 is not invented: it's the real bounding boxes recorded in
-`outputs/calibration/results/_work_60363/{ocr,cv}.json` for the header "Test
+`experiment/calibration/results/_work_60363/{ocr,cv}.json` for the header "Test
 description" on Screen Annotation screen 60363, where this was first caught.
 
 Fix approach follows Chen et al. 2020 (ESEC/FSE), "Object Detection for

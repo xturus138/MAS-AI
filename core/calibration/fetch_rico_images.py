@@ -14,8 +14,8 @@ note. On a normal broadband connection this should take a few minutes.
 
 Usage:
     python core/calibration/fetch_rico_images.py \\
-        --sample outputs/calibration/screen_annotation_sample_400.json \\
-        --out-dir outputs/calibration/rico_images
+        --sample experiment/calibration/screen_annotation_sample_400.json \\
+        --out-dir experiment/calibration/rico_images
 
 Resumable: images already present in --out-dir are skipped, so a killed or
 interrupted run can just be re-launched (it still has to re-stream the

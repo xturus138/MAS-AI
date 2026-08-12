@@ -38,8 +38,8 @@ unfinished design.
 
 ```
 python core/calibration/fetch_rico_images.py ^
-  --sample outputs/calibration/screen_annotation_sample_400.json ^
-  --out-dir outputs/calibration/rico_images
+  --sample experiment/calibration/screen_annotation_sample_400.json ^
+  --out-dir experiment/calibration/rico_images
 ```
 
 Resumable — it skips the 5 images already present and only writes what's
@@ -67,9 +67,9 @@ Canny+region+OCR pipeline instead.
 
 ```
 python core/calibration/run_calibration.py ^
-  --sample outputs/calibration/screen_annotation_sample_400.json ^
-  --images outputs/calibration/rico_images ^
-  --out-dir outputs/calibration/results
+  --sample experiment/calibration/screen_annotation_sample_400.json ^
+  --images experiment/calibration/rico_images ^
+  --out-dir experiment/calibration/results
 ```
 
 Resumable — skips screens that already have a `{screen_id}.json` in
@@ -80,8 +80,8 @@ failures) as it goes.
 
 ```
 python core/calibration/compute_calibration_report.py ^
-  --results-dir outputs/calibration/results ^
-  --out outputs/calibration/calibration_report.json
+  --results-dir experiment/calibration/results ^
+  --out experiment/calibration/calibration_report.json
 ```
 
 Prints AUROC and AURAC to the console and writes the full report

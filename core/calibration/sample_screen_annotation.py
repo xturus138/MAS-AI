@@ -9,7 +9,7 @@ Usage:
     python core/calibration/sample_screen_annotation.py \\
         --csv path/to/screen_annotation_train.csv \\
         --n 400 --seed 20260724 \\
-        --out outputs/calibration/screen_annotation_sample.json
+        --out experiment/calibration/screen_annotation_sample.json
 
 Output is a JSON list of:
     {"screen_id": "...", "elements": [{"type", "text", "bbox"}, ...]}

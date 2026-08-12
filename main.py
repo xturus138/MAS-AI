@@ -103,7 +103,7 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python main.py --scenario chitchat --figma "https://figma.com/design/..."
+  python main.py --scenario notes --figma "https://figma.com/design/..."
   python main.py -s notes -m autonomous
   python main.py --list
   python main.py                        # interactive picker
@@ -115,7 +115,7 @@ Examples:
         metavar="FOLDER_OR_PATH",
         help=(
             "Scenario subfolder name inside scenarios/ "
-            "(e.g. 'chitchat') or a direct path to a scenario.xlsx file. "
+            "(e.g. 'notes') or a direct path to a scenario.xlsx file. "
             "If omitted, an interactive menu is shown."
         ),
     )

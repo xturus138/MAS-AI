@@ -114,10 +114,9 @@ MAS AI/
 ├── visual/              # PyQt5 real-time monitoring overlay
 ├── analysis/            # Run comparison tools
 ├── scripts/             # Maintenance (cleanup outputs, etc.)
-├── tests/               # Standalone integration scripts (not pytest)
+├── tests/               # Pytest suite plus standalone device/API diagnostics
 ├── scenarios/           # Scenario folders, each with its own scenario.xlsx
-│   ├── notes/
-│   └── chitchat/
+│   └── notes/
 ├── docs/                # Design docs, uncertainty spec, prompting notes
 ├── main.py              # Entry point
 ├── PROVIDER_SWITCH.md   # LLM provider quick-switch cheat sheet
@@ -144,7 +143,14 @@ cp .env.example .env
 # Edit .env with your API keys and device settings
 ```
 
-### Run tests
+### Run the automated suite
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+### Run MAS AI
 
 ```bash
 # Choose mode in .env:

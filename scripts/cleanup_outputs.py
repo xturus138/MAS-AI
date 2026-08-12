@@ -7,16 +7,15 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
-import os
 import re
 import shutil
 from pathlib import Path
 
 RUN_RE = re.compile(r"^(?P<tcs>[A-Za-z]+-\d{3})_(?P<ts>\d{8}_\d{6})(?:_archived)?$")
 STEP_RE = re.compile(r"^step_\d+(?:_retry_\d+)?$")
-SCENARIO_RE = re.compile(r"^scenario_\d+$")
 RUN_DIR_RE = re.compile(r"^run_\d+$")
 DATE_BUCKET_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+FLAT_LLM_LOG_RE = re.compile(r"_(?P<date>\d{8})_\d{6}(?:_|\.)")
 
 
 def main() -> int:
@@ -72,18 +71,24 @@ def main() -> int:
 
     legacy_llm_root = root / "llm_logs"
     if legacy_llm_root.exists():
-        for log_dir in legacy_llm_root.iterdir():
-            if not log_dir.is_dir():
+        for entry in legacy_llm_root.iterdir():
+            if entry.is_file() and entry.suffix.lower() == ".json":
+                date_bucket = _date_from_log_name(entry.name)
+                dest = root / "archive" / "llm_logs" / date_bucket / entry.name
+                actions.append((entry, _unique_dest(dest)))
                 continue
-            match = RUN_RE.match(log_dir.name)
+
+            if not entry.is_dir():
+                continue
+            match = RUN_RE.match(entry.name)
             if not match:
-                actions.append((log_dir, _unique_dest(quarantine / "llm_logs" / log_dir.name)))
+                actions.append((entry, _unique_dest(quarantine / "llm_logs" / entry.name)))
                 continue
             dest = _find_matching_run(root, match.group("tcs"), match.group("ts"))
             if dest:
-                actions.append((log_dir, _unique_dest(dest / "logs" / "llm")))
+                actions.append((entry, _unique_dest(dest / "logs" / "llm")))
             else:
-                actions.append((log_dir, _unique_dest(quarantine / "llm_logs" / log_dir.name)))
+                actions.append((entry, _unique_dest(quarantine / "llm_logs" / entry.name)))
 
     runs_root = root / "runs"
     if runs_root.exists():
@@ -145,6 +150,16 @@ def main() -> int:
 def _date_from_timestamp(timestamp: str) -> str:
     try:
         return _dt.datetime.strptime(timestamp, "%Y%m%d_%H%M%S").strftime("%Y-%m-%d")
+    except ValueError:
+        return "unknown-date"
+
+
+def _date_from_log_name(filename: str) -> str:
+    match = FLAT_LLM_LOG_RE.search(filename)
+    if not match:
+        return "unknown-date"
+    try:
+        return _dt.datetime.strptime(match.group("date"), "%Y%m%d").strftime("%Y-%m-%d")
     except ValueError:
         return "unknown-date"
 

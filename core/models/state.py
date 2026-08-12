@@ -31,7 +31,6 @@ class AgentState(TypedDict):
     fallback_reason: Optional[str]
 
     memory_context: str
-    reflector_vote_detail: Optional[str]  # JSON string: {"verdicts": [...], "final": "PASSED", "agreement": "2/3"}
 
     current_sub_step_index: int
     orchestrator_instruction: str

@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+import tempfile
 import unittest
 from unittest.mock import MagicMock
 
@@ -15,6 +16,9 @@ from agents.observer_agent import ObserverAgent
 
 class TestObserverAgentVisionXMLRefine(unittest.TestCase):
     def setUp(self):
+        self._original_detection_method = config.OBSERVER_DETECTION_METHOD
+        config.OBSERVER_DETECTION_METHOD = "cv_ocr"
+
         self.take_screenshot = MagicMock()
         self.ocr_extract_text = MagicMock()
         self.detect_visual_elements = MagicMock()
@@ -51,24 +55,29 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
 
         self.memory = MagicMock()
         self.memory.retrieve.return_value = "Mocked Memory Context"
+        self.memory.retrieve_with_labels.return_value = {
+            "semantic": "Mocked semantic context",
+            "vault": "Mocked knowledge context",
+        }
         self.memory.core.get.return_value = "Mocked Field"
         self.memory.episodic.last_by_actor.return_value = None
 
         self.logger = MagicMock()
 
         self.agent = ObserverAgent(self.llm, self.tools, memory=self.memory, logger=self.logger)
+        self._temp_dir = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        config.OBSERVER_DETECTION_METHOD = self._original_detection_method
+        self._temp_dir.cleanup()
 
     def _make_step_dir(self, name: str) -> str:
         import cv2, numpy as np
-        os.makedirs(name, exist_ok=True)
+        path = os.path.join(self._temp_dir.name, name)
+        os.makedirs(path, exist_ok=True)
         blank = np.zeros((2400, 1080, 3), np.uint8)
-        cv2.imwrite(os.path.join(name, "raw.png"), blank)
-        return name
-
-    def _clean_step_dir(self, name: str):
-        import shutil
-        if os.path.exists(name):
-            shutil.rmtree(name)
+        cv2.imwrite(os.path.join(path, "raw.png"), blank)
+        return path
 
 
     def test_vision_xml_refinement_appends_missed_actionable(self):
@@ -88,8 +97,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         self.detect_visual_elements.invoke.assert_called_once()
         self.dump_hierarchy.invoke.assert_called_once()
         self.annotate_screenshot.invoke.assert_called_once()
-
-        self._clean_step_dir(step_dir)
 
     def test_vision_only_when_xml_fails(self):
         """XML dump fails → vision-only output, no refinement."""
@@ -115,8 +122,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         self.detect_visual_elements.invoke.assert_called_once()
         self.annotate_screenshot.invoke.assert_called_once()
 
-        self._clean_step_dir(step_dir)
-
     def test_xml_refines_vision_bounds(self):
         """Vision has approximate coords, XML has precise → bounds replaced."""
         self.ocr_extract_text.invoke.return_value = json.dumps([
@@ -135,8 +140,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         self.assertEqual(len(result["widgets"]), 1)
         self.assertEqual(result["widgets"][0]["source"], "xml")
         self.assertEqual(result["widgets"][0]["bounds"], [100, 200, 300, 300])
-
-        self._clean_step_dir(step_dir)
 
     def test_xml_adds_missed_actionable(self):
         """Vision detects one element, XML has extra actionable → appended."""
@@ -169,9 +172,6 @@ class TestObserverAgentVisionXMLRefine(unittest.TestCase):
         self.assertEqual(result["widgets"][1]["source"], "xml")
         self.assertEqual(result["widgets"][1]["xml_label"], "Login")
         self.assertEqual(result["widgets"][1]["bounds"], [500, 600, 700, 700])
-
-        self._clean_step_dir(step_dir)
-
 
 if __name__ == "__main__":
     unittest.main()

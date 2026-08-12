@@ -8,8 +8,8 @@ Farquhar et al. 2024's definitions (`threshold_metrics.py`).
 
 Usage:
     python core/calibration/compute_calibration_report.py \\
-        --results-dir outputs/calibration/results \\
-        --out outputs/calibration/calibration_report.json
+        --results-dir experiment/calibration/results \\
+        --out experiment/calibration/calibration_report.json
 """
 import argparse
 import glob
