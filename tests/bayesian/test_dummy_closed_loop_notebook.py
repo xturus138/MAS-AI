@@ -39,20 +39,44 @@ def test_notebook_exposes_executable_helper_contracts():
 
 
 def test_notebook_contains_the_requested_experiment_outputs():
-    """Catch accidental removal of a required experiment stage or visualization."""
+    """Catch extra plots or the loss of independent BO snapshot figures."""
     notebook = load_notebook()
     source = "\n".join(
         "".join(cell.get("source", [])) for cell in notebook["cells"]
     )
 
-    for required_section in (
+    assert "Convergence plot" in source
+    assert "Posterior and acquisition snapshots" in source
+    assert 'f"iteration_snapshots_{safe_name}.png"' in source
+    assert "for method_name, method_snapshots in snapshots_by_method.items()" in source
+
+    for removed_plot in (
         "True dummy oracle",
-        "Representation matrices",
-        "Closed-loop Bayesian selection",
-        "Convergence plots",
-        "Iteration snapshots",
+        "Cost-Aware Convergence",
+        "Dummy Bug Discovery Position",
+        "Feature Coverage by Execution Position",
     ):
-        assert required_section in source
+        assert removed_plot not in source
+
+
+def test_notebook_reader_text_is_in_english():
+    """Catch Indonesian reader-facing copy returning to the notebook."""
+    notebook = load_notebook()
+    source = "\n".join(
+        "".join(cell.get("source", [])) for cell in notebook["cells"]
+    )
+
+    for indonesian_phrase in (
+        "untuk Firebase",
+        "Alur eksperimen",
+        "Membaca dan memvalidasi",
+        "Pada laptop",
+        "Grafik ini",
+        "Ketiga metode",
+        "Surrogate yang dipakai",
+        "Cara membaca hasil",
+    ):
+        assert indonesian_phrase not in source
 
 
 def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():
