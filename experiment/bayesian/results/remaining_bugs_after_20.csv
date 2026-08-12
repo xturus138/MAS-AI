@@ -1,0 +1,17 @@
+method,TCS ID,Menu,Test Case Scenario,dummy_fault_theme
+One-Hot,FC-NCP-005,Buat Chat Baru,"Daftar pengguna pada mode ""Add Participant"" tidak menampilkan anggota grup yang sudah tergabung",group_membership_permission
+One-Hot,FC-CRG-004,Ruang Obrolan,"Status pesan menjadi ""read"" hanya setelah seluruh anggota grup membaca pesan",message_delivery_and_read_state
+One-Hot,FC-CRG-007,Ruang Obrolan,Jumlah pesan belum dibaca (unread) direset saat keluar dari ruang obrolan grup,message_delivery_and_read_state
+One-Hot,FC-CRP-007,Ruang Obrolan,Pesan yang diterima otomatis ditandai sudah dibaca saat ruang obrolan dibuka,message_delivery_and_read_state
+One-Hot,FC-CRP-008,Ruang Obrolan,Melihat info pengiriman (Delivered/Read) pada pesan yang dikirim sendiri,message_delivery_and_read_state
+One-Hot,FC-MIF-002,Info Pesan,"Status ""Delivered"" terisi sebelum status ""Read"" pada Info Pesan",message_delivery_and_read_state
+One-Hot,FC-MIF-003,Info Pesan,"Menampilkan daftar ""Read By"" pada percakapan grup",message_delivery_and_read_state
+TF-IDF + SVD,FC-GPR-003,Profil Grup,"Tombol ""Add Participant"" tidak tampil bagi anggota grup selain pembuat",group_membership_permission
+TF-IDF + SVD,FC-NCP-005,Buat Chat Baru,"Daftar pengguna pada mode ""Add Participant"" tidak menampilkan anggota grup yang sudah tergabung",group_membership_permission
+TF-IDF + SVD,FC-CRP-008,Ruang Obrolan,Melihat info pengiriman (Delivered/Read) pada pesan yang dikirim sendiri,message_delivery_and_read_state
+TF-IDF + SVD,FC-MIF-002,Info Pesan,"Status ""Delivered"" terisi sebelum status ""Read"" pada Info Pesan",message_delivery_and_read_state
+TF-IDF + SVD,FC-MIF-003,Info Pesan,"Menampilkan daftar ""Read By"" pada percakapan grup",message_delivery_and_read_state
+Multilingual E5,FC-GPR-002,Profil Grup,"Tombol ""Add Participant"" tampil bagi pembuat grup",group_membership_permission
+Multilingual E5,FC-GPR-003,Profil Grup,"Tombol ""Add Participant"" tidak tampil bagi anggota grup selain pembuat",group_membership_permission
+Multilingual E5,FC-NCP-004,Buat Chat Baru,Menambahkan partisipan baru ke grup yang sudah ada,group_membership_permission
+Multilingual E5,FC-NCP-005,Buat Chat Baru,"Daftar pengguna pada mode ""Add Participant"" tidak menampilkan anggota grup yang sudah tergabung",group_membership_permission

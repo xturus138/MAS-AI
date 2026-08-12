@@ -1,0 +1,7 @@
+method,dummy_fault_theme,dummy_bugs_found_by_20_tests,dummy_bugs_in_theme
+One-Hot,message_delivery_and_read_state,3,9
+One-Hot,group_membership_permission,3,4
+TF-IDF + SVD,message_delivery_and_read_state,6,9
+TF-IDF + SVD,group_membership_permission,2,4
+Multilingual E5,message_delivery_and_read_state,9,9
+Multilingual E5,group_membership_permission,0,4

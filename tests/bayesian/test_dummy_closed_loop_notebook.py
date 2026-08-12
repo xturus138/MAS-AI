@@ -108,6 +108,22 @@ def test_summary_measures_only_choices_made_after_warm_start():
     assert "first_dummy_bug_position" not in source
 
 
+def test_notebook_exports_a_complete_final_report():
+    """Keep the final result readable at both method and individual-fault level."""
+    notebook = load_notebook()
+    source = "\n".join(
+        "".join(cell.get("source", [])) for cell in notebook["cells"]
+    )
+
+    assert "Complete final report" in source
+    assert "execution_position_when_all_dummy_bugs_found" in source
+    assert "remaining_dummy_bugs_after_20_tests" in source
+    assert "found_ids_by_20" in source
+    assert "fault_discovery_report" in source
+    assert 'RESULT_DIR / "final_report.csv"' in source
+    assert 'RESULT_DIR / "fault_discovery_report.csv"' in source
+
+
 def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():
     """Catch invalid cost parsing or a seed policy that omits/duplicates a feature."""
     helpers = execute_tagged_cell("data_helpers")
