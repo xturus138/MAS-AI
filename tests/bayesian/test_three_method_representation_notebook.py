@@ -95,33 +95,29 @@ def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
     assert "random_baseline_summary" not in source
 
 
-def test_summary_measures_only_choices_made_after_warm_start():
-    """Avoid crediting the optimizer for a dummy bug already present in the seed."""
+def test_final_summary_reports_the_requested_run_milestones():
+    """Keep the final reader-facing output to the five requested comparison points."""
     notebook = load_notebook()
     source = "\n".join(
         "".join(cell.get("source", [])) for cell in notebook["cells"]
     )
 
-    assert "bo_selected_dummy_bugs_by_20_tests" in source
-    assert "normalized_auc_after_warm_start" in source
-    assert "additional_cost_after_warm_start" in source
-    assert "first_dummy_bug_position" not in source
+    assert "Five-point final summary" in source
+    assert "Best Method:" in source
+    assert "Dummy Bugs Found by Run 20" in source
+    assert "Dummy Bugs Found by Run 50" in source
+    assert "Run When All Dummy Bugs Were Found" in source
+    assert "Total Cost to Find All Dummy Bugs (minutes)" in source
+    assert 'RESULT_DIR / "final_summary.csv"' in source
 
-
-def test_notebook_exports_a_complete_final_report():
-    """Keep the final result readable at both method and individual-fault level."""
-    notebook = load_notebook()
-    source = "\n".join(
-        "".join(cell.get("source", [])) for cell in notebook["cells"]
-    )
-
-    assert "Complete final report" in source
-    assert "execution_position_when_all_dummy_bugs_found" in source
-    assert "remaining_dummy_bugs_after_20_tests" in source
-    assert "found_ids_by_20" in source
-    assert "fault_discovery_report" in source
-    assert 'RESULT_DIR / "final_report.csv"' in source
-    assert 'RESULT_DIR / "fault_discovery_report.csv"' in source
+    for removed_report in (
+        "Complete final report",
+        "normalized_auc_after_warm_start",
+        "remaining_dummy_bugs_after_20_tests",
+        "fault_discovery_report",
+        "theme_discovery_report",
+    ):
+        assert removed_report not in source
 
 
 def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():

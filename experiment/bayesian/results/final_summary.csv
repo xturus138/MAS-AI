@@ -1,0 +1,4 @@
+Method,Best Method,Dummy Bugs Found by Run 20,Dummy Bugs Found by Run 50,Run When All Dummy Bugs Were Found,Total Cost to Find All Dummy Bugs (minutes)
+Multilingual E5,Yes,9,13,29,223.0
+TF-IDF + SVD,,8,13,37,270.0
+One-Hot,,6,11,59,504.0
