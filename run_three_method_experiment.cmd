@@ -3,7 +3,7 @@ setlocal EnableExtensions
 
 set "PROJECT_ROOT=%~dp0"
 set "PYTHON=%PROJECT_ROOT%venv\Scripts\python.exe"
-set "NOTEBOOK_PATH=%PROJECT_ROOT%experiment\bayesian\bayesian_dummy_closed_loop.ipynb"
+set "NOTEBOOK_PATH=%PROJECT_ROOT%experiment\bayesian\three_method_representation_comparison.ipynb"
 set "MODE=%~1"
 set "CHECK_ONLY=0"
 
@@ -54,23 +54,23 @@ if errorlevel 1 (
 
 set "PYTHONIOENCODING=utf-8"
 if /I "%MODE%"=="fast" (
-    set "BAYESIAN_NOTEBOOK_RUN_E5=0"
+    set "THREE_METHOD_EXPERIMENT_RUN_E5=0"
 ) else (
-    set "BAYESIAN_NOTEBOOK_RUN_E5=1"
+    set "THREE_METHOD_EXPERIMENT_RUN_E5=1"
 )
 
 if "%CHECK_ONLY%"=="1" (
-    echo Ready to run the Bayesian notebook.
+    echo Ready to run the three-method representation experiment.
     echo Mode: %MODE%
-    echo E5 enabled: %BAYESIAN_NOTEBOOK_RUN_E5%
+    echo E5 enabled: %THREE_METHOD_EXPERIMENT_RUN_E5%
     echo Notebook: %NOTEBOOK_PATH%
     popd
     exit /b 0
 )
 
-echo Starting JupyterLab for the Bayesian notebook...
+echo Starting JupyterLab for the three-method representation experiment...
 echo Mode: %MODE%
-echo E5 enabled: %BAYESIAN_NOTEBOOK_RUN_E5%
+echo E5 enabled: %THREE_METHOD_EXPERIMENT_RUN_E5%
 echo Close JupyterLab or press Ctrl+C in this window when you are finished.
 "%PYTHON%" -m jupyter lab "%NOTEBOOK_PATH%"
 set "EXIT_CODE=%ERRORLEVEL%"
@@ -85,7 +85,7 @@ exit /b %EXIT_CODE%
 echo Usage: %~nx0 [full^|fast^|check^|help]
 echo.
 echo   full   Open JupyterLab and run all notebook methods, including E5. Default.
-echo   fast   Open JupyterLab with BAYESIAN_NOTEBOOK_RUN_E5=0 for One-Hot and TF-IDF only.
+echo   fast   Open JupyterLab with THREE_METHOD_EXPERIMENT_RUN_E5=0 for One-Hot and TF-IDF only.
 echo   check  Verify Python, JupyterLab, and the notebook path without starting JupyterLab.
 echo   help   Show this message.
 exit /b 0

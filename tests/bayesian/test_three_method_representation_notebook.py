@@ -6,7 +6,7 @@ import pandas as pd
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-NOTEBOOK = REPO_ROOT / "experiment" / "bayesian" / "bayesian_dummy_closed_loop.ipynb"
+NOTEBOOK = REPO_ROOT / "experiment" / "bayesian" / "three_method_representation_comparison.ipynb"
 
 
 def load_notebook() -> dict:
@@ -46,7 +46,7 @@ def test_notebook_contains_the_requested_experiment_outputs():
     )
 
     assert "Convergence plot" in source
-    assert "Posterior and acquisition snapshots" in source
+    assert "Model estimate and selection-score snapshots" in source
     assert 'f"iteration_snapshots_{safe_name}.png"' in source
     assert "for method_name, method_snapshots in snapshots_by_method.items()" in source
 
@@ -88,7 +88,7 @@ def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
 
     assert "DUMMY_FAULT_THEMES" in source
     assert "assert warm_start_bug_count >= 1" in source
-    assert "Warm-start results before Bayesian selection" in source
+    assert "Warm-start results before sequential selection" in source
     assert "All fixed dummy bugs for researcher inspection" in source
     assert "How each method chooses test #10" in source
     assert "run_random_baseline" not in source
