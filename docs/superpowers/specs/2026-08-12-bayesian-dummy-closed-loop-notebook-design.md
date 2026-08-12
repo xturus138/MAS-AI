@@ -102,12 +102,16 @@ Only the numeric representation changes.
 
 The notebook will produce:
 
-1. A table containing execution position, test ID, menu, estimated cost, acquisition value, predicted mean, predicted uncertainty, revealed dummy label, cumulative bug count, and cumulative cost.
-2. Cumulative dummy bugs found against number of executed tests.
-3. Cumulative dummy bugs found against cumulative testing minutes.
-4. Dummy bug discovery positions for each method.
-5. Feature coverage progress by execution position.
-6. A compact summary comparing early bug discovery at selected prefixes and total cost required to reveal the fixed dummy bugs.
+1. An initial true-dummy-oracle plot over the 69 test cases. Values are binary, with `1` marking a configured dummy bug and `0` marking no dummy bug. The plot is visible to the human but is explicitly isolated from surrogate training.
+2. A table containing execution position, test ID, menu, estimated cost, acquisition value, predicted mean, predicted uncertainty, revealed dummy label, cumulative bug count, and cumulative cost.
+3. A custom bug-discovery convergence plot showing the fraction or count of dummy bugs found against the number of executed tests.
+4. Cumulative dummy bugs found against cumulative testing minutes.
+5. Dummy bug discovery positions for each method.
+6. Feature coverage progress by execution position.
+7. A compact summary comparing early bug discovery at selected prefixes and total cost required to reveal the fixed dummy bugs.
+8. Iteration snapshots modeled after the supplied Colab example. The left panel will show the hidden dummy truth, surrogate posterior mean, uncertainty band, and observations revealed so far. The right panel will show acquisition scores over the remaining candidates and mark the next selected candidate.
+
+The snapshot panels will use a configurable method, defaulting to Multilingual E5, and several representative iterations beginning after the initial seed. Because the candidates occupy a multidimensional discrete space, the horizontal axis will be a fixed display order of test cases rather than a continuous optimization coordinate. Connecting lines are visual guides only. The notebook will state this directly and will not imply that values between adjacent test cases exist.
 
 Plots will compare One-Hot, TF-IDF with SVD, Multilingual E5, and the random baseline. The notebook will display figures inline and save reproducible CSV and PNG artifacts under `experiment/bayesian/results` during local execution. In Colab it will create the same result directory under the session workspace and offer a ZIP download.
 
