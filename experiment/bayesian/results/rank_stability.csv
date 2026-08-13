@@ -1,0 +1,10 @@
+policy,semantic_themes,scattered_random,single_feature,negative_tests,mean rank,worst rank
+GP+UCB (TF-IDF + SVD),1,2,3,2,2.0,3
+GP+UCB (Multilingual E5),2,5,2,1,2.5,5
+QA order,4,3,4,3,3.5,4
+GP+UCB (One-Hot),3,6,1,6,4.0,6
+Feature-stratified,6,4,6,4,5.0,6
+Diversity (TF-IDF + SVD),9,1,8,5,5.75,9
+Diversity (One-Hot),5,9,5,9,7.0,9
+Random,8,7,7,7,7.25,8
+Diversity (Multilingual E5),7,8,9,8,8.0,9

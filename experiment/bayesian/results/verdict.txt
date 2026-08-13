@@ -1,0 +1,18 @@
+Winner per scenario (median tests to find all 13 dummy bugs)
+  semantic_themes    GP+UCB (TF-IDF + SVD)        28 (IQR 27-30), floor Feature-stratified 66
+  scattered_random   Diversity (TF-IDF + SVD)     64 (IQR 62-67), floor Feature-stratified 66
+  single_feature     GP+UCB (One-Hot)             26 (IQR 23-36), floor Feature-stratified 63
+  negative_tests     GP+UCB (Multilingual E5)     50 (IQR 47-65), floor Feature-stratified 65
+
+Best representation by mean rank: GP+UCB (TF-IDF + SVD)
+Also best in every scenario: no
+The ranking moves with the fault placement rule, so no single representation
+is established as best. Per-scenario winners:
+  semantic_themes    -> GP+UCB (TF-IDF + SVD)
+  scattered_random   -> GP+UCB (TF-IDF + SVD)
+  single_feature     -> GP+UCB (One-Hot)
+  negative_tests     -> GP+UCB (Multilingual E5)
+
+GP+UCB (One-Hot)             beats Feature-stratified on   69% of 100 seed-scenario pairs, median margin +5 tests
+GP+UCB (TF-IDF + SVD)        beats Feature-stratified on   81% of 100 seed-scenario pairs, median margin +10 tests
+GP+UCB (Multilingual E5)     beats Feature-stratified on   81% of 100 seed-scenario pairs, median margin +16 tests
