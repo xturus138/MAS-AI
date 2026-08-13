@@ -75,6 +75,8 @@ council-transcript-*.md
 
 # IDEs
 .ipynb_checkpoints/
+experiment/bayesian/results/
+experiment/bayesian/bayesian_dummy_results.zip
 .idea/
 .blackbox/
 .blackboxcli/

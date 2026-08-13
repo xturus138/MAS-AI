@@ -1,4 +1,5 @@
 import json
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -7,6 +8,7 @@ import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 NOTEBOOK = REPO_ROOT / "experiment" / "bayesian" / "three_method_representation_comparison.ipynb"
+LAUNCHER = REPO_ROOT / "run_paper_vectoriser_experiment.cmd"
 
 
 def load_notebook() -> dict:
@@ -35,7 +37,39 @@ def test_notebook_exposes_executable_helper_contracts():
         for tag in cell.get("metadata", {}).get("tags", [])
     }
 
-    assert {"data_helpers", "bo_helpers", "fairness_helpers"}.issubset(tags)
+    assert {
+        "data_helpers",
+        "bo_helpers",
+        "fairness_helpers",
+        "vectoriser_selection_helpers",
+    }.issubset(tags)
+
+
+def test_vectoriser_selection_defaults_to_a_fast_pair_and_accepts_explicit_methods():
+    """Catch Run All silently starting large pretrained-model downloads."""
+    helpers = execute_tagged_cell("vectoriser_selection_helpers")
+
+    assert helpers["select_vectorisers"]("quick") == ("TF-IDF", "Feature Hashing")
+    assert helpers["select_vectorisers"]("Word2Vec, Flair") == ("Word2Vec", "Flair")
+    assert helpers["select_vectorisers"]("all") == helpers["PAPER_VECTORISERS"]
+    assert helpers["build_vectoriser_metadata"]("quick") == {
+        "vectoriser_selection": "quick",
+        "selected_vectorisers": ["TF-IDF", "Feature Hashing"],
+    }
+
+
+def test_launcher_check_defaults_to_the_fast_pair():
+    """Catch a local launcher that silently starts the full pretrained download set."""
+    completed = subprocess.run(
+        ["cmd", "/c", str(LAUNCHER), "check"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert "Mode: quick (TF-IDF, Feature Hashing)" in completed.stdout
 
 
 def test_notebook_contains_the_requested_experiment_outputs():
