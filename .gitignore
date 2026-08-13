@@ -74,6 +74,7 @@ council-transcript-*.md
 *.pdf
 
 # IDEs
+.ipynb_checkpoints/
 .idea/
 .blackbox/
 .blackboxcli/

@@ -1,4 +1,0 @@
-rank_by_post_warm_start_auc,method,bo_selected_dummy_bugs_by_20_tests,remaining_dummy_bugs_after_20_tests,normalized_auc_after_warm_start,execution_position_when_all_dummy_bugs_found,bo_selections_when_all_dummy_bugs_found,additional_cost_after_warm_start,total_cost_when_all_dummy_bugs_found
-1,Multilingual E5,8,4,0.8534722222222222,29,20,155.0,223.0
-2,TF-IDF + SVD,7,5,0.8270833333333333,37,28,202.0,270.0
-3,One-Hot,5,7,0.6895833333333333,59,50,436.0,504.0

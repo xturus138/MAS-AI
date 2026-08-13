@@ -1,4 +1,0 @@
-Method,Mean Bugs Found by Run 20,Mean Bugs Found by Run 50,Median Run When All 13 Dummy Bugs Were Found,Mean Total Cost to Find All 13 Dummy Bugs (minutes)
-Multilingual E5,2.8,8.3,67.0,608.7
-One-Hot,2.5,8.6,67.0,592.1
-TF-IDF + SVD,3.3,8.8,67.0,611.4

@@ -49,6 +49,18 @@ def test_notebook_contains_the_requested_experiment_outputs():
     assert "Model estimate and selection-score snapshots" in source
     assert 'f"iteration_snapshots_{safe_name}.png"' in source
     assert "for method_name, method_snapshots in snapshots_by_method.items()" in source
+    assert "PAPER_VECTORISERS" in source
+
+    for vectoriser in (
+        "TF-IDF",
+        "Feature Hashing",
+        "Word2Vec",
+        "GloVe",
+        "FastText",
+        "ELMo",
+        "Flair",
+    ):
+        assert vectoriser in source
 
     for removed_plot in (
         "True dummy oracle",
@@ -80,7 +92,7 @@ def test_notebook_reader_text_is_in_english():
 
 
 def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
-    """Keep the experiment focused on the three requested representations."""
+    """Keep the experiment focused on the seven requested vectorisers."""
     notebook = load_notebook()
     source = "\n".join(
         "".join(cell.get("source", [])) for cell in notebook["cells"]
@@ -90,9 +102,11 @@ def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
     assert "assert warm_start_bug_count >= 1" in source
     assert "Warm-start results before sequential selection" in source
     assert "All fixed dummy bugs for researcher inspection" in source
-    assert "How each method chooses test #10" in source
+    assert "How each vectoriser chooses test #10" in source
     assert "run_random_baseline" not in source
     assert "random_baseline_summary" not in source
+    assert "Multilingual E5" not in source
+    assert "One-Hot" not in source
 
 
 def test_final_summary_reports_the_requested_run_milestones():
@@ -102,7 +116,7 @@ def test_final_summary_reports_the_requested_run_milestones():
         "".join(cell.get("source", [])) for cell in notebook["cells"]
     )
 
-    assert "Five-point visual-demo summary" in source
+    assert "Seven-vectoriser visual-demo summary" in source
     assert "Best Method:" in source
     assert "Dummy Bugs Found by Run 20" in source
     assert "Dummy Bugs Found by Run 50" in source
