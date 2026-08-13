@@ -49,5 +49,8 @@
     "FC-FSI-001",
     "FC-PRF-001"
   ],
-  "warm_start_bug_count": 1
+  "warm_start_bug_count": 1,
+  "paired_fairness_replicates": 10,
+  "paired_fairness_base_seed": 20260813,
+  "paired_fairness_oracle": "uniform_random_without_representation_features"
 }

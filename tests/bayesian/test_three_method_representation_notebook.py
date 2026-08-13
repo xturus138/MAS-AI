@@ -35,7 +35,7 @@ def test_notebook_exposes_executable_helper_contracts():
         for tag in cell.get("metadata", {}).get("tags", [])
     }
 
-    assert {"data_helpers", "bo_helpers"}.issubset(tags)
+    assert {"data_helpers", "bo_helpers", "fairness_helpers"}.issubset(tags)
 
 
 def test_notebook_contains_the_requested_experiment_outputs():
@@ -102,13 +102,20 @@ def test_final_summary_reports_the_requested_run_milestones():
         "".join(cell.get("source", [])) for cell in notebook["cells"]
     )
 
-    assert "Five-point final summary" in source
+    assert "Five-point visual-demo summary" in source
     assert "Best Method:" in source
     assert "Dummy Bugs Found by Run 20" in source
     assert "Dummy Bugs Found by Run 50" in source
     assert "Run When All Dummy Bugs Were Found" in source
     assert "Total Cost to Find All Dummy Bugs (minutes)" in source
     assert 'RESULT_DIR / "final_summary.csv"' in source
+    assert "Non-visual synthetic fairness check" in source
+    assert "Neutral random fault instances" in source
+    assert "No representation winner is declared" in source
+    assert "Mean Bugs Found by Run 20" in source
+    assert "Median Run When All 13 Dummy Bugs Were Found" in source
+    assert 'RESULT_DIR / "synthetic_fairness_summary.csv"' in source
+    assert "convergence_by_scenario" not in source
 
     for removed_report in (
         "Complete final report",
@@ -135,6 +142,20 @@ def test_data_helpers_parse_cost_and_choose_one_seed_per_menu():
     seed_indices = helpers["choose_initial_seed"](cases)
     assert seed_indices == [2, 3]
     assert cases.iloc[seed_indices]["Menu"].nunique() == 2
+
+
+def test_fairness_helpers_create_paired_neutral_instances():
+    """Fairness labels and warm starts must not depend on a representation matrix."""
+    helpers = execute_tagged_cell("fairness_helpers")
+    oracle = helpers["draw_uniform_oracle"](case_count=10, bug_count=3, random_state=7)
+    menus = np.array(["B", "A", "B", "A", "C"])
+    initial_indices = helpers["choose_paired_initial_indices"](menus, random_state=7)
+
+    assert oracle.tolist() == helpers["draw_uniform_oracle"](10, 3, 7).tolist()
+    assert int(oracle.sum()) == 3
+    assert len(initial_indices) == 3
+    assert len(set(initial_indices)) == 3
+    assert set(menus[initial_indices]) == {"A", "B", "C"}
 
 
 def test_closed_loop_selects_every_case_once_and_audits_revealed_labels():
