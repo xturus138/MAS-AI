@@ -4,6 +4,7 @@ setlocal EnableExtensions
 set "PROJECT_ROOT=%~dp0"
 set "PYTHON=%PROJECT_ROOT%venv\Scripts\python.exe"
 set "NOTEBOOK_PATH=%PROJECT_ROOT%experiment\bayesian\three_method_representation_comparison.ipynb"
+set "E5_CACHE=%USERPROFILE%\.cache\huggingface\hub\models--intfloat--multilingual-e5-large-instruct"
 set "MODE=%~1"
 set "CHECK_ONLY=0"
 
@@ -57,6 +58,12 @@ if /I "%MODE%"=="fast" (
     set "THREE_METHOD_EXPERIMENT_RUN_E5=0"
 ) else (
     set "THREE_METHOD_EXPERIMENT_RUN_E5=1"
+    if exist "%E5_CACHE%" (
+        set "HF_HUB_OFFLINE=1"
+        echo Local Multilingual E5 cache found. Offline mode is enabled.
+    ) else (
+        echo Local Multilingual E5 cache was not found. Hugging Face may download it.
+    )
 )
 
 if "%CHECK_ONLY%"=="1" (
@@ -71,6 +78,7 @@ if "%CHECK_ONLY%"=="1" (
 echo Starting JupyterLab for the three-method representation experiment...
 echo Mode: %MODE%
 echo E5 enabled: %THREE_METHOD_EXPERIMENT_RUN_E5%
+if defined HF_HUB_OFFLINE echo Hugging Face offline: %HF_HUB_OFFLINE%
 echo Close JupyterLab or press Ctrl+C in this window when you are finished.
 "%PYTHON%" -m jupyter lab "%NOTEBOOK_PATH%"
 set "EXIT_CODE=%ERRORLEVEL%"
@@ -85,6 +93,7 @@ exit /b %EXIT_CODE%
 echo Usage: %~nx0 [full^|fast^|check^|help]
 echo.
 echo   full   Open JupyterLab and run all notebook methods, including E5. Default.
+echo          Uses the local E5 cache offline when it is available.
 echo   fast   Open JupyterLab with THREE_METHOD_EXPERIMENT_RUN_E5=0 for One-Hot and TF-IDF only.
 echo   check  Verify Python, JupyterLab, and the notebook path without starting JupyterLab.
 echo   help   Show this message.
