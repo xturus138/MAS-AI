@@ -58,6 +58,11 @@ def test_vectoriser_selection_defaults_to_a_fast_pair_and_accepts_explicit_metho
     }
     assert helpers["default_vectoriser_selection"](is_colab=True) == "all"
     assert helpers["default_vectoriser_selection"](is_colab=False) == "quick"
+    assert helpers["required_packages_for"](("ELMo",)) == {
+        "tensorflow": "tensorflow",
+        "tensorflow_hub": "tensorflow-hub",
+    }
+    assert helpers["required_packages_for"](("Flair",)) == {"flair": "flair"}
 
 
 def test_launcher_check_defaults_to_the_fast_pair():
@@ -143,6 +148,8 @@ def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
     assert "random_baseline_summary" not in source
     assert "Multilingual E5" not in source
     assert "One-Hot" not in source
+    assert "allennlp" not in source
+    assert "tensorflow_hub" in source
 
 
 def test_final_summary_reports_the_requested_run_milestones():
