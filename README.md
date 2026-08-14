@@ -45,6 +45,36 @@ is the number of executed tests needed to reach the selected anomaly or
 confirmed-fault target. The live research note is in the document workspace at
 `Hasil AI/JAIST/EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md`.
 
+## Current engineering priority: a reliable 69-case baseline
+
+Before any future Bayesian Optimization experiment, MAS AI needs to run the
+69 Firebase Chat cases in `scenarios/firebase_chat/scenario.xlsx` as one
+repeatable **predefined** batch. This is a baseline execution task, not BO: it
+does not select, rank, or omit test cases.
+
+The batch follows the workbook order and normally continues from the app state
+left by the preceding case. Before a case starts, the framework must check that
+the current screen can satisfy its required navigation context. When it cannot,
+the framework may perform a logged recovery transition. That transition must
+remain separate from the QA test case: the original Excel `Test Step` values
+must never be rewritten or silently extended.
+
+A production-ready batch must preflight the device and required test setup,
+continue after a single scenario fails, preserve evidence, and allow an
+unfinished run to resume safely. Each case must be reported as a success,
+functional anomaly/failure, stalled scenario, or technical error. A final run
+summary must cover all 69 cases.
+
+The original Excel workbook is also the final report template. MAS AI may fill
+only its existing execution columns—`Time Testing`, `Testing Status`, the
+first `Updated At`, `Testing By`, `OK Evid.`, and `Issue Status`—and must not
+add columns or touch developer-tracking fields. Detailed observations remain
+in the linked per-case evidence folder.
+
+Observer DSE is not part of this baseline and must stay disabled with
+`OBSERVER_UNCERTAINTY_ENABLED=false`. Its separate research code remains in
+the repository but must not affect batch execution or outcomes.
+
 ## System overview
 
 The framework runs on your computer and controls an Android device (physical phone or emulator) over ADB. It takes screenshots, analyzes them with AI, decides what to do, and sends touch and type commands back to the device.

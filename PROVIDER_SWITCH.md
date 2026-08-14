@@ -13,6 +13,26 @@ credit cost are not yet measured reliably for that experiment. See
 `Hasil AI/JAIST/EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md` in the research
 document workspace for the current hypothesis and open questions.
 
+## Current 69-case baseline scope
+
+Provider switching must not change the immediate goal: run every Firebase Chat
+QA case in workbook order through the predefined workflow, preserving state
+between cases where possible and recovering navigation only when necessary.
+This is a full-suite baseline, not a BO implementation or test-case reduction.
+
+For this run, DSE must remain off:
+
+```bash
+OBSERVER_UNCERTAINTY_ENABLED=false
+```
+
+The final Excel report must keep the original schema. The runner may populate
+only the existing execution fields (`Time Testing`, `Testing Status`, first
+`Updated At`, `Testing By`, `OK Evid.`, and `Issue Status`) and must not add
+columns or write to developer-tracking fields. Provider-reported token/cost
+figures may be kept in artifacts when available, but must not create new Excel
+columns or be described as BO credit savings.
+
 **Observer requirement (2026-07-29):** `OBSERVER_DETECTION_METHOD` defaults to
 `"llm"` — the Observer now sends the screenshot straight to `OBSERVER_MODEL`
 for widget grounding via `with_structured_output(...)`, not just semantic
