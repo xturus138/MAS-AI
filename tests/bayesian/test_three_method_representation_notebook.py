@@ -56,6 +56,8 @@ def test_vectoriser_selection_defaults_to_a_fast_pair_and_accepts_explicit_metho
         "vectoriser_selection": "quick",
         "selected_vectorisers": ["TF-IDF", "Feature Hashing"],
     }
+    assert helpers["default_vectoriser_selection"](is_colab=True) == "all"
+    assert helpers["default_vectoriser_selection"](is_colab=False) == "quick"
 
 
 def test_launcher_check_defaults_to_the_fast_pair():
