@@ -51,7 +51,11 @@ def test_vectoriser_selection_defaults_to_a_fast_pair_and_accepts_explicit_metho
 
     assert helpers["select_vectorisers"]("quick") == ("TF-IDF", "Feature Hashing")
     assert helpers["select_vectorisers"]("Word2Vec, Flair") == ("Word2Vec", "Flair")
-    assert helpers["select_vectorisers"]("all") == helpers["PAPER_VECTORISERS"]
+    assert helpers["select_vectorisers"]("all") == helpers["EXPERIMENT_METHODS"]
+    assert helpers["EXPERIMENT_METHODS"][-2:] == (
+        "One-Hot Encoding",
+        "Multilingual E5 Large Instruct",
+    )
     assert helpers["build_vectoriser_metadata"]("quick") == {
         "vectoriser_selection": "quick",
         "selected_vectorisers": ["TF-IDF", "Feature Hashing"],
@@ -63,6 +67,9 @@ def test_vectoriser_selection_defaults_to_a_fast_pair_and_accepts_explicit_metho
         "tensorflow_hub": "tensorflow-hub",
     }
     assert helpers["required_packages_for"](("Flair",)) == {"flair": "flair"}
+    assert helpers["required_packages_for"](("Multilingual E5 Large Instruct",)) == {
+        "sentence_transformers": "sentence-transformers",
+    }
 
 
 def test_launcher_check_defaults_to_the_fast_pair():
@@ -146,8 +153,8 @@ def test_notebook_uses_a_controlled_oracle_without_a_random_baseline():
     assert "How each vectoriser chooses test #10" in source
     assert "run_random_baseline" not in source
     assert "random_baseline_summary" not in source
-    assert "Multilingual E5" not in source
-    assert "One-Hot" not in source
+    assert "One-Hot Encoding" in source
+    assert "Multilingual E5 Large Instruct" in source
     assert "allennlp" not in source
     assert "tensorflow_hub" in source
 
@@ -159,7 +166,7 @@ def test_final_summary_reports_the_requested_run_milestones():
         "".join(cell.get("source", [])) for cell in notebook["cells"]
     )
 
-    assert "Seven-vectoriser visual-demo summary" in source
+    assert "Nine-representation visual-demo summary" in source
     assert "Best Method:" in source
     assert "Dummy Bugs Found by Run 20" in source
     assert "Dummy Bugs Found by Run 50" in source
@@ -243,3 +250,28 @@ def test_closed_loop_selects_every_case_once_and_audits_revealed_labels():
     assert result["cumulative_bugs"].tolist()[-1] == 2
     assert all(entry["training_indices"] == entry["revealed_indices"] for entry in audit)
     assert all(entry["train_count"] == entry["revealed_count"] for entry in audit)
+
+
+def test_final_ranking_prefers_the_earliest_complete_bug_discovery():
+    """Catch a Best Method rule that favors early partial discovery over completion."""
+    helpers = execute_tagged_cell("bo_helpers")
+    summary = pd.DataFrame(
+        [
+            {"Method": "FastText", "Dummy Bugs Found by Run 20": 9,
+             "Dummy Bugs Found by Run 50": 13,
+             "Run When All Dummy Bugs Were Found": 32,
+             "Total Cost to Find All Dummy Bugs (minutes)": 245.0},
+            {"Method": "Word2Vec", "Dummy Bugs Found by Run 20": 8,
+             "Dummy Bugs Found by Run 50": 13,
+             "Run When All Dummy Bugs Were Found": 28,
+             "Total Cost to Find All Dummy Bugs (minutes)": 204.0},
+            {"Method": "GloVe", "Dummy Bugs Found by Run 20": 8,
+             "Dummy Bugs Found by Run 50": 13,
+             "Run When All Dummy Bugs Were Found": 28,
+             "Total Cost to Find All Dummy Bugs (minutes)": 239.0},
+        ]
+    )
+
+    ranked = helpers["rank_final_summary"](summary)
+
+    assert ranked["Method"].tolist() == ["Word2Vec", "GloVe", "FastText"]

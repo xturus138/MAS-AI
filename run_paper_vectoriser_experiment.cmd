@@ -26,6 +26,8 @@ if /I "%MODE%"=="check" (
     set "PAPER_VECTORISER_MODE=TF-IDF"
 ) else if /I "%MODE%"=="Feature Hashing" (
     set "PAPER_VECTORISER_MODE=Feature Hashing"
+) else if /I "%MODE%"=="One-Hot Encoding" (
+    set "PAPER_VECTORISER_MODE=One-Hot Encoding"
 ) else if /I "%MODE%"=="Word2Vec" (
     set "PAPER_VECTORISER_MODE=Word2Vec"
 ) else if /I "%MODE%"=="GloVe" (
@@ -36,6 +38,8 @@ if /I "%MODE%"=="check" (
     set "PAPER_VECTORISER_MODE=ELMo"
 ) else if /I "%MODE%"=="Flair" (
     set "PAPER_VECTORISER_MODE=Flair"
+) else if /I "%MODE%"=="Multilingual E5 Large Instruct" (
+    set "PAPER_VECTORISER_MODE=Multilingual E5 Large Instruct"
 ) else (
     echo Unknown mode: %~1
     echo Run "%~nx0 help" for usage.
@@ -72,8 +76,8 @@ if "%CHECK_ONLY%"=="1" (
 )
 
 echo Starting JupyterLab for the selected vectorisers: %PAPER_VECTORISER_MODE%
-if /I "%PAPER_VECTORISER_MODE%"=="all" echo Warning: all downloads the five pretrained vectoriser weights and can take substantial time and disk space.
-if /I "%PAPER_VECTORISER_MODE%"=="all" echo Use Ctrl+C now if you did not mean to run all seven methods.
+if /I "%PAPER_VECTORISER_MODE%"=="all" echo Warning: all downloads the six pretrained representation weights and can take substantial time and disk space.
+if /I "%PAPER_VECTORISER_MODE%"=="all" echo Use Ctrl+C now if you did not mean to run all nine methods.
 echo Close JupyterLab or press Ctrl+C in this window when you are finished.
 "%PYTHON%" -m jupyter lab "%NOTEBOOK_PATH%"
 set "EXIT_CODE=%ERRORLEVEL%"
@@ -81,10 +85,10 @@ popd
 exit /b %EXIT_CODE%
 
 :help
-echo Usage: %~nx0 [quick^|all^|TF-IDF^|"Feature Hashing"^|Word2Vec^|GloVe^|FastText^|ELMo^|Flair^|check^|help]
+echo Usage: %~nx0 [quick^|all^|TF-IDF^|"Feature Hashing"^|"One-Hot Encoding"^|Word2Vec^|GloVe^|FastText^|ELMo^|Flair^|"Multilingual E5 Large Instruct"^|check^|help]
 echo.
 echo   quick  Open TF-IDF and Feature Hashing only. Default and no pretrained downloads.
-echo   all    Open all seven vectorisers. This may download several gigabytes of model weights.
+echo   all    Open all nine representations. This may download several gigabytes of model weights.
 echo   METHOD Open one named vectoriser, for example: %~nx0 Word2Vec
 echo   check  Verify the quick local environment without starting JupyterLab.
 echo   help   Show this message.
