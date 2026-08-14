@@ -23,6 +23,28 @@ Key technologies:
 * Figma API for design reference
 * SQLite and JSON for the memory system
 
+## Bayesian test-selection context — still open
+
+This repository also contains a pilot that compares text representations of
+Firebase Chat QA cases. It is not yet a Bayesian Optimization feature of the
+multi-agent system and its dummy outcomes are not real application bugs.
+
+The open research question is whether a future BO experiment can choose the
+next expensive QA case more efficiently after real outcomes are available.
+The proposed evaluation would execute all 69 cases once to create a hidden
+offline oracle, then reveal each outcome to the surrogate only after that case
+is selected. The start policy is not decided: it may begin with one test per
+mandatory feature, or with a coverage-constrained cold start that learns from
+run two onward. This is sequential updating, not a traditional train/test
+split.
+
+For now, this hypothesis does not change the predefined or autonomous agent
+workflows. AI token and credit cost cannot yet be measured reliably, so the
+future experiment must not claim credit savings. Its provisional outcome metric
+is the number of executed tests needed to reach the selected anomaly or
+confirmed-fault target. The live research note is in the document workspace at
+`Hasil AI/JAIST/EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md`.
+
 ## System overview
 
 The framework runs on your computer and controls an Android device (physical phone or emulator) over ADB. It takes screenshots, analyzes them with AI, decides what to do, and sends touch and type commands back to the device.
@@ -93,7 +115,7 @@ Metrics I track:
 * Number of actions taken, as a rough measure of efficiency
 * First-attempt accuracy, meaning how often it gets things right without retrying
 * Widget localization success
-* Token usage and cost per scenario
+* Token usage and cost per scenario, where the configured provider reports it
 
 ## Project structure
 

@@ -2,6 +2,17 @@
 
 Copy-paste the block you want into `.env` to swap all 4 agents at once.
 
+## Bayesian test-selection context — still open
+
+These provider settings do not implement or validate Bayesian Optimization
+(BO). The separate BO test-selection idea is still a research question: it
+would need real execution outcomes, sequential feedback, and an undecided
+coverage-first or cold-start policy before it could affect the multi-agent
+workflow. Do not infer AI credit savings from a provider choice; token and
+credit cost are not yet measured reliably for that experiment. See
+`Hasil AI/JAIST/EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md` in the research
+document workspace for the current hypothesis and open questions.
+
 **Observer requirement (2026-07-29):** `OBSERVER_DETECTION_METHOD` defaults to
 `"llm"` — the Observer now sends the screenshot straight to `OBSERVER_MODEL`
 for widget grounding via `with_structured_output(...)`, not just semantic
