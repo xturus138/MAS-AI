@@ -82,10 +82,13 @@ class RunOutputPaths:
 
 
 def create_run_output(mode: str, tcs_id: str, timestamp: str | None = None,
-                      run_root: str | None = None, scenario_index: int | None = None) -> RunOutputPaths:
+                      run_root: str | None = None, scenario_index: int | None = None,
+                      attempt_dir: str | None = None) -> RunOutputPaths:
     """Create standard output folders and return all paths for one scenario run.
 
-    When *run_root* and *scenario_index* are provided, the scenario dir is
+    When *attempt_dir* is provided, it is used verbatim as the per-attempt run
+    directory allocated by the durable batch coordinator.  When *run_root* and
+    *scenario_index* are provided, the scenario dir is
     placed under ``run_root/scenario_NN/``.  Otherwise the old flat layout
     ``runs/<mode>/<date>/<tcs_id>__<timestamp>/`` is used (backward compat).
     """
@@ -98,7 +101,10 @@ def create_run_output(mode: str, tcs_id: str, timestamp: str | None = None,
 
     root = config.OUTPUT_DIR
 
-    if run_root and scenario_index is not None:
+    if attempt_dir:
+        run_dir = os.path.abspath(attempt_dir)
+        shared_memory_dir = os.path.join(root, "runs", mode, "_memory")
+    elif run_root and scenario_index is not None:
         run_dir = os.path.join(run_root, scenario_dir_name(scenario_index))
         shared_memory_dir = os.path.join(root, "runs", mode, "_memory")
     else:

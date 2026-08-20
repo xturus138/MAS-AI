@@ -85,6 +85,10 @@ PRICING: dict[str, Tuple[float, float]] = {
 
     "google/gemini-3-pro-preview":                     (2.00,  12.00),
     "google/gemini-3.1-pro-preview":                   (2.00,  12.00),
+    # Real published rate, checked 2026-07-30 against
+    # ai.google.dev/gemini-api/docs/pricing (text/image/video input tier;
+    # audio input is priced higher at $0.50/M and isn't used here).
+    "google/gemini-3.1-flash-lite":                    (0.25,   1.50),
     "google/gemini-flash-1.5":                         (0.07,   0.30),
     "google/gemini-flash-1.5-8b":                      (0.04,   0.15),
     "google/gemini-pro-1.5":                           (1.25,   5.00),

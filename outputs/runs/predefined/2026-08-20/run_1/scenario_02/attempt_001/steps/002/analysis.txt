@@ -1,0 +1,14 @@
+SEMANTIC_MAP:
+[1]: Interactive Icon - Settings icon
+[2]: Header Text - Tugas
+[3]: Image - Empty state icon
+[4]: Text - Tidak ada tugas di sini
+[5]: Interactive Button - Add button
+[6]: Interactive Button - Catatan
+[7]: View Container - Tugas
+[8]: Interactive Button - Action bar container
+[9]: Interactive Button - Setelan
+[10]: Interactive Button - Search bar
+[11]: Interactive Navigation Bar - miuix_bottom_navigation_bar
+
+SUMMARY: The screen displays an empty task list interface with a header, a central empty state illustration, a floating action button for adding new items, and a bottom navigation bar to switch between notes and tasks.

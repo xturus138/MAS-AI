@@ -1,0 +1,1283 @@
+[
+    {
+        "id": 1,
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "Back button",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 2,
+        "bounds": [
+            513,
+            83,
+            587,
+            157
+        ],
+        "cv_bounds": [
+            513,
+            83,
+            587,
+            157
+        ],
+        "text": "Undo button",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Urungkan",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 3,
+        "bounds": [
+            609,
+            83,
+            683,
+            157
+        ],
+        "cv_bounds": [
+            609,
+            83,
+            683,
+            157
+        ],
+        "text": "Redo button",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Ulangi",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 4,
+        "bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "cv_bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "text": "Judul",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "TEXT_INPUT",
+        "source": "xml",
+        "xml_label": "Judul",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 5,
+        "bounds": [
+            44,
+            261,
+            157,
+            291
+        ],
+        "cv_bounds": [
+            44,
+            261,
+            157,
+            291
+        ],
+        "text": "20 Agustus 13:02 | 0 karakter",
+        "type": "text_stub",
+        "class": "StaticText",
+        "resource_id": "none",
+        "llm_type": "TEXT",
+        "source": "xml",
+        "xml_label": "20 Agustus",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "id": 6,
+        "bounds": [
+            42,
+            346,
+            163,
+            376
+        ],
+        "cv_bounds": [
+            42,
+            346,
+            163,
+            376
+        ],
+        "text": "Mulai tulis",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "TEXT_INPUT",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 7,
+        "bounds": [
+            0,
+            1001,
+            100,
+            1068
+        ],
+        "cv_bounds": [
+            0,
+            1001,
+            100,
+            1068
+        ],
+        "text": "Checkbox icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Daftar periksa",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 8,
+        "bounds": [
+            100,
+            1001,
+            200,
+            1068
+        ],
+        "cv_bounds": [
+            100,
+            1001,
+            200,
+            1068
+        ],
+        "text": "Highlight icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Sorotan",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 9,
+        "bounds": [
+            200,
+            1001,
+            300,
+            1068
+        ],
+        "cv_bounds": [
+            200,
+            1001,
+            300,
+            1068
+        ],
+        "text": "Increase font size icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Memperbesar teks",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 10,
+        "bounds": [
+            328,
+            834,
+            375,
+            1013
+        ],
+        "cv_bounds": [
+            328,
+            834,
+            375,
+            1013
+        ],
+        "text": "Decrease font size icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 11,
+        "bounds": [
+            400,
+            1001,
+            500,
+            1068
+        ],
+        "cv_bounds": [
+            400,
+            1001,
+            500,
+            1068
+        ],
+        "text": "Bold icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Tebal",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 12,
+        "bounds": [
+            500,
+            1001,
+            600,
+            1068
+        ],
+        "cv_bounds": [
+            500,
+            1001,
+            600,
+            1068
+        ],
+        "text": "Italic icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Miring",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 13,
+        "bounds": [
+            638,
+            0,
+            667,
+            1056
+        ],
+        "cv_bounds": [
+            638,
+            0,
+            667,
+            1056
+        ],
+        "text": "Underline icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 14,
+        "bounds": [
+            0,
+            1112,
+            66,
+            1155
+        ],
+        "cv_bounds": [
+            0,
+            1112,
+            66,
+            1155
+        ],
+        "text": "Menu icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 15,
+        "bounds": [
+            0,
+            1112,
+            170,
+            1155
+        ],
+        "cv_bounds": [
+            0,
+            1112,
+            170,
+            1155
+        ],
+        "text": "Stickers icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 16,
+        "bounds": [
+            0,
+            1112,
+            274,
+            1155
+        ],
+        "cv_bounds": [
+            0,
+            1112,
+            274,
+            1155
+        ],
+        "text": "GIF icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 17,
+        "bounds": [
+            0,
+            1112,
+            379,
+            1155
+        ],
+        "cv_bounds": [
+            0,
+            1112,
+            379,
+            1155
+        ],
+        "text": "Settings icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 18,
+        "bounds": [
+            0,
+            1112,
+            483,
+            1155
+        ],
+        "cv_bounds": [
+            0,
+            1112,
+            483,
+            1155
+        ],
+        "text": "Translate icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 19,
+        "bounds": [
+            0,
+            1112,
+            588,
+            1155
+        ],
+        "cv_bounds": [
+            0,
+            1112,
+            588,
+            1155
+        ],
+        "text": "Theme icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 20,
+        "bounds": [
+            0,
+            1194,
+            72,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            72,
+            1274
+        ],
+        "text": "Q",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 21,
+        "bounds": [
+            0,
+            1194,
+            144,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            144,
+            1274
+        ],
+        "text": "W",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 22,
+        "bounds": [
+            0,
+            1194,
+            216,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            216,
+            1274
+        ],
+        "text": "E",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 23,
+        "bounds": [
+            0,
+            1194,
+            288,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            288,
+            1274
+        ],
+        "text": "R",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 24,
+        "bounds": [
+            0,
+            1194,
+            360,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            360,
+            1274
+        ],
+        "text": "T",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 25,
+        "bounds": [
+            0,
+            1194,
+            432,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            432,
+            1274
+        ],
+        "text": "Y",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 26,
+        "bounds": [
+            0,
+            1194,
+            504,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            504,
+            1274
+        ],
+        "text": "U",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 27,
+        "bounds": [
+            0,
+            1194,
+            576,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            576,
+            1274
+        ],
+        "text": "I",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 28,
+        "bounds": [
+            0,
+            1194,
+            648,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            648,
+            1274
+        ],
+        "text": "O",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 29,
+        "bounds": [
+            0,
+            1194,
+            720,
+            1274
+        ],
+        "cv_bounds": [
+            0,
+            1194,
+            720,
+            1274
+        ],
+        "text": "P",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 30,
+        "bounds": [
+            0,
+            1293,
+            96,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            96,
+            1373
+        ],
+        "text": "A",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 31,
+        "bounds": [
+            0,
+            1293,
+            192,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            192,
+            1373
+        ],
+        "text": "S",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 32,
+        "bounds": [
+            0,
+            1293,
+            288,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            288,
+            1373
+        ],
+        "text": "D",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 33,
+        "bounds": [
+            0,
+            1293,
+            384,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            384,
+            1373
+        ],
+        "text": "F",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 34,
+        "bounds": [
+            0,
+            1293,
+            480,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            480,
+            1373
+        ],
+        "text": "G",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 35,
+        "bounds": [
+            0,
+            1293,
+            576,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            576,
+            1373
+        ],
+        "text": "H",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 36,
+        "bounds": [
+            0,
+            1293,
+            672,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            672,
+            1373
+        ],
+        "text": "J",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 37,
+        "bounds": [
+            0,
+            1293,
+            720,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            720,
+            1373
+        ],
+        "text": "K",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 38,
+        "bounds": [
+            0,
+            1293,
+            720,
+            1373
+        ],
+        "cv_bounds": [
+            0,
+            1293,
+            720,
+            1373
+        ],
+        "text": "L",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 39,
+        "bounds": [
+            0,
+            1394,
+            106,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            106,
+            1474
+        ],
+        "text": "Shift key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 40,
+        "bounds": [
+            0,
+            1394,
+            212,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            212,
+            1474
+        ],
+        "text": "Z",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 41,
+        "bounds": [
+            0,
+            1394,
+            318,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            318,
+            1474
+        ],
+        "text": "X",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 42,
+        "bounds": [
+            0,
+            1394,
+            423,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            423,
+            1474
+        ],
+        "text": "C",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 43,
+        "bounds": [
+            0,
+            1394,
+            529,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            529,
+            1474
+        ],
+        "text": "V",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 44,
+        "bounds": [
+            0,
+            1394,
+            635,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            635,
+            1474
+        ],
+        "text": "B",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 45,
+        "bounds": [
+            0,
+            1394,
+            720,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            720,
+            1474
+        ],
+        "text": "N",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 46,
+        "bounds": [
+            0,
+            1394,
+            720,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            720,
+            1474
+        ],
+        "text": "M",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 47,
+        "bounds": [
+            0,
+            1394,
+            720,
+            1474
+        ],
+        "cv_bounds": [
+            0,
+            1394,
+            720,
+            1474
+        ],
+        "text": "Backspace key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 48,
+        "bounds": [
+            0,
+            1493,
+            106,
+            1573
+        ],
+        "cv_bounds": [
+            0,
+            1493,
+            106,
+            1573
+        ],
+        "text": "?123 key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 49,
+        "bounds": [
+            0,
+            1493,
+            212,
+            1573
+        ],
+        "cv_bounds": [
+            0,
+            1493,
+            212,
+            1573
+        ],
+        "text": "Comma key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 50,
+        "bounds": [
+            0,
+            1493,
+            318,
+            1573
+        ],
+        "cv_bounds": [
+            0,
+            1493,
+            318,
+            1573
+        ],
+        "text": "Emoji key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 51,
+        "bounds": [
+            0,
+            1493,
+            529,
+            1573
+        ],
+        "cv_bounds": [
+            0,
+            1493,
+            529,
+            1573
+        ],
+        "text": "Space key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 52,
+        "bounds": [
+            0,
+            1493,
+            635,
+            1573
+        ],
+        "cv_bounds": [
+            0,
+            1493,
+            635,
+            1573
+        ],
+        "text": "Period key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 53,
+        "bounds": [
+            0,
+            1493,
+            720,
+            1573
+        ],
+        "cv_bounds": [
+            0,
+            1493,
+            720,
+            1573
+        ],
+        "text": "Enter key",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "llm_grounding"
+    },
+    {
+        "id": 54,
+        "bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "cv_bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "text": "Mulai tulis Buat pemetaan pikiran",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/rich_editor",
+        "xml_label": "Mulai tulis Buat pemetaan pikiran",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 55,
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 56,
+        "bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "text": "ll_note_edit",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/ll_note_edit",
+        "xml_label": "ll_note_edit",
+        "xml_role": "view",
+        "xml_actionable": true
+    },
+    {
+        "id": 57,
+        "bounds": [
+            300,
+            1001,
+            400,
+            1068
+        ],
+        "cv_bounds": [
+            300,
+            1001,
+            400,
+            1068
+        ],
+        "text": "Memperkecil teks",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/reduce_font",
+        "xml_label": "Memperkecil teks",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 58,
+        "bounds": [
+            600,
+            1001,
+            700,
+            1068
+        ],
+        "cv_bounds": [
+            600,
+            1001,
+            700,
+            1068
+        ],
+        "text": "Garis bawah",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/underline",
+        "xml_label": "Garis bawah",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 59,
+        "bounds": [
+            700,
+            1001,
+            720,
+            1068
+        ],
+        "cv_bounds": [
+            700,
+            1001,
+            720,
+            1068
+        ],
+        "text": "Kotak centang",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/bullet",
+        "xml_label": "Kotak centang",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

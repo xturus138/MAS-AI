@@ -212,7 +212,24 @@ python -m pytest -q
 python main.py
 ```
 
-Results are saved to `outputs/runs/{mode}/{date}/{tcs_id}__{timestamp}/`, with per-step artifacts (screenshots, XML dumps, LLM logs, memory snapshots) under a `steps/NNN/` subfolder.
+For the Firebase Chat predefined baseline:
+
+```bash
+# Start a new workbook-order batch after full preflight
+python main.py --scenario firebase_chat --mode predefined
+
+# Run the read-only workbook/config/device preflight and exit
+python main.py --scenario firebase_chat --mode predefined --preflight-only
+
+# Resume unfinished cases without overwriting prior attempt evidence
+python main.py --scenario firebase_chat --mode predefined --resume outputs/runs/predefined/YYYY-MM-DD/run_N
+```
+
+Legacy single-scenario results use `outputs/runs/{mode}/{date}/{tcs_id}__{timestamp}/`.
+The predefined baseline uses `outputs/runs/predefined/{date}/run_N/scenario_NN/attempt_NNN/`,
+with immutable attempt evidence plus batch JSON, CSV, and Excel summaries at the run root.
+Its strict workbook preflight currently targets the 69-case Firebase Chat baseline contract;
+the autonomous workflow remains a separate execution mode.
 
 ## Documentation
 

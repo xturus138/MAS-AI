@@ -1,0 +1,548 @@
+[
+    {
+        "id": 1,
+        "bounds": [
+            540,
+            96,
+            588,
+            144
+        ],
+        "cv_bounds": [
+            540,
+            96,
+            588,
+            144
+        ],
+        "text": "folder icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "action_menu_item_child_icon",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "id": 2,
+        "bounds": [
+            629,
+            96,
+            677,
+            144
+        ],
+        "cv_bounds": [
+            629,
+            96,
+            677,
+            144
+        ],
+        "text": "settings icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "action_menu_item_child_icon",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "id": 3,
+        "bounds": [
+            48,
+            179,
+            230,
+            251
+        ],
+        "cv_bounds": [
+            48,
+            179,
+            230,
+            251
+        ],
+        "text": "Catatan",
+        "type": "text_stub",
+        "class": "StaticText",
+        "resource_id": "none",
+        "llm_type": "TEXT",
+        "source": "xml",
+        "xml_label": "Catatan",
+        "xml_role": "text",
+        "xml_actionable": true
+    },
+    {
+        "id": 4,
+        "bounds": [
+            44,
+            287,
+            152,
+            361
+        ],
+        "cv_bounds": [
+            44,
+            287,
+            152,
+            361
+        ],
+        "text": "Semua",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "data_folder_list_layout",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 5,
+        "bounds": [
+            166,
+            287,
+            291,
+            361
+        ],
+        "cv_bounds": [
+            166,
+            287,
+            291,
+            361
+        ],
+        "text": "PKM-KC",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "data_folder_list_layout",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 6,
+        "bounds": [
+            305,
+            287,
+            422,
+            361
+        ],
+        "cv_bounds": [
+            305,
+            287,
+            422,
+            361
+        ],
+        "text": "PROKSI",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "data_folder_list_layout",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 7,
+        "bounds": [
+            436,
+            287,
+            574,
+            361
+        ],
+        "cv_bounds": [
+            436,
+            287,
+            574,
+            361
+        ],
+        "text": "suitmedia",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "data_folder_list_layout",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 8,
+        "bounds": [
+            588,
+            287,
+            676,
+            361
+        ],
+        "cv_bounds": [
+            588,
+            287,
+            676,
+            361
+        ],
+        "text": "Tidak I",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "data_folder_list_layout",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 9,
+        "bounds": [
+            33,
+            387,
+            687,
+            572
+        ],
+        "cv_bounds": [
+            33,
+            387,
+            687,
+            572
+        ],
+        "text": "Barang bawaan HIGHLIGHT PENTING 17 Juli",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "LIST_ITEM",
+        "source": "xml",
+        "xml_label": "note_group",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 10,
+        "bounds": [
+            33,
+            591,
+            687,
+            776
+        ],
+        "cv_bounds": [
+            33,
+            591,
+            687,
+            776
+        ],
+        "text": "Rencana Skripsi 2026 Selesaikan implementasi Multi-Agent Swarm untuk p... 13:04",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "LIST_ITEM",
+        "source": "xml",
+        "xml_label": "note_group",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 11,
+        "bounds": [
+            33,
+            795,
+            687,
+            980
+        ],
+        "cv_bounds": [
+            33,
+            795,
+            687,
+            980
+        ],
+        "text": "Pengeluaran Jepang Bus : 310 20 Juli",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "LIST_ITEM",
+        "source": "xml",
+        "xml_label": "note_group",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 12,
+        "bounds": [
+            33,
+            999,
+            687,
+            1184
+        ],
+        "cv_bounds": [
+            33,
+            999,
+            687,
+            1184
+        ],
+        "text": "Bayar google playstore Favian: BCA 2 Juli",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "LIST_ITEM",
+        "source": "xml",
+        "xml_label": "note_group",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 13,
+        "bounds": [
+            33,
+            1203,
+            687,
+            1388
+        ],
+        "cv_bounds": [
+            33,
+            1203,
+            687,
+            1388
+        ],
+        "text": "List perlengkapan visa Formulir Visa 1 Juli",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "LIST_ITEM",
+        "source": "xml",
+        "xml_label": "note_group",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 14,
+        "bounds": [
+            548,
+            1310,
+            655,
+            1417
+        ],
+        "cv_bounds": [
+            548,
+            1310,
+            655,
+            1417
+        ],
+        "text": "plus icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Ketuk untuk buat catatan",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 15,
+        "bounds": [
+            33,
+            1407,
+            687,
+            1592
+        ],
+        "cv_bounds": [
+            33,
+            1407,
+            687,
+            1592
+        ],
+        "text": "Catatan skripsi",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "LIST_ITEM",
+        "source": "xml",
+        "xml_label": "note_group",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 16,
+        "bounds": [
+            152,
+            1545,
+            213,
+            1570
+        ],
+        "cv_bounds": [
+            152,
+            1545,
+            213,
+            1570
+        ],
+        "text": "Catatan",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Catatan",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "id": 17,
+        "bounds": [
+            513,
+            1545,
+            562,
+            1570
+        ],
+        "cv_bounds": [
+            513,
+            1545,
+            562,
+            1570
+        ],
+        "text": "Tugas",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Tugas",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "id": 18,
+        "bounds": [
+            15,
+            1482,
+            350,
+            1600
+        ],
+        "cv_bounds": [
+            15,
+            1482,
+            350,
+            1600
+        ],
+        "text": "Catatan",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_page_1",
+        "xml_label": "Catatan",
+        "xml_role": "view",
+        "xml_actionable": true
+    },
+    {
+        "id": 19,
+        "bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 20,
+        "bounds": [
+            527,
+            83,
+            601,
+            157
+        ],
+        "cv_bounds": [
+            527,
+            83,
+            601,
+            157
+        ],
+        "text": "Folder",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "Folder",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 21,
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "Setelan",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "Setelan",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 22,
+        "bounds": [
+            0,
+            1482,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            1482,
+            720,
+            1600
+        ],
+        "text": "miuix_bottom_navigation_bar",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/miuix_bottom_navigation_bar",
+        "xml_label": "miuix_bottom_navigation_bar",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 23,
+        "bounds": [
+            370,
+            1482,
+            705,
+            1600
+        ],
+        "cv_bounds": [
+            370,
+            1482,
+            705,
+            1600
+        ],
+        "text": "Tugas",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_page_2",
+        "xml_label": "Tugas",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

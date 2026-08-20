@@ -1,0 +1,10 @@
+{
+    "reasoning": "Langkah kedua dalam workflow adalah mengklik tombol tambah (+) untuk membuat tugas baru. Berdasarkan semantic map, tombol tambah diwakili oleh widget dengan ID 5.",
+    "action_type": "click",
+    "intent": "Pengguna klik tombol \"+\" (tambah) untuk membuat tugas baru",
+    "target_id": 5,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

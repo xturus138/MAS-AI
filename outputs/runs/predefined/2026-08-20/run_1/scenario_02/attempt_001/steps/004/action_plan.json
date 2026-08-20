@@ -1,0 +1,10 @@
+{
+    "reasoning": "Sesuai dengan procedural memory langkah ke-4, pengguna perlu mengklik tombol 'Selesai' untuk menyelesaikan pembuatan tugas. Tombol 'Selesai' diidentifikasi dengan widget ID [8] pada screen map.",
+    "action_type": "click",
+    "intent": "Mengklik tombol 'Selesai' untuk menyimpan tugas baru.",
+    "target_id": 8,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}

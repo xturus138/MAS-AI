@@ -419,9 +419,19 @@ class DeciderAgent:
             )
             self.monitor.on_decider(target_widget)
 
+        technical_error_history = list(state.get("technical_error_history", []))
+        if (
+            "LLM output parsing failed" in plan.reasoning
+            or "Decider LLM returned None" in plan.reasoning
+        ):
+            entry = {"step": current_step, "reason": plan.reasoning}
+            if entry not in technical_error_history:
+                technical_error_history.append(entry)
+
         return {
             "action_plan": plan.model_dump(),
             "is_completed": plan.is_completed,
             "memory_context": memory_context,
             "sender": "decider",
+            "technical_error_history": technical_error_history,
         }

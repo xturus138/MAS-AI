@@ -486,6 +486,18 @@ class ReflectorAgent:
         save_dir = step_dir if step_dir else output_dir
 
         is_system_error = "[SYSTEM_ERROR]" in reasoning
+        technical_error_history = list(state.get("technical_error_history", []))
+        fallback_reasons = []
+        for key in ("loading_reasoning", "ui_change_reasoning"):
+            value = str(verification_chain.get(key) or "")
+            if "(assuming loaded)" in value or "(assuming changed)" in value:
+                fallback_reasons.append(value)
+        if is_system_error:
+            fallback_reasons.append(reasoning)
+        for fallback_reason in fallback_reasons:
+            entry = {"step": current_step, "reason": fallback_reason}
+            if entry not in technical_error_history:
+                technical_error_history.append(entry)
 
         if save_dir:
             ref_path = os.path.join(save_dir, "reflector_report.json")
@@ -605,6 +617,7 @@ class ReflectorAgent:
             "reflector_pass_count": reflector_pass_count,
             "total_first_verify_calls": total_first_verify_calls,
             "reflector_first_pass_count": reflector_first_pass_count,
+            "technical_error_history": technical_error_history,
         }
 
     def evaluate(self, state: AgentState) -> dict:

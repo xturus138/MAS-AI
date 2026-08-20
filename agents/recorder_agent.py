@@ -1,12 +1,31 @@
 import datetime
 import json
 import os
+import shutil
+import tempfile
 
 from core.models.state import AgentState
 from core.utils.output_writer import write_run_index as _write_run_index
 from core.utils.output_writer import write_run_summary as _write_run_summary
 from core.utils.process_logger import LogLevel as _LL
 from shared import config
+
+
+REQUIRED_EXECUTION_HEADERS = (
+    "Time Testing",
+    "Testing Status",
+    "Updated At",
+    "Testing By",
+    "OK Evid.",
+    "Issue Status",
+)
+
+REPORT_STATUS_VALUES = {
+    "success": ("OK", "OK"),
+    "functional_anomaly": ("NG", "Functional anomaly"),
+    "stagnated": ("NG", "Stagnated"),
+    "technical_error": ("NG", "Technical error"),
+}
 
 
 class RecorderAgent:
@@ -27,133 +46,205 @@ class RecorderAgent:
             lvl = level if level is not None else _LL.INFO
             self.logger.log("RECORDER", msg, detail, level=lvl)
 
+    @staticmethod
+    def _report_sheet_schema(workbook):
+        for worksheet in workbook.worksheets:
+            for row_idx, row in enumerate(worksheet.iter_rows(values_only=False), start=1):
+                first = row[0].value
+                if first and str(first).strip().upper() == "TCS ID":
+                    column_indexes: dict[str, int] = {}
+                    for col_idx, cell in enumerate(row, start=1):
+                        if cell.value is not None:
+                            name = str(cell.value).strip()
+                            if name and name not in column_indexes:
+                                column_indexes[name] = col_idx
+                    missing = [
+                        header
+                        for header in REQUIRED_EXECUTION_HEADERS
+                        if header not in column_indexes
+                    ]
+                    if missing:
+                        raise ValueError(
+                            "Missing required execution header(s): " + ", ".join(missing)
+                        )
+                    return worksheet, row_idx, column_indexes
+        raise ValueError("TCS ID header row not found in workbook")
+
+    @classmethod
+    def _validate_report_source(cls, source_workbook: str) -> None:
+        import openpyxl
+
+        workbook = openpyxl.load_workbook(source_workbook)
+        try:
+            cls._report_sheet_schema(workbook)
+        finally:
+            workbook.close()
+
     def _fill_report_sheet(
         self, dest: str, tcs_id: str, output_dir: str, metrics: dict
     ):
         import openpyxl
 
         wb = openpyxl.load_workbook(dest)
-        ws = wb.active
+        try:
+            ws, header_row_idx, col_index = self._report_sheet_schema(wb)
 
-        header_row_idx = None
-        col_map: dict = {}
-        for row_idx, row in enumerate(ws.iter_rows(values_only=False), start=1):
-            first = row[0].value
-            if first and str(first).strip().upper() == "TCS ID":
-                header_row_idx = row_idx
-                for col_idx, cell in enumerate(row, start=1):
-                    if cell.value:
-                        name = str(cell.value).strip()
-                        if name not in col_map:
-                            col_map[name] = col_idx
-                break
+            data_row_idx = None
+            for row_idx in range(header_row_idx + 1, ws.max_row + 2):
+                cell_val = ws.cell(row_idx, 1).value
+                if cell_val and str(cell_val).strip() == tcs_id:
+                    data_row_idx = row_idx
+                    break
 
-        if header_row_idx is None:
-            print(f"[Recorder] Warning: TCS ID header row not found in {dest}")
-            return
+            if data_row_idx is None:
+                raise ValueError(f"TCS ID '{tcs_id}' not found in {dest}")
 
-        RESULT_COLS = [
-            "Time Testing",
-            "Testing Status",
-            "Updated At",
-            "Testing By",
-            "OK Evid.",
-            "Issue Status",
-            "Actual Result",
-            "Steps Taken",
-            "Tokens Used",
-            "Stagnation Count",
-        ]
-        next_col = ws.max_column + 1
-        col_index: dict = {}
-        for col_name in RESULT_COLS:
-            if col_name in col_map:
-                col_index[col_name] = col_map[col_name]
-            else:
-                ws.cell(header_row_idx, next_col).value = col_name
-                col_index[col_name] = next_col
-                next_col += 1
+            duration_s = metrics.get("total_duration_seconds", 0)
+            mins, secs = divmod(int(duration_s), 60)
+            duration_str = f"{mins}m {secs}s"
 
-        data_row_idx = None
-        for row_idx in range(header_row_idx + 1, ws.max_row + 2):
-            cell_val = ws.cell(row_idx, 1).value
-            if cell_val and str(cell_val).strip() == tcs_id:
-                data_row_idx = row_idx
-                break
+            status = metrics.get("status")
+            if status not in REPORT_STATUS_VALUES:
+                raise ValueError(
+                    "Report status must be one of: " + ", ".join(REPORT_STATUS_VALUES)
+                )
+            testing_status, issue_status = REPORT_STATUS_VALUES[status]
 
-        if data_row_idx is None:
-            print(f"[Recorder] Warning: TCS ID '{tcs_id}' not found in {dest}")
-            return
+            values = {
+                "Time Testing": duration_str,
+                "Testing Status": testing_status,
+                "Updated At": metrics.get("timestamp", ""),
+                "Testing By": f"MAS AI ({metrics.get('mode', 'predefined')})",
+                "OK Evid.": output_dir,
+                "Issue Status": issue_status,
+            }
 
-        duration_s = metrics.get("total_duration_seconds", 0)
-        mins, secs = divmod(int(duration_s), 60)
-        duration_str = f"{mins}m {secs}s"
+            for col_name, value in values.items():
+                idx = col_index.get(col_name)
+                if idx:
+                    ws.cell(data_row_idx, idx).value = value
 
-        status = metrics.get("status", "FAILED")
-        testing_status = "OK" if status == "SUCCESS" else "NG"
+            wb.save(dest)
+        finally:
+            wb.close()
 
-        judgment = (
-            metrics.get("justification", {}).get("reflector_final_judgment", "") or ""
+    def _replace_report_from_copy(
+        self,
+        template_workbook: str,
+        destination: str,
+        tcs_id: str,
+        output_dir: str,
+        metrics: dict,
+    ) -> None:
+        destination_dir = os.path.dirname(destination)
+        os.makedirs(destination_dir, exist_ok=True)
+        temp_file = tempfile.NamedTemporaryFile(
+            dir=destination_dir, suffix=".xlsx", delete=False
         )
-
-        values = {
-            "Time Testing": duration_str,
-            "Testing Status": testing_status,
-            "Updated At": metrics.get("timestamp", ""),
-            "Testing By": f"MAS AI ({metrics.get('mode', 'predefined')})",
-            "OK Evid.": output_dir,
-            "Issue Status": "OK" if testing_status == "OK" else judgment[:200],
-            "Actual Result": judgment[:500],
-            "Steps Taken": metrics.get("total_cycles", 0),
-            "Tokens Used": metrics.get("total_tokens_estimate", 0),
-            "Stagnation Count": metrics.get("stagnation_count", 0),
-        }
-
-        for col_name, value in values.items():
-            idx = col_index.get(col_name)
-            if idx:
-                ws.cell(data_row_idx, idx).value = value
-
-        wb.save(dest)
-        print(f"[Recorder] Test report saved to {dest}")
-        self._log(
-            "Test report written",
-            f"tcs_id={tcs_id}  status={testing_status}  dest={dest}",
-        )
+        temp_file.close()
+        try:
+            shutil.copy2(template_workbook, temp_file.name)
+            self._fill_report_sheet(temp_file.name, tcs_id, output_dir, metrics)
+            os.replace(temp_file.name, destination)
+        except Exception:
+            if os.path.exists(temp_file.name):
+                os.unlink(temp_file.name)
+            raise
 
     def write_test_report(
-        self, state: AgentState, metrics: dict, shared_dir: str = None
+        self,
+        state: AgentState,
+        metrics: dict,
+        source_workbook: str,
+        shared_dir: str = None,
     ):
         """Generate test reports. Write to per-scenario dir, and optionally a shared run dir."""
-        import shutil
-
-        xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
         tcs_id = state.get("tcs_id", "")
         output_dir = state.get("output_dir", "")
 
-        if not os.path.exists(xlsx_path) or not tcs_id or not output_dir:
+        if not source_workbook or not os.path.isfile(source_workbook):
+            raise FileNotFoundError("An explicit source workbook path is required")
+        if not tcs_id or not output_dir:
             return
 
-        try:
-            reports_dir = state.get("reports_dir") or os.path.join(
-                output_dir, "reports"
+        self._validate_report_source(source_workbook)
+        reports_dir = state.get("reports_dir") or os.path.join(output_dir, "reports")
+        dest = os.path.join(reports_dir, "test_report.xlsx")
+        self._replace_report_from_copy(
+            source_workbook, dest, tcs_id, output_dir, metrics
+        )
+
+        if shared_dir:
+            shared_dest = os.path.join(shared_dir, "test_report.xlsx")
+            shared_template = (
+                shared_dest if os.path.exists(shared_dest) else source_workbook
             )
-            os.makedirs(reports_dir, exist_ok=True)
-            dest = os.path.join(reports_dir, "test_report.xlsx")
-            shutil.copy2(xlsx_path, dest)
-            self._fill_report_sheet(dest, tcs_id, output_dir, metrics)
+            self._replace_report_from_copy(
+                shared_template, shared_dest, tcs_id, output_dir, metrics
+            )
 
-            if shared_dir:
-                shared_dest = os.path.join(shared_dir, "test_report.xlsx")
-                if not os.path.exists(shared_dest):
-                    shutil.copy2(xlsx_path, shared_dest)
-                self._fill_report_sheet(shared_dest, tcs_id, output_dir, metrics)
+        print(f"[Recorder] Test report saved to {dest}")
+        self._log("Test report written", f"tcs_id={tcs_id}  dest={dest}")
 
-        except Exception as e:
-            print(f"[Recorder] Warning: could not write test report: {e}")
-            self._log("Test report FAILED", str(e))
+    @classmethod
+    def write_batch_report(
+        cls,
+        *,
+        manifest: dict,
+        source_workbook: str,
+        destination: str,
+    ) -> str:
+        """Rebuild the aggregate Excel report from the final manifest.
 
-    def finalize_run_metrics(self, state: AgentState, shared_dir: str = None) -> dict:
+        The explicit immutable source workbook is copied once, then every
+        manifest case is applied to that temporary copy.  This intentionally
+        includes terminal cases skipped during resume and technical failures
+        that never reached the per-case Recorder.
+        """
+        if not source_workbook or not os.path.isfile(source_workbook):
+            raise FileNotFoundError("An explicit source workbook path is required")
+        cls._validate_report_source(source_workbook)
+        destination = os.path.abspath(destination)
+        destination_dir = os.path.dirname(destination)
+        os.makedirs(destination_dir, exist_ok=True)
+        temp_file = tempfile.NamedTemporaryFile(
+            dir=destination_dir, suffix=".xlsx", delete=False
+        )
+        temp_file.close()
+        recorder = cls()
+        try:
+            shutil.copy2(source_workbook, temp_file.name)
+            for case in manifest.get("cases", []):
+                status = case.get("status")
+                if status not in REPORT_STATUS_VALUES:
+                    raise ValueError(
+                        f"Cannot write non-terminal batch status {status!r} to Excel."
+                    )
+                recorder._fill_report_sheet(
+                    temp_file.name,
+                    str(case.get("tcs_id", "")),
+                    str(case.get("evidence_path") or ""),
+                    {
+                        "status": status,
+                        "total_duration_seconds": case.get("duration_seconds") or 0,
+                        "timestamp": case.get("completed_at") or "",
+                        "mode": "predefined",
+                    },
+                )
+            os.replace(temp_file.name, destination)
+        except Exception:
+            if os.path.exists(temp_file.name):
+                os.unlink(temp_file.name)
+            raise
+        return destination
+
+    def finalize_run_metrics(
+        self,
+        state: AgentState,
+        shared_dir: str = None,
+        source_workbook: str = None,
+        canonical_status: str = None,
+    ) -> dict:
         output_dir = state.get("output_dir", "outputs")
         logs_dir = state.get("logs_dir") or os.path.join(output_dir, "logs")
         reports_dir = state.get("reports_dir") or os.path.join(output_dir, "reports")
@@ -243,6 +334,13 @@ class RecorderAgent:
         status = "SUCCESS" if is_completed else "FAILED"
         if stagnation >= 3:
             status = "STAGNATED"
+        if canonical_status is not None:
+            if canonical_status not in REPORT_STATUS_VALUES:
+                raise ValueError(
+                    "canonical_status must be one of: "
+                    + ", ".join(REPORT_STATUS_VALUES)
+                )
+            status = canonical_status
 
         exec_count = 0
         failed_count = 0
@@ -376,7 +474,19 @@ class RecorderAgent:
             duration_seconds=duration,
         )
 
-        self.write_test_report(state, metrics, shared_dir=shared_dir)
+        if source_workbook:
+            report_metrics = dict(metrics)
+            report_metrics["status"] = {
+                "SUCCESS": "success",
+                "FAILED": "functional_anomaly",
+                "STAGNATED": "stagnated",
+            }.get(metrics["status"], metrics["status"])
+            self.write_test_report(
+                state,
+                report_metrics,
+                source_workbook=source_workbook,
+                shared_dir=shared_dir,
+            )
 
         if self.logger is not None:
             self.logger.close()

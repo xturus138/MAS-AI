@@ -1,0 +1,11 @@
+SEMANTIC_MAP:
+[1]: Icon Button - Back
+[2]: Icon Button - Share
+[3]: Icon Button - More options
+[4]: Input Field - Rencana Skripsi 2026
+[5]: Text View - 20 Agustus 13:02 | 50 karakter
+[6]: Input Field - Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.
+[7]: Button - action_bar_container
+[8]: View - ll_note_edit
+
+SUMMARY: The screen displays a note editing interface containing a title field, a timestamp/metadata line, and a body text input field, with navigation and utility buttons located in the top action bar.

@@ -1,0 +1,22 @@
+SEMANTIC_MAP:
+[1]: Icon Button - Settings icon
+[2]: Header Text - Tugas
+[3]: Image - Empty tasks icon
+[4]: Text - Tidak ada tugas di sini
+[5]: View - Checkbox
+[6]: Input Field - Kerjain Skripsinya
+[7]: Text - Setel pengingat
+[8]: Button - Selesai
+[9]: Button - Infinity icon
+[10]: View - Clear Text
+[11]: Button - Done
+[12]: View - Switch IME
+[13]: Button - action_bar_container
+[14]: Button - Setelan
+[15]: Button - search_bar
+[16]: Button - edit_panel
+[17]: Scroll Container - editor_scroll_view
+[18]: Button - group_tag_custom
+[19]: Icon Button - iv_tag_custom
+
+SUMMARY: The screen displays a task management interface with a header, an empty state indicator, and an active input panel at the bottom containing a text field, a reminder option, and a completion button, accompanied by an on-screen keyboard control bar.

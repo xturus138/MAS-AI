@@ -32,8 +32,8 @@ def run_autonomous(xlsx_path: str = "", figma_url: str | None = None):
     ----------
     xlsx_path:
         Absolute (or CWD-relative) path to the scenario.xlsx to run.
-        Falls back to ``scenario.xlsx`` in the current working directory
-        when not supplied (legacy behaviour).
+        Required; no scenario workbook is discovered from the current working
+        directory.
     figma_url:
         Figma file URL for visual validation.  Overrides ``FIGMA_URL_QA``
         from .env when provided.
@@ -48,6 +48,13 @@ def run_autonomous(xlsx_path: str = "", figma_url: str | None = None):
       4. Build graph  →  5. Run graph loop  →  6. finalize_run_metrics()
     """
     print("[*] Starting AUTONOMOUS Workflow...")
+
+    if not xlsx_path:
+        print("[-] Explicit scenario workbook path is required.")
+        return
+    if not os.path.exists(xlsx_path):
+        print(f"[-] scenario.xlsx not found at: {xlsx_path}")
+        return
 
     run_root, date_str, run_number = compute_run_root("autonomous")
     all_run_metrics = []
@@ -66,12 +73,6 @@ def run_autonomous(xlsx_path: str = "", figma_url: str | None = None):
         device_h=device_info.get("displayHeight", 2400),
     )
     monitor.start()
-
-    if not xlsx_path:
-        xlsx_path = os.path.join(os.getcwd(), "scenario.xlsx")
-    if not os.path.exists(xlsx_path):
-        print(f"[-] scenario.xlsx not found at: {xlsx_path}")
-        return
 
     scenarios = load_scenarios(xlsx_path)
     if not scenarios:
@@ -189,7 +190,11 @@ def run_autonomous(xlsx_path: str = "", figma_url: str | None = None):
                        f"status={status}  cycles={final_state.get('current_step', 0)}\n"
                        f"stagnation={stagnation}  is_completed={is_completed}")
 
-            metrics = recorder.finalize_run_metrics(final_state, shared_dir=run_root)
+            metrics = recorder.finalize_run_metrics(
+                final_state,
+                shared_dir=run_root,
+                source_workbook=xlsx_path,
+            )
             if metrics:
                 all_run_metrics.append(metrics)
 

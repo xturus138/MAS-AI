@@ -78,5 +78,15 @@
     "session_id": "NOTE-002_20260613_110646",
     "date": "2026-06-13",
     "run_dir": "outputs\\runs\\predefined\\2026-06-13\\run_13\\scenario_02"
+  },
+  {
+    "session_id": "NOTE-001_20260820_130135_985493",
+    "date": "2026-08-20",
+    "run_dir": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-20\\run_1\\scenario_01\\attempt_001"
+  },
+  {
+    "session_id": "NOTE-002_20260820_130532_314083",
+    "date": "2026-08-20",
+    "run_dir": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-20\\run_1\\scenario_02\\attempt_001"
   }
 ]

@@ -1,0 +1,29 @@
+SEMANTIC_MAP:
+[1]: Icon Button - Folder icon
+[2]: Icon Button - Settings icon
+[3]: Header Text - Catatan
+[4]: Button - Semua (Filter)
+[5]: Button - PKM-KC (Filter)
+[6]: Button - PROKSI (Filter)
+[7]: Button - suitmedia (Filter)
+[8]: Button - Tidak I (Filter)
+[9]: Button - Note item: Barang bawaan HIGHLIGHT PENTING 17 Juli
+[10]: Button - Note item: Pengeluaran Jepang Bus : 310 20 Juli
+[11]: Button - Note item: Bayar google playstore Favian: BCA 2 Juli
+[12]: Button - Note item: List perlengkapan visa Formulir Visa 1 Juli
+[13]: Button - Note item: Catatan skripsi 1. Harus pararel mengerjakannya jangan stuck di obs... 13 Juni
+[14]: Button - Note item: Catatan Responsi Bu dian 07-05-26
+[15]: Icon Button - Plus icon (Add new note)
+[16]: View - Catatan container
+[17]: View - Tugas container
+[18]: View - Catatan container
+[19]: Button - Action bar container
+[20]: Button - Folder
+[21]: Button - Setelan
+[22]: Button - Folder list layout
+[23]: Button - Folder list layout
+[24]: Button - Folder list layout
+[25]: Button - Bottom navigation bar
+[26]: Button - Tugas
+
+SUMMARY: The screen displays a notes application dashboard featuring a header, a horizontal filter bar for note categories, a vertical list of individual note entries, a floating action button for creating new notes, and a bottom navigation bar to switch between Catatan and Tugas views.

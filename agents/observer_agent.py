@@ -12,14 +12,11 @@ from pydantic import BaseModel, Field
 
 from core.models.state import AgentState
 from core.ports.llm_port import ILLMClient
-from core.uncertainty.clusterer import EntailmentClusterer
-from core.uncertainty.config import UncertaintyConfig
 from core.uncertainty.request_builder import (
     HUMAN_TEMPLATE,
     OUTPUT_CONTRACT,
     ObserverSemanticRequestBuilder,
 )
-from core.uncertainty.service import ObserverUncertaintyService, TemperatureRejectedError
 from core.utils.process_logger import LogLevel as _LL
 from core.utils.toons_helper import compress_and_report, prune_history_by_tokens
 from shared import config
@@ -89,6 +86,10 @@ class ObserverAgent:
         if not enabled:
             return ""
         try:
+            from core.uncertainty.clusterer import EntailmentClusterer
+            from core.uncertainty.config import UncertaintyConfig
+            from core.uncertainty.service import ObserverUncertaintyService
+
             cfg = UncertaintyConfig(
                 enabled=True,
                 samples=config.OBSERVER_UNCERTAINTY_SAMPLES,
@@ -123,14 +124,13 @@ class ObserverAgent:
                 measured = manifest.get("widgets_measured", len(manifest.get("widgets", [])))
                 print(f"[Uncertainty] No disagreement detected across {measured} widgets.")
             return manifest.get("uncertainty_dir", "")
-        except TemperatureRejectedError as e:
-            self._log("DSE uncertainty aborted (temperature rejected)", str(e),
-                      level=_LL.WARN)
-            return ""
-        except Exception as e:  # noqa: BLE001 — instrumentation must never break the workflow
+        except Exception as e:
+            if type(e).__name__ == "TemperatureRejectedError":
+                self._log("DSE uncertainty aborted (temperature rejected)", str(e),
+                          level=_LL.WARN)
+                return ""
             self._log("DSE uncertainty failed (non-fatal)", str(e), level=_LL.WARN)
             return ""
-
     def _merge_ocr_blocks(self, ocr_elements: list) -> list:
         if not ocr_elements:
             return []

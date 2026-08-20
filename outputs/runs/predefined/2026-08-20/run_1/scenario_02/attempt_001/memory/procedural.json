@@ -1,0 +1,19 @@
+[
+  {
+    "entry_type": "workflow",
+    "description": "Membuat Tugas Baru",
+    "steps": [
+      "Pengguna klik tombol \"tugas\" pada menu navigasi bawah",
+      "Pengguna klik tombol \"+\" (tambah) untuk membuat tugas baru",
+      "Pengguna Memasukkan konten \"Kerjain Skripsinya\"",
+      "Pengguna klik teks \"selesai\" dan melihat di tampilan apakah sudah tersimpan"
+    ],
+    "tcs_id": "NOTE-002"
+  },
+  {
+    "entry_type": "recovery_transition",
+    "description": "The screen displays a notes application with a \"Catatan\" header and various note items, confirming it is Xiaomi Notes.",
+    "steps": [],
+    "tcs_id": "NOTE-002"
+  }
+]

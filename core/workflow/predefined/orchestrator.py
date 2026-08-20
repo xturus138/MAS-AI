@@ -8,8 +8,6 @@ from core.models.state import AgentState
 from core.utils.output_manager import build_step_dir
 from core.utils.process_logger import LogLevel as _LL
 from shared.prompts.predefined_orchestrator_prompts import (
-    BRIDGE_EXAMPLES,
-    BRIDGE_SYSTEM_PROMPT,
     FIGMA_FLOW_EXAMPLES,
     FIGMA_FLOW_SYSTEM_PROMPT,
 )
@@ -50,6 +48,15 @@ class FigmaFlowPlan(BaseModel):
     )
 
 
+class NavigationContextAssessment(BaseModel):
+    matched: bool = Field(
+        description="Whether the observed screen satisfies the required navigation context."
+    )
+    reason: str = Field(
+        description="Evidence-bounded reason for the context assessment."
+    )
+
+
 class PredefinedOrchestrator:
     """
     Orchestrator for the Predefined (Scenario-Based) workflow.
@@ -67,6 +74,9 @@ class PredefinedOrchestrator:
         self.logger = logger
         self._bridge_llm = llm.with_structured_output(BridgePlan) if llm else None
         self._mapping_llm = llm.with_structured_output(FigmaFlowPlan) if llm else None
+        self._navigation_llm = (
+            llm.with_structured_output(NavigationContextAssessment) if llm else None
+        )
 
     def _log(self, msg: str, detail: str = "", level=None):
         if self.logger is not None:
@@ -272,37 +282,74 @@ class PredefinedOrchestrator:
         """Compute minimal navigation steps from the current screen to the next scenario's start."""
         if not self.figma or not self._bridge_llm:
             return []
-
         next_context = self.figma.get_node_context(next_start_node_id)
         next_screen_name = next_context.get("document", {}).get(
             "name", next_start_node_id
         )
-
-        human_content = (
-            f"CURRENT SCREEN (where the app is now):\n{current_screen_description}\n\n"
-            f"REQUIRED STARTING SCREEN (for next scenario):\n{next_screen_name}\n"
-            f"Figma Node ID: {next_start_node_id}"
+        return self.plan_recovery_transition(
+            observation_text=current_screen_description,
+            required_context=str(next_screen_name),
+            figma_context={"figma_start_node_id": next_start_node_id},
         )
 
-        messages = [SystemMessage(content=BRIDGE_SYSTEM_PROMPT)]
-        for role, content in BRIDGE_EXAMPLES:
-            if role == "human":
-                messages.append(HumanMessage(content=content))
-            else:
-                messages.append(AIMessage(content=content))
-        messages.append(HumanMessage(content=human_content))
+    def assess_navigation_context(
+        self, *, observation_text: str, required_context: str
+    ) -> dict[str, Any]:
+        """Assess the live observation against workbook navigation text."""
+        if self._navigation_llm is None:
+            raise RuntimeError("Navigation context cannot be verified without an orchestrator LLM.")
+        result = self._navigation_llm.invoke(
+            [
+                SystemMessage(
+                    content=(
+                        "Assess only whether the observed Android screen satisfies the required "
+                        "starting navigation context. Do not infer unobserved state."
+                    )
+                ),
+                HumanMessage(
+                    content=(
+                        f"OBSERVED SCREEN:\n{observation_text}\n\n"
+                        f"REQUIRED NAVIGATION CONTEXT:\n{required_context}"
+                    )
+                ),
+            ]
+        )
+        if result is None:
+            raise RuntimeError("Navigation context assessment returned no result.")
+        return {"matched": bool(result.matched), "reason": str(result.reason)}
 
-        print(f"[Predefined] Computing navigation bridge to '{next_screen_name}'...")
-        try:
-            result = self._bridge_llm.invoke(messages)
-            if result is None:
-                print("[Predefined] Bridge LLM returned None")
-                return []
-            print(f"[Predefined] Bridge plan: {result.bridge_steps}")
-            return result.bridge_steps
-        except Exception as e:
-            print(f"[Predefined] Bridge computation failed: {e}")
-            return []
+    def plan_recovery_transition(
+        self,
+        *,
+        observation_text: str,
+        required_context: str,
+        figma_context: dict[str, Any] | None = None,
+    ) -> list[str]:
+        """Plan operational navigation from text; Figma details are optional hints."""
+        if self._bridge_llm is None:
+            raise RuntimeError("Navigation recovery cannot be planned without an orchestrator LLM.")
+        figma_context = figma_context or {}
+        figma_hint = str(figma_context.get("figma_start_node_id") or "not available")
+        result = self._bridge_llm.invoke(
+            [
+                SystemMessage(
+                    content=(
+                        "Plan the smallest operational Android navigation transition. "
+                        "These are setup actions, never QA test steps."
+                    )
+                ),
+                HumanMessage(
+                    content=(
+                        f"CURRENT SCREEN:\n{observation_text}\n\n"
+                        f"REQUIRED NAVIGATION CONTEXT:\n{required_context}\n\n"
+                        f"OPTIONAL FIGMA START NODE:\n{figma_hint}"
+                    )
+                ),
+            ]
+        )
+        if result is None:
+            raise RuntimeError("Navigation recovery planning returned no result.")
+        return [str(step).strip() for step in result.bridge_steps if str(step).strip()]
 
     def orchestrate(self, state: AgentState) -> dict:
         """LangGraph node: index-manager that advances or retries sub-steps."""
@@ -330,6 +377,7 @@ class PredefinedOrchestrator:
         is_system_error = (
             "[SYSTEM_ERROR]" in last_reasoning if last_reasoning else False
         )
+        technical_error_history = list(state.get("technical_error_history", []))
 
         if sender == "reflector":
             if last_passed:
@@ -345,8 +393,15 @@ class PredefinedOrchestrator:
                 self._log(
                     f"SYSTEM ERROR from Reflector — treating as technical failure, not app failure"
                 )
-                current_idx += 1
-                retry_count = 0
+                entry = {"step": global_step, "reason": last_reasoning}
+                if entry not in technical_error_history:
+                    technical_error_history.append(entry)
+                return {
+                    "is_completed": True,
+                    "sender": "orchestrator",
+                    "failure_reason": last_reasoning,
+                    "technical_error_history": technical_error_history,
+                }
             else:
                 retry_count += 1
                 print(f"[Orchestrator] ⚠ Step failed — retry {retry_count}/3")
@@ -372,7 +427,9 @@ class PredefinedOrchestrator:
             return {
                 "is_completed": True,
                 "sender": "orchestrator",
-                "stagnation_count": 99,
+                "retry_exhausted": True,
+                "failure_reason": "Maximum QA verification retries exceeded.",
+                "technical_error_history": technical_error_history,
             }
 
         steps_completed_count = state.get("steps_completed_count", 0)
@@ -390,6 +447,8 @@ class PredefinedOrchestrator:
             "sender": "orchestrator",
             "is_first_verify_attempt": (retry_count == 0),
             "steps_completed_count": steps_completed_count,
+            "technical_error_history": technical_error_history,
+            "retry_exhausted": state.get("retry_exhausted", False),
         }
 
         if current_idx < len(sub_steps):

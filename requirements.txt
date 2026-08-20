@@ -1,4 +1,5 @@
 uiautomator2
+adbutils
 pydantic
 langchain
 langchain-openai

@@ -1,0 +1,11 @@
+SEMANTIC_MAP:
+[1]: Icon Button - Back
+[2]: Icon Button - Save
+[3]: Input Field - Rencana Skripsi 2026
+[4]: Text Label - 20 Agustus 13:02 | 0 karakter
+[5]: Input Field - Mulai tulis
+[6]: Input Field - Mulai tulis Buat pemetaan pikiran
+[7]: Button - action_bar_container
+[8]: View Container - ll_note_edit
+
+SUMMARY: The screen displays a note-taking interface with a title input field, a metadata timestamp, a main body text area, and navigation buttons for saving and returning to the previous screen.

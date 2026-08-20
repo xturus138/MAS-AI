@@ -62,6 +62,7 @@ from core.uncertainty.request_builder import (
 )
 from core.uncertainty.semantic_parser import parse_semantic_map
 from core.uncertainty.service import ObserverUncertaintyService
+from core.utils.pricing import calculate_cost
 from core.utils.toons_helper import compress_and_report
 from shared import config
 from shared.prompts.observer_prompts import FEW_SHOT_EXAMPLES, SYSTEM_PROMPT
@@ -69,19 +70,12 @@ from shared.utils.llm_utils import encode_image
 
 _SCREEN_DESC = "N/A (calibration: Screen Annotation sample, out-of-domain screen)"
 
-# Real published rate for gemini-3.1-flash-lite, checked 2026-07-30 against
-# ai.google.dev/gemini-api/docs/pricing (text/image/video input tier; audio
-# input is priced higher at $0.50/M and isn't used here). Only accurate while
-# OBSERVER_MODEL stays on this model — not looked up dynamically from the
-# provider. Previously $1.50/$9.00 for gemini-3.5-flash before the 2026-07-30
-# switch to this ~6x cheaper model.
-_PRICE_PER_M_INPUT = 0.25
-_PRICE_PER_M_OUTPUT = 1.50
-
 
 def _estimate_cost_usd(input_tokens: int, output_tokens: int) -> float:
-    return (input_tokens / 1_000_000 * _PRICE_PER_M_INPUT
-            + output_tokens / 1_000_000 * _PRICE_PER_M_OUTPUT)
+    # Delegates to the shared pricing table (core/utils/pricing.py) keyed by
+    # config.OBSERVER_MODEL, so this stays accurate if the observer model
+    # changes instead of silently reusing a stale hardcoded rate.
+    return calculate_cost(config.OBSERVER_MODEL, input_tokens, output_tokens)
 
 
 class _MeteredLLM:

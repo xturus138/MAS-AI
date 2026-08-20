@@ -186,6 +186,11 @@ class ExecutorAgent:
                 self._log("CRASH detected in logcat", crash_line)
 
         is_error = str(result).startswith("ERROR") or str(result).startswith("[CRASH]")
+        technical_error_history = list(state.get("technical_error_history", []))
+        if is_error:
+            entry = {"step": current_step, "reason": str(result)}
+            if entry not in technical_error_history:
+                technical_error_history.append(entry)
 
         if self.memory is not None:
             self.memory.update({
@@ -207,4 +212,5 @@ class ExecutorAgent:
             "widget_lookup_success": widget_lookup_success,
             "widget_lookup_fail": widget_lookup_fail,
             "widget_text_fallback_count": widget_text_fallback,
+            "technical_error_history": technical_error_history,
         }

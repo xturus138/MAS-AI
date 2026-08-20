@@ -3,7 +3,7 @@ from core.models.state import AgentState
 
 
 def _next_step_or_end(state: AgentState) -> str:
-    if state.get("is_completed", False):
+    if state.get("is_completed", False) or state.get("stagnation_count", 0) >= 3:
         return END
     return "observer_node"
 

@@ -1,0 +1,27 @@
+SEMANTIC_MAP:
+[1]: Icon Button - Folder icon
+[2]: Icon Button - Settings icon
+[3]: Header Text - Catatan
+[4]: Tab Button - Semua
+[5]: Tab Button - PKM-KC
+[6]: Tab Button - PROKSI
+[7]: Tab Button - suitmedia
+[8]: Tab Button - Tidak Lanjut
+[9]: Note Item Button - Barang bawaan HIGHLIGHT PENTING 17 Juli
+[10]: Note Item Button - Pengeluaran Jepang Bus : 310 20 Juli
+[11]: Note Item Button - Bayar google playstore Favian: BCA 2 Juli
+[12]: Note Item Button - List perlengkapan visa Formulir Visa 1 Juli
+[13]: Note Item Button - Catatan skripsi 1. Harus pararel mengerjakannya jangan stuck di obs... 13 Juni
+[14]: Note Item Button - Catatan Responsi Bu dian 07-05-26
+[15]: Floating Action Button - Plus icon
+[16]: View Container - Catatan
+[17]: View Container - Catatan
+[18]: Navigation Button - Tugas
+[19]: Navigation Button - Tugas
+[20]: Container - action_bar_container
+[21]: Navigation Button - Folder
+[22]: Navigation Button - Setelan
+[23]: Container - data_folder_list_layout
+[24]: Container - data_folder_list_layout
+
+SUMMARY: The screen displays a notes application interface featuring a list of categorized notes, a horizontal tab bar for filtering, a floating action button for creating new entries, and a bottom navigation bar to switch between notes and tasks.

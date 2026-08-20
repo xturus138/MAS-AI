@@ -1,0 +1,47 @@
+{
+  "tcs_id": "NOTE-001",
+  "total_steps": 5,
+  "recording_status": "Success",
+  "actions": [
+    {
+      "event_type": "execution",
+      "summary": "No action required \u2014 step already satisfied",
+      "details": "No Action Required (Step already satisfied)",
+      "actor": "executor",
+      "timestamp": "2026-08-20T13:02:20",
+      "step": 1
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Pengguna klik tombol '+' untuk membuat catatan baru.",
+      "details": "Clicked (601, 1363)",
+      "actor": "executor",
+      "timestamp": "2026-08-20T13:02:43",
+      "step": 2
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Memasukkan judul catatan ke kolom Judul.",
+      "details": "Typed: Rencana Skripsi 2026",
+      "actor": "executor",
+      "timestamp": "2026-08-20T13:03:15",
+      "step": 3
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] input: Memasukkan isi catatan: \"Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.\" ke dalam kolom input isi catatan.",
+      "details": "Typed: Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.",
+      "actor": "executor",
+      "timestamp": "2026-08-20T13:04:43",
+      "step": 4
+    },
+    {
+      "event_type": "execution",
+      "summary": "[OK] click: Klik ikon kembali untuk menyimpan catatan dan kembali ke beranda.",
+      "details": "Clicked (74, 120)",
+      "actor": "executor",
+      "timestamp": "2026-08-20T13:05:17",
+      "step": 5
+    }
+  ]
+}

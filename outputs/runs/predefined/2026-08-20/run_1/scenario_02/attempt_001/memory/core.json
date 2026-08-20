@@ -1,0 +1,12 @@
+{
+  "tcs_id": "NOTE-002",
+  "navigation_context": "Xiaomi Notes",
+  "scenario_desc": "Membuat Tugas Baru",
+  "test_type": "Pos.",
+  "user_role": "User",
+  "task_goal": "Membuat Tugas Baru",
+  "expected_result": "Tugas tersimpan dan terlihat di daftar utama dengan konten \"Kerjain Skripsinya\".",
+  "figma_enabled": "True",
+  "figma_end_node_id": "61:580",
+  "figma_start_node_id": "57:94"
+}

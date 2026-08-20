@@ -53,4 +53,9 @@ class AgentState(TypedDict):
     widget_lookup_fail: int
     widget_text_fallback_count: int
 
+    technical_error_history: List[dict]
+    retry_exhausted: bool
+    failure_reason: str
+    canonical_status: str
+
     uncertainty_artifact_dir: str

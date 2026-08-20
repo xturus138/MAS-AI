@@ -1,0 +1,192 @@
+[
+    {
+        "id": 1,
+        "bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "cv_bounds": [
+            37,
+            83,
+            111,
+            157
+        ],
+        "text": "Back",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Kembali",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 2,
+        "bounds": [
+            520,
+            83,
+            594,
+            157
+        ],
+        "cv_bounds": [
+            520,
+            83,
+            594,
+            157
+        ],
+        "text": "Share",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Berbagi catatan ini",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 3,
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "More options",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Lainnya",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 4,
+        "bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "cv_bounds": [
+            22,
+            172,
+            698,
+            246
+        ],
+        "text": "Rencana Skripsi 2026",
+        "type": "text_stub",
+        "class": "StaticText",
+        "resource_id": "none",
+        "llm_type": "TEXT",
+        "source": "xml",
+        "xml_label": "Rencana Skripsi 2026",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 5,
+        "bounds": [
+            22,
+            261,
+            698,
+            291
+        ],
+        "cv_bounds": [
+            22,
+            261,
+            698,
+            291
+        ],
+        "text": "20 Agustus 13:02 | 50 karakter",
+        "type": "text_stub",
+        "class": "StaticText",
+        "resource_id": "none",
+        "llm_type": "TEXT",
+        "source": "xml",
+        "xml_label": "note_extra_info",
+        "xml_role": "view",
+        "xml_actionable": false
+    },
+    {
+        "id": 6,
+        "bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "cv_bounds": [
+            22,
+            343,
+            698,
+            823
+        ],
+        "text": "Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.",
+        "type": "text_stub",
+        "class": "StaticText",
+        "resource_id": "none",
+        "llm_type": "TEXT",
+        "source": "xml",
+        "xml_label": "Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.",
+        "xml_role": "input",
+        "xml_actionable": true
+    },
+    {
+        "id": 7,
+        "bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            172
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 8,
+        "bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "cv_bounds": [
+            0,
+            172,
+            720,
+            823
+        ],
+        "text": "ll_note_edit",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/ll_note_edit",
+        "xml_label": "ll_note_edit",
+        "xml_role": "view",
+        "xml_actionable": true
+    }
+]

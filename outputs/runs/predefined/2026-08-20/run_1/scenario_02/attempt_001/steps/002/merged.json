@@ -1,0 +1,262 @@
+[
+    {
+        "id": 1,
+        "bounds": [
+            629,
+            96,
+            677,
+            144
+        ],
+        "cv_bounds": [
+            629,
+            96,
+            677,
+            144
+        ],
+        "text": "settings icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "action_menu_item_child_icon",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "id": 2,
+        "bounds": [
+            48,
+            179,
+            192,
+            251
+        ],
+        "cv_bounds": [
+            48,
+            179,
+            192,
+            251
+        ],
+        "text": "Tugas",
+        "type": "text_stub",
+        "class": "StaticText",
+        "resource_id": "none",
+        "llm_type": "TEXT",
+        "source": "xml",
+        "xml_label": "Tugas",
+        "xml_role": "text",
+        "xml_actionable": true
+    },
+    {
+        "id": 3,
+        "bounds": [
+            266,
+            555,
+            454,
+            676
+        ],
+        "cv_bounds": [
+            266,
+            555,
+            454,
+            676
+        ],
+        "text": "empty state icon",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "PICTOGRAM",
+        "source": "xml",
+        "xml_label": "image",
+        "xml_role": "image",
+        "xml_actionable": false
+    },
+    {
+        "id": 4,
+        "bounds": [
+            232,
+            708,
+            488,
+            742
+        ],
+        "cv_bounds": [
+            232,
+            708,
+            488,
+            742
+        ],
+        "text": "Tidak ada tugas di sini",
+        "type": "text_stub",
+        "class": "StaticText",
+        "resource_id": "none",
+        "llm_type": "TEXT",
+        "source": "xml",
+        "xml_label": "Tidak ada tugas di sini",
+        "xml_role": "text",
+        "xml_actionable": false
+    },
+    {
+        "id": 5,
+        "bounds": [
+            548,
+            1310,
+            655,
+            1417
+        ],
+        "cv_bounds": [
+            548,
+            1310,
+            655,
+            1417
+        ],
+        "text": "add button",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Ketuk untuk buat catatan",
+        "xml_role": "icon_button",
+        "xml_actionable": true
+    },
+    {
+        "id": 6,
+        "bounds": [
+            15,
+            1482,
+            350,
+            1600
+        ],
+        "cv_bounds": [
+            15,
+            1482,
+            350,
+            1600
+        ],
+        "text": "Catatan",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Catatan",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 7,
+        "bounds": [
+            370,
+            1482,
+            705,
+            1600
+        ],
+        "cv_bounds": [
+            370,
+            1482,
+            705,
+            1600
+        ],
+        "text": "Tugas",
+        "type": "container",
+        "class": "Interactive",
+        "resource_id": "none",
+        "llm_type": "BUTTON",
+        "source": "xml",
+        "xml_label": "Tugas",
+        "xml_role": "view",
+        "xml_actionable": true
+    },
+    {
+        "id": 8,
+        "bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "cv_bounds": [
+            0,
+            0,
+            720,
+            269
+        ],
+        "text": "action_bar_container",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/action_bar_container",
+        "xml_label": "action_bar_container",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 9,
+        "bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+        ],
+        "text": "Setelan",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "",
+        "xml_label": "Setelan",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 10,
+        "bounds": [
+            0,
+            269,
+            720,
+            270
+        ],
+        "cv_bounds": [
+            0,
+            269,
+            720,
+            270
+        ],
+        "text": "search_bar",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/search_bar",
+        "xml_label": "search_bar",
+        "xml_role": "button",
+        "xml_actionable": true
+    },
+    {
+        "id": 11,
+        "bounds": [
+            0,
+            1482,
+            720,
+            1600
+        ],
+        "cv_bounds": [
+            0,
+            1482,
+            720,
+            1600
+        ],
+        "text": "miuix_bottom_navigation_bar",
+        "type": "container",
+        "class": "Interactive",
+        "source": "xml",
+        "resource_id": "com.miui.notes:id/miuix_bottom_navigation_bar",
+        "xml_label": "miuix_bottom_navigation_bar",
+        "xml_role": "button",
+        "xml_actionable": true
+    }
+]

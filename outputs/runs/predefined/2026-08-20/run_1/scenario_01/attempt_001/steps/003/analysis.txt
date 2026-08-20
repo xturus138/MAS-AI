@@ -1,0 +1,21 @@
+SEMANTIC_MAP:
+[1]: Icon Button - Back
+[2]: Icon Button - Undo
+[3]: Icon Button - Redo
+[4]: Input Field - Judul
+[5]: Text - 20 Agustus 13:02 | 0 karakter
+[6]: Input Field - Mulai tulis
+[7, 59]: Button - Checkbox
+[8]: Button - Highlight
+[9]: Button - Increase font size
+[10, 57]: Button - Decrease font size
+[11]: Button - Bold
+[12]: Button - Italic
+[13, 58]: Button - Underline
+[14-19]: Icon Buttons - Formatting and utility menu (Menu, Stickers, GIF, Settings, Translate, Theme)
+[20-53]: On-Screen Keyboard - Alphanumeric and functional keys
+[54]: Input Field - Mulai tulis Buat pemetaan pikiran
+[55]: Button - Action bar container
+[56]: View - Note edit area
+
+SUMMARY: The screen displays a note-taking interface with a title field, a body text area, a comprehensive formatting toolbar, and an active on-screen keyboard.

@@ -59,6 +59,10 @@ class MIRIXMemorySystem:
         """
         return self._retriever.retrieve(topic, max_per_store)
 
+    def retrieve_with_labels(self, topic: str, max_per_store: int = 5) -> dict[str, str]:
+        """Return active-retrieval results without dropping their store labels."""
+        return self._retriever.retrieve_with_labels(topic, max_per_store)
+
     def update(self, packet: dict):
         """
         Memory Update Workflow (MIRIX §3.3).

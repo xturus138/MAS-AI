@@ -1,0 +1,10 @@
+{
+    "reasoning": "Langkah pertama dalam workflow adalah berpindah ke tampilan Tugas. Widget dengan ID 23 mewakili tombol 'Tugas' pada navigasi bawah yang sesuai dengan instruksi.",
+    "action_type": "click",
+    "intent": "Pengguna klik tombol \"tugas\" pada menu navigasi bawah untuk berpindah ke tampilan tugas.",
+    "target_id": 23,
+    "text_payload": "",
+    "scroll_direction": "",
+    "app_package": "",
+    "is_completed": false
+}
