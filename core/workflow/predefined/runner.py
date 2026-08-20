@@ -279,12 +279,15 @@ def run_predefined(
         config_values=effective_config,
         device_snapshot=snapshot,
     ) as case_executor:
+        monitor = getattr(case_executor, "monitor", None)
+        if monitor is not None:
+            monitor.push_log("RUNNER", f"Batch started — {len(scenarios)} scenarios", xlsx_path)
         coordinator = PredefinedBatchCoordinator(
             scenarios=scenarios,
             source_workbook=xlsx_path,
             workbook_fingerprint=fingerprint,
             run_root=run_root,
-            case_executor=case_executor,
+            case_executor=_DashboardWrappedExecutor(case_executor, scenarios, monitor),
         )
         manifest = coordinator.run()
 
@@ -294,6 +297,55 @@ def run_predefined(
         run_root=run_root,
     )
     return manifest
+
+
+
+class _DashboardWrappedExecutor:
+    """Thin wrapper that pushes scenario progress to BrowserDashboard before each case."""
+
+    def __init__(self, inner: Any, scenarios: list, monitor: Any):
+        self._inner = inner
+        self._scenarios = scenarios
+        self._monitor = monitor
+        self._idx = 0
+        # Expose inner attributes so coordinator sees same interface
+        for attr in ("device", "figma", "observer_tools", "executor_tools", "source_workbook"):
+            if hasattr(inner, attr):
+                setattr(self, attr, getattr(inner, attr))
+
+    def __call__(self, scenario: dict[str, Any], evidence_dir: Path) -> Mapping[str, Any]:
+        self._idx += 1
+        tcs_id = str(scenario.get("tcs_id", ""))
+        total = len(self._scenarios)
+        if self._monitor is not None:
+            try:
+                self._monitor.push_progress(
+                    scenario_idx=self._idx,
+                    scenario_total=total,
+                    step_idx=0,
+                    step_total=len(scenario.get("sub_steps", [])),
+                    tcs_id=tcs_id,
+                    status="Running",
+                )
+                self._monitor.push_log("RUNNER", f"[{self._idx}/{total}] {tcs_id}", "Starting scenario")
+            except Exception:
+                pass
+        result = self._inner(scenario, evidence_dir)
+        if self._monitor is not None:
+            try:
+                status = str((result or {}).get("canonical_status", "done"))
+                self._monitor.push_progress(
+                    scenario_idx=self._idx,
+                    scenario_total=total,
+                    step_idx=len(scenario.get("sub_steps", [])),
+                    step_total=len(scenario.get("sub_steps", [])),
+                    tcs_id=tcs_id,
+                    status=status,
+                )
+                self._monitor.push_log("RUNNER", f"[{self._idx}/{total}] {tcs_id} → {status}", "")
+            except Exception:
+                pass
+        return result
 
 
 class _RecoveryEpisodicView:
@@ -727,6 +779,7 @@ def _default_runtime_factory(
     )
     info = device.d.info
     monitor = VisualMonitor(
+        device_id=str(config_values.get("TARGET_DEVICE") or ""),
         device_w=info.get("displayWidth", 1080),
         device_h=info.get("displayHeight", 2400),
     )
