@@ -1,52 +1,61 @@
 """
 visual/monitor.py  —  BrowserDashboard
 ---------------------------------------
-Drop-in replacement for the old PyQt5/win32gui VisualMonitor.
+Drop-in replacement untuk VisualMonitor lama.
 
-Public API is identical so no agent code needs to change:
+Public API:
   monitor.start()
   monitor.on_observer(widgets)
   monitor.on_decider(target_widget)
   monitor.on_executor(x, y, action_type, scroll_direction)
   monitor.on_clear()
+  monitor.push_progress(scenario_idx, scenario_total, step_idx, step_total, tcs_id, status)
+  monitor.push_log(component, message, detail)
   monitor.stop()
 
-New: also exposes push_progress() and push_log() for runner integration.
-
-Requires:
-  pip install websockets
-  node >= 18  (for ws-scrcpy-web)
-  LIVE_DASHBOARD_ENABLED=true  (default)
+Requires: pip install websockets
+Env vars: LIVE_DASHBOARD_ENABLED (default true), DASHBOARD_WS_PORT (default 9765),
+          DASHBOARD_SCRCPY_PORT (default 8000)
 """
 
 from __future__ import annotations
 import os
-import subprocess
+import socket
 import threading
 import time
 import webbrowser
 from pathlib import Path
 
 _DASHBOARD_DIR = Path(__file__).parent / "dashboard"
-_INDEX_HTML    = _DASHBOARD_DIR / "index.html"
+_ENABLED       = os.getenv("LIVE_DASHBOARD_ENABLED", "true").lower() == "true"
+_WS_PORT       = int(os.getenv("DASHBOARD_WS_PORT",    "9765"))
+_SCRCPY_PORT   = int(os.getenv("DASHBOARD_SCRCPY_PORT", "8000"))
 
-# env-controlled ports
-_WS_PORT     = int(os.getenv("DASHBOARD_WS_PORT",    "9765"))
-_SCRCPY_PORT = int(os.getenv("DASHBOARD_SCRCPY_PORT", "8000"))
-_ENABLED     = os.getenv("LIVE_DASHBOARD_ENABLED", "true").lower() == "true"
+
+def _free_port(preferred: int) -> int:
+    """Return preferred port if free, else let OS pick one."""
+    with socket.socket() as s:
+        try:
+            s.bind(("", preferred))
+            return preferred
+        except OSError:
+            s.bind(("", 0))
+            return s.getsockname()[1]
 
 
 class BrowserDashboard:
-    """Live browser dashboard: ws-scrcpy video + WebSocket event feed."""
+    """Live browser dashboard: device screen + progress + QA updates."""
 
     def __init__(self, device_id: str = "", device_w: int = 1080, device_h: int = 2400):
         self.device_id = device_id or os.getenv("TARGET_DEVICE", "")
         self.device_w  = device_w
         self.device_h  = device_h
         self._enabled  = _ENABLED
-        self._server   = None          # DashboardServer
-        self._launcher = None          # WsScrcpyLauncher
-        self._http_proc: subprocess.Popen | None = None
+        self._server   = None
+        self._launcher = None
+        self._ws_port  = _WS_PORT
+        self._http_port = _SCRCPY_PORT + 1
+        self._scrcpy_port = _SCRCPY_PORT
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -57,57 +66,57 @@ class BrowserDashboard:
             print("[Dashboard] LIVE_DASHBOARD_ENABLED=false — skipped.")
             return False
 
-        ok = True
+        # Pick free ports (avoids EADDRINUSE on re-run)
+        self._ws_port     = _free_port(_WS_PORT)
+        self._scrcpy_port = _free_port(_SCRCPY_PORT)
+        self._http_port   = _free_port(_SCRCPY_PORT + 1)
 
-        # 1. Start WebSocket push server
+        # 1. WebSocket push server
         try:
             from visual.dashboard.server import DashboardServer
-            self._server = DashboardServer(port=_WS_PORT)
+            self._server = DashboardServer(port=self._ws_port)
             if not self._server.start():
-                print("[Dashboard] WS server failed to start.")
-                ok = False
+                print("[Dashboard] WS server failed — install: pip install websockets")
+                return False
         except Exception as exc:
             print(f"[Dashboard] WS server error: {exc}")
-            ok = False
+            return False
 
-        # 2. Serve index.html via a tiny Python HTTP server
+        # 2. Serve index.html
         threading.Thread(target=self._serve_html, daemon=True).start()
-        time.sleep(0.5)  # let HTTP server bind
+        time.sleep(0.3)
 
-        # 3. Spawn ws-scrcpy-web (auto-clone on first run)
+        # 3. Spawn scrcpy relay (optional — if fails, video panel empty)
         try:
             from visual.dashboard.ws_scrcpy_launcher import WsScrcpyLauncher
-            self._launcher = WsScrcpyLauncher(device_id=self.device_id, port=_SCRCPY_PORT)
-            ws_ok = self._launcher.start()
-            if not ws_ok:
-                print("[Dashboard] ws-scrcpy-web failed to start — "
-                      "live device screen will be unavailable.")
+            self._launcher = WsScrcpyLauncher(
+                device_id=self.device_id, port=self._scrcpy_port
+            )
+            self._launcher.start()
         except Exception as exc:
-            print(f"[Dashboard] ws-scrcpy-web error: {exc}")
+            print(f"[Dashboard] scrcpy relay skipped: {exc}")
 
-        # 4. Open browser — dashboard index.html served on _SCRCPY_PORT+1
-        dashboard_url = f"http://localhost:{_SCRCPY_PORT + 1}"
+        # 4. Inject actual ports into served HTML via JS config endpoint
+        # (ports are written into a tiny config.js served alongside index.html)
+        self._write_port_config()
+
+        # 5. Open browser
+        url = f"http://localhost:{self._http_port}"
         try:
-            webbrowser.open(dashboard_url)
-            print(f"[Dashboard] Opened: {dashboard_url}")
+            webbrowser.open(url)
         except Exception:
-            print(f"[Dashboard] Open manually: {dashboard_url}")
+            print(f"[Dashboard] Open manually: {url}")
 
-        return ok
+        return True
 
     def stop(self):
         if self._launcher:
             self._launcher.stop()
         if self._server:
             self._server.stop()
-        if self._http_proc:
-            try:
-                self._http_proc.terminate()
-            except Exception:
-                pass
 
     # ------------------------------------------------------------------
-    # Agent hooks  (same API as old VisualMonitor)
+    # Agent hooks
     # ------------------------------------------------------------------
 
     def on_observer(self, widgets: list):
@@ -127,10 +136,6 @@ class BrowserDashboard:
         if self._server:
             self._server.push_clear()
 
-    # ------------------------------------------------------------------
-    # Runner hooks  (new)
-    # ------------------------------------------------------------------
-
     def push_progress(self, scenario_idx: int, scenario_total: int,
                       step_idx: int = 0, step_total: int = 0,
                       tcs_id: str = "", status: str = ""):
@@ -144,41 +149,49 @@ class BrowserDashboard:
             self._server.push_log(component, message, detail)
 
     # ------------------------------------------------------------------
-    # Tiny HTTP server for index.html
+    # Internal
     # ------------------------------------------------------------------
+
+    def _write_port_config(self):
+        """Write config.js so index.html knows which ports to connect to."""
+        cfg = _DASHBOARD_DIR / "config.js"
+        cfg.write_text(
+            f"window.DASHBOARD_WS_PORT={self._ws_port};\n"
+            f"window.DASHBOARD_SCRCPY_PORT={self._scrcpy_port};\n",
+            encoding="utf-8",
+        )
 
     def _serve_html(self):
-        """Serve visual/dashboard/ as a static site on _SCRCPY_PORT+1."""
-        import http.server
-        import socketserver
+        import http.server, socketserver
 
-        port = _SCRCPY_PORT + 1
         handler = _make_handler(str(_DASHBOARD_DIR))
-        with socketserver.TCPServer(("", port), handler) as httpd:
-            httpd.serve_forever()
-
-    # ------------------------------------------------------------------
-    # Backwards-compat shim: old VisualMonitor constructor took (w, h)
-    # ------------------------------------------------------------------
+        # Retry bind up to 3 times in case port just freed
+        for _ in range(3):
+            try:
+                with socketserver.TCPServer(("", self._http_port), handler) as httpd:
+                    httpd.serve_forever()
+                return
+            except OSError:
+                self._http_port = _free_port(0)
+                time.sleep(0.2)
 
     @classmethod
     def from_dimensions(cls, device_w: int, device_h: int) -> "BrowserDashboard":
         return cls(device_w=device_w, device_h=device_h)
 
 
-# ── Alias so old import `from visual.monitor import VisualMonitor` works ──
+# Alias — old import path still works
 VisualMonitor = BrowserDashboard
 
 
 def _make_handler(directory: str):
-    """Return a SimpleHTTPRequestHandler subclass rooted at `directory`."""
     import http.server
 
     class _H(http.server.SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=directory, **kwargs)
 
-        def log_message(self, fmt, *args):  # silence HTTP log spam
-            pass
+        def log_message(self, *_):
+            pass  # silence HTTP log spam
 
     return _H

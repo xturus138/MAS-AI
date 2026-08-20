@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>MAS AI — Testing Progress</title>
+<title>MAS AI</title>
+<script src="config.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: #f8f9fa;
@@ -17,238 +17,150 @@
     overflow: hidden;
   }
 
-  /* ── Top bar ─────────────────────────────────────────────────── */
+  /* ── Top bar ───────────────────────────────────────────────── */
   header {
     background: #fff;
     border-bottom: 1px solid #e5e7eb;
-    padding: 14px 24px;
+    padding: 12px 24px;
     display: flex;
     align-items: center;
     gap: 10px;
     flex-shrink: 0;
   }
   .dot {
-    width: 9px; height: 9px; border-radius: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
     background: #d1d5db; flex-shrink: 0;
     transition: background .4s;
   }
   .dot.live { background: #22c55e; animation: blink 2s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
-  header h1 {
-    font-size: .95rem; font-weight: 600; color: #111;
-  }
-  #conn-label {
-    font-size: .78rem; color: #9ca3af; margin-left: auto;
-  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+  header h1 { font-size: .9rem; font-weight: 600; color: #111; }
+  #conn-label { font-size: .75rem; color: #9ca3af; margin-left: auto; }
 
-  /* ── Main layout ─────────────────────────────────────────────── */
-  .body {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-    gap: 0;
-  }
+  /* ── Layout ────────────────────────────────────────────────── */
+  .body { display: flex; flex: 1; overflow: hidden; }
 
-  /* ── Left: device screen ─────────────────────────────────────── */
+  /* ── Left: device screen ───────────────────────────────────── */
   #device-panel {
-    width: 300px;
-    flex-shrink: 0;
+    width: 280px; flex-shrink: 0;
     background: #fff;
     border-right: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
   }
-  #device-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
+  #device-frame { width:100%; height:100%; border:none; display:none; }
   #no-device {
-    text-align: center;
-    color: #9ca3af;
-    font-size: .82rem;
-    line-height: 1.8;
-    padding: 24px;
+    text-align: center; color: #c4c9d4;
+    font-size: .8rem; line-height: 2; padding: 24px;
     user-select: none;
   }
-  #no-device svg {
-    display: block;
-    margin: 0 auto 12px;
-    opacity: .25;
-  }
+  #no-device svg { display:block; margin: 0 auto 10px; }
 
-  /* ── Right: progress + status ────────────────────────────────── */
+  /* ── Right: progress ───────────────────────────────────────── */
   #right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 32px 40px;
-    gap: 32px;
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; padding: 40px 48px; gap: 28px;
   }
 
-  /* Test counter */
-  .counter {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+  /* Big counter */
   .counter-label {
-    font-size: .8rem;
-    font-weight: 500;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: .06em;
+    font-size: .72rem; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: #9ca3af; margin-bottom: 6px;
   }
   .counter-value {
-    font-size: 3.2rem;
-    font-weight: 700;
-    color: #111;
-    line-height: 1;
+    font-size: 4rem; font-weight: 700; line-height: 1; color: #111;
   }
-  .counter-value span { font-size: 1.6rem; color: #9ca3af; font-weight: 400; }
+  .counter-value .denom { font-size: 1.8rem; color: #9ca3af; font-weight: 400; }
 
-  /* Progress bar */
-  .bar-wrap { display: flex; flex-direction: column; gap: 8px; }
+  /* Bar */
   .bar-track {
-    height: 10px;
-    background: #f3f4f6;
-    border-radius: 99px;
-    overflow: hidden;
+    height: 8px; background: #f3f4f6;
+    border-radius: 99px; overflow: hidden;
   }
   .bar-fill {
-    height: 100%;
-    background: #111;
-    border-radius: 99px;
-    transition: width .5s ease;
-    width: 0%;
+    height: 100%; background: #111; border-radius: 99px;
+    width: 0%; transition: width .5s ease;
   }
   .bar-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: .78rem;
-    color: #6b7280;
+    display: flex; justify-content: space-between;
+    font-size: .75rem; color: #9ca3af; margin-top: 6px;
   }
 
-  /* Current test card */
-  #status-card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  /* Current test */
+  #card {
+    background: #fff; border: 1px solid #e5e7eb;
+    border-radius: 10px; padding: 16px 18px;
   }
-  #status-card .card-label {
-    font-size: .72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: #9ca3af;
+  #card .clabel {
+    font-size: .68rem; font-weight: 600; letter-spacing: .07em;
+    text-transform: uppercase; color: #9ca3af; margin-bottom: 6px;
   }
-  #tcs-id {
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #111;
+  #tcs-id { font-size: .95rem; font-weight: 600; color: #111; }
+  #badge {
+    display: inline-block; margin-top: 8px;
+    padding: 2px 10px; border-radius: 99px;
+    font-size: .72rem; font-weight: 600;
+    background: #f3f4f6; color: #6b7280;
   }
-  #status-text {
-    font-size: .85rem;
-    color: #6b7280;
-  }
-  #result-badge {
-    display: inline-block;
-    margin-top: 4px;
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-size: .75rem;
-    font-weight: 600;
-    background: #f3f4f6;
-    color: #6b7280;
-  }
-  #result-badge.pass  { background: #dcfce7; color: #16a34a; }
-  #result-badge.fail  { background: #fee2e2; color: #dc2626; }
-  #result-badge.run   { background: #eff6ff; color: #2563eb; }
+  #badge.run  { background: #eff6ff; color: #2563eb; }
+  #badge.pass { background: #dcfce7; color: #16a34a; }
+  #badge.fail { background: #fee2e2; color: #dc2626; }
 
-  /* Recent updates feed — QA-friendly, no tech detail */
-  #updates {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 200px;
-    overflow-y: auto;
+  /* Updates (max 4 lines, QA-friendly) */
+  #updates { display: flex; flex-direction: column; gap: 6px; }
+  .uitem {
+    display: flex; align-items: baseline; gap: 8px;
+    font-size: .8rem; color: #374151;
+    animation: fi .25s ease;
   }
-  .update-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: .82rem;
-    color: #374151;
-    animation: fadein .3s ease;
-  }
-  @keyframes fadein { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
-  .update-icon {
-    flex-shrink: 0;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: #f3f4f6;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .65rem;
-  }
-  .update-msg { flex: 1; line-height: 1.4; }
-  .update-time { color: #9ca3af; font-size: .72rem; flex-shrink: 0; }
+  @keyframes fi { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
+  .utime { color: #c4c9d4; font-size: .7rem; flex-shrink: 0; }
 </style>
 </head>
 <body>
 
 <header>
   <div class="dot" id="dot"></div>
-  <h1>Automated Testing — Live</h1>
+  <h1>MAS AI</h1>
   <span id="conn-label">Connecting…</span>
 </header>
 
 <div class="body">
 
-  <!-- Device screen -->
   <div id="device-panel">
     <div id="no-device">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="1.2">
         <rect x="5" y="2" width="14" height="20" rx="2"/>
-        <circle cx="12" cy="18" r=".5" fill="currentColor"/>
+        <circle cx="12" cy="17.5" r=".6" fill="currentColor"/>
       </svg>
-      Device screen<br>will appear here<br>when connected
+      Device screen
     </div>
-    <iframe id="device-frame" style="display:none"></iframe>
+    <iframe id="device-frame"></iframe>
   </div>
 
-  <!-- Progress & status -->
   <div id="right">
 
-    <div class="counter">
+    <div>
       <div class="counter-label">Test Cases</div>
       <div class="counter-value">
         <span id="n-done">—</span>
-        <span> / <span id="n-total">—</span></span>
+        <span class="denom"> / <span id="n-total">—</span></span>
       </div>
     </div>
 
-    <div class="bar-wrap">
+    <div>
       <div class="bar-track"><div class="bar-fill" id="bar"></div></div>
       <div class="bar-meta">
-        <span id="pct-label">0%</span>
-        <span id="eta-label"></span>
+        <span id="pct">0%</span>
+        <span id="eta"></span>
       </div>
     </div>
 
-    <div id="status-card">
-      <div class="card-label">Currently running</div>
+    <div id="card">
+      <div class="clabel">Currently Running</div>
       <div id="tcs-id">Waiting to start…</div>
-      <div id="status-text"></div>
-      <span id="result-badge"></span>
+      <span id="badge"></span>
     </div>
 
     <div id="updates"></div>
@@ -257,112 +169,87 @@
 </div>
 
 <script>
-const WS_PORT     = 9765;
-const SCRCPY_PORT = 8000;
-const dot         = document.getElementById('dot');
-const connLabel   = document.getElementById('conn-label');
-let startTime     = null;
+// Ports injected by config.js (written by Python on start)
+const WS_PORT     = window.DASHBOARD_WS_PORT     || 9765;
+const SCRCPY_PORT = window.DASHBOARD_SCRCPY_PORT  || 8000;
 
-// ── WebSocket connection ──────────────────────────────────────────
+const dot = document.getElementById('dot');
+let startTime = null;
+
+// ── WebSocket ─────────────────────────────────────────────────
 let ws;
 function connect() {
   ws = new WebSocket(`ws://localhost:${WS_PORT}`);
-  ws.onopen  = () => {
-    dot.className = 'dot live';
-    connLabel.textContent = 'Live';
-  };
-  ws.onclose = () => {
-    dot.className = 'dot';
-    connLabel.textContent = 'Reconnecting…';
-    setTimeout(connect, 2000);
-  };
+  ws.onopen  = () => { dot.className = 'dot live'; document.getElementById('conn-label').textContent = 'Live'; };
+  ws.onclose = () => { dot.className = 'dot'; document.getElementById('conn-label').textContent = 'Reconnecting…'; setTimeout(connect, 2000); };
   ws.onerror = () => ws.close();
   ws.onmessage = e => handle(JSON.parse(e.data));
 }
 connect();
 
-// ── Device iframe (lazy) ──────────────────────────────────────────
-function tryDevice() {
+// ── Device iframe ─────────────────────────────────────────────
+(function tryDevice() {
   fetch(`http://localhost:${SCRCPY_PORT}/player.html`, {mode:'no-cors'})
     .then(() => {
-      const frame = document.getElementById('device-frame');
-      frame.src = `http://localhost:${SCRCPY_PORT}/player.html`;
-      frame.style.display = 'block';
+      const f = document.getElementById('device-frame');
+      f.src = `http://localhost:${SCRCPY_PORT}/player.html`;
+      f.style.display = 'block';
       document.getElementById('no-device').style.display = 'none';
     })
     .catch(() => setTimeout(tryDevice, 4000));
-}
-setTimeout(tryDevice, 3000);
+})();
 
-// ── Event handler ─────────────────────────────────────────────────
+// ── Events ───────────────────────────────────────────────────
 function handle(msg) {
   if (msg.type === 'progress') updateProgress(msg);
-  else if (msg.type === 'log')  addUpdate(msg.message, '💬');
-  // observer/decider/executor/clear: silently update canvas if needed (skip for QA UI)
+  else if (msg.type === 'log') addUpdate(msg.message);
 }
 
-// ── Progress ──────────────────────────────────────────────────────
 function updateProgress(m) {
-  if (!startTime) startTime = Date.now();
-  const done  = m.scenario_idx || 0;
+  if (!startTime && m.scenario_idx > 0) startTime = Date.now();
+  const done  = m.scenario_idx  || 0;
   const total = m.scenario_total || 0;
   const pct   = total ? Math.round(done / total * 100) : 0;
 
-  document.getElementById('n-done').textContent  = done;
-  document.getElementById('n-total').textContent = total;
+  document.getElementById('n-done').textContent  = done  || '—';
+  document.getElementById('n-total').textContent = total || '—';
   document.getElementById('bar').style.width     = pct + '%';
-  document.getElementById('pct-label').textContent = pct + '%';
+  document.getElementById('pct').textContent     = pct + '%';
 
-  // ETA
   if (done > 0 && total > 0 && done < total) {
-    const elapsed = (Date.now() - startTime) / 1000;
-    const perCase = elapsed / done;
-    const remaining = Math.round(perCase * (total - done));
-    const mins = Math.floor(remaining / 60), secs = remaining % 60;
-    document.getElementById('eta-label').textContent =
-      `~${mins > 0 ? mins + 'm ' : ''}${secs}s left`;
+    const rem = Math.round((Date.now() - startTime) / done / 1000 * (total - done));
+    const m2 = Math.floor(rem / 60), s2 = rem % 60;
+    document.getElementById('eta').textContent = `~${m2 > 0 ? m2 + 'm ' : ''}${s2}s left`;
   } else if (done >= total && total > 0) {
-    document.getElementById('eta-label').textContent = 'Done ✓';
+    document.getElementById('eta').textContent = 'Done ✓';
   }
 
-  // Current test card
   if (m.tcs_id) {
     document.getElementById('tcs-id').textContent = m.tcs_id;
-    const badge = document.getElementById('result-badge');
-    const statusEl = document.getElementById('status-text');
+    const badge = document.getElementById('badge');
     const st = (m.status || '').toUpperCase();
-    if (st === 'RUNNING') {
-      badge.textContent = 'Running'; badge.className = 'result-badge run';
-      statusEl.textContent = `Test case ${done} of ${total}`;
-    } else if (st === 'PASSED') {
-      badge.textContent = 'Passed ✓'; badge.className = 'result-badge pass';
-      statusEl.textContent = '';
-      addUpdate(`${m.tcs_id} passed`, '✓');
-    } else if (st.includes('ANOMALY') || st.includes('FAIL') || st.includes('BUG')) {
-      badge.textContent = 'Needs review'; badge.className = 'result-badge fail';
-      statusEl.textContent = '';
-      addUpdate(`${m.tcs_id} flagged for review`, '⚠');
+    if (st === 'RUNNING') { badge.textContent = 'Running'; badge.className = 'run'; }
+    else if (st === 'PASSED') {
+      badge.textContent = 'Passed ✓'; badge.className = 'pass';
+      addUpdate(`${m.tcs_id} — passed ✓`);
+    } else if (st.includes('ANOMALY') || st.includes('FAIL')) {
+      badge.textContent = 'Needs review'; badge.className = 'fail';
+      addUpdate(`${m.tcs_id} — flagged for review ⚠`);
     } else {
-      badge.textContent = st; badge.className = 'result-badge';
-      statusEl.textContent = '';
+      badge.textContent = m.status || ''; badge.className = '';
     }
   }
 }
 
-// ── Updates feed (QA-friendly, no tech noise) ─────────────────────
+// QA-friendly updates — no tech noise
 const feed = document.getElementById('updates');
-const MAX  = 5;
-
-function addUpdate(msg, icon = '•') {
-  const item = document.createElement('div');
-  item.className = 'update-item';
-  const now = new Date().toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
-  item.innerHTML = `
-    <div class="update-icon">${icon}</div>
-    <div class="update-msg">${esc(msg)}</div>
-    <div class="update-time">${now}</div>`;
-  feed.prepend(item);
-  while (feed.children.length > MAX) feed.removeChild(feed.lastChild);
+function addUpdate(msg) {
+  const el = document.createElement('div');
+  el.className = 'uitem';
+  const t = new Date().toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
+  el.innerHTML = `<span>${esc(msg)}</span><span class="utime">${t}</span>`;
+  feed.prepend(el);
+  while (feed.children.length > 4) feed.removeChild(feed.lastChild);
 }
 
 function esc(s) {
