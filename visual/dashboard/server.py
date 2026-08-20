@@ -130,7 +130,7 @@ class DashboardServer:
         asyncio.set_event_loop(self._loop)
 
         async def _serve():
-            async with websockets.serve(self._handler, "localhost", self.port):
+            async with websockets.serve(self._handler, "", self.port):
                 self._ready.set()
                 await asyncio.get_event_loop().create_future()  # run forever
 
