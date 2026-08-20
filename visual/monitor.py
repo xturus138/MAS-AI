@@ -1,182 +1,184 @@
-import shutil
+"""
+visual/monitor.py  —  BrowserDashboard
+---------------------------------------
+Drop-in replacement for the old PyQt5/win32gui VisualMonitor.
+
+Public API is identical so no agent code needs to change:
+  monitor.start()
+  monitor.on_observer(widgets)
+  monitor.on_decider(target_widget)
+  monitor.on_executor(x, y, action_type, scroll_direction)
+  monitor.on_clear()
+  monitor.stop()
+
+New: also exposes push_progress() and push_log() for runner integration.
+
+Requires:
+  pip install websockets
+  node >= 18  (for ws-scrcpy-web)
+  LIVE_DASHBOARD_ENABLED=true  (default)
+"""
+
+from __future__ import annotations
+import os
 import subprocess
 import threading
 import time
-import sys
-from typing import Optional
+import webbrowser
+from pathlib import Path
 
-_SCRCPY_FALLBACK_PATHS = [
-    r"C:\scrcpy\scrcpy-win64-v4.0\scrcpy.exe",
-    r"C:\scrcpy\scrcpy.exe",
-]
+_DASHBOARD_DIR = Path(__file__).parent / "dashboard"
+_INDEX_HTML    = _DASHBOARD_DIR / "index.html"
+
+# env-controlled ports
+_WS_PORT     = int(os.getenv("DASHBOARD_WS_PORT",    "9765"))
+_SCRCPY_PORT = int(os.getenv("DASHBOARD_SCRCPY_PORT", "8000"))
+_ENABLED     = os.getenv("LIVE_DASHBOARD_ENABLED", "true").lower() == "true"
 
 
-class VisualMonitor:
-    def __init__(self, device_w: int, device_h: int):
-        self.device_w = device_w
-        self.device_h = device_h
-        self._scrcpy_proc: Optional[subprocess.Popen] = None
-        self._overlay = None
-        self._app = None
-        self._running = False
-        self._hwnd = None
-        self._current_boxes: list = []
-        self._current_target: dict = {}
-        self._overlay_ready = threading.Event()
+class BrowserDashboard:
+    """Live browser dashboard: ws-scrcpy video + WebSocket event feed."""
 
-    def _should_overlay_widget(self, widget: dict) -> bool:
-        """Return True if widget should be drawn on debug overlay.
+    def __init__(self, device_id: str = "", device_w: int = 1080, device_h: int = 2400):
+        self.device_id = device_id or os.getenv("TARGET_DEVICE", "")
+        self.device_w  = device_w
+        self.device_h  = device_h
+        self._enabled  = _ENABLED
+        self._server   = None          # DashboardServer
+        self._launcher = None          # WsScrcpyLauncher
+        self._http_proc: subprocess.Popen | None = None
 
-        XML-first path can emit large structural containers with resource-id-derived
-        labels. Those are useful in workflow state, but painting them causes the
-        whole scrcpy window to wash blue. Filter here only for monitor display.
-        """
-        bounds = widget.get("bounds")
-        if not bounds or len(bounds) != 4:
+    # ------------------------------------------------------------------
+    # Lifecycle
+    # ------------------------------------------------------------------
+
+    def start(self) -> bool:
+        if not self._enabled:
+            print("[Dashboard] LIVE_DASHBOARD_ENABLED=false — skipped.")
             return False
 
-        x1, y1, x2, y2 = bounds
-        width = max(0, x2 - x1)
-        height = max(0, y2 - y1)
-        if width <= 0 or height <= 0:
-            return False
+        ok = True
 
-        source = widget.get("source", "")
-        actionable = widget.get("actionable", False)
-        role = widget.get("role", "")
-        class_name = widget.get("class", "")
-
-        if source == "xml":
-            screen_area = max(1, self.device_w * self.device_h)
-            area_ratio = (width * height) / screen_area
-            width_ratio = width / max(1, self.device_w)
-            height_ratio = height / max(1, self.device_h)
-            structural_class = any(token in class_name for token in ("FrameLayout", "LinearLayout", "ViewGroup"))
-
-            if not actionable and role == "view" and structural_class and area_ratio >= 0.05:
-                return False
-            if not actionable and width_ratio >= 0.85 and height_ratio >= 0.20:
-                return False
-            if not actionable and area_ratio >= 0.12:
-                return False
-
-        return True
-
-    def _filter_overlay_boxes(self, widgets: list) -> list:
-        return [w["bounds"] for w in widgets if self._should_overlay_widget(w)]
-
-    def start(self):
-        scrcpy_cmd = shutil.which("scrcpy")
-        if scrcpy_cmd is None:
-            for path in _SCRCPY_FALLBACK_PATHS:
-                if shutil.which(path) is not None or __import__("os").path.isfile(path):
-                    scrcpy_cmd = path
-                    break
-        if scrcpy_cmd is None:
-            print("[VisualMonitor] WARNING: scrcpy not found on PATH. Monitor disabled.")
-            return
-
+        # 1. Start WebSocket push server
         try:
-            self._scrcpy_proc = subprocess.Popen(
-                [scrcpy_cmd, "--window-title", "scrcpy"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except FileNotFoundError:
-            print("[VisualMonitor] WARNING: scrcpy not found on PATH. Monitor disabled.")
-            return
+            from visual.dashboard.server import DashboardServer
+            self._server = DashboardServer(port=_WS_PORT)
+            if not self._server.start():
+                print("[Dashboard] WS server failed to start.")
+                ok = False
+        except Exception as exc:
+            print(f"[Dashboard] WS server error: {exc}")
+            ok = False
 
-        import win32gui
-        deadline = time.time() + 5
-        while time.time() < deadline:
-            self._hwnd = win32gui.FindWindow(None, "scrcpy")
-            if self._hwnd:
-                break
-            time.sleep(0.2)
+        # 2. Serve index.html via a tiny Python HTTP server
+        threading.Thread(target=self._serve_html, daemon=True).start()
+        time.sleep(0.5)  # let HTTP server bind
 
-        if not self._hwnd:
-            print("[VisualMonitor] WARNING: scrcpy window did not appear. Monitor disabled.")
-            self._scrcpy_proc.terminate()
-            self._scrcpy_proc = None
-            return
+        # 3. Spawn ws-scrcpy-web (auto-clone on first run)
+        try:
+            from visual.dashboard.ws_scrcpy_launcher import WsScrcpyLauncher
+            self._launcher = WsScrcpyLauncher(device_id=self.device_id, port=_SCRCPY_PORT)
+            ws_ok = self._launcher.start()
+            if not ws_ok:
+                print("[Dashboard] ws-scrcpy-web failed to start — "
+                      "live device screen will be unavailable.")
+        except Exception as exc:
+            print(f"[Dashboard] ws-scrcpy-web error: {exc}")
 
-        self._qt_thread = threading.Thread(target=self._launch_overlay, daemon=True)
-        self._qt_thread.start()
-        self._overlay_ready.wait(timeout=3.0)
+        # 4. Open browser — dashboard index.html served on _SCRCPY_PORT+1
+        dashboard_url = f"http://localhost:{_SCRCPY_PORT + 1}"
+        try:
+            webbrowser.open(dashboard_url)
+            print(f"[Dashboard] Opened: {dashboard_url}")
+        except Exception:
+            print(f"[Dashboard] Open manually: {dashboard_url}")
 
-        self._running = True
-        self._tracker_thread = threading.Thread(target=self._track_window, daemon=True)
-        self._tracker_thread.start()
-
-    def _client_rect(self, hwnd):
-        """Return (x, y, w, h) of the scrcpy *client* area in screen coordinates.
-
-        GetWindowRect includes the title bar and borders; using the client area
-        ensures the overlay is sized/positioned to match only the phone content.
-        """
-        import win32gui
-        cl = win32gui.GetClientRect(hwnd)
-        tl = win32gui.ClientToScreen(hwnd, (0, 0))
-        return tl[0], tl[1], cl[2], cl[3]
-
-    def _launch_overlay(self):
-        from PyQt5.QtWidgets import QApplication
-        from visual.overlay_window import OverlayWindow
-
-        self._app = QApplication.instance() or QApplication(sys.argv)
-        x, y, w, h = self._client_rect(self._hwnd)
-        self._overlay = OverlayWindow(self.device_w, self.device_h)
-        self._overlay_ready.set()
-        self._overlay.setGeometry(x, y, w, h)
-        self._overlay.show()
-        self._app.exec_()
-
-    def _track_window(self):
-        while self._running:
-            if self._overlay and self._hwnd:
-                try:
-                    x, y, w, h = self._client_rect(self._hwnd)
-                    self._overlay.sync_geometry_signal.emit(x, y, w, h)
-                except Exception:
-                    pass
-            time.sleep(0.1)
-
-    def on_observer(self, widgets: list):
-        if self._overlay is None:
-            return
-        self._current_boxes = self._filter_overlay_boxes(widgets)
-        self._current_target = {}
-        self._overlay.update_signal.emit(self._current_boxes, {}, {})
-
-    def on_decider(self, target_widget: dict):
-        if self._overlay is None or not target_widget:
-            return
-        self._current_target = target_widget
-        self._overlay.update_signal.emit(self._current_boxes, target_widget, {})
-
-    def on_executor(self, x: int, y: int, action_type: str = "click", scroll_direction: str = ""):
-        if self._overlay is None:
-            return
-        ripple = {"x": x, "y": y, "alpha": 255, "action_type": action_type, "scroll_direction": scroll_direction}
-        self._overlay.update_signal.emit(self._current_boxes, self._current_target, ripple)
-
-    def on_clear(self):
-        """Clear all annotations (call after action completes so stale boxes don't linger)."""
-        if self._overlay is None:
-            return
-        self._current_boxes = []
-        self._current_target = {}
-        self._overlay.update_signal.emit([], {}, {})
+        return ok
 
     def stop(self):
-        self._running = False
-        if self._app is not None:
+        if self._launcher:
+            self._launcher.stop()
+        if self._server:
+            self._server.stop()
+        if self._http_proc:
             try:
-                self._app.quit()
+                self._http_proc.terminate()
             except Exception:
                 pass
-        if self._scrcpy_proc is not None:
-            try:
-                self._scrcpy_proc.terminate()
-            except Exception:
-                pass
+
+    # ------------------------------------------------------------------
+    # Agent hooks  (same API as old VisualMonitor)
+    # ------------------------------------------------------------------
+
+    def on_observer(self, widgets: list):
+        if self._server:
+            self._server.push_observer(widgets)
+
+    def on_decider(self, target_widget: dict):
+        if self._server and target_widget:
+            self._server.push_decider(target_widget)
+
+    def on_executor(self, x: int, y: int, action_type: str = "click",
+                    scroll_direction: str = ""):
+        if self._server:
+            self._server.push_executor(x, y, action_type, scroll_direction)
+
+    def on_clear(self):
+        if self._server:
+            self._server.push_clear()
+
+    # ------------------------------------------------------------------
+    # Runner hooks  (new)
+    # ------------------------------------------------------------------
+
+    def push_progress(self, scenario_idx: int, scenario_total: int,
+                      step_idx: int = 0, step_total: int = 0,
+                      tcs_id: str = "", status: str = ""):
+        if self._server:
+            self._server.push_progress(
+                scenario_idx, scenario_total, step_idx, step_total, tcs_id, status
+            )
+
+    def push_log(self, component: str, message: str, detail: str = ""):
+        if self._server:
+            self._server.push_log(component, message, detail)
+
+    # ------------------------------------------------------------------
+    # Tiny HTTP server for index.html
+    # ------------------------------------------------------------------
+
+    def _serve_html(self):
+        """Serve visual/dashboard/ as a static site on _SCRCPY_PORT+1."""
+        import http.server
+        import socketserver
+
+        port = _SCRCPY_PORT + 1
+        handler = _make_handler(str(_DASHBOARD_DIR))
+        with socketserver.TCPServer(("", port), handler) as httpd:
+            httpd.serve_forever()
+
+    # ------------------------------------------------------------------
+    # Backwards-compat shim: old VisualMonitor constructor took (w, h)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def from_dimensions(cls, device_w: int, device_h: int) -> "BrowserDashboard":
+        return cls(device_w=device_w, device_h=device_h)
+
+
+# ── Alias so old import `from visual.monitor import VisualMonitor` works ──
+VisualMonitor = BrowserDashboard
+
+
+def _make_handler(directory: str):
+    """Return a SimpleHTTPRequestHandler subclass rooted at `directory`."""
+    import http.server
+
+    class _H(http.server.SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=directory, **kwargs)
+
+        def log_message(self, fmt, *args):  # silence HTTP log spam
+            pass
+
+    return _H

@@ -159,6 +159,10 @@ TOKEN_WARN_THRESHOLD = float(os.getenv("TOKEN_WARN_THRESHOLD", "0.75"))
 
 WORKFLOW_STRATEGY = os.getenv("WORKFLOW_STRATEGY", "predefined").lower()
 
+LIVE_DASHBOARD_ENABLED = os.getenv("LIVE_DASHBOARD_ENABLED", "true").lower() == "true"
+DASHBOARD_WS_PORT    = int(os.getenv("DASHBOARD_WS_PORT",    "9765"))
+DASHBOARD_SCRCPY_PORT = int(os.getenv("DASHBOARD_SCRCPY_PORT", "8000"))
+
 ADAPTIVE_EXECUTOR_WAIT = os.getenv("ADAPTIVE_EXECUTOR_WAIT", "true").lower() == "true"
 PARALLEL_REFLECTOR_CHECKS = os.getenv("PARALLEL_REFLECTOR_CHECKS", "true").lower() == "true"
 OBSERVER_CACHE_ENABLED = os.getenv("OBSERVER_CACHE_ENABLED", "true").lower() == "true"

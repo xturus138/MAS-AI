@@ -1,0 +1,12 @@
+{
+  "name": "mas-ai-scrcpy-relay",
+  "version": "1.0.0",
+  "description": "ADB screenrecord → WebSocket relay for MAS AI live dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
