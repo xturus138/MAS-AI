@@ -32,9 +32,9 @@ from typing import Any
 _ENABLED = os.getenv("LIVE_DASHBOARD_ENABLED", "true").lower() == "true"
 
 # Window dimensions
-_WIN_W  = 560
-_WIN_H  = 420
-_DEV_W  = 210   # left panel width
+_WIN_W  = 900
+_WIN_H  = 640
+_DEV_W  = 360   # left panel width
 _SHOT_INTERVAL = 1.2  # seconds between screencaps
 
 
@@ -123,12 +123,12 @@ class TkDashboard:
         root.geometry(f"{_WIN_W}x{_WIN_H}+{sx}+{sy}")
 
         # ── Fonts
-        f_label  = tkfont.Font(family="Segoe UI", size=7)
-        f_big    = tkfont.Font(family="Segoe UI", size=28, weight="bold")
-        f_denom  = tkfont.Font(family="Segoe UI", size=13)
-        f_tcs    = tkfont.Font(family="Segoe UI", size=10, weight="bold")
-        f_badge  = tkfont.Font(family="Segoe UI", size=7,  weight="bold")
-        f_update = tkfont.Font(family="Segoe UI", size=8)
+        f_label  = tkfont.Font(family="Segoe UI", size=9)
+        f_big    = tkfont.Font(family="Segoe UI", size=48, weight="bold")
+        f_denom  = tkfont.Font(family="Segoe UI", size=22)
+        f_tcs    = tkfont.Font(family="Segoe UI", size=14, weight="bold")
+        f_badge  = tkfont.Font(family="Segoe UI", size=10, weight="bold")
+        f_update = tkfont.Font(family="Segoe UI", size=10)
 
         # ── Layout: left panel (device) + right panel (info)
         left = tk.Frame(root, bg="#f8f8f8", width=_DEV_W, height=_WIN_H)
@@ -168,7 +168,7 @@ class TkDashboard:
         lbl_denom.pack(side="left", padx=(2, 0))
 
         # ── Progress bar (canvas)
-        BAR_H = 5
+        BAR_H = 10
         bar_frame = tk.Frame(right, bg="white")
         bar_frame.pack(fill="x", pady=(8, 0))
         bar_canvas = tk.Canvas(bar_frame, height=BAR_H, bg="#f0f0f0",
