@@ -101,7 +101,7 @@ class BrowserDashboard:
         self._write_port_config()
 
         # 5. Open browser
-        url = f"http://localhost:{self._http_port}"
+        url = f"http://localhost:{self._http_port}/popup.html"
         try:
             webbrowser.open(url)
         except Exception:
@@ -157,7 +157,8 @@ class BrowserDashboard:
         cfg = _DASHBOARD_DIR / "config.js"
         cfg.write_text(
             f"window.DASHBOARD_WS_PORT={self._ws_port};\n"
-            f"window.DASHBOARD_SCRCPY_PORT={self._scrcpy_port};\n",
+            f"window.DASHBOARD_SCRCPY_PORT={self._scrcpy_port};\n"
+            f"window.DASHBOARD_HTTP_PORT={self._http_port};\n",
             encoding="utf-8",
         )
 
