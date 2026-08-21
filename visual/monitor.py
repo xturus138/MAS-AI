@@ -405,6 +405,21 @@ class TkDashboard:
             bar_bg.coords("fill", 0, 0, int(w * pct / 100), BAR_H)
 
 
+        def _append_feed(label_str, text_str, color):
+            row = tk.Frame(feed_inner, bg="#f9fafb")
+            row.pack(fill="x", pady=2, padx=4, anchor="n")
+            dot = tk.Label(row, text="●", font=f_feed, bg="#f9fafb", fg=color)
+            dot.pack(side="left", padx=(4, 4))
+            info = tk.Frame(row, bg="#f9fafb")
+            info.pack(side="left", fill="x", expand=True)
+            tk.Label(info, text=label_str, font=f_agent, bg="#f9fafb",
+                     fg=color, anchor="w").pack(fill="x")
+            tk.Label(info, text=text_str, font=f_feed, bg="#f9fafb",
+                     fg="#6b7280", anchor="w", wraplength=_RIGHT_W - 46,
+                     justify="left").pack(fill="x", anchor="w")
+            feed_canvas.update_idletasks()
+            feed_canvas.yview_moveto(1.0)
+
         def poll_queue():
             try:
                 for _ in range(20):   # drain burst
