@@ -45,37 +45,37 @@ _FEED_MAX      = 200          # max agent activity lines kept in memory (scrolla
 # ── Humanizer ────────────────────────────────────────────────────────────────
 _HUMANIZE: dict[str, list[str]] = {
     "OBSERVER": [
-        "Scanning the device screen...",
-        "Detecting visible UI elements...",
-        "Analyzing screen widgets and components...",
+        "Scanning the device screen",
+        "Detecting visible UI elements",
+        "Analyzing screen widgets and components",
     ],
     "DECIDER": [
-        "Deciding the next best action...",
-        "Analyzing the situation and planning...",
-        "Identifying the target element on screen...",
+        "Deciding the next best action",
+        "Analyzing the situation and planning",
+        "Identifying the target element on screen",
     ],
     "EXECUTOR": [
-        "Performing action on device...",
-        "Tapping button / entering text...",
-        "Interacting with the device...",
+        "Performing action on device",
+        "Tapping button / entering text",
+        "Interacting with the device",
     ],
     "REFLECTOR": [
-        "Checking the result of the action...",
-        "Verifying whether the step succeeded...",
-        "Evaluating the current screen state...",
+        "Checking the result of the action",
+        "Verifying whether the step succeeded",
+        "Evaluating the current screen state",
     ],
     "ORCHESTRATOR": [
-        "Moving to the next step...",
-        "Coordinating the test sequence...",
-        "Preparing the next step...",
+        "Moving to the next step",
+        "Coordinating the test sequence",
+        "Preparing the next step",
     ],
     "RECORDER": [
-        "Saving test results...",
-        "Recording evidence and artifacts...",
+        "Saving test results",
+        "Recording evidence and artifacts",
     ],
     "RUNNER": [
-        "Starting a new test scenario...",
-        "Setting up the test environment...",
+        "Starting a new test scenario",
+        "Setting up the test environment",
     ],
 }
 
@@ -109,7 +109,7 @@ def _humanize(component: str, message: str) -> tuple[str, str]:
         _rng_state[0] += 1
         text = options[_rng_state[0] % len(options)]
     else:
-        text = message[:80] if message else "Sedang bekerja..."
+        text = message[:80] if message else "Working"
     label = _AGENT_ICON.get(key, key.title())
     return label, text
 
@@ -260,7 +260,7 @@ class TkDashboard:
 
         # Placeholder
         dev_canvas.create_text(dev_w // 2, _WIN_H // 2,
-                                text="Connecting to device...",
+                                text="Connecting to device",
                                 fill="#555", font=f_sub, tags="placeholder")
 
         # ── Right: info panel ─────────────────────────────────────────────────
@@ -282,7 +282,7 @@ class TkDashboard:
         tk.Label(hdr, text="Please wait until all scenarios are complete.",
                  font=f_sub, bg="#f9fafb", fg="#6b7280",
                  anchor="w").pack(fill="x", padx=14)
-        lbl_eta = tk.Label(hdr, text="Estimated time: calculating...",
+        lbl_eta = tk.Label(hdr, text="Estimated time: calculating",
                            font=f_eta, bg="#f9fafb", fg="#6366f1",
                            anchor="w")
         lbl_eta.pack(fill="x", padx=14, pady=(2, 10))
@@ -418,7 +418,7 @@ class TkDashboard:
             feed_canvas.update_idletasks()
             _wrap = max(feed_canvas.winfo_width() - 50, _RIGHT_W - 50)
             txt_lbl = tk.Label(info, text=text_str, font=f_feed, bg="#f9fafb",
-                              fg="#6b7280", anchor="w", justify="left",
+                              fg="#6b7280", anchor="nw", justify="left",
                               wraplength=_wrap)
             txt_lbl.pack(fill="x", anchor="w")
 
