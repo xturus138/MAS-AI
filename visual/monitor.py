@@ -80,12 +80,12 @@ _HUMANIZE: dict[str, list[str]] = {
 }
 
 _AGENT_ICON: dict[str, str] = {
-    "OBSERVER":     "Pengamat",
-    "DECIDER":      "Perencana",
-    "EXECUTOR":     "Pelaksana",
-    "REFLECTOR":    "Evaluator",
-    "ORCHESTRATOR": "Koordinator",
-    "RECORDER":     "Pencatat",
+    "OBSERVER":     "Observer",
+    "DECIDER":      "Decider",
+    "EXECUTOR":     "Executor",
+    "REFLECTOR":    "Reflector",
+    "ORCHESTRATOR": "Orchestrator",
+    "RECORDER":     "Recorder",
     "RUNNER":       "Runner",
 }
 
@@ -331,13 +331,22 @@ class TkDashboard:
                             fg="#374151", anchor="w")
             name.pack(fill="x")
             text = tk.Label(info, text="", font=f_feed, bg="white",
-                            fg="#6b7280", anchor="w", wraplength=_RIGHT_W - 36,
+                            fg="#6b7280", anchor="w",
+                            wraplength=_RIGHT_W - 40,
                             justify="left")
-            text.pack(fill="x")
+            text.pack(fill="x", anchor="w")
             return {"dot": dot, "name": name, "text": text}
 
         for _ in range(_FEED_MAX):
             feed_rows.append(_make_feed_row())
+
+        # Update wraplength once window is rendered
+        def _fix_wraplength():
+            actual = right.winfo_width() - 40
+            if actual > 40:
+                for row in feed_rows:
+                    row["text"].config(wraplength=actual)
+        root.after(200, _fix_wraplength)
 
         # ── Overlay state ─────────────────────────────────────────────────────
         _overlay: dict = {
