@@ -414,9 +414,14 @@ class TkDashboard:
             info.pack(side="left", fill="x", expand=True)
             tk.Label(info, text=label_str, font=f_agent, bg="#f9fafb",
                      fg=color, anchor="w").pack(fill="x")
-            tk.Label(info, text=text_str, font=f_feed, bg="#f9fafb",
-                     fg="#6b7280", anchor="w", wraplength=_RIGHT_W - 46,
-                     justify="left").pack(fill="x", anchor="w")
+            txt_lbl = tk.Label(info, text=text_str, font=f_feed, bg="#f9fafb",
+                              fg="#6b7280", anchor="w", justify="left")
+            txt_lbl.pack(fill="x", anchor="w")
+
+            def _bind_wrap(event, lbl=txt_lbl):
+                lbl.config(wraplength=max(event.width - 8, 40))
+            txt_lbl.bind("<Configure>", _bind_wrap)
+
             feed_canvas.update_idletasks()
             feed_canvas.yview_moveto(1.0)
 
