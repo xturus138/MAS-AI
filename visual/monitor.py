@@ -315,22 +315,22 @@ class TkDashboard:
                  bg="white", fg="#374151", anchor="w").pack(
                  fill="x", padx=14, pady=(10, 4))
 
-        feed_frame = tk.Frame(right, bg="white")
-        feed_frame.pack(fill="both", expand=True, **pad)
+        feed_frame = tk.Frame(right, bg="#f9fafb")
+        feed_frame.pack(fill="both", expand=True, padx=14, pady=(0, 14))
 
         feed_rows: list[dict] = []   # list of {"dot": Label, "name": Label, "text": Label}
 
         def _make_feed_row():
-            row = tk.Frame(feed_frame, bg="white")
+            row = tk.Frame(feed_frame, bg="#f9fafb")
             row.pack(fill="x", pady=2, anchor="n")
-            dot = tk.Label(row, text="●", font=f_feed, bg="white", fg="#d1d5db")
-            dot.pack(side="left", padx=(0, 4))
-            info = tk.Frame(row, bg="white")
+            dot = tk.Label(row, text="●", font=f_feed, bg="#f9fafb", fg="#d1d5db")
+            dot.pack(side="left", padx=(6, 4))
+            info = tk.Frame(row, bg="#f9fafb")
             info.pack(side="left", fill="x", expand=True)
-            name = tk.Label(info, text="", font=f_agent, bg="white",
+            name = tk.Label(info, text="", font=f_agent, bg="#f9fafb",
                             fg="#374151", anchor="w")
             name.pack(fill="x")
-            text = tk.Label(info, text="", font=f_feed, bg="white",
+            text = tk.Label(info, text="", font=f_feed, bg="#f9fafb",
                             fg="#6b7280", anchor="w",
                             wraplength=_RIGHT_W - 40,
                             justify="left")
