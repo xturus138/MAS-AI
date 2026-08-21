@@ -40,7 +40,7 @@ _ENABLED = os.getenv("LIVE_DASHBOARD_ENABLED", "true").lower() == "true"
 _RIGHT_W       = 280          # right panel fixed width
 _WIN_H         = 700          # window height
 _SHOT_INTERVAL = 1.2          # screencap refresh (seconds)
-_FEED_MAX      = 6            # max agent activity lines shown
+_FEED_MAX      = 200          # max agent activity lines kept in memory (scrollable)
 
 # ── Humanizer ────────────────────────────────────────────────────────────────
 _HUMANIZE: dict[str, list[str]] = {
@@ -310,43 +310,34 @@ class TkDashboard:
 
         tk.Frame(right, height=1, bg="#e5e7eb").pack(fill="x", pady=(12, 0))
 
-        # [3] Agent activity feed
+        # [3] Agent activity feed — scrollable
         tk.Label(right, text="Agent Activity", font=f_agent,
                  bg="white", fg="#374151", anchor="w").pack(
                  fill="x", padx=14, pady=(10, 4))
 
-        feed_frame = tk.Frame(right, bg="#f9fafb")
-        feed_frame.pack(fill="both", expand=True, padx=5, pady=5)
+        feed_outer = tk.Frame(right, bg="#f9fafb")
+        feed_outer.pack(fill="both", expand=True, padx=5, pady=5)
 
-        feed_rows: list[dict] = []   # list of {"dot": Label, "name": Label, "text": Label}
+        feed_canvas = tk.Canvas(feed_outer, bg="#f9fafb", highlightthickness=0)
+        feed_scroll = tk.Scrollbar(feed_outer, orient="vertical",
+                                   command=feed_canvas.yview)
+        feed_canvas.configure(yscrollcommand=feed_scroll.set)
+        feed_scroll.pack(side="right", fill="y")
+        feed_canvas.pack(side="left", fill="both", expand=True)
 
-        def _make_feed_row():
-            row = tk.Frame(feed_frame, bg="#f9fafb")
-            row.pack(fill="x", pady=2, anchor="n")
-            dot = tk.Label(row, text="●", font=f_feed, bg="#f9fafb", fg="#d1d5db")
-            dot.pack(side="left", padx=(6, 4))
-            info = tk.Frame(row, bg="#f9fafb")
-            info.pack(side="left", fill="x", expand=True)
-            name = tk.Label(info, text="", font=f_agent, bg="#f9fafb",
-                            fg="#374151", anchor="w")
-            name.pack(fill="x")
-            text = tk.Label(info, text="", font=f_feed, bg="#f9fafb",
-                            fg="#6b7280", anchor="w",
-                            wraplength=_RIGHT_W - 40,
-                            justify="left")
-            text.pack(fill="x", anchor="w")
-            return {"dot": dot, "name": name, "text": text}
+        feed_inner = tk.Frame(feed_canvas, bg="#f9fafb")
+        feed_window = feed_canvas.create_window((0, 0), window=feed_inner,
+                                                anchor="nw")
 
-        for _ in range(_FEED_MAX):
-            feed_rows.append(_make_feed_row())
+        def _on_feed_resize(event):
+            feed_canvas.itemconfig(feed_window, width=event.width)
+        feed_canvas.bind("<Configure>", _on_feed_resize)
 
-        # Update wraplength once window is rendered
-        def _fix_wraplength():
-            actual = right.winfo_width() - 40
-            if actual > 40:
-                for row in feed_rows:
-                    row["text"].config(wraplength=actual)
-        root.after(200, _fix_wraplength)
+        def _on_inner_resize(event):
+            feed_canvas.configure(scrollregion=feed_canvas.bbox("all"))
+        feed_inner.bind("<Configure>", _on_inner_resize)
+
+        feed_rows: list[dict] = []   # kept for compat (unused now)
 
         # ── Overlay state ─────────────────────────────────────────────────────
         _overlay: dict = {
@@ -413,17 +404,6 @@ class TkDashboard:
             w = bar_bg.winfo_width()
             bar_bg.coords("fill", 0, 0, int(w * pct / 100), BAR_H)
 
-        def refresh_feed():
-            for i, row in enumerate(feed_rows):
-                if i < len(state["feed"]):
-                    label_str, text_str, color = state["feed"][i]
-                    row["dot"].config(fg=color)
-                    row["name"].config(text=label_str, fg=color)
-                    row["text"].config(text=text_str)
-                else:
-                    row["dot"].config(fg="#d1d5db")
-                    row["name"].config(text="")
-                    row["text"].config(text="")
 
         def poll_queue():
             try:
@@ -459,10 +439,7 @@ class TkDashboard:
                                 lbl_eta.config(text="All scenarios completed!")
 
                     elif t == "agent_activity":
-                        state["feed"].insert(
-                            0, (msg["label"], msg["text"], msg["color"]))
-                        state["feed"] = state["feed"][:_FEED_MAX]
-                        refresh_feed()
+                        _append_feed(msg["label"], msg["text"], msg["color"])
 
                     elif t == "overlay_boxes":
                         _overlay["boxes"] = [
