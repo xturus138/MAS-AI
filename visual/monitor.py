@@ -316,7 +316,7 @@ class TkDashboard:
                  fill="x", padx=14, pady=(10, 4))
 
         feed_frame = tk.Frame(right, bg="#f9fafb")
-        feed_frame.pack(fill="both", expand=True, padx=14, pady=(0, 14))
+        feed_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         feed_rows: list[dict] = []   # list of {"dot": Label, "name": Label, "text": Label}
 
