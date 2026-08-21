@@ -414,15 +414,18 @@ class TkDashboard:
             info.pack(side="left", fill="x", expand=True)
             tk.Label(info, text=label_str, font=f_agent, bg="#f9fafb",
                      fg=color, anchor="w").pack(fill="x")
+            # Get actual canvas width at creation time; fallback to _RIGHT_W-50
+            feed_canvas.update_idletasks()
+            _wrap = max(feed_canvas.winfo_width() - 50, _RIGHT_W - 50)
             txt_lbl = tk.Label(info, text=text_str, font=f_feed, bg="#f9fafb",
-                              fg="#6b7280", anchor="w", justify="left")
+                              fg="#6b7280", anchor="w", justify="left",
+                              wraplength=_wrap)
             txt_lbl.pack(fill="x", anchor="w")
 
             def _bind_wrap(event, lbl=txt_lbl):
                 lbl.config(wraplength=max(event.width - 8, 40))
             txt_lbl.bind("<Configure>", _bind_wrap)
 
-            feed_canvas.update_idletasks()
             feed_canvas.yview_moveto(1.0)
 
         def poll_queue():
