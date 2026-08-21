@@ -45,37 +45,37 @@ _FEED_MAX      = 6            # max agent activity lines shown
 # ── Humanizer ────────────────────────────────────────────────────────────────
 _HUMANIZE: dict[str, list[str]] = {
     "OBSERVER": [
-        "Mengamati tampilan layar perangkat...",
-        "Mendeteksi elemen UI yang terlihat...",
-        "Memindai widget dan komponen layar...",
+        "Scanning the device screen...",
+        "Detecting visible UI elements...",
+        "Analyzing screen widgets and components...",
     ],
     "DECIDER": [
-        "Memutuskan langkah terbaik selanjutnya...",
-        "Menganalisis situasi dan merencanakan aksi...",
-        "Menentukan target interaksi pada layar...",
+        "Deciding the next best action...",
+        "Analyzing the situation and planning...",
+        "Identifying the target element on screen...",
     ],
     "EXECUTOR": [
-        "Menjalankan aksi pada perangkat...",
-        "Menekan tombol / mengisi teks...",
-        "Berinteraksi dengan perangkat...",
+        "Performing action on device...",
+        "Tapping button / entering text...",
+        "Interacting with the device...",
     ],
     "REFLECTOR": [
-        "Memeriksa hasil aksi yang dilakukan...",
-        "Memverifikasi apakah langkah berhasil...",
-        "Mengevaluasi kondisi layar saat ini...",
+        "Checking the result of the action...",
+        "Verifying whether the step succeeded...",
+        "Evaluating the current screen state...",
     ],
     "ORCHESTRATOR": [
-        "Melanjutkan ke langkah berikutnya...",
-        "Mengatur urutan pengujian...",
-        "Mempersiapkan langkah selanjutnya...",
+        "Moving to the next step...",
+        "Coordinating the test sequence...",
+        "Preparing the next step...",
     ],
     "RECORDER": [
-        "Menyimpan hasil pengujian...",
-        "Mencatat bukti dan artefak...",
+        "Saving test results...",
+        "Recording evidence and artifacts...",
     ],
     "RUNNER": [
-        "Memulai skenario pengujian baru...",
-        "Menyiapkan lingkungan pengujian...",
+        "Starting a new test scenario...",
+        "Setting up the test environment...",
     ],
 }
 
@@ -260,7 +260,7 @@ class TkDashboard:
 
         # Placeholder
         dev_canvas.create_text(dev_w // 2, _WIN_H // 2,
-                                text="Menghubungkan ke perangkat...",
+                                text="Connecting to device...",
                                 fill="#555", font=f_sub, tags="placeholder")
 
         # ── Right: info panel ─────────────────────────────────────────────────
@@ -276,13 +276,13 @@ class TkDashboard:
         # [1] Header
         hdr = tk.Frame(right, bg="#f9fafb")
         hdr.pack(fill="x")
-        tk.Label(hdr, text="Pengujian Sedang Berjalan",
+        tk.Label(hdr, text="Testing in Progress",
                  font=f_header, bg="#f9fafb", fg="#111",
                  anchor="w").pack(fill="x", padx=14, pady=(14, 0))
-        tk.Label(hdr, text="Harap tunggu hingga semua skenario selesai.",
+        tk.Label(hdr, text="Please wait until all scenarios are complete.",
                  font=f_sub, bg="#f9fafb", fg="#6b7280",
                  anchor="w").pack(fill="x", padx=14)
-        lbl_eta = tk.Label(hdr, text="Estimasi waktu: menghitung...",
+        lbl_eta = tk.Label(hdr, text="Estimated time: calculating...",
                            font=f_eta, bg="#f9fafb", fg="#6366f1",
                            anchor="w")
         lbl_eta.pack(fill="x", padx=14, pady=(2, 10))
@@ -304,14 +304,14 @@ class TkDashboard:
         bar_bg.create_rectangle(0, 0, 0, BAR_H, fill="#111",
                                 outline="", tags="fill")
 
-        lbl_count = tk.Label(prog_frame, text="0 / 0 skenario selesai",
+        lbl_count = tk.Label(prog_frame, text="0 / 0 scenarios completed",
                              font=f_count, bg="white", fg="#9ca3af")
         lbl_count.pack(anchor="w")
 
         tk.Frame(right, height=1, bg="#e5e7eb").pack(fill="x", pady=(12, 0))
 
         # [3] Agent activity feed
-        tk.Label(right, text="Aktivitas Agent", font=f_agent,
+        tk.Label(right, text="Agent Activity", font=f_agent,
                  bg="white", fg="#374151", anchor="w").pack(
                  fill="x", padx=14, pady=(10, 4))
 
@@ -446,7 +446,7 @@ class TkDashboard:
                         lbl_pct.config(text=f"{pct}%")
                         set_bar(pct)
                         lbl_count.config(
-                            text=f"{done} / {total} skenario selesai")
+                            text=f"{done} / {total} scenarios completed")
                         if done > 0 and total > 0 and state["t0"]:
                             elapsed = time.time() - state["t0"]
                             if done < total:
@@ -454,9 +454,9 @@ class TkDashboard:
                                 m, s = rem // 60, rem % 60
                                 eta = f"{m}m {s}s" if m else f"{s}s"
                                 lbl_eta.config(
-                                    text=f"Estimasi waktu: ~{eta} lagi")
+                                    text=f"Estimated time: ~{eta} remaining")
                             else:
-                                lbl_eta.config(text="Semua skenario selesai!")
+                                lbl_eta.config(text="All scenarios completed!")
 
                     elif t == "agent_activity":
                         state["feed"].insert(
