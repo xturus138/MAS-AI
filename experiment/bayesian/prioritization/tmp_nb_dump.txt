@@ -1,0 +1,1207 @@
+=== CELL 0 ===
+# Nine-representation test-case comparison for Firebase Chat (GPC / Probit)
+
+This notebook compares nine text representations on the same 69 Firebase Chat test cases. Seven are the vectorisers evaluated by Chakraborty, Elhence, and Arora (2019): TF-IDF, Feature Hashing, Word2Vec, GloVe, FastText, ELMo, and Flair. One-Hot Encoding and Multilingual E5 Large Instruct are additional baselines.
+
+The bug labels are fixed dummy values. They are not application test results or evidence of real defects. This is a representation-comparison pilot, not a final Bayesian Optimization experiment.
+
+=== CELL 1 ===
+## Experiment flow
+
+The notebook reads the QA workbook and checks all 69 cases. It first shows the nine known warm-start outcomes, one case per feature. Each representation then converts the same cases into its own numeric matrix. The experiment fits a Gaussian Process from the known outcomes, scores the untested candidates, selects one case, and reveals only that selected case's dummy result.
+
+This process continues until every candidate has a position in the final order. The notebook compares all nine representations under the same warm start, dummy outcomes, cost-aware Upper Confidence Bound (UCB) rule, and stopping point.
+
+The kernel and its hyperparameters are fixed identically for all nine methods: a precomputed discrete similarity matrix kernel (cosine similarity of each representation's normalized vectors, signal variance sigma^2 = 1.0, observation noise alpha = 0.01) paired with cost-aware UCB (beta = 1.0). The objective here is to find every dummy failure in a discrete pool with a binary oracle, so Expected Improvement is inappropriate: once any bug has been observed (best value = 1.0) no candidate can offer improvement and the rule degenerates (verified locally on the dummy pool). UCB instead ranks candidates by predicted failure probability plus an exploration bonus (Tesch et al., 2013; Shahriari et al., 2016), while cosine-similarity kernels remain the natural pairing for normalized embedding representations (Steck et al., 2024). The only variable between methods is the representation itself.
+=== CELL 2 ===
+import os
+
+PAPER_VECTORISERS = (
+    "TF-IDF", "Feature Hashing", "Word2Vec", "GloVe",
+    "FastText", "ELMo", "Flair",
+)
+ADDITIONAL_VECTORISERS = ("One-Hot Encoding", "Multilingual E5 Large Instruct")
+EXPERIMENT_METHODS = PAPER_VECTORISERS + ADDITIONAL_VECTORISERS
+QUICK_VECTORISERS = ("TF-IDF", "Feature Hashing")
+
+
+def select_vectorisers(selection: str) -> tuple[str, ...]:
+    """Return a deliberate subset; quick never downloads pretrained weights."""
+    requested = [item.strip() for item in selection.split(",") if item.strip()]
+    if not requested or requested == ["quick"]:
+        return QUICK_VECTORISERS
+    if requested == ["all"]:
+        return EXPERIMENT_METHODS
+    unknown = sorted(set(requested).difference(EXPERIMENT_METHODS))
+    if unknown:
+        raise ValueError(f"Unknown vectoriser selection: {', '.join(unknown)}")
+    return tuple(name for name in EXPERIMENT_METHODS if name in requested)
+
+
+def build_vectoriser_metadata(selection: str) -> dict[str, object]:
+    """Record the exact subset that produced a result folder."""
+    return {
+        "vectoriser_selection": selection,
+        "selected_vectorisers": list(select_vectorisers(selection)),
+    }
+
+
+def required_packages_for(vectorisers: tuple[str, ...]) -> dict[str, str]:
+    """Return only the optional packages needed by the chosen methods."""
+    required = {}
+    if set(vectorisers).intersection({"Word2Vec", "GloVe", "FastText"}):
+        required["gensim"] = "gensim"
+    if "ELMo" in vectorisers:
+        required["tensorflow"] = "tensorflow"
+        required["tensorflow_hub"] = "tensorflow-hub"
+    if "Flair" in vectorisers:
+        required["flair"] = "flair"
+    if "Multilingual E5 Large Instruct" in vectorisers:
+        required["sentence_transformers"] = "sentence-transformers"
+    return required
+
+
+def default_vectoriser_selection() -> str:
+    """Run all nine representations by default in every environment.
+
+    Override with the PAPER_VECTORISER_MODE env var (e.g. "quick" or a
+    comma-separated subset) when pretrained-weight downloads are not wanted.
+    """
+    return "all"
+
+
+VECTORISER_SELECTION = os.getenv(
+    "PAPER_VECTORISER_MODE", default_vectoriser_selection()
+)
+SELECTED_VECTORISERS = select_vectorisers(VECTORISER_SELECTION)
+print("Selected vectorisers:", ", ".join(SELECTED_VECTORISERS))
+if VECTORISER_SELECTION == "all":
+    print("Running all nine representations (default).")
+else:
+    print(f"Custom selection from PAPER_VECTORISER_MODE: {VECTORISER_SELECTION}")
+
+=== CELL 3 ===
+# Install only packages required by the selected vectorisers.
+import importlib.util
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+# --- Persistent pretrained-weight cache (HAKUSAN / SSH JAIST) ----------------
+# The home directory is NFS-shared and survives across sessions and compute
+# nodes, but /tmp is wiped. Point every framework's cache at home so the large
+# pretrained weights (Word2Vec/GloVe/FastText via gensim, ELMo via TF Hub,
+# Flair, and Multilingual E5 via sentence-transformers) download once and are
+# reused on every later run. This removes the repeated-download problem.
+PERSISTENT_CACHE = Path.home() / ".mas_ai_cache"
+PERSISTENT_CACHE.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("GENSIM_DATA_DIR", str(PERSISTENT_CACHE / "gensim"))
+os.environ.setdefault("TFHUB_CACHE_DIR", str(PERSISTENT_CACHE / "tfhub"))   # /tmp default is wiped
+os.environ.setdefault("HF_HOME", str(PERSISTENT_CACHE / "huggingface"))
+os.environ.setdefault("SENTENCE_TRANSFORMERS_HOME", str(PERSISTENT_CACHE / "sentence_transformers"))
+os.environ.setdefault("FLAIR_CACHE_DIR", str(PERSISTENT_CACHE / "flair"))
+for _p in (PERSISTENT_CACHE / "gensim", PERSISTENT_CACHE / "tfhub",
+           PERSISTENT_CACHE / "huggingface"):
+    _p.mkdir(parents=True, exist_ok=True)
+print("Pretrained-weight cache:", PERSISTENT_CACHE)
+# ----------------------------------------------------------------------------
+
+required = {
+    "numpy": "numpy",
+    "pandas": "pandas",
+    "openpyxl": "openpyxl",
+    "matplotlib": "matplotlib",
+    "seaborn": "seaborn",
+    "sklearn": "scikit-learn",
+}
+required.update(required_packages_for(SELECTED_VECTORISERS))
+
+# Persistent fallback environment for HAKUSAN: conda base ships Python >= 3.13
+# where TensorFlow has no wheels. Env "bo" (Python 3.11) lives on NFS and is
+# also created automatically by SSH JAIST/2-server.bat.
+BO_DIR = Path.home() / "miniconda3" / "envs" / "bo"
+BO_PYTHON = BO_DIR / "bin" / "python"
+bo_available = BO_PYTHON.exists()
+
+def _still_missing():
+    import importlib.util as _ilu
+    return [module for module in required if _ilu.find_spec(module) is None]
+
+def _pip_install(missing, python_executable):
+    base = [str(python_executable), "-m", "pip", "install", *missing]
+    log = []
+    for flags in ([], ["--user"], ["--break-system-packages"]):
+        result = subprocess.run(base + flags, capture_output=True, text=True)
+        log.append(">>> " + " ".join(base + flags) + "\n"
+                   + (result.stdout or "") + (result.stderr or ""))
+        if result.returncode == 0:
+            return log
+    return log
+
+missing = [package for module, package in required.items()
+           if importlib.util.find_spec(module) is None]
+if missing:
+    print("Installing required packages:", ", ".join(missing))
+    install_log = _pip_install(missing, sys.executable)
+    if _still_missing() and bo_available and sys.executable != str(BO_PYTHON):
+        print("Default Python is too new for some packages; installing into the persistent env bo ...")
+        install_log += _pip_install(missing, BO_PYTHON)
+
+if bo_available and sys.executable != str(BO_PYTHON):
+    # Register the bo env as a selectable Jupyter kernel (idempotent).
+    subprocess.run([str(BO_PYTHON), "-m", "ipykernel", "install",
+                    "--user", "--name", "bo",
+                    "--display-name", "BO (py3.11)"], capture_output=True)
+
+still_missing = _still_missing()
+if still_missing:
+    if bo_available:
+        raise RuntimeError(
+            "Packages missing from env bo: " + ", ".join(still_missing)
+            + ". In JupyterLab choose Kernel -> Change Kernel -> 'BO (py3.11)' and re-run this cell.\n"
+            + (BO_PYTHON.parent.parent.parent if False else "") )
+    raise RuntimeError(
+        "Failed to install required packages: " + ", ".join(still_missing)
+        + "\n\n".join(install_log))
+
+print("All required packages available.")
+print("Environment ready for:", ", ".join(SELECTED_VECTORISERS))
+print("Pretrained weights download once, then reuse the persistent cache.")
+
+=== CELL 4 ===
+from pathlib import Path
+import hashlib
+import json
+import math
+import re
+import shutil
+import warnings
+import zipfile
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from IPython.display import FileLink, display
+
+RANDOM_STATE = 42
+# Fixed kernel and acquisition hyperparameters.
+# Discrete similarity matrix kernel: cosine similarity of normalized representations,
+# signal variance SIGMA2 = 1.0, observation noise NOISE_ALPHA = 0.01
+# (Chen 2016: initial GP hyperparameters are not critical).
+# Cost-aware UCB with UCB_BETA = 1.0. UCB instead of EI because the objective is to
+# find ALL failures in a discrete pool with a binary oracle: once best_observed = 1.0,
+# Expected Improvement has no signal left (verified locally on the dummy pool).
+# Tesch et al. (ICML 2013) for binary outcomes; Shahriari et al. (2016) for UCB form.
+KERNEL_NAME = "discrete_similarity_matrix_cosine_GPC_probit"
+GPC_LAPLACE_MAX_ITER = 20  # Newton steps for Laplace approx; converges in <10 for n<=69
+SIGMA2 = 1.0
+NOISE_ALPHA = 0.01
+UCB_BETA = 1.0
+COST_EXPONENT = 0.5
+PAPER_CITATION = "Chakraborty, Elhence, and Arora (2019), Sparse Victory"
+AUTO_DOWNLOAD_IN_COLAB = False
+DUMMY_FAULT_THEMES = {
+    "message_delivery_and_read_state": [
+        "FC-MN-006", "FC-MN-007", "FC-CRP-007", "FC-CRP-008",
+        "FC-CRG-004", "FC-CRG-007", "FC-MIF-001", "FC-MIF-002", "FC-MIF-003",
+    ],
+    "group_membership_permission": [
+        "FC-NCP-004", "FC-NCP-005", "FC-GPR-002", "FC-GPR-003",
+    ],
+}
+DUMMY_BUG_IDS = sorted({tcs_id for ids_in_theme in DUMMY_FAULT_THEMES.values() for tcs_id in ids_in_theme})
+
+sns.set_theme(style="whitegrid", context="notebook")
+np.random.seed(RANDOM_STATE)
+print(f"Controlled dummy oracle: {len(DUMMY_BUG_IDS)} dummy bugs in {len(DUMMY_FAULT_THEMES)} fault themes")
+print(f"Fixed kernel: {KERNEL_NAME} | sigma2={SIGMA2} | noise alpha={NOISE_ALPHA}")
+print(f"Cost-aware UCB: beta={UCB_BETA}, cost exponent={COST_EXPONENT}")
+=== CELL 5 ===
+## 1. Load and validate the QA workbook
+
+On a local laptop, the notebook searches the current folder and its parents for scenarios/firebase_chat/scenario.xlsx. In Colab, it opens a file upload dialog when the workbook is not available.
+=== CELL 6 ===
+import re
+from pathlib import Path
+import numpy as np
+import pandas as pd
+
+
+def parse_minutes(value) -> float:
+    """Extract the first numeric duration from the QA Time Testing cell."""
+    match = re.search(r"\d+(?:\.\d+)?", str(value))
+    if not match:
+        raise ValueError(f"Cannot parse Time Testing value: {value!r}")
+    return float(match.group())
+
+
+def choose_initial_seed(cases: pd.DataFrame) -> list[int]:
+    """Choose the lexicographically first TCS ID from every Menu."""
+    ordered = cases.reset_index().sort_values(["Menu", "TCS ID"], kind="stable")
+    return sorted(ordered.groupby("Menu", sort=True).head(1)["index"].tolist())
+
+
+def find_workbook() -> Path:
+    checked = []
+    for base in [Path.cwd(), *Path.cwd().parents]:
+        candidate = base / "scenarios" / "firebase_chat" / "scenario.xlsx"
+        checked.append(candidate)
+        if candidate.exists():
+            return candidate.resolve()
+
+    try:
+        from google.colab import files
+    except ImportError as exc:
+        locations = "\n".join(str(path) for path in checked)
+        raise FileNotFoundError(
+            "scenario.xlsx was not found. Run from the MAS AI repository or copy the workbook "
+            f"to scenarios/firebase_chat/scenario.xlsx. Checked:\n{locations}"
+        ) from exc
+
+    print("Upload scenario.xlsx from scenarios/firebase_chat/")
+    uploaded = files.upload()
+    if not uploaded:
+        raise FileNotFoundError("No workbook was uploaded.")
+    uploaded_name = next(iter(uploaded))
+    return Path(uploaded_name).resolve()
+
+
+def load_qa_cases(workbook: Path) -> pd.DataFrame:
+    raw = pd.read_excel(workbook, header=None)
+    matches = np.argwhere(raw.eq("TCS ID").to_numpy())
+    if len(matches) == 0:
+        raise ValueError("Could not locate the TCS ID header in the workbook.")
+    header_row = int(matches[0, 0])
+    cases = pd.read_excel(workbook, header=header_row)
+    required_columns = [
+        "TCS ID", "Menu", "Submenu 1", "Submenu 2", "Test Case Scenario",
+        "Test Step", "Expected Result", "Test Type", "User", "Time Testing",
+    ]
+    missing_columns = [column for column in required_columns if column not in cases.columns]
+    if missing_columns:
+        raise ValueError(f"Missing required columns: {missing_columns}")
+    cases = cases.loc[cases["TCS ID"].astype(str).str.startswith("FC-")].copy()
+    cases = cases[required_columns].reset_index(drop=True)
+    text_columns = [column for column in required_columns if column != "Time Testing"]
+    cases[text_columns] = cases[text_columns].fillna("").astype(str)
+    cases["estimated_cost"] = cases["Time Testing"].map(parse_minutes)
+    if cases["TCS ID"].duplicated().any():
+        duplicates = cases.loc[cases["TCS ID"].duplicated(), "TCS ID"].tolist()
+        raise ValueError(f"Duplicate TCS IDs: {duplicates}")
+    return cases
+
+=== CELL 7 ===
+WORKBOOK_PATH = find_workbook()
+cases = load_qa_cases(WORKBOOK_PATH)
+if len(cases) != 69:
+    raise ValueError(f"This experiment expects 69 Firebase Chat cases, found {len(cases)}.")
+
+unknown_bug_ids = sorted(set(DUMMY_BUG_IDS) - set(cases["TCS ID"]))
+if unknown_bug_ids:
+    raise ValueError(f"DUMMY_BUG_IDS not found in workbook: {unknown_bug_ids}")
+
+oracle = cases["TCS ID"].isin(DUMMY_BUG_IDS).astype(int).to_numpy()
+fault_theme_by_id = {
+    tcs_id: theme
+    for theme, ids_in_theme in DUMMY_FAULT_THEMES.items()
+    for tcs_id in ids_in_theme
+}
+costs = cases["estimated_cost"].to_numpy(dtype=float)
+initial_indices = choose_initial_seed(cases)
+warm_start_bug_count = int(oracle[initial_indices].sum())
+assert warm_start_bug_count >= 1
+ids = cases["TCS ID"].to_numpy()
+menus = cases["Menu"].to_numpy()
+
+repo_root = WORKBOOK_PATH.parents[2] if WORKBOOK_PATH.parent.name == "firebase_chat" else Path.cwd()
+if (repo_root / "scenarios" / "firebase_chat" / "scenario.xlsx").exists():
+    RESULT_DIR = repo_root / "experiment" / "bayesian" / "results"
+else:
+    RESULT_DIR = Path.cwd() / "experiment" / "bayesian" / "results"
+RESULT_DIR.mkdir(parents=True, exist_ok=True)
+
+print("Workbook:", WORKBOOK_PATH)
+print("Cases:", len(cases), "| Menus/features:", cases["Menu"].nunique())
+print("Warm start:", len(initial_indices), "known historical outcomes, one per Menu")
+print("Warm-start dummy bugs:", warm_start_bug_count, "| warm-start passes:", len(initial_indices) - warm_start_bug_count)
+print("Total estimated cost:", costs.sum(), "minutes")
+fault_theme_table = cases.loc[cases["TCS ID"].isin(DUMMY_BUG_IDS), ["TCS ID", "Menu", "Test Case Scenario"]].copy()
+fault_theme_table["dummy_fault_theme"] = fault_theme_table["TCS ID"].map(fault_theme_by_id)
+display(fault_theme_table.sort_values(["dummy_fault_theme", "TCS ID"]).reset_index(drop=True))
+=== CELL 8 ===
+## 2. Warm-start results before sequential selection
+
+The sequential selection scaffold cannot make its first informed choice without any previous result. The experiment therefore begins with nine already known outcomes, one QA case from each Menu. These are the only labels known before the model chooses test #10.
+
+=== CELL 9 ===
+warm_start_table = cases.iloc[initial_indices][[
+    "TCS ID", "Menu", "Test Case Scenario", "Test Step", "Expected Result", "estimated_cost",
+]].copy()
+warm_start_table["known_outcome"] = np.where(
+    oracle[initial_indices].astype(bool), "Dummy bug", "Pass"
+)
+warm_start_table["dummy_fault_theme"] = warm_start_table["TCS ID"].map(fault_theme_by_id).fillna("-")
+warm_start_table = warm_start_table.sort_values(["Menu", "TCS ID"]).reset_index(drop=True)
+display(warm_start_table)
+
+=== CELL 10 ===
+## 3. All fixed dummy bugs for researcher inspection
+
+The table below explains where the 13 fixed dummy bugs are placed and what each case checks. It is visible only for understanding the controlled experiment. The surrogate model never receives this full table as training data.
+
+=== CELL 11 ===
+dummy_bug_table = cases.loc[cases["TCS ID"].isin(DUMMY_BUG_IDS), [
+    "TCS ID", "Menu", "Test Case Scenario", "Test Step", "Expected Result", "estimated_cost",
+]].copy()
+dummy_bug_table["dummy_fault_theme"] = dummy_bug_table["TCS ID"].map(fault_theme_by_id)
+dummy_bug_table = dummy_bug_table.sort_values(["dummy_fault_theme", "TCS ID"]).reset_index(drop=True)
+display(dummy_bug_table)
+
+=== CELL 12 ===
+## 4. Fixed dummy outcomes
+
+The experiment uses one fixed synthetic oracle with two fault themes: message delivery and read state, plus group membership permission. Every method faces exactly the same oracle. The full mapping is visible to the researcher, but the surrogate model does not receive it.
+
+The warm start contains one test from each Menu and represents known historical outcomes. It contains at least one dummy bug without selecting the warm-start cases from oracle labels. After that point, the surrogate receives outcomes only after it selects a test. The fixed Excel order is used later only to place discrete candidates on a readable horizontal axis.
+=== CELL 13 ===
+x_display = np.arange(len(cases))
+print(f"The fixed oracle contains {int(oracle.sum())} dummy bugs across {len(oracle)} test cases.")
+=== CELL 14 ===
+## 5. Independent vectoriser matrices
+
+Each method converts the workbook into its own matrix. The matrices are never combined. Seven methods are the exact vectoriser set from Chakraborty, Elhence, and Arora (2019):
+
+- TF-IDF and Feature Hashing are sparse lexical vectorisers.
+- Word2Vec, GloVe, and FastText are pretrained static word embeddings averaged into a document vector.
+- ELMo and Flair are contextual word embeddings averaged into a document vector.
+
+Two additional baselines are included: One-Hot Encoding and Multilingual E5 Large Instruct. The first full execution downloads pretrained weights for the six neural representations if they are not in the local cache. No paid API is used.
+=== CELL 15 ===
+TEXT_FIELDS = [
+    "Menu", "Submenu 1", "Submenu 2", "Test Case Scenario", "Test Step",
+    "Expected Result", "Test Type", "User",
+]
+
+
+def serialize_cases(frame: pd.DataFrame) -> list[str]:
+    return [
+        "\n".join(f"{field}: {row[field]}" for field in TEXT_FIELDS)
+        for _, row in frame.iterrows()
+    ]
+
+
+def normalize_rows(matrix: np.ndarray) -> np.ndarray:
+    matrix = np.asarray(matrix, dtype=float)
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    return matrix / np.where(norms == 0, 1.0, norms)
+
+
+def tokenize_with_bigrams(text: str) -> list[str]:
+    tokens = re.findall(r"(?u)\b\w\w+\b", text.lower())
+    return tokens + [f"{left}__{right}" for left, right in zip(tokens, tokens[1:])]
+
+
+def build_tfidf(frame: pd.DataFrame) -> np.ndarray:
+    from sklearn.feature_extraction.text import TfidfVectorizer
+
+    vectoriser = TfidfVectorizer(ngram_range=(1, 2), max_features=300, sublinear_tf=True)
+    return normalize_rows(vectoriser.fit_transform(serialize_cases(frame)).toarray())
+
+
+def build_feature_hashing(frame: pd.DataFrame, dimensions: int = 300) -> np.ndarray:
+    matrix = np.zeros((len(frame), dimensions), dtype=float)
+    for row, document in enumerate(serialize_cases(frame)):
+        for token in tokenize_with_bigrams(document):
+            digest = hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest()
+            value = int.from_bytes(digest, byteorder="little", signed=False)
+            matrix[row, value % dimensions] += 1.0 if value & 1 else -1.0
+    return normalize_rows(matrix)
+
+
+def build_one_hot_encoding(frame: pd.DataFrame) -> np.ndarray:
+    from sklearn.feature_extraction.text import CountVectorizer
+
+    vectoriser = CountVectorizer(binary=True, token_pattern=r"(?u)\b\w\w+\b")
+    return normalize_rows(vectoriser.fit_transform(serialize_cases(frame)).toarray())
+
+
+def _mean_gensim_embeddings(frame: pd.DataFrame, model_name: str) -> np.ndarray:
+    import gensim.downloader as downloader
+
+    model = downloader.load(model_name)
+    rows = []
+    for document in serialize_cases(frame):
+        vectors = []
+        for token in re.findall(r"(?u)\b\w\w+\b", document.lower()):
+            try:
+                vectors.append(model.get_vector(token))
+            except KeyError:
+                continue
+        rows.append(np.mean(vectors, axis=0) if vectors else np.zeros(model.vector_size))
+    matrix = normalize_rows(np.vstack(rows))
+    del model  # free ~1-2 GB before next gensim model loads
+    import gc; gc.collect()
+    return matrix
+
+
+def _multilingual_e5_large_instruct_embeddings(frame: pd.DataFrame) -> np.ndarray:
+    from sentence_transformers import SentenceTransformer
+
+    model = SentenceTransformer("intfloat/multilingual-e5-large-instruct")
+    instruction = "Represent this Android QA test case for semantic similarity."
+    documents = [
+        f"Instruct: {instruction}\nQuery: {document}"
+        for document in serialize_cases(frame)
+    ]
+    matrix = model.encode(documents, convert_to_numpy=True, normalize_embeddings=True, show_progress_bar=True)
+    return normalize_rows(matrix)
+
+
+def _mean_elmo_embeddings(frame: pd.DataFrame) -> np.ndarray:
+    import logging as _logging
+    import os as _os
+    _os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")  # suppress TF C++ logs
+    _os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")  # suppress oneDNN info
+    _logging.getLogger("tensorflow").setLevel(_logging.ERROR)
+    _logging.getLogger("absl").setLevel(_logging.ERROR)
+    import tensorflow as tf
+    import tensorflow_hub as hub
+    tf.get_logger().setLevel("ERROR")  # suppress TF Python logs
+
+    model = hub.load("https://tfhub.dev/google/elmo/3")
+    outputs = model.signatures["default"](tf.constant(serialize_cases(frame)))
+    token_embeddings = outputs["elmo"].numpy()
+    sequence_lengths = outputs["sequence_len"].numpy()
+    rows = [
+        token_embeddings[row_index, :sequence_length].mean(axis=0)
+        for row_index, sequence_length in enumerate(sequence_lengths)
+    ]
+    matrix = normalize_rows(np.vstack(rows))
+    del model, outputs, token_embeddings  # free TF/ELMo graph (~350 MB) before Flair loads
+    import gc; gc.collect()
+    return matrix
+
+
+def _mean_flair_embeddings(frame: pd.DataFrame) -> np.ndarray:
+    import warnings as _warnings
+    _warnings.filterwarnings("ignore", category=UserWarning, module="torch")  # suppress CUDA UserWarning
+    _warnings.filterwarnings("ignore", message=".*CUDA.*")  # suppress generic CUDA warnings
+    from flair.data import Sentence
+    from flair.embeddings import FlairEmbeddings, StackedEmbeddings
+
+    embedding = StackedEmbeddings([
+        FlairEmbeddings("news-forward"), FlairEmbeddings("news-backward"),
+    ])
+
+    rows = []
+    for document in serialize_cases(frame):
+        sentence = Sentence(document)
+        embedding.embed(sentence)
+        vectors = [token.embedding.detach().cpu().numpy() for token in sentence]
+        rows.append(np.mean(vectors, axis=0) if vectors else np.zeros(embedding.embedding_length))
+        sentence.clear_embeddings()
+    matrix = normalize_rows(np.vstack(rows))
+    del embedding  # free Flair model weights before next builder
+    import gc; gc.collect()
+    return matrix
+
+
+representation_builders = {
+    "TF-IDF": lambda: build_tfidf(cases),
+    "Feature Hashing": lambda: build_feature_hashing(cases),
+    "One-Hot Encoding": lambda: build_one_hot_encoding(cases),
+    "Word2Vec": lambda: _mean_gensim_embeddings(cases, "word2vec-google-news-300"),
+    "GloVe": lambda: _mean_gensim_embeddings(cases, "glove-wiki-gigaword-300"),
+    "FastText": lambda: _mean_gensim_embeddings(cases, "fasttext-wiki-news-subwords-300"),
+    "ELMo": lambda: _mean_elmo_embeddings(cases),
+    "Flair": lambda: _mean_flair_embeddings(cases),
+    "Multilingual E5 Large Instruct": lambda: _multilingual_e5_large_instruct_embeddings(cases),
+}
+
+representations = {}
+for name in SELECTED_VECTORISERS:
+    print(f"Building {name}. Pretrained methods may download their weights on this step.")
+    representations[name] = representation_builders[name]()
+    print(f"Finished {name}.")
+
+for name, matrix in representations.items():
+    assert matrix.shape[0] == len(cases), f"{name} row mismatch"
+    assert np.isfinite(matrix).all(), f"{name} contains non-finite values"
+    print(f"{name:20s} -> {matrix.shape}")
+=== CELL 16 ===
+## 6. Controlled sequential selection scaffold (GP Classification, probit link)
+
+This pilot retains a Gaussian Process and an acquisition rule only as a controlled sequential scaffold for visualizing the effect of each representation. It is not the Bayesian Optimization stage of the research and must not be reported as a validated final classifier.
+
+**GPC change:** GPR (Gaussian noise, misspecified for binary oracle) is replaced with GP Classification using probit link + Laplace approximation (Rasmussen & Williams 2006, Alg 3.1). Predictive probability E[p(y*=1|x*)] = Phi(f_mean / sqrt(1+f_var)). Cosine kernel, UCB, and cost exponent unchanged.
+
+The kernel is fixed for all nine methods: a discrete similarity matrix kernel built from cosine similarity of each representation's normalized case vectors, with signal variance sigma^2 = 1.0 and observation noise alpha = 0.01. Because all representations are row-normalized, cosine similarity equals the inner product of the normalized rows.
+
+The run starts from the known warm-start outcomes. It then selects the next untested candidate with cost-aware UCB:
+
+UCB = (clipped_mean + beta * std) / cost^cost_exponent
+
+The predicted mean is the GP estimate of the candidate's failure probability (exploitation); the uncertainty term steers toward less familiar cases (exploration); the square-root cost penalty mildly prefers shorter tests. UCB is used instead of EI because the objective is finding all failures with a binary oracle: EI loses its signal once best_observed = 1.0, as verified locally on this dummy pool (Tesch et al., 2013; Shahriari et al., 2016). The earlier consensus preference for EI (De Ath et al., 2021) applies to single-optimum continuous problems, not this failure-discovery setting.
+=== CELL 17 ===
+import numpy as np
+import pandas as pd
+from scipy.special import ndtr  # Phi = standard normal CDF (probit)
+
+
+def _cosine_similarity_matrix(left: np.ndarray, right: np.ndarray) -> np.ndarray:
+    """Fixed discrete similarity kernel: cosine similarity of normalized rows."""
+    left = np.asarray(left, dtype=float)
+    right = np.asarray(right, dtype=float)
+    left = normalize_rows(left)
+    right = normalize_rows(right)
+    return np.clip(left @ right.T, -1.0, 1.0)
+
+
+def _probit_derivatives(f: np.ndarray, y: np.ndarray):
+    """
+    Probit log-likelihood derivatives for GP Classification.
+
+    log p(y|f) = sum_i [ y_i log Phi(f_i) + (1-y_i) log Phi(-f_i) ]
+
+    Returns:
+        pi   : Phi(f)  — predicted probability
+        grad : d log p / df  (first derivative)
+        W    : -d^2 log p / df^2  (Fisher info, used as W in Laplace approx)
+
+    From Rasmussen & Williams (2006) GPML, eq 3.15-3.17 (probit version).
+    Numerically stable: avoid division by zero via clipping.
+    """
+    EPS = 1e-9
+    pi = np.clip(ndtr(f), EPS, 1.0 - EPS)
+    phi_f = np.exp(-0.5 * f ** 2) / np.sqrt(2 * np.pi)  # standard normal PDF
+
+    # For probit: d log p / df_i = (2*y_i - 1) * phi(f_i) / Phi((2*y_i-1)*f_i)
+    # Simplified for y in {0,1}:
+    sign = 2.0 * y - 1.0  # +1 if bug, -1 if pass
+    pi_signed = np.clip(ndtr(sign * f), EPS, 1.0 - EPS)
+    grad = sign * phi_f / pi_signed
+
+    # W = -d^2 log p / df^2 = (phi/pi_signed)^2 + sign*f*(phi/pi_signed)
+    # (Derivative of grad w.r.t. f, negated)
+    ratio = phi_f / pi_signed
+    W = ratio ** 2 + sign * f * ratio
+    W = np.maximum(W, EPS)  # ensure positive definite
+    return pi, grad, W
+
+
+def _gp_predict(train_x, train_y, candidate_x, sigma2=SIGMA2, noise=NOISE_ALPHA):
+    """
+    GP Classification with probit link, Laplace approximation.
+
+    Replaces GPR which assumes Gaussian noise — incorrect for binary {0,1} oracle.
+    Probit link: p(y=1 | f) = Phi(f).
+    Laplace approx: Newton iterations to find mode f_hat of log p(f|y,X),
+    then Gaussian posterior N(f_hat, (K^{-1} + W)^{-1}) around f_hat.
+
+    References:
+      Rasmussen & Williams (2006) GPML, Chapter 3, Algorithm 3.1 (probit).
+      Tesch et al. (ICML 2013) — binary outcome GP-BO.
+    """
+    train_x = np.asarray(train_x, dtype=float)
+    candidate_x = np.asarray(candidate_x, dtype=float)
+    train_y = np.asarray(train_y, dtype=float)
+    n = len(train_x)
+
+    K = sigma2 * _cosine_similarity_matrix(train_x, train_x)
+    K += noise * np.eye(n)  # jitter
+
+    # --- Laplace mode-finding (GPML Alg 3.1) ---
+    f = np.zeros(n)
+    for _ in range(GPC_LAPLACE_MAX_ITER):
+        _, grad, W = _probit_derivatives(f, train_y)
+        W_sqrt = np.sqrt(W)
+
+        # B = I + W^{1/2} K W^{1/2}
+        B = np.eye(n) + (W_sqrt[:, None] * K) * W_sqrt[None, :]
+        L = np.linalg.cholesky(B + 1e-9 * np.eye(n))
+
+        b = W * f + grad
+        # a = b - W^{1/2} L^{-T} L^{-1} W^{1/2} K b
+        WsKb = W_sqrt * (K @ b)
+        inner = np.linalg.solve(L.T, np.linalg.solve(L, WsKb))
+        a = b - W_sqrt * inner
+        f_new = K @ a
+
+        if np.max(np.abs(f_new - f)) < 1e-6:
+            f = f_new
+            break
+        f = f_new
+
+    # --- Predictive mean and variance at candidate points ---
+    _, grad, W = _probit_derivatives(f, train_y)
+    W_sqrt = np.sqrt(W)
+
+    B = np.eye(n) + (W_sqrt[:, None] * K) * W_sqrt[None, :]
+    L = np.linalg.cholesky(B + 1e-9 * np.eye(n))
+
+    b = W * f + grad
+    WsKb = W_sqrt * (K @ b)
+    inner = np.linalg.solve(L.T, np.linalg.solve(L, WsKb))
+    a = b - W_sqrt * inner
+
+    K_star = sigma2 * _cosine_similarity_matrix(train_x, candidate_x)  # (n, m)
+
+    # Latent posterior mean
+    f_star_mean = K_star.T @ a
+
+    # Latent posterior variance (Woodbury)
+    # v = L^{-1} diag(W_sqrt) K_star
+    v = np.linalg.solve(L, W_sqrt[:, None] * K_star)  # (n, m)
+    K_star_star_diag = sigma2 * np.ones(candidate_x.shape[0])
+    f_star_var = np.maximum(K_star_star_diag - np.sum(v ** 2, axis=0), 1e-12)
+    f_star_std = np.sqrt(f_star_var)
+
+    # Predictive probability (probit integral, GPML eq 3.25):
+    # E[Phi(f*)] = Phi(f_mean / sqrt(1 + f_var))
+    kappa = 1.0 / np.sqrt(1.0 + f_star_var)
+    prob_mean = ndtr(kappa * f_star_mean)
+
+    # Uncertainty in probability space (delta method):
+    # std_prob ~ phi(kappa * f_mean) * kappa * f_std
+    phi_star = np.exp(-0.5 * (kappa * f_star_mean) ** 2) / np.sqrt(2 * np.pi)
+    prob_std = phi_star * kappa * f_star_std
+
+    return prob_mean, np.maximum(prob_std, 1e-9)
+
+
+def _cost_aware_ucb(mean, std, beta=UCB_BETA):
+    """Failure-probability UCB utility for a binary oracle (unchanged from GPR version)."""
+    mean = np.clip(mean, 0.0, 1.0)
+    return mean + beta * np.maximum(std, 0.0)
+
+
+def _finalize_order(rows: list[dict]) -> pd.DataFrame:
+    result = pd.DataFrame(rows)
+    result["execution_position"] = np.arange(1, len(result) + 1)
+    result["cumulative_bugs"] = result["confirmed_bug_dummy"].cumsum()
+    result["cumulative_cost"] = result["estimated_cost"].cumsum()
+    return result[
+        [
+            "execution_position", "tcs_id", "menu", "estimated_cost",
+            "is_initial_seed", "predicted_mean", "predicted_std", "acquisition",
+            "confirmed_bug_dummy", "cumulative_bugs", "cumulative_cost",
+        ]
+    ]
+
+
+def run_closed_loop(
+    matrix,
+    ids,
+    menus,
+    costs,
+    oracle,
+    initial_indices,
+    beta=UCB_BETA,
+    cost_exponent=0.5,
+    snapshot_counts=None,
+    random_state=42,
+):
+    """Return a full order while revealing only selected oracle labels."""
+    matrix = np.asarray(matrix, dtype=float)
+    ids = np.asarray(ids, dtype=str)
+    menus = np.asarray(menus, dtype=str)
+    costs = np.asarray(costs, dtype=float)
+    oracle = np.asarray(oracle, dtype=int)
+    if not (len(matrix) == len(ids) == len(menus) == len(costs) == len(oracle)):
+        raise ValueError("matrix, ids, menus, costs, and oracle must have equal lengths")
+    if np.any(costs <= 0):
+        raise ValueError("All estimated costs must be positive")
+
+    revealed = list(dict.fromkeys(int(index) for index in initial_indices))
+    if not revealed:
+        raise ValueError("At least one initial test is required")
+    snapshot_counts = set(snapshot_counts or [])
+    audit = []
+    snapshots = []
+    rows = [
+        {
+            "tcs_id": ids[index],
+            "menu": menus[index],
+            "estimated_cost": costs[index],
+            "is_initial_seed": True,
+            "predicted_mean": np.nan,
+            "predicted_std": np.nan,
+            "acquisition": np.nan,
+            "confirmed_bug_dummy": int(oracle[index]),
+        }
+        for index in revealed
+    ]
+
+    while len(revealed) < len(ids):
+        training_indices = list(revealed)
+        mean, std = _gp_predict(matrix[training_indices], oracle[training_indices], matrix)
+
+        remaining = np.array([index for index in range(len(ids)) if index not in set(revealed)], dtype=int)
+        utility = _cost_aware_ucb(mean, std, beta=beta)
+        acquisition = np.full(len(ids), np.nan, dtype=float)
+        acquisition[remaining] = utility[remaining] / np.power(
+            np.maximum(costs[remaining], 1.0), cost_exponent
+        )
+        best_value = np.nanmax(acquisition[remaining])
+        tied = remaining[np.isclose(acquisition[remaining], best_value)]
+        selected = int(min(tied, key=lambda index: ids[index]))
+
+        audit.append(
+            {
+                "train_count": len(training_indices),
+                "revealed_count": len(revealed),
+                "training_indices": list(training_indices),
+                "revealed_indices": list(revealed),
+                "selected_index": selected,
+            }
+        )
+        if len(revealed) in snapshot_counts:
+            snapshots.append(
+                {
+                    "tested_count": len(revealed),
+                    "observed_indices": list(revealed),
+                    "selected_index": selected,
+                    "mean": mean.copy(),
+                    "std": std.copy(),
+                    "acquisition": acquisition.copy(),
+                }
+            )
+
+        rows.append(
+            {
+                "tcs_id": ids[selected],
+                "menu": menus[selected],
+                "estimated_cost": costs[selected],
+                "is_initial_seed": False,
+                "predicted_mean": float(mean[selected]),
+                "predicted_std": float(std[selected]),
+                "acquisition": float(acquisition[selected]),
+                "confirmed_bug_dummy": int(oracle[selected]),
+            }
+        )
+        revealed.append(selected)
+
+    return _finalize_order(rows), audit, snapshots
+
+
+def rank_final_summary(summary: pd.DataFrame) -> pd.DataFrame:
+    """Rank completion first, then cost, then partial-discovery tie-breakers."""
+    return summary.sort_values(
+        by=[
+            "Run When All Dummy Bugs Were Found",
+            "Total Cost to Find All Dummy Bugs (minutes)",
+            "Dummy Bugs Found by Run 20",
+            "Dummy Bugs Found by Run 50",
+        ],
+        ascending=[True, True, False, False],
+        kind="stable",
+    ).reset_index(drop=True)
+
+=== CELL 18 ===
+## 7. How each vectoriser chooses test #10
+
+All nine representations receive the same nine warm-start outcomes. They differ only in how they judge similarity between an untested case and the known cases.
+
+The table below shows each method's first candidate after warm start. Its final score is the cost-aware Expected Improvement score, so a candidate is preferred when it has a promising predicted result, useful uncertainty, and lower estimated test time.
+
+=== CELL 19 ===
+method_reasoning = pd.DataFrame([
+    {"method": "TF-IDF", "what_it_compares": "Weighted shared words and word pairs"},
+    {"method": "Feature Hashing", "what_it_compares": "Hashed word and word-pair counts"},
+    {"method": "One-Hot Encoding", "what_it_compares": "Presence or absence of each vocabulary term"},
+    {"method": "Word2Vec", "what_it_compares": "Average pretrained local-context word meaning"},
+    {"method": "GloVe", "what_it_compares": "Average pretrained global co-occurrence word meaning"},
+    {"method": "FastText", "what_it_compares": "Average pretrained subword-aware word meaning"},
+    {"method": "ELMo", "what_it_compares": "Context-sensitive token meaning"},
+    {"method": "Flair", "what_it_compares": "Context-sensitive character language-model meaning"},
+    {"method": "Multilingual E5 Large Instruct", "what_it_compares": "Instruction-conditioned multilingual sentence meaning"},
+])
+display(method_reasoning)
+
+first_choice_rows = []
+remaining_after_warm_start = np.array([
+    index for index in range(len(cases)) if index not in set(initial_indices)
+])
+for method_name, matrix in representations.items():
+    mean, std = _gp_predict(matrix[initial_indices], oracle[initial_indices], matrix)
+    utility = _cost_aware_ucb(mean, std, beta=UCB_BETA)
+    acquisition = utility / np.power(np.maximum(costs, 1.0), COST_EXPONENT)
+    selected = int(remaining_after_warm_start[np.argmax(acquisition[remaining_after_warm_start])])
+    first_choice_rows.append({
+        "method": method_name,
+        "test_10_candidate": ids[selected],
+        "menu": menus[selected],
+        "predicted_mean": float(np.clip(mean[selected], 0.0, 1.0)),
+        "uncertainty": float(std[selected]),
+        "estimated_cost_minutes": float(costs[selected]),
+        "cost_aware_ucb_score": float(acquisition[selected]),
+    })
+first_choice_table = pd.DataFrame(first_choice_rows)
+display(first_choice_table.style.format({
+    "predicted_mean": "{:.3f}", "uncertainty": "{:.3f}",
+    "estimated_cost_minutes": "{:.1f}", "cost_aware_ucb_score": "{:.3f}",
+}))
+
+=== CELL 20 ===
+## 8. Run the controlled sequential selection scaffold
+
+Each method now continues from the same warm start. It selects one untested case, receives that case's dummy outcome, updates its Gaussian Process, and makes the next choice.
+
+=== CELL 21 ===
+snapshot_counts = {
+    len(initial_indices),
+    min(len(cases) - 1, len(initial_indices) + 5),
+    min(len(cases) - 1, len(initial_indices) + 15),
+    min(len(cases) - 1, len(initial_indices) + 30),
+}
+
+runs = {}
+audits = {}
+snapshots_by_method = {}
+for method_name, matrix in representations.items():
+    run, audit, snapshots = run_closed_loop(
+        matrix=matrix,
+        ids=ids,
+        menus=menus,
+        costs=costs,
+        oracle=oracle,
+        initial_indices=initial_indices,
+        beta=UCB_BETA,
+        cost_exponent=COST_EXPONENT,
+        snapshot_counts=snapshot_counts,
+        random_state=RANDOM_STATE,
+    )
+    runs[method_name] = run
+    audits[method_name] = audit
+    snapshots_by_method[method_name] = snapshots
+
+
+for method_name, run in runs.items():
+    assert set(run["tcs_id"]) == set(cases["TCS ID"])
+    assert run["tcs_id"].is_unique
+    assert run["cumulative_bugs"].is_monotonic_increasing
+    assert run["cumulative_cost"].is_monotonic_increasing
+    assert int(run["cumulative_bugs"].iloc[-1]) == int(oracle.sum())
+    print(f"{method_name:20s}: first dummy bug at test #{int(run.loc[run['confirmed_bug_dummy'].eq(1), 'execution_position'].min())}")
+
+=== CELL 22 ===
+## 9. Convergence plot
+
+This chart shows how many dummy bugs each method has found after each executed test. A curve that rises earlier has found more of the fixed dummy bugs with fewer test executions. Random selection provides a baseline.
+=== CELL 23 ===
+colors = dict(zip(EXPERIMENT_METHODS, sns.color_palette("tab10", n_colors=len(EXPERIMENT_METHODS))))
+
+fig, ax = plt.subplots(figsize=(11, 6))
+for method_name, run in runs.items():
+    ax.step(run["execution_position"], run["cumulative_bugs"], where="post",
+            linewidth=2.2, color=colors.get(method_name), label=method_name)
+
+ax.axhline(oracle.sum(), color="crimson", linestyle="--", alpha=0.7, label="All dummy bugs")
+ax.set(title="Convergence: Cumulative Dummy Bugs vs Executed Tests",
+       xlabel="Number of executed test cases", ylabel="Cumulative dummy bugs found")
+ax.legend()
+fig.tight_layout()
+fig.savefig(RESULT_DIR / "convergence.png", dpi=180, bbox_inches="tight")
+plt.show()
+=== CELL 24 ===
+## 10. Snapshot setup
+
+The next figure uses the fixed Excel order to place the 69 discrete candidates on one readable axis. Connecting lines are visual guides. They do not turn the test cases into a continuous objective function.
+=== CELL 25 ===
+print("Snapshot counts:", sorted(snapshot_counts))
+=== CELL 26 ===
+## 11. Model estimate and selection-score snapshots
+
+Each representation gets its own figure. The left column shows the fixed dummy truth, the Gaussian Process mean, its uncertainty band, and the outcomes revealed so far. The right column shows the selection score used to choose the next test.
+
+The figures below compare the nine independent representations.
+=== CELL 27 ===
+for method_name, method_snapshots in snapshots_by_method.items():
+    fig, axes = plt.subplots(
+        len(method_snapshots),
+        2,
+        figsize=(15, 3.8 * len(method_snapshots)),
+        squeeze=False,
+    )
+
+    for row, snapshot in enumerate(method_snapshots):
+        mean = snapshot["mean"]
+        std = snapshot["std"]
+        display_mean = np.clip(mean, 0.0, 1.0)
+        display_lower = np.clip(mean - 1.96 * std, 0.0, 1.0)
+        display_upper = np.clip(mean + 1.96 * std, 0.0, 1.0)
+        observed = np.array(snapshot["observed_indices"], dtype=int)
+        selected = snapshot["selected_index"]
+        display_acquisition = np.nan_to_num(snapshot["acquisition"], nan=0.0)
+
+        left = axes[row, 0]
+        left.step(
+            x_display,
+            oracle,
+            where="mid",
+            color="red",
+            linestyle="--",
+            linewidth=1.5,
+            label="True dummy value (unknown to BO)",
+        )
+        left.plot(x_display, display_mean, color="green", linestyle="--", linewidth=1.7, label="GP mean")
+        left.fill_between(
+            x_display,
+            display_lower,
+            display_upper,
+            color="green",
+            alpha=0.18,
+            label="95% uncertainty band",
+        )
+        left.scatter(observed, oracle[observed], color="red", s=34, zorder=4, label="Observations")
+        left.set_ylim(-0.05, 1.05)
+        left.set_title(f"Posterior after {snapshot['tested_count']} observed tests")
+        left.set_xlabel("Test case index in fixed Excel order")
+        left.set_ylabel("Dummy outcome and GP score")
+        if row == 0:
+            left.legend(loc="upper right", fontsize=8)
+
+        right = axes[row, 1]
+        right.plot(x_display, display_acquisition, color="blue", linewidth=1.8, label="Acquisition UCB(x)")
+        right.fill_between(x_display, 0, display_acquisition, color="blue", alpha=0.3)
+        right.scatter(
+            [selected],
+            [display_acquisition[selected]],
+            color="blue",
+            s=70,
+            zorder=4,
+            label=f"Next query: {ids[selected]}",
+        )
+        right.set_title("Acquisition and next test case")
+        right.set_xlabel("Test case index in fixed Excel order")
+        right.set_ylabel("Cost-aware UCB acquisition")
+        right.set_ylim(bottom=0)
+        right.legend(loc="upper right", fontsize=8)
+
+    fig.suptitle(f"{method_name}: Gaussian Process and acquisition", y=1.002, fontsize=15)
+    fig.tight_layout()
+    safe_name = re.sub(r"[^a-z0-9]+", "_", method_name.lower()).strip("_")
+    fig.savefig(RESULT_DIR / f"iteration_snapshots_{safe_name}.png", dpi=180, bbox_inches="tight")
+    plt.show()
+=== CELL 28 ===
+## 12. Nine-representation visual-demo summary
+
+This is the final comparison table for the fixed semantic dummy demonstration. The Best Method marker ranks this one demonstration by the most dummy bugs found by run 20, then by run 50, the earliest run that finds all dummy bugs, and the lowest total cost. It is not a final representation decision.
+=== CELL 29 ===
+summary_rows = []
+total_dummy_bug_count = int(oracle.sum())
+for method_name, run in runs.items():
+    bugs_by_20 = int(run.loc[run["execution_position"].le(20), "cumulative_bugs"].max())
+    bugs_by_50 = int(run.loc[run["execution_position"].le(50), "cumulative_bugs"].max())
+    all_found_row = run.loc[run["cumulative_bugs"].eq(total_dummy_bug_count)].iloc[0]
+    summary_rows.append({
+        "Method": method_name,
+        "Dummy Bugs Found by Run 20": bugs_by_20,
+        "Dummy Bugs Found by Run 50": bugs_by_50,
+        "Run When All Dummy Bugs Were Found": int(all_found_row["execution_position"]),
+        "Total Cost to Find All Dummy Bugs (minutes)": float(all_found_row["cumulative_cost"]),
+    })
+
+final_summary = rank_final_summary(pd.DataFrame(summary_rows))
+best_method = final_summary.iloc[0]["Method"]
+final_summary.insert(1, "Best Method", np.where(final_summary["Method"].eq(best_method), "Yes", ""))
+
+print(f"Best Method: {best_method}")
+display(final_summary.style.format({
+    "Total Cost to Find All Dummy Bugs (minutes)": "{:.1f}",
+}))
+
+for method_name, run in runs.items():
+    safe_name = re.sub(r"[^a-z0-9]+", "_", method_name.lower()).strip("_")
+    run.to_csv(RESULT_DIR / f"ordering_{safe_name}.csv", index=False)
+final_summary.to_csv(RESULT_DIR / "final_summary.csv", index=False)
+
+config = {
+    "random_state": RANDOM_STATE,
+    "kernel": KERNEL_NAME,
+    "kernel_signal_variance_sigma2": SIGMA2,
+    "kernel_noise_alpha": NOISE_ALPHA,
+    "acquisition": "Cost-aware UCB (failure probability + exploration bonus)",
+    "ucb_beta": UCB_BETA,
+    "cost_exponent": COST_EXPONENT,
+    "kernel_hyperparameter_sources": [
+        "Tesch et al. (2013), Expensive function optimization with stochastic binary outcomes, ICML",
+        "Shahriari et al. (2016), Taking the human out of the loop: a review of Bayesian optimization, Proceedings of the IEEE",
+        "Steck et al. (2024), Is Cosine-Similarity of Embeddings Really About Similarity?, WWW Companion",
+        "Chen (2016), How priors of initial hyperparameters affect Gaussian process regression models, Neurocomputing",
+        "De Ath et al. (2021), How Bayesian should Bayesian optimisation be?, GECCO (EI preference applies to single-optimum continuous problems, not failure discovery)",
+    ],
+    **build_vectoriser_metadata(VECTORISER_SELECTION),
+    "paper_vectorisers": list(PAPER_VECTORISERS),
+    "additional_vectorisers": list(ADDITIONAL_VECTORISERS),
+    "experiment_methods": list(EXPERIMENT_METHODS),
+    "paper_citation": PAPER_CITATION,
+    "dummy_fault_themes": DUMMY_FAULT_THEMES,
+    "dummy_bug_ids": DUMMY_BUG_IDS,
+    "initial_tcs_ids": cases.iloc[initial_indices]["TCS ID"].tolist(),
+    "warm_start_bug_count": warm_start_bug_count,
+}
+with (RESULT_DIR / "experiment_config.json").open("w", encoding="utf-8") as handle:
+    json.dump(config, handle, indent=2, ensure_ascii=False)
+
+current_artifacts = [
+    RESULT_DIR / "convergence.png",
+    RESULT_DIR / "final_summary.csv",
+    RESULT_DIR / "experiment_config.json",
+]
+for method_name in runs:
+    safe_name = re.sub(r"[^a-z0-9]+", "_", method_name.lower()).strip("_")
+    current_artifacts.extend(
+        [
+            RESULT_DIR / f"ordering_{safe_name}.csv",
+            RESULT_DIR / f"iteration_snapshots_{safe_name}.png",
+        ]
+    )
+for artifact in current_artifacts:
+    if not artifact.exists():
+        raise FileNotFoundError(f"Expected current artifact was not created: {artifact}")
+
+archive_path = RESULT_DIR.parent / "bayesian_dummy_results.zip"
+with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    for artifact in current_artifacts:
+        archive.write(artifact, arcname=artifact.name)
+print("Results:", RESULT_DIR)
+print("ZIP:", archive_path)
+display(FileLink(str(archive_path)))
+
+if AUTO_DOWNLOAD_IN_COLAB:
+    try:
+        from google.colab import files
+        files.download(str(archive_path))
+    except ImportError:
+        pass
+=== CELL 30 ===
+## 13. Non-visual synthetic fairness check
+
+This section adds no plots. It is a neutral negative-control check for the nine representations. **Neutral random fault instances** are created without reading the test-case text, representation matrices, model scores, or execution costs. Within each replicate, every method receives exactly the same fault labels and the same feature-covering warm start.
+
+The check answers one narrow question: does the ranking from the fixed semantic dummy demonstration depend entirely on that one hand-placed fault pattern? It does not imitate real Android bugs. **No representation winner is declared** from these neutral synthetic labels; a final decision requires black-box replay outcomes from versioned buggy and fixed APK builds.
+
+=== CELL 31 ===
+import numpy as np
+
+
+def draw_uniform_oracle(case_count, bug_count, random_state):
+    """Draw neutral dummy labels without inspecting any representation."""
+    if not 0 < bug_count <= case_count:
+        raise ValueError("bug_count must be between 1 and case_count")
+    rng = np.random.default_rng(random_state)
+    oracle = np.zeros(case_count, dtype=int)
+    oracle[rng.choice(case_count, size=bug_count, replace=False)] = 1
+    return oracle
+
+
+def choose_paired_initial_indices(menus, random_state):
+    """Choose one shared warm-start case per feature/menu."""
+    menus = np.asarray(menus, dtype=str)
+    rng = np.random.default_rng(random_state)
+    selected = []
+    for menu in sorted(np.unique(menus)):
+        candidates = np.flatnonzero(menus == menu)
+        selected.append(int(rng.choice(candidates)))
+    return selected
+
+=== CELL 32 ===
+N_PAIRED_FAIRNESS_REPLICATES = int(os.getenv("THREE_METHOD_FAIRNESS_REPLICATES", "10"))
+FAIRNESS_BASE_SEED = 20260813
+FAIRNESS_BUG_COUNT = 13
+
+if N_PAIRED_FAIRNESS_REPLICATES < 2:
+    raise ValueError("Use at least two paired fairness replicates.")
+
+fairness_rows = []
+for replicate in range(N_PAIRED_FAIRNESS_REPLICATES):
+    instance_seed = FAIRNESS_BASE_SEED + replicate
+    neutral_oracle = draw_uniform_oracle(
+        case_count=len(cases),
+        bug_count=FAIRNESS_BUG_COUNT,
+        random_state=instance_seed,
+    )
+    paired_initial_indices = choose_paired_initial_indices(menus, instance_seed)
+
+    for method_name, matrix in representations.items():
+        fair_run, _, _ = run_closed_loop(
+            matrix=matrix,
+            ids=ids,
+            menus=menus,
+            costs=costs,
+            oracle=neutral_oracle,
+            initial_indices=paired_initial_indices,
+            beta=UCB_BETA,
+            cost_exponent=COST_EXPONENT,
+            snapshot_counts=set(),
+            random_state=instance_seed,
+        )
+        all_found_row = fair_run.loc[
+            fair_run["cumulative_bugs"].eq(FAIRNESS_BUG_COUNT)
+        ].iloc[0]
+        fairness_rows.append({
+            "replicate": replicate + 1,
+            "instance_seed": instance_seed,
+            "Method": method_name,
+            "Dummy Bugs Found by Run 20": int(
+                fair_run.loc[fair_run["execution_position"].le(20), "cumulative_bugs"].max()
+            ),
+            "Dummy Bugs Found by Run 50": int(
+                fair_run.loc[fair_run["execution_position"].le(50), "cumulative_bugs"].max()
+            ),
+            "Run When All 13 Dummy Bugs Were Found": int(
+                all_found_row["execution_position"]
+            ),
+            "Total Cost to Find All 13 Dummy Bugs (minutes)": float(
+                all_found_row["cumulative_cost"]
+            ),
+        })
+
+fairness_runs = pd.DataFrame(fairness_rows)
+fairness_summary = fairness_runs.groupby("Method", as_index=False).agg(
+    **{
+        "Mean Bugs Found by Run 20": ("Dummy Bugs Found by Run 20", "mean"),
+        "Mean Bugs Found by Run 50": ("Dummy Bugs Found by Run 50", "mean"),
+        "Median Run When All 13 Dummy Bugs Were Found": (
+            "Run When All 13 Dummy Bugs Were Found", "median"
+        ),
+        "Mean Total Cost to Find All 13 Dummy Bugs (minutes)": (
+            "Total Cost to Find All 13 Dummy Bugs (minutes)", "mean"
+        ),
+    }
+).sort_values("Method", kind="stable").reset_index(drop=True)
+
+fairness_runs.to_csv(RESULT_DIR / "synthetic_fairness_runs.csv", index=False)
+fairness_summary.to_csv(RESULT_DIR / "synthetic_fairness_summary.csv", index=False)
+
+config["paired_fairness_replicates"] = N_PAIRED_FAIRNESS_REPLICATES
+config["paired_fairness_base_seed"] = FAIRNESS_BASE_SEED
+config["paired_fairness_oracle"] = "uniform_random_without_representation_features"
+with (RESULT_DIR / "experiment_config.json").open("w", encoding="utf-8") as handle:
+    json.dump(config, handle, indent=2, ensure_ascii=False)
+
+current_artifacts.extend([
+    RESULT_DIR / "synthetic_fairness_runs.csv",
+    RESULT_DIR / "synthetic_fairness_summary.csv",
+])
+with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    for artifact in current_artifacts:
+        archive.write(artifact, arcname=artifact.name)
+
+print("No representation winner is declared from neutral synthetic labels.")
+display(fairness_summary.style.format({
+    "Mean Bugs Found by Run 20": "{:.2f}",
+    "Mean Bugs Found by Run 50": "{:.2f}",
+    "Median Run When All 13 Dummy Bugs Were Found": "{:.1f}",
+    "Mean Total Cost to Find All 13 Dummy Bugs (minutes)": "{:.1f}",
+}))
+
+=== CELL 33 ===
+## 14. How to read the report
+
+Read the visual-demo table and the neutral synthetic table separately. The first explains how each representation behaves on the deliberately semantic dummy scenario. The second checks whether that one scenario alone drives the apparent ranking. Neither table proves which representation will find real Android bugs earlier.
+
+=== CELL 34 ===

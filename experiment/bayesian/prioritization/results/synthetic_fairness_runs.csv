@@ -1,0 +1,21 @@
+replicate,instance_seed,Method,Dummy Bugs Found by Run 20,Dummy Bugs Found by Run 50,Run When All 13 Dummy Bugs Were Found,Total Cost to Find All 13 Dummy Bugs (minutes)
+1,20260813,TF-IDF,3,9,69,632.0
+1,20260813,Feature Hashing,3,11,69,632.0
+2,20260814,TF-IDF,1,7,66,590.0
+2,20260814,Feature Hashing,1,7,67,605.0
+3,20260815,TF-IDF,3,9,63,554.0
+3,20260815,Feature Hashing,3,9,67,605.0
+4,20260816,TF-IDF,3,8,62,544.0
+4,20260816,Feature Hashing,2,10,65,582.0
+5,20260817,TF-IDF,2,7,69,632.0
+5,20260817,Feature Hashing,2,5,69,632.0
+6,20260818,TF-IDF,3,10,69,632.0
+6,20260818,Feature Hashing,3,10,67,604.0
+7,20260819,TF-IDF,4,8,69,632.0
+7,20260819,Feature Hashing,4,8,69,632.0
+8,20260820,TF-IDF,2,10,63,554.0
+8,20260820,Feature Hashing,3,8,69,632.0
+9,20260821,TF-IDF,2,11,58,484.0
+9,20260821,Feature Hashing,2,10,62,538.0
+10,20260822,TF-IDF,2,8,69,632.0
+10,20260822,Feature Hashing,2,7,69,632.0

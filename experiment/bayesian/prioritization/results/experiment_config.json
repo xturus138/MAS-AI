@@ -1,0 +1,84 @@
+{
+  "random_state": 42,
+  "kappa": 1.5,
+  "cost_exponent": 0.5,
+  "vectoriser_selection": "quick",
+  "selected_vectorisers": [
+    "TF-IDF",
+    "Feature Hashing"
+  ],
+  "paper_vectorisers": [
+    "TF-IDF",
+    "Feature Hashing",
+    "Word2Vec",
+    "GloVe",
+    "FastText",
+    "ELMo",
+    "Flair"
+  ],
+  "additional_vectorisers": [
+    "One-Hot Encoding",
+    "Multilingual E5 Large Instruct"
+  ],
+  "experiment_methods": [
+    "TF-IDF",
+    "Feature Hashing",
+    "Word2Vec",
+    "GloVe",
+    "FastText",
+    "ELMo",
+    "Flair",
+    "One-Hot Encoding",
+    "Multilingual E5 Large Instruct"
+  ],
+  "paper_citation": "Chakraborty, Elhence, and Arora (2019), Sparse Victory",
+  "dummy_fault_themes": {
+    "message_delivery_and_read_state": [
+      "FC-MN-006",
+      "FC-MN-007",
+      "FC-CRP-007",
+      "FC-CRP-008",
+      "FC-CRG-004",
+      "FC-CRG-007",
+      "FC-MIF-001",
+      "FC-MIF-002",
+      "FC-MIF-003"
+    ],
+    "group_membership_permission": [
+      "FC-NCP-004",
+      "FC-NCP-005",
+      "FC-GPR-002",
+      "FC-GPR-003"
+    ]
+  },
+  "dummy_bug_ids": [
+    "FC-CRG-004",
+    "FC-CRG-007",
+    "FC-CRP-007",
+    "FC-CRP-008",
+    "FC-GPR-002",
+    "FC-GPR-003",
+    "FC-MIF-001",
+    "FC-MIF-002",
+    "FC-MIF-003",
+    "FC-MN-006",
+    "FC-MN-007",
+    "FC-NCP-004",
+    "FC-NCP-005"
+  ],
+  "initial_tcs_ids": [
+    "FC-LGN-001",
+    "FC-REG-001",
+    "FC-MN-001",
+    "FC-NCG-001",
+    "FC-CRG-001",
+    "FC-GPR-001",
+    "FC-MIF-001",
+    "FC-FSI-001",
+    "FC-PRF-001"
+  ],
+  "warm_start_bug_count": 1,
+  "paired_fairness_replicates": 10,
+  "paired_fairness_base_seed": 20260813,
+  "paired_fairness_oracle": "uniform_random_without_representation_features"
+}

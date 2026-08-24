@@ -1,0 +1,3 @@
+Method,Best Method,Dummy Bugs Found by Run 20,Dummy Bugs Found by Run 50,Run When All Dummy Bugs Were Found,Total Cost to Find All Dummy Bugs (minutes)
+TF-IDF,Yes,5,13,34,225.0
+Feature Hashing,,5,13,42,298.0
