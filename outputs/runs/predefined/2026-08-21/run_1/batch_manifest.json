@@ -1,0 +1,43 @@
+{
+  "cases": [
+    {
+      "attempt_number": 1,
+      "attempts": [
+        {
+          "attempt_number": 1,
+          "completed_at": null,
+          "duration_seconds": null,
+          "evidence_path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001",
+          "observation_ref": null,
+          "reason_ref": null,
+          "status": "running"
+        }
+      ],
+      "completed_at": null,
+      "duration_seconds": null,
+      "evidence_path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001",
+      "observation_ref": null,
+      "reason_ref": null,
+      "status": "running",
+      "tcs_id": "NOTE-001"
+    },
+    {
+      "attempt_number": null,
+      "attempts": [],
+      "completed_at": null,
+      "duration_seconds": null,
+      "evidence_path": null,
+      "observation_ref": null,
+      "reason_ref": null,
+      "status": "not_started",
+      "tcs_id": "NOTE-002"
+    }
+  ],
+  "manifest_version": 1,
+  "ordered_tcs_ids": [
+    "NOTE-001",
+    "NOTE-002"
+  ],
+  "source_workbook": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\scenarios\\notes\\scenario.xlsx",
+  "workbook_fingerprint": "3e959c4169a12dc1f2381f1499f1cabb495690584ec0a1b2cf2f13ce46ddfbb5"
+}

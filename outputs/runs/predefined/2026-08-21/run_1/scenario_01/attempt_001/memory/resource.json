@@ -1,0 +1,50 @@
+[
+  {
+    "title": "figma_gold_standard",
+    "summary": "Figma end-state Gold Standard for final verification",
+    "resource_type": "figma_gold",
+    "path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\figma\\end_state.png",
+    "step": 0,
+    "timestamp": "2026-08-21T10:19:29"
+  },
+  {
+    "title": "recovery_transition_evidence",
+    "summary": "Recovery evidence for NOTE-001",
+    "resource_type": "screenshot",
+    "path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery\\observation_01\\raw.png",
+    "step": 0,
+    "timestamp": "2026-08-21T10:19:54"
+  },
+  {
+    "title": "recovery_transition_evidence",
+    "summary": "Recovery evidence for NOTE-001",
+    "resource_type": "xml",
+    "path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery\\observation_01\\hierarchy.xml",
+    "step": 0,
+    "timestamp": "2026-08-21T10:19:54"
+  },
+  {
+    "title": "recovery_transition_evidence",
+    "summary": "Recovery evidence for NOTE-001",
+    "resource_type": "recovery_artifact",
+    "path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery_transition.json",
+    "step": 0,
+    "timestamp": "2026-08-21T10:19:54"
+  },
+  {
+    "title": "post_action_step_1",
+    "summary": "Post-action screenshot after step 1",
+    "resource_type": "screenshot",
+    "path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\steps\\001\\post_action.png",
+    "step": 1,
+    "timestamp": "2026-08-21T10:20:29"
+  },
+  {
+    "title": "post_action_step_2",
+    "summary": "Post-action screenshot after step 2",
+    "resource_type": "screenshot",
+    "path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\steps\\002\\post_action.png",
+    "step": 2,
+    "timestamp": "2026-08-21T10:21:04"
+  }
+]

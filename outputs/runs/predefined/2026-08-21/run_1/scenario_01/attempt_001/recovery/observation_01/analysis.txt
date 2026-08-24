@@ -1,0 +1,29 @@
+SEMANTIC_MAP:
+[1]: Icon - Folder icon
+[2]: Icon - Settings icon
+[3]: Header Text - Catatan
+[4]: Button - Semua
+[5]: Button - PKM-KC
+[6]: Button - PROKSI
+[7]: Button - suitmedia
+[8]: Button - Tidak I
+[9]: Button - Barang bawaan HIGHLIGHT PENTING 17 Juli
+[10]: Button - Rencana Skripsi 2026
+[11]: Button - Pengeluaran Jepang Bus : 310 20 Juli
+[12]: Button - Bayar google playstore Favian: BCA 2 Juli
+[13]: Button - List perlengkapan visa Formulir Visa 1 Juli
+[14]: Icon Button - Plus icon
+[15]: Button - Catatan skripsi
+[16]: View - Catatan
+[17]: View - Tugas
+[18]: View - Catatan
+[19]: Button - action_bar_container
+[20]: Button - Folder
+[21]: Button - Setelan
+[22]: Button - data_folder_list_layout
+[23]: Button - data_folder_list_layout
+[24]: Button - data_folder_list_layout
+[25]: Button - miuix_bottom_navigation_bar
+[26]: Button - Tugas
+
+SUMMARY: The screen displays a notes application dashboard featuring a header, a horizontal list of folder filters, a vertical list of individual note entries, a floating action button for adding new content, and a bottom navigation bar for switching between notes and tasks.

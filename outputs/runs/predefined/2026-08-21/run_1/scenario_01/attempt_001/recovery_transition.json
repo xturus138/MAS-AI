@@ -1,0 +1,666 @@
+{
+  "artifact_paths": [
+    "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery\\observation_01\\raw.png",
+    "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery\\observation_01\\hierarchy.xml"
+  ],
+  "cancellation": null,
+  "context_matched": true,
+  "duration_seconds": 24.796999999999912,
+  "error": null,
+  "evidence_directory": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001",
+  "execution_result": null,
+  "fresh_observation": {
+    "screenshot_path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery\\observation_01\\raw.png",
+    "state_update": {
+      "confidence_score": 1.0,
+      "fallback_reason": "",
+      "memory_context": "<core_memory>\n  tcs_id: NOTE-001\n  task_goal: Membuat catatan baru\n  expected_result: Catatan tersimpan dan terlihat di daftar utama dengan judul \"Rencana Skripsi 2026\".\n  scenario_desc: Membuat catatan baru\n  user_role: User\n  navigation_context: Xiaomi Notes\n  test_type: Pos.\n  figma_enabled: True\n  figma_end_node_id: 12:471\n</core_memory>\n\n<semantic_memory>\n  [widget_11_miuix_bottom_navigation_bar] bounds=[0, 1482, 720, 1600]: [Interactive] miuix_bottom_navigation_bar\n  [widget_22_miuix_bottom_navigation_bar] bounds=[0, 1482, 720, 1600]: [Interactive] miuix_bottom_navigation_bar\n  [widget_25_miuix_bottom_navigation_bar] bounds=[0, 1482, 720, 1600]: [Interactive] miuix_bottom_navigation_bar\n</semantic_memory>\n\n<procedural_memory>\n  [workflow] Membuat catatan baru (tcs=NOTE-001)\n    1. Pengguna membuka aplikasi Xiaomi Notes.\n    2. Pengguna klik tombol \"+\" (tambah) untuk membuat catatan baru.\n    3. Pengguna memasukkan judul: \"Rencana Skripsi 2026\".\n    4. Pengguna memasukkan isi catatan: \"Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.\"\n    5. Pengguna klik ikon kembali dan melihat di beranda apakah sudah tersimpan\n</procedural_memory>\n\n<resource_memory>\n  [figma_gold] step=0 path=C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\figma\\end_state.png | Figma end-state Gold Standard for final verification\n</resource_memory>",
+      "observation_source": "vision+xml_refined(26/26)",
+      "observer_analysis": "SEMANTIC_MAP:\n[1]: Icon - Folder icon\n[2]: Icon - Settings icon\n[3]: Header Text - Catatan\n[4]: Button - Semua\n[5]: Button - PKM-KC\n[6]: Button - PROKSI\n[7]: Button - suitmedia\n[8]: Button - Tidak I\n[9]: Button - Barang bawaan HIGHLIGHT PENTING 17 Juli\n[10]: Button - Rencana Skripsi 2026\n[11]: Button - Pengeluaran Jepang Bus : 310 20 Juli\n[12]: Button - Bayar google playstore Favian: BCA 2 Juli\n[13]: Button - List perlengkapan visa Formulir Visa 1 Juli\n[14]: Icon Button - Plus icon\n[15]: Button - Catatan skripsi\n[16]: View - Catatan\n[17]: View - Tugas\n[18]: View - Catatan\n[19]: Button - action_bar_container\n[20]: Button - Folder\n[21]: Button - Setelan\n[22]: Button - data_folder_list_layout\n[23]: Button - data_folder_list_layout\n[24]: Button - data_folder_list_layout\n[25]: Button - miuix_bottom_navigation_bar\n[26]: Button - Tugas\n\nSUMMARY: The screen displays a notes application dashboard featuring a header, a horizontal list of folder filters, a vertical list of individual note entries, a floating action button for adding new content, and a bottom navigation bar for switching between notes and tasks.",
+      "observer_analysis_step": -1,
+      "screenshot_path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery\\observation_01\\raw.png",
+      "sender": "observer",
+      "stagnation_count": 0,
+      "uncertainty_artifact_dir": "",
+      "widgets": [
+        {
+          "bounds": [
+            540,
+            96,
+            588,
+            144
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            540,
+            96,
+            588,
+            144
+          ],
+          "id": 1,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "folder icon",
+          "type": "container",
+          "xml_actionable": false,
+          "xml_label": "action_menu_item_child_icon",
+          "xml_role": "image"
+        },
+        {
+          "bounds": [
+            629,
+            96,
+            677,
+            144
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            629,
+            96,
+            677,
+            144
+          ],
+          "id": 2,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "settings icon",
+          "type": "container",
+          "xml_actionable": false,
+          "xml_label": "action_menu_item_child_icon",
+          "xml_role": "image"
+        },
+        {
+          "bounds": [
+            48,
+            179,
+            230,
+            251
+          ],
+          "class": "StaticText",
+          "cv_bounds": [
+            48,
+            179,
+            230,
+            251
+          ],
+          "id": 3,
+          "llm_type": "TEXT",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Catatan",
+          "type": "text_stub",
+          "xml_actionable": true,
+          "xml_label": "Catatan",
+          "xml_role": "text"
+        },
+        {
+          "bounds": [
+            44,
+            287,
+            152,
+            361
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            44,
+            287,
+            152,
+            361
+          ],
+          "id": 4,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Semua",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "data_folder_list_layout",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            185,
+            308,
+            272,
+            339
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            185,
+            308,
+            272,
+            339
+          ],
+          "id": 5,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "PKM-KC",
+          "type": "container",
+          "xml_actionable": false,
+          "xml_label": "PKM-KC",
+          "xml_role": "text"
+        },
+        {
+          "bounds": [
+            324,
+            308,
+            403,
+            339
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            324,
+            308,
+            403,
+            339
+          ],
+          "id": 6,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "PROKSI",
+          "type": "container",
+          "xml_actionable": false,
+          "xml_label": "PROKSI",
+          "xml_role": "text"
+        },
+        {
+          "bounds": [
+            455,
+            308,
+            555,
+            339
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            455,
+            308,
+            555,
+            339
+          ],
+          "id": 7,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "suitmedia",
+          "type": "container",
+          "xml_actionable": false,
+          "xml_label": "suitmedia",
+          "xml_role": "text"
+        },
+        {
+          "bounds": [
+            588,
+            287,
+            676,
+            361
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            588,
+            287,
+            676,
+            361
+          ],
+          "id": 8,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Tidak I",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "data_folder_list_layout",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            33,
+            387,
+            687,
+            572
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            33,
+            387,
+            687,
+            572
+          ],
+          "id": 9,
+          "llm_type": "LIST_ITEM",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Barang bawaan HIGHLIGHT PENTING 17 Juli",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "note_group",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            33,
+            591,
+            687,
+            776
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            33,
+            591,
+            687,
+            776
+          ],
+          "id": 10,
+          "llm_type": "LIST_ITEM",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Rencana Skripsi 2026 Selesaikan implementasi Multi-Agent Swarm untuk p... Kemarin 13:04",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "note_group",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            33,
+            795,
+            687,
+            980
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            33,
+            795,
+            687,
+            980
+          ],
+          "id": 11,
+          "llm_type": "LIST_ITEM",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Pengeluaran Jepang Bus : 310 20 Juli",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "note_group",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            33,
+            999,
+            687,
+            1184
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            33,
+            999,
+            687,
+            1184
+          ],
+          "id": 12,
+          "llm_type": "LIST_ITEM",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Bayar google playstore Favian: BCA 2 Juli",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "note_group",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            33,
+            1203,
+            687,
+            1388
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            33,
+            1203,
+            687,
+            1388
+          ],
+          "id": 13,
+          "llm_type": "LIST_ITEM",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "List perlengkapan visa Formulir Visa 1 Juli",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "note_group",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            548,
+            1310,
+            655,
+            1417
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            548,
+            1310,
+            655,
+            1417
+          ],
+          "id": 14,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "plus icon",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "Ketuk untuk buat catatan",
+          "xml_role": "icon_button"
+        },
+        {
+          "bounds": [
+            33,
+            1407,
+            687,
+            1592
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            33,
+            1407,
+            687,
+            1592
+          ],
+          "id": 15,
+          "llm_type": "LIST_ITEM",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Catatan skripsi",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "note_group",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            158,
+            1497,
+            206,
+            1545
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            158,
+            1497,
+            206,
+            1545
+          ],
+          "id": 16,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Catatan",
+          "type": "container",
+          "xml_actionable": false,
+          "xml_label": "miuix_navigation_bar_item_icon_container",
+          "xml_role": "view"
+        },
+        {
+          "bounds": [
+            513,
+            1497,
+            561,
+            1545
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            513,
+            1497,
+            561,
+            1545
+          ],
+          "id": 17,
+          "llm_type": "BUTTON",
+          "resource_id": "none",
+          "source": "xml",
+          "text": "Tugas",
+          "type": "container",
+          "xml_actionable": false,
+          "xml_label": "miuix_navigation_bar_item_icon_container",
+          "xml_role": "view"
+        },
+        {
+          "bounds": [
+            15,
+            1482,
+            350,
+            1600
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            15,
+            1482,
+            350,
+            1600
+          ],
+          "id": 18,
+          "resource_id": "com.miui.notes:id/action_page_1",
+          "source": "xml",
+          "text": "Catatan",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "Catatan",
+          "xml_role": "view"
+        },
+        {
+          "bounds": [
+            0,
+            0,
+            720,
+            269
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            0,
+            0,
+            720,
+            269
+          ],
+          "id": 19,
+          "resource_id": "com.miui.notes:id/action_bar_container",
+          "source": "xml",
+          "text": "action_bar_container",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "action_bar_container",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            527,
+            83,
+            601,
+            157
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            527,
+            83,
+            601,
+            157
+          ],
+          "id": 20,
+          "resource_id": "",
+          "source": "xml",
+          "text": "Folder",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "Folder",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            616,
+            83,
+            690,
+            157
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            616,
+            83,
+            690,
+            157
+          ],
+          "id": 21,
+          "resource_id": "",
+          "source": "xml",
+          "text": "Setelan",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "Setelan",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            436,
+            287,
+            574,
+            361
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            436,
+            287,
+            574,
+            361
+          ],
+          "id": 22,
+          "resource_id": "com.miui.notes:id/data_folder_list_layout",
+          "source": "xml",
+          "text": "data_folder_list_layout",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "data_folder_list_layout",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            166,
+            287,
+            291,
+            361
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            166,
+            287,
+            291,
+            361
+          ],
+          "id": 23,
+          "resource_id": "com.miui.notes:id/data_folder_list_layout",
+          "source": "xml",
+          "text": "data_folder_list_layout",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "data_folder_list_layout",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            305,
+            287,
+            422,
+            361
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            305,
+            287,
+            422,
+            361
+          ],
+          "id": 24,
+          "resource_id": "com.miui.notes:id/data_folder_list_layout",
+          "source": "xml",
+          "text": "data_folder_list_layout",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "data_folder_list_layout",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            0,
+            1482,
+            720,
+            1600
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            0,
+            1482,
+            720,
+            1600
+          ],
+          "id": 25,
+          "resource_id": "com.miui.notes:id/miuix_bottom_navigation_bar",
+          "source": "xml",
+          "text": "miuix_bottom_navigation_bar",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "miuix_bottom_navigation_bar",
+          "xml_role": "button"
+        },
+        {
+          "bounds": [
+            370,
+            1482,
+            705,
+            1600
+          ],
+          "class": "Interactive",
+          "cv_bounds": [
+            370,
+            1482,
+            705,
+            1600
+          ],
+          "id": 26,
+          "resource_id": "com.miui.notes:id/action_page_2",
+          "source": "xml",
+          "text": "Tugas",
+          "type": "container",
+          "xml_actionable": true,
+          "xml_label": "Tugas",
+          "xml_role": "button"
+        }
+      ]
+    },
+    "text": "SEMANTIC_MAP:\n[1]: Icon - Folder icon\n[2]: Icon - Settings icon\n[3]: Header Text - Catatan\n[4]: Button - Semua\n[5]: Button - PKM-KC\n[6]: Button - PROKSI\n[7]: Button - suitmedia\n[8]: Button - Tidak I\n[9]: Button - Barang bawaan HIGHLIGHT PENTING 17 Juli\n[10]: Button - Rencana Skripsi 2026\n[11]: Button - Pengeluaran Jepang Bus : 310 20 Juli\n[12]: Button - Bayar google playstore Favian: BCA 2 Juli\n[13]: Button - List perlengkapan visa Formulir Visa 1 Juli\n[14]: Icon Button - Plus icon\n[15]: Button - Catatan skripsi\n[16]: View - Catatan\n[17]: View - Tugas\n[18]: View - Catatan\n[19]: Button - action_bar_container\n[20]: Button - Folder\n[21]: Button - Setelan\n[22]: Button - data_folder_list_layout\n[23]: Button - data_folder_list_layout\n[24]: Button - data_folder_list_layout\n[25]: Button - miuix_bottom_navigation_bar\n[26]: Button - Tugas\n\nSUMMARY: The screen displays a notes application dashboard featuring a header, a horizontal list of folder filters, a vertical list of individual note entries, a floating action button for adding new content, and a bottom navigation bar for switching between notes and tasks.",
+    "xml_path": "C:\\Users\\radit\\Project\\VisualStudioProject\\Skripsi\\MAS AI\\outputs\\runs\\predefined\\2026-08-21\\run_1\\scenario_01\\attempt_001\\recovery\\observation_01\\hierarchy.xml"
+  },
+  "fresh_observation_text": "SEMANTIC_MAP:\n[1]: Icon - Folder icon\n[2]: Icon - Settings icon\n[3]: Header Text - Catatan\n[4]: Button - Semua\n[5]: Button - PKM-KC\n[6]: Button - PROKSI\n[7]: Button - suitmedia\n[8]: Button - Tidak I\n[9]: Button - Barang bawaan HIGHLIGHT PENTING 17 Juli\n[10]: Button - Rencana Skripsi 2026\n[11]: Button - Pengeluaran Jepang Bus : 310 20 Juli\n[12]: Button - Bayar google playstore Favian: BCA 2 Juli\n[13]: Button - List perlengkapan visa Formulir Visa 1 Juli\n[14]: Icon Button - Plus icon\n[15]: Button - Catatan skripsi\n[16]: View - Catatan\n[17]: View - Tugas\n[18]: View - Catatan\n[19]: Button - action_bar_container\n[20]: Button - Folder\n[21]: Button - Setelan\n[22]: Button - data_folder_list_layout\n[23]: Button - data_folder_list_layout\n[24]: Button - data_folder_list_layout\n[25]: Button - miuix_bottom_navigation_bar\n[26]: Button - Tugas\n\nSUMMARY: The screen displays a notes application dashboard featuring a header, a horizontal list of folder filters, a vertical list of individual note entries, a floating action button for adding new content, and a bottom navigation bar for switching between notes and tasks.",
+  "planned_operational_steps": [],
+  "reason": "The screen displays a note-taking application (\"Catatan\") with typical features of a notes app, such as a list of notes, folders, and a bottom navigation bar, which is consistent with Xiaomi Notes.",
+  "required_navigation_context": "Xiaomi Notes",
+  "source_integrity": {
+    "preserved": true
+  },
+  "status": "no_op",
+  "tcs_id": "NOTE-001",
+  "timestamps": {
+    "finished_at": "2026-08-21T01:19:54.477263+00:00",
+    "started_at": "2026-08-21T01:19:29.669053+00:00"
+  },
+  "verification_result": {
+    "assessment": {
+      "matched": true,
+      "reason": "The screen displays a note-taking application (\"Catatan\") with typical features of a notes app, such as a list of notes, folders, and a bottom navigation bar, which is consistent with Xiaomi Notes."
+    },
+    "passed": true
+  }
+}

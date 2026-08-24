@@ -1,0 +1,20 @@
+[
+  {
+    "entry_type": "workflow",
+    "description": "Membuat catatan baru",
+    "steps": [
+      "Pengguna membuka aplikasi Xiaomi Notes.",
+      "Pengguna klik tombol \"+\" (tambah) untuk membuat catatan baru.",
+      "Pengguna memasukkan judul: \"Rencana Skripsi 2026\".",
+      "Pengguna memasukkan isi catatan: \"Selesaikan implementasi Multi-Agent Swarm untuk pengujian aplikasi Android.\"",
+      "Pengguna klik ikon kembali dan melihat di beranda apakah sudah tersimpan"
+    ],
+    "tcs_id": "NOTE-001"
+  },
+  {
+    "entry_type": "recovery_transition",
+    "description": "The screen displays a note-taking application (\"Catatan\") with typical features of a notes app, such as a list of notes, folders, and a bottom navigation bar, which is consistent with Xiaomi Notes.",
+    "steps": [],
+    "tcs_id": "NOTE-001"
+  }
+]
