@@ -587,7 +587,10 @@ class ObserverAgent:
                 from transformers import AutoModelForCausalLM, AutoProcessor
                 caption_processor = AutoProcessor.from_pretrained(caption_path, trust_remote_code=True)
                 caption_model = AutoModelForCausalLM.from_pretrained(
-                    caption_path, torch_dtype=torch.float16 if device == "cuda" else torch.float32, trust_remote_code=True
+                    caption_path,
+                    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+                    trust_remote_code=True,
+                    attn_implementation="eager",
                 ).to(device)
             except Exception as e:
                 self._log("OmniParser caption model load skipped", str(e), level=_LL.WARN)
