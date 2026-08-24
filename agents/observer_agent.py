@@ -520,6 +520,26 @@ class ObserverAgent:
             cv_elements, ocr_elements, image_height, is_kb_shown
         )
 
+    def _detect_widgets_via_omniparser(
+        self,
+        raw_path: str,
+        image_width: int,
+        image_height: int,
+    ) -> list:
+        """OmniParser widget detection — icon detection (YOLOv8) + icon captioning."""
+        try:
+            import torch
+        except ImportError as e:
+            raise RuntimeError("PyTorch is required for OmniParser detection") from e
+
+        yolo_path = config.OMNIPARSER_YOLO_MODEL_PATH
+        if not os.path.exists(yolo_path):
+            raise FileNotFoundError(f"OmniParser YOLO model not found at {yolo_path}")
+
+        final_widget_set = []
+        self._log("OmniParser detection complete", f"widgets={len(final_widget_set)}", level=_LL.DEBUG)
+        return final_widget_set
+
     def _detect_widgets_via_llm(
         self,
         raw_path: str,
@@ -693,7 +713,27 @@ class ObserverAgent:
         confidence_score = 1.0
         fallback_reason = ""
 
-        if detection_method == "llm":
+        if detection_method == "omniparser":
+            print("[Observer] Running OmniParser widget detection...")
+            try:
+                final_widget_set = self._detect_widgets_via_omniparser(
+                    raw_path, image_width, image_height
+                )
+                observation_source = "vision_omniparser"
+            except Exception as e:
+                print(
+                    f"[Observer] OmniParser detection failed ({e}), falling back to Canny+OCR"
+                )
+                self._log(
+                    "OmniParser detection failed, falling back to cv_ocr",
+                    str(e),
+                    level=_LL.WARN,
+                )
+                final_widget_set = self._run_canny_pipeline(
+                    raw_path, ocr_path, cv_path, image_height, is_kb_shown
+                )
+                observation_source = "vision_cv_ocr_fallback"
+        elif detection_method == "llm":
             print("[Observer] Running LLM widget grounding...")
             try:
                 final_widget_set = self._detect_widgets_via_llm(

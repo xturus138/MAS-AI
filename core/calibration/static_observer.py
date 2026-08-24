@@ -82,6 +82,9 @@ def extract_widgets_from_image(
 
     observer = build_static_observer(llm=llm)
 
+    if method == "omniparser":
+        return observer._detect_widgets_via_omniparser(image_path, image_width, image_height)
+
     if method == "llm":
         if llm is None:
             raise ValueError('extract_widgets_from_image(method="llm") requires an llm')
@@ -98,4 +101,4 @@ def extract_widgets_from_image(
             is_kb_shown=False,
         )
 
-    raise ValueError(f"Unknown method: {method!r} (expected 'llm' or 'cv_ocr')")
+    raise ValueError(f"Unknown method: {method!r} (expected 'llm', 'omniparser', or 'cv_ocr')")

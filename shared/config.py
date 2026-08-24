@@ -134,6 +134,7 @@ FIGMA_API_BASE     = os.getenv("FIGMA_API_BASE", "https://api.figma.com/v1")
 FIGMA_FILE_URL     = os.getenv("FIGMA_URL_QA", "")
 FIGMA_REQUEST_TIMEOUT = int(os.getenv("FIGMA_REQUEST_TIMEOUT", "300"))
 
+# "omniparser" — local YOLOv8 icon detection + Florence-2 captioning.
 # "llm" — zero-shot VLM grounding (Gemini prompt call, one round-trip per
 #         screen, returns widgets directly). Default as of 2026-07-29.
 #         Validated: 66.7-72.7% recall@IoU0.5 on real Screen Annotation
@@ -145,6 +146,12 @@ FIGMA_REQUEST_TIMEOUT = int(os.getenv("FIGMA_REQUEST_TIMEOUT", "300"))
 #            fallback. ObserverAgent.analyze() also falls back to this
 #            automatically if the LLM grounding call fails after retries.
 OBSERVER_DETECTION_METHOD = os.getenv("OBSERVER_DETECTION_METHOD", "llm").lower()
+
+OMNIPARSER_YOLO_MODEL_PATH = os.getenv("OMNIPARSER_YOLO_MODEL_PATH", "weights/icon_detect/model.pt")
+OMNIPARSER_CAPTION_MODEL_PATH = os.getenv("OMNIPARSER_CAPTION_MODEL_PATH", "weights/icon_caption")
+OMNIPARSER_DEVICE = os.getenv("OMNIPARSER_DEVICE", "cuda").lower()
+OMNIPARSER_BOX_THRESHOLD = float(os.getenv("OMNIPARSER_BOX_THRESHOLD", "0.05"))
+OMNIPARSER_IOU_THRESHOLD = float(os.getenv("OMNIPARSER_IOU_THRESHOLD", "0.1"))
 
 print(f"[*] Environment Loaded:")
 print(f"    - Observer Detection: {OBSERVER_DETECTION_METHOD}")
