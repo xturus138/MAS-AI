@@ -96,7 +96,7 @@ Desktop.ini
 .claude/
 docs/superpowers/
 
-# Vault — sensitive credentials
+# Vault key credentials
 vaultkey/
 
 # Temp Python libs accidentally dumped into project root by PDF tool
@@ -109,3 +109,9 @@ test_refine_append/
 test_xml_fail/
 visual/dashboard/ws_scrcpy_web/  
 visual/dashboard/scrcpy_relay/node_modules/  
+
+# Model Weights & Large Models (OmniParser, Florence, YOLO)
+weights/
+*.safetensors
+*.pt
+*.bin
