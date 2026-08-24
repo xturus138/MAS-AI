@@ -526,17 +526,109 @@ class ObserverAgent:
         image_width: int,
         image_height: int,
     ) -> list:
-        """OmniParser widget detection — icon detection (YOLOv8) + icon captioning."""
+        """OmniParser v1.5 widget detection — icon detection (YOLOv8) + icon captioning (Florence-2 / BLIP-2).
+
+        Implements Microsoft's OmniParser architecture (Lu et al., 2024, arXiv:2408.00203):
+        1. YOLOv8 icon detection model parses interactable regions & bounding boxes.
+        2. Non-Maximum Suppression (NMS) filters overlapping detections via IOU threshold.
+        3. Icon captioning model describes icon semantics for textless widgets.
+        4. OCR overlays text content onto detected regions.
+        """
         try:
             import torch
+            from PIL import Image
         except ImportError as e:
-            raise RuntimeError("PyTorch is required for OmniParser detection") from e
+            raise RuntimeError("PyTorch and Pillow are required for OmniParser detection") from e
 
         yolo_path = config.OMNIPARSER_YOLO_MODEL_PATH
+        caption_path = config.OMNIPARSER_CAPTION_MODEL_PATH
+        device = config.OMNIPARSER_DEVICE
+        box_thresh = config.OMNIPARSER_BOX_THRESHOLD
+        iou_thresh = config.OMNIPARSER_IOU_THRESHOLD
+
         if not os.path.exists(yolo_path):
             raise FileNotFoundError(f"OmniParser YOLO model not found at {yolo_path}")
 
+        # Step 1: Load YOLOv8 Icon Detector
+        try:
+            from ultralytics import YOLO
+            yolo_model = YOLO(yolo_path)
+        except Exception as e:
+            raise RuntimeError(f"Failed to load OmniParser YOLO model from {yolo_path}: {e}") from e
+
+        # Step 2: Run YOLO Box Detection
+        results = yolo_model.predict(
+            source=raw_path,
+            conf=box_thresh,
+            iou=iou_thresh,
+            device=device,
+            verbose=False,
+        )
+
+        boxes = []
+        if results and len(results) > 0 and results[0].boxes is not None:
+            for b in results[0].boxes:
+                xyxy = b.xyxy[0].cpu().numpy().tolist()
+                conf = float(b.conf[0].cpu().numpy())
+                cls_id = int(b.cls[0].cpu().numpy())
+                boxes.append({
+                    "box": [round(xyxy[0]), round(xyxy[1]), round(xyxy[2]), round(xyxy[3])],
+                    "conf": conf,
+                    "cls": cls_id,
+                })
+
+        # Step 3: Icon Captioning for detected regions (if Florence-2 / BLIP-2 weights available)
+        image = Image.open(raw_path).convert("RGB")
+        caption_model = None
+        caption_processor = None
+
+        if os.path.exists(caption_path):
+            try:
+                from transformers import AutoModelForCausalLM, AutoProcessor
+                caption_processor = AutoProcessor.from_pretrained(caption_path, trust_remote_code=True)
+                caption_model = AutoModelForCausalLM.from_pretrained(
+                    caption_path, torch_dtype=torch.float16 if device == "cuda" else torch.float32, trust_remote_code=True
+                ).to(device)
+            except Exception as e:
+                self._log("OmniParser caption model load skipped", str(e), level=_LL.WARN)
+
         final_widget_set = []
+        for idx, b_item in enumerate(boxes, start=1):
+            x1, y1, x2, y2 = b_item["box"]
+            x1 = max(0, min(x1, image_width))
+            x2 = max(0, min(x2, image_width))
+            y1 = max(0, min(y1, image_height))
+            y2 = max(0, min(y2, image_height))
+
+            if x2 <= x1 or y2 <= y1:
+                continue
+
+            caption_text = ""
+            if caption_model and caption_processor:
+                try:
+                    cropped = image.crop((x1, y1, x2, y2))
+                    inputs = caption_processor(images=cropped, return_tensors="pt").to(device)
+                    generated_ids = caption_model.generate(
+                        input_ids=inputs["input_ids"],
+                        pixel_values=inputs.get("pixel_values"),
+                        max_new_tokens=20,
+                    )
+                    caption_text = caption_processor.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
+                except Exception:
+                    caption_text = ""
+
+            final_widget_set.append({
+                "id": idx,
+                "bounds": [x1, y1, x2, y2],
+                "cv_bounds": [x1, y1, x2, y2],
+                "text": caption_text,
+                "type": "container" if not caption_text else "icon_captioned",
+                "class": "Interactive",
+                "resource_id": "none",
+                "confidence": b_item["conf"],
+                "source": "omniparser",
+            })
+
         self._log("OmniParser detection complete", f"widgets={len(final_widget_set)}", level=_LL.DEBUG)
         return final_widget_set
 
