@@ -6,6 +6,8 @@ from nicegui import ui
 
 from desktop_app.shell import FOOTER_SCREENS, SCREENS
 
+_REAL_ROUTES = {"/test-suites"}
+
 
 def _register_stub_pages() -> None:
     """Register a placeholder body for every screen.
@@ -16,6 +18,8 @@ def _register_stub_pages() -> None:
     source of truth other tasks route against.
     """
     for route, label, _icon in [*SCREENS, *FOOTER_SCREENS]:
+        if route in _REAL_ROUTES:
+            continue
         _register_one_stub(route, label)
 
 
@@ -28,8 +32,18 @@ def _register_one_stub(route: str, label: str) -> None:
             ui.label(f"{label} (stub)").classes("text-2xl font-bold text-slate-800")
 
 
+def _register_real_pages() -> None:
+    from desktop_app.pages.test_suites import render_test_suites_page
+
+    @ui.page("/test-suites")
+    def _test_suites_page() -> None:
+        # Task 10 replaces this None with the shared app-state's loaded path.
+        render_test_suites_page(xlsx_path=None)
+
+
 def create_app() -> None:
     """Configure pages and launch the native NiceGUI window."""
+    _register_real_pages()
     _register_stub_pages()
     ui.run(
         title="MAS AI Orchestrator",
