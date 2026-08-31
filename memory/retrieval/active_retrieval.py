@@ -24,11 +24,12 @@ def _format_episodic(entries) -> str:
         return ""
     lines = []
     for e in entries:
+        summary = (e.summary or "")[:120]
         lines.append(
-            f"  [{e.timestamp}] [{e.actor}] step={e.step} | {e.event_type}: {e.summary}"
+            f"  [{e.actor}] step={e.step} | {e.event_type}: {summary}"
         )
         if e.details:
-            lines.append(f"    {e.details[:300]}")
+            lines.append(f"    {e.details[:120]}")
     return "<episodic_memory>\n" + "\n".join(lines) + "\n</episodic_memory>"
 
 
@@ -141,35 +142,3 @@ class ActiveRetrieval:
             "resource": _format_resource(results.get("resource", [])),
             "vault": _format_vault(results.get("vault", [])),
         }
-        tasks = {
-            "core": lambda: self._core.search(topic),
-            "episodic": lambda: self._episodic.search(topic, max_per_store),
-            "semantic": lambda: self._semantic.search(topic, max_per_store),
-            "procedural": lambda: self._procedural.search(topic),
-            "resource": lambda: self._resource.search(topic, max_per_store),
-            "vault": lambda: self._vault.search(topic),
-        }
-
-        results = {}
-        with ThreadPoolExecutor(max_workers=6) as ex:
-            futures = {ex.submit(fn): name for name, fn in tasks.items()}
-            for future in as_completed(futures):
-                name = futures[future]
-                try:
-                    results[name] = future.result(timeout=5)
-                except Exception:
-                    results[name] = []
-
-        parts = []
-        core_str = _format_core(results.get("core", []))
-        epis_str = _format_episodic(results.get("episodic", []))
-        sem_str = _format_semantic(results.get("semantic", []))
-        proc_str = _format_procedural(results.get("procedural", []))
-        res_str = _format_resource(results.get("resource", []))
-        vault_str = _format_vault(results.get("vault", []))
-
-        for s in (core_str, epis_str, sem_str, proc_str, res_str, vault_str):
-            if s:
-                parts.append(s)
-
-        return "\n\n".join(parts)

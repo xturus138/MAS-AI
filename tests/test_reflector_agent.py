@@ -8,20 +8,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from agents.reflector_agent import (
     ReflectorAgent,
-    LoadingCheckResult,
-    UIChangeCheckResult,
-    ValidityCheckResult,
+    SinglePassVerdict,
 )
 
 
-
 def _make_agent():
-    """Build a ReflectorAgent with three individually-mocked LLM clients."""
+    """Build a ReflectorAgent with mocked single-pass LLM client."""
     base_llm = MagicMock()
-    llm_loading  = MagicMock(name="llm_loading")
-    llm_change   = MagicMock(name="llm_change")
-    llm_validity = MagicMock(name="llm_validity")
-    base_llm.with_structured_output.side_effect = [llm_loading, llm_change, llm_validity]
+    llm_single_pass = MagicMock(name="llm_single_pass")
+    base_llm.with_structured_output.return_value = llm_single_pass
     agent = ReflectorAgent(llm=base_llm)
     return agent
 
@@ -50,75 +45,35 @@ def _base_state(**overrides):
 
 
 
-def test_parallel_loading_failure_still_runs_change_but_skips_validity():
+def test_single_pass_pass_invoked():
     agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=False, reasoning="Spinner visible"
-    )
-
-    result = agent.evaluate(_base_state())
-
-    assert result["last_reflector_passed"] is False
-    # Loading and UI-change checks are intentionally submitted together in
-    # parallel mode; only the later validity call is short-circuited.
-    agent._llm_change.invoke.assert_called_once()
-    agent._llm_validity.invoke.assert_not_called()
-
-
-
-def test_ui_change_short_circuit_returns_fail_without_calling_validity():
-    agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=True, reasoning="Page fully rendered"
-    )
-    agent._llm_change.invoke.return_value = UIChangeCheckResult(
-        ui_changed=False, reasoning="Screens are identical"
-    )
-
-    result = agent.evaluate(_base_state())
-
-    assert result["last_reflector_passed"] is False
-    agent._llm_validity.invoke.assert_not_called()
-
-
-
-def test_full_chain_pass_all_three_calls_invoked():
-    agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=True, reasoning="Page fully rendered"
-    )
-    agent._llm_change.invoke.return_value = UIChangeCheckResult(
-        ui_changed=True, reasoning="New screen visible"
-    )
-    agent._llm_validity.invoke.return_value = ValidityCheckResult(
-        passed=True, reasoning="Login screen appeared as expected", figma_discrepancies=""
+    agent._llm_single_pass.invoke.return_value = SinglePassVerdict(
+        loading_done=True,
+        ui_changed=True,
+        passed=True,
+        reasoning="Login screen appeared as expected",
+        figma_discrepancies="",
     )
 
     result = agent.evaluate(_base_state())
 
     assert result["last_reflector_passed"] is True
-    agent._llm_loading.invoke.assert_called_once()
-    agent._llm_change.invoke.assert_called_once()
-    agent._llm_validity.invoke.assert_called_once()
+    agent._llm_single_pass.invoke.assert_called_once()
 
 
-
-def test_full_chain_validity_fail_returns_false():
+def test_single_pass_validity_fail_returns_false():
     agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=True, reasoning="Page rendered"
-    )
-    agent._llm_change.invoke.return_value = UIChangeCheckResult(
-        ui_changed=True, reasoning="Screen changed"
-    )
-    agent._llm_validity.invoke.return_value = ValidityCheckResult(
-        passed=False, reasoning="Wrong screen shown", figma_discrepancies=""
+    agent._llm_single_pass.invoke.return_value = SinglePassVerdict(
+        loading_done=True,
+        ui_changed=True,
+        passed=False,
+        reasoning="Wrong screen shown",
+        figma_discrepancies="",
     )
 
     result = agent.evaluate(_base_state())
 
     assert result["last_reflector_passed"] is False
-
 
 
 def test_start_app_bypasses_llm_chain():
@@ -132,23 +87,18 @@ def test_start_app_bypasses_llm_chain():
     )
     result = agent.evaluate(state)
 
-    agent._llm_loading.invoke.assert_not_called()
-    agent._llm_change.invoke.assert_not_called()
-    agent._llm_validity.invoke.assert_not_called()
+    agent._llm_single_pass.invoke.assert_not_called()
     assert result["last_reflector_passed"] is True
-
 
 
 def test_report_json_contains_chain_metadata(tmp_path):
     agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=True, reasoning="Loaded"
-    )
-    agent._llm_change.invoke.return_value = UIChangeCheckResult(
-        ui_changed=True, reasoning="Changed"
-    )
-    agent._llm_validity.invoke.return_value = ValidityCheckResult(
-        passed=True, reasoning="Valid", figma_discrepancies=""
+    agent._llm_single_pass.invoke.return_value = SinglePassVerdict(
+        loading_done=True,
+        ui_changed=True,
+        passed=True,
+        reasoning="Valid",
+        figma_discrepancies="",
     )
 
     state = _base_state(step_dir=str(tmp_path))
@@ -161,61 +111,35 @@ def test_report_json_contains_chain_metadata(tmp_path):
     chain = data["verification_chain"]
     assert chain["loading_done"] is True
     assert chain["ui_changed"] is True
-    assert chain["short_circuit"] is None
+    assert chain["single_pass"] is True
 
 
-
-def test_input_action_no_ui_change_proceeds_to_call3():
+def test_input_action_no_ui_change_proceeds_to_pass():
     agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=True, reasoning="Page loaded"
-    )
-    agent._llm_change.invoke.return_value = UIChangeCheckResult(
-        ui_changed=False, reasoning="Text entered but screen identical"
-    )
-    agent._llm_validity.invoke.return_value = ValidityCheckResult(
-        passed=True, reasoning="Text correctly entered in field", figma_discrepancies=""
+    agent._llm_single_pass.invoke.return_value = SinglePassVerdict(
+        loading_done=True,
+        ui_changed=False,
+        passed=True,
+        reasoning="Text entered correctly",
     )
 
     state = _base_state(action_plan={"action_type": "input"})
     result = agent.evaluate(state)
 
-    agent._llm_validity.invoke.assert_called_once()
     assert result["last_reflector_passed"] is True
 
 
-
-def test_scroll_action_no_ui_change_proceeds_to_call3():
+def test_click_action_no_ui_change_and_zero_pixel_diff_fails():
     agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=True, reasoning="Page loaded"
-    )
-    agent._llm_change.invoke.return_value = UIChangeCheckResult(
-        ui_changed=False, reasoning="Scroll had no visible effect"
-    )
-    agent._llm_validity.invoke.return_value = ValidityCheckResult(
-        passed=False, reasoning="Expected scroll to reveal element", figma_discrepancies=""
-    )
-
-    state = _base_state(action_plan={"action_type": "scroll"})
-    result = agent.evaluate(state)
-
-    agent._llm_validity.invoke.assert_called_once()
-    assert result["last_reflector_passed"] is False
-
-
-
-def test_click_action_no_ui_change_still_short_circuits():
-    agent = _make_agent()
-    agent._llm_loading.invoke.return_value = LoadingCheckResult(
-        loading_done=True, reasoning="Page loaded"
-    )
-    agent._llm_change.invoke.return_value = UIChangeCheckResult(
-        ui_changed=False, reasoning="Click had no effect"
+    agent._check_pixel_difference = MagicMock(return_value=0.0)
+    agent._llm_single_pass.invoke.return_value = SinglePassVerdict(
+        loading_done=True,
+        ui_changed=False,
+        passed=True,
+        reasoning="Screen didn't change",
     )
 
     state = _base_state(action_plan={"action_type": "click"})
     result = agent.evaluate(state)
 
-    agent._llm_validity.invoke.assert_not_called()
     assert result["last_reflector_passed"] is False

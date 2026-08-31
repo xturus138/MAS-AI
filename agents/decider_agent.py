@@ -311,6 +311,67 @@ class DeciderAgent:
             is_completed=True,
         )
 
+    def _try_deterministic_fast_path(
+        self, instruction: str, widgets: list[dict]
+    ) -> Optional[ActionPlan]:
+        """Fast-path rule matching: if instruction is an unambiguous direct action
+        (e.g., Click 'Login' or Input 'xyz'), match directly against widgets to save LLM call.
+        Reference: AutoDroid (Wen et al., 2023) §4.2 Memory-guided action pruning.
+        """
+        inst_clean = instruction.strip()
+
+        # 1. System actions
+        if re.search(r"^(press\s+back|kembali|back)$", inst_clean, flags=re.IGNORECASE):
+            return ActionPlan(
+                reasoning="Fast-path rule match: System back navigation.",
+                action_type="press_back",
+                intent="Press back button",
+                target_id=-1,
+                is_completed=False,
+            )
+
+        # 2. Input actions: e.g. Masukkan "halo" ke input field
+        if self._is_input_instruction(inst_clean):
+            payload = self._extract_instruction_text(inst_clean)
+            if payload:
+                input_widget = self._find_input_widget(widgets)
+                if input_widget:
+                    w_id = int(input_widget.get("id", -1))
+                    return ActionPlan(
+                        reasoning=f"Fast-path rule match: input text into widget [{w_id}].",
+                        action_type="input",
+                        intent=f"Input text '{payload}'",
+                        target_id=w_id,
+                        text_payload=payload,
+                        is_completed=False,
+                    )
+
+        # 3. Direct Click actions: e.g. Klik "Login", Ketuk "Kirim", Click "Settings"
+        click_match = re.search(
+            r"^(?:klik|ketuk|click|tap|pilih|select)\s+[\"“”\']?([^\"“”\'\n\r]+)[\"“”\']?$",
+            inst_clean,
+            flags=re.IGNORECASE,
+        )
+        if click_match:
+            target_text = click_match.group(1).strip().lower()
+            # Find widget with exact or high-confidence substring label match
+            for w in widgets:
+                w_text = self._widget_text(w).strip().lower()
+                w_res = str(w.get("resource_id") or "").lower()
+                if not w_text and not w_res:
+                    continue
+                if target_text == w_text or (len(target_text) > 3 and target_text in w_text) or target_text in w_res:
+                    w_id = int(w.get("id", -1))
+                    return ActionPlan(
+                        reasoning=f"Fast-path rule match: exact/high-confidence label '{target_text}' on widget [{w_id}].",
+                        action_type="click",
+                        intent=f"Click on {target_text}",
+                        target_id=w_id,
+                        is_completed=False,
+                    )
+
+        return None
+
     def decide(self, state: AgentState) -> Command:
         current_step = state.get("current_step", 0)
         orchestrator_instruction = state.get("orchestrator_instruction", "")
@@ -341,28 +402,41 @@ class DeciderAgent:
                 general_knowledge = "\n\n".join(parts)
         self._log("Memory retrieval complete", level=_LL.DEBUG)
 
-        messages = self.prompt.format_messages(
-            memory_context=memory_context or "No memory context available.",
-            general_knowledge=general_knowledge,
-            observer_analysis=state.get("observer_analysis", "N/A"),
-            current_sub_step=current_sub_step,
-        )
-
-        print(f"[Decider] Mapping Instruction: '{current_sub_step}'...")
-        self._log("LLM call started (ActionPlan generation)", level=_LL.DEBUG)
-        plan = self._invoke_with_recovery(messages, current_step)
-        if plan is None:
-            plan = ActionPlan(
-                reasoning="Decider LLM returned None — fallback",
-                action_type="none",
-                intent="Fallback",
-                target_id=-1,
-                text_payload="",
-                scroll_direction="",
-                app_package="",
-                is_completed=True,
-            )
         widgets = state.get("widgets", [])
+
+        # Fast-path optimization (Wen et al., 2023 - AutoDroid §4.2)
+        fast_plan = self._try_deterministic_fast_path(current_sub_step, widgets)
+        if fast_plan is not None:
+            print(f"[Decider] Fast-path rule matched for '{current_sub_step}' (LLM call skipped).")
+            self._log(
+                f"Fast-path rule matched: action={fast_plan.action_type}",
+                f"target_id={fast_plan.target_id}\nreasoning={fast_plan.reasoning}",
+                level=_LL.INFO,
+            )
+            plan = fast_plan
+        else:
+            messages = self.prompt.format_messages(
+                memory_context=memory_context or "No memory context available.",
+                general_knowledge=general_knowledge,
+                observer_analysis=state.get("observer_analysis", "N/A"),
+                current_sub_step=current_sub_step,
+            )
+
+            print(f"[Decider] Mapping Instruction: '{current_sub_step}'...")
+            self._log("LLM call started (ActionPlan generation)", level=_LL.DEBUG)
+            plan = self._invoke_with_recovery(messages, current_step)
+            if plan is None:
+                plan = ActionPlan(
+                    reasoning="Decider LLM returned None — fallback",
+                    action_type="none",
+                    intent="Fallback",
+                    target_id=-1,
+                    text_payload="",
+                    scroll_direction="",
+                    app_package="",
+                    is_completed=True,
+                )
+
         for guard_name, guard_fn in (
             ("Input-step guard", self._guard_input_plan),
             ("Click-target guard", self._guard_click_plan),
