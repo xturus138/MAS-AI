@@ -26,7 +26,7 @@ def batch_progress_text(progress: BatchProgress | None) -> str:
 
 
 class DashboardLiveState:
-    """Drop-in substitute for visual.monitor.NiceGUIDashboard's push API.
+    """Drop-in substitute for visual.monitor.TkDashboard's push API.
 
     Passed into core/workflow/predefined/runner.py's runtime factory in
     place of VisualMonitor, so _DashboardWrappedExecutor's existing
