@@ -16,4 +16,7 @@ tiktoken
 openpyxl
 requests
 PyQt5
+nicegui>=3.16.0
 pywin32; sys_platform == "win32"
+pywebview
+pyinstaller
