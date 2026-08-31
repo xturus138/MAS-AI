@@ -34,11 +34,11 @@ def _register_one_stub(route: str, label: str) -> None:
 
 def _register_real_pages() -> None:
     from desktop_app.pages.test_suites import render_test_suites_page
+    from desktop_app.state import APP_STATE
 
     @ui.page("/test-suites")
     def _test_suites_page() -> None:
-        # Task 10 replaces this None with the shared app-state's loaded path.
-        render_test_suites_page(xlsx_path=None)
+        render_test_suites_page(xlsx_path=APP_STATE.xlsx_path)
 
 
 def create_app() -> None:

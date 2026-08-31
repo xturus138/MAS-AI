@@ -6,12 +6,14 @@ dialog (Step 6), never a hardcoded scenarios/firebase_chat/ path.
 
 from __future__ import annotations
 
+from nicegui import app as nicegui_app
 from nicegui import ui
 
 from core.workflow.predefined.batch import TERMINAL_STATUSES
 from desktop_app.data.manifest import find_latest_run_root, read_manifest
 from desktop_app.data.workbook import UNTESTED, load_workbook_cases
 from desktop_app.shell import render_shell
+from desktop_app.state import APP_STATE
 
 STATUS_LABELS: dict[str, str] = {
     UNTESTED: "Untested",
@@ -55,9 +57,21 @@ def render_test_suites_page(xlsx_path: str | None) -> None:
         if not xlsx_path:
             with ui.card().classes("w-full p-6"):
                 ui.label("No scenario workbook loaded yet.").classes("text-slate-600")
-                ui.button("Browse for scenario.xlsx...", on_click=lambda: ui.notify(
-                    "File picker wiring lands with the OS-native dialog in Task 10."
-                ))
+
+                async def _pick_file() -> None:
+                    # dialog_type is intentionally omitted: pywebview's
+                    # create_file_dialog expects its FileDialog.OPEN *int*
+                    # constant (10), not a string — and OPEN is already its
+                    # default, so we get an open-file dialog without
+                    # importing the `webview` package directly here.
+                    result = await nicegui_app.native.main_window.create_file_dialog(
+                        file_types=("Excel workbook (*.xlsx)",),
+                    )
+                    if result:
+                        APP_STATE.set_xlsx_path(result[0])
+                        ui.navigate.reload()
+
+                ui.button("Browse for scenario.xlsx...", on_click=_pick_file)
             return
 
         run_root = find_latest_run_root("predefined")
