@@ -325,7 +325,22 @@ class PredefinedOrchestrator:
         required_context: str,
         figma_context: dict[str, Any] | None = None,
     ) -> list[str]:
-        """Plan operational navigation from text; Figma details are optional hints."""
+        """Plan operational navigation from text; Figma details are optional hints.
+        Includes fast-path rule heuristics (Swift-Hand minimal restart, Choi et al. 2013).
+        """
+        obs_lower = observation_text.lower()
+        req_lower = required_context.lower()
+
+        # Fast-Path Rule 1: Keyboard or dialog overlay open while required context is standard dashboard
+        if ("keyboard" in obs_lower or "dialog" in obs_lower) and "keyboard" not in req_lower:
+            return ["press back"]
+
+        # Fast-Path Rule 2: Sub-editor screen needing to return to parent dashboard / list
+        if ("detail" in obs_lower or "editor" in obs_lower or "compose" in obs_lower) and (
+            "dashboard" in req_lower or "list" in req_lower or "home" in req_lower
+        ):
+            return ["click Back button"]
+
         if self._bridge_llm is None:
             raise RuntimeError("Navigation recovery cannot be planned without an orchestrator LLM.")
         figma_context = figma_context or {}
