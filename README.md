@@ -169,9 +169,8 @@ MAS AI/
 ├── tests/               # Pytest suite plus standalone device/API diagnostics
 ├── scenarios/           # Scenario folders, each with its own scenario.xlsx
 │   └── notes/
-├── docs/                # Design docs, uncertainty spec, prompting notes
+├── docs/                # Design docs, uncertainty spec, prompting notes, provider cheat sheet, session context
 ├── main.py              # Entry point
-├── PROVIDER_SWITCH.md   # LLM provider quick-switch cheat sheet
 └── outputs/             # Test results and artifacts
 ```
 
@@ -236,6 +235,8 @@ the autonomous workflow remains a separate execution mode.
 * [Prompt Engineering Plan](docs/promptingplan.md): how I tuned the LLM prompts for each agent
 * [Observer Uncertainty](docs/observer-uncertainty.md): DSE uncertainty measurement design, config, and how to test it standalone
 * [Predefined Workflow Diagram Gaps](docs/predefined-workflow-diagram-gaps.md): known differences between the thesis architecture diagram and the actual code
+* [Provider Switch Cheat Sheet](docs/PROVIDER_SWITCH.md): how to quickly switch LLM providers via `.env`
+* [Session Context](docs/SESSION_CONTEXT.md): persistent memory of optimization decisions and branch status for AI agents working on this repo
 
 ## Research context
 
