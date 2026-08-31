@@ -204,6 +204,7 @@ def run_predefined(
     preflight_only: bool = False,
     resume: str | None = None,
     dependencies: RunnerDependencies | None = None,
+    dashboard: Any | None = None,
 ):
     """Run or resume the predefined baseline after strict read-only preflight."""
     print("[*] Starting PREDEFINED Workflow...")
@@ -278,6 +279,7 @@ def run_predefined(
         figma_url=figma_url,
         config_values=effective_config,
         device_snapshot=snapshot,
+        dashboard=dashboard,
     ) as case_executor:
         monitor = getattr(case_executor, "monitor", None)
         if monitor is not None:
@@ -760,6 +762,7 @@ def _default_runtime_factory(
     figma_url: str | None,
     config_values: Mapping[str, object],
     device_snapshot: Any,
+    dashboard: Any | None = None,
 ):
     if config_values.get("OBSERVER_UNCERTAINTY_ENABLED") is not False:
         raise RuntimeError("Observer uncertainty must remain False for this baseline.")
@@ -768,7 +771,6 @@ def _default_runtime_factory(
     from adapters.figma.figma_adapter import build_figma_adapter_from_prompt
     from tools.executor_tools import ExecutorTools
     from tools.observer_tools import ObserverTools
-    from visual.monitor import VisualMonitor
 
     device = ADBAdapter(str(config_values.get("TARGET_DEVICE") or "")).connect()
     observer_tools = ObserverTools(device)
@@ -777,13 +779,19 @@ def _default_runtime_factory(
         access_token=config.FIGMA_ACCESS_TOKEN,
         figma_url=figma_url or None,
     )
-    info = device.d.info
-    monitor = VisualMonitor(
-        device_id=str(config_values.get("TARGET_DEVICE") or ""),
-        device_w=info.get("displayWidth", 1080),
-        device_h=info.get("displayHeight", 2400),
-    )
-    monitor.start()
+
+    if dashboard is not None:
+        monitor = dashboard
+    else:
+        from visual.monitor import VisualMonitor
+
+        info = device.d.info
+        monitor = VisualMonitor(
+            device_id=str(config_values.get("TARGET_DEVICE") or ""),
+            device_w=info.get("displayWidth", 1080),
+            device_h=info.get("displayHeight", 2400),
+        )
+        monitor.start()
     try:
         yield _LiveCaseExecutor(
             device=device,
@@ -794,7 +802,8 @@ def _default_runtime_factory(
             source_workbook=xlsx_path,
         )
     finally:
-        try:
-            monitor.stop()
-        except Exception as error:
-            print(f"[Predefined] Warning: monitor shutdown failed: {error}")
+        if dashboard is None:
+            try:
+                monitor.stop()
+            except Exception as error:
+                print(f"[Predefined] Warning: monitor shutdown failed: {error}")

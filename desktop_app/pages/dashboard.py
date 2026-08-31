@@ -7,9 +7,13 @@ screen is never blank even before a batch has run in this app session.
 
 from __future__ import annotations
 
+import time
+from typing import Any
+
 from nicegui import ui
 
 from desktop_app.data.manifest import BatchProgress, compute_progress, find_latest_run_root, read_manifest
+from desktop_app.execution import BatchRunner
 from desktop_app.shell import render_shell
 from desktop_app.state import APP_STATE
 
@@ -19,6 +23,46 @@ def batch_progress_text(progress: BatchProgress | None) -> str:
         return "0 / 0 Scenarios"
     completed = progress.passed + progress.failed + progress.stalled + progress.technical_error
     return f"{completed} / {progress.total} Scenarios"
+
+
+class DashboardLiveState:
+    """Drop-in substitute for visual.monitor.NiceGUIDashboard's push API.
+
+    Passed into core/workflow/predefined/runner.py's runtime factory in
+    place of VisualMonitor, so _DashboardWrappedExecutor's existing
+    monitor.push_progress(...)/monitor.push_log(...) calls
+    (runner.py:322-330, 337-345) land here instead of spawning a second web
+    server (spec: Architecture, "retires visual/monitor.py's standalone
+    web-server mode").
+    """
+
+    def __init__(self) -> None:
+        self.scenario_title: str = "Idle"
+        self.log_lines: list[tuple[str, str, str]] = []
+
+    def push_progress(self, scenario_idx: int = 0, scenario_total: int = 0,
+                       step_idx: int = 0, step_total: int = 0,
+                       tcs_id: str = "", status: str = "") -> None:
+        self.scenario_title = tcs_id or "Running Batch..."
+
+    def push_log(self, component: str, message: str, detail: str = "") -> None:
+        timestamp = time.strftime("%H:%M:%S")
+        text = f"{message} {detail}".strip()
+        self.log_lines.append((timestamp, component.upper(), text))
+        if len(self.log_lines) > 200:
+            self.log_lines.pop(0)
+
+
+LIVE_STATE = DashboardLiveState()
+
+
+def _run_predefined_with_live_state(xlsx_path: str, **kwargs) -> Any:
+    from core.workflow.predefined.runner import run_predefined
+
+    return run_predefined(xlsx_path, dashboard=LIVE_STATE, **kwargs)
+
+
+BATCH_RUNNER = BatchRunner(run_predefined_fn=_run_predefined_with_live_state)
 
 
 def render_dashboard_page() -> None:
@@ -35,10 +79,29 @@ def render_dashboard_page() -> None:
                     )
                 with ui.card().classes("w-full p-5"):
                     ui.label("Action Controls").classes("font-semibold text-slate-800")
+
+                    def _start() -> None:
+                        if not APP_STATE.xlsx_path:
+                            ui.notify("Load a scenario workbook on Test Suites first.", type="warning")
+                            return
+                        BATCH_RUNNER.start(APP_STATE.xlsx_path)
+
+                    def _resume() -> None:
+                        run_root = find_latest_run_root("predefined")
+                        if not APP_STATE.xlsx_path or not run_root:
+                            ui.notify("Nothing to resume yet.", type="warning")
+                            return
+                        BATCH_RUNNER.start(APP_STATE.xlsx_path, resume=run_root)
+
                     with ui.column().classes("w-full gap-2 mt-3"):
-                        ui.button("Start Batch").props("color=primary").classes("w-full")
-                        ui.button("Stop").props("outline color=red").classes("w-full")
-                        ui.button("Resume").props("outline").classes("w-full")
+                        ui.button("Start Batch", on_click=_start).props("color=primary").classes("w-full")
+                        ui.button(
+                            "Stop",
+                            on_click=lambda: ui.notify(
+                                "Stop takes effect after the current case finishes."
+                            ),
+                        ).props("outline color=red").classes("w-full")
+                        ui.button("Resume", on_click=_resume).props("outline").classes("w-full")
 
             with ui.card().classes("p-4").style("width: 400px;"):
                 ui.label("Live Device Mirror").classes("text-sm font-semibold text-slate-500")
@@ -65,4 +128,15 @@ def render_dashboard_page() -> None:
 
                 with ui.card().classes("w-full p-5 flex-grow"):
                     ui.label("Agent Reasoning Trace").classes("font-semibold text-slate-800")
-                    ui.column().classes("w-full h-[400px] overflow-y-auto mt-3 gap-1")
+                    trace_column = ui.column().classes("w-full h-[400px] overflow-y-auto mt-3 gap-1")
+
+        def _refresh_trace() -> None:
+            error = BATCH_RUNNER.last_error()
+            if error is not None:
+                ui.notify(f"Batch run failed: {error}", type="negative")
+            trace_column.clear()
+            with trace_column:
+                for timestamp, component, message in LIVE_STATE.log_lines[-40:]:
+                    ui.label(f"[{timestamp}] [{component}] {message}").classes("text-xs text-slate-600")
+
+        ui.timer(1.0, _refresh_trace)
