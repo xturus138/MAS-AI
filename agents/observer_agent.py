@@ -62,6 +62,11 @@ class ObserverAgent:
         self.logger = logger
         self.monitor = monitor
 
+        # OmniParser cached models (lazy-loaded or pre-loaded singleton)
+        self._omniparser_yolo = None
+        self._omniparser_caption_model = None
+        self._omniparser_caption_processor = None
+
     def _encode_image(self, image_path: str, max_height: int = 720) -> str:
         """Delegate to shared image encoding utility."""
         return _encode_image_shared(image_path, max_height)
@@ -520,19 +525,49 @@ class ObserverAgent:
             cv_elements, ocr_elements, image_height, is_kb_shown
         )
 
+    def _load_omniparser_models(self):
+        """Load and cache OmniParser YOLO and Caption models in memory."""
+        yolo_path = config.OMNIPARSER_YOLO_MODEL_PATH
+        caption_path = config.OMNIPARSER_CAPTION_MODEL_PATH
+        device = config.OMNIPARSER_DEVICE
+
+        if self._omniparser_yolo is None:
+            if not os.path.exists(yolo_path):
+                raise FileNotFoundError(f"OmniParser YOLO model not found at {yolo_path}")
+            from ultralytics import YOLO
+            self._omniparser_yolo = YOLO(yolo_path)
+
+        if self._omniparser_caption_model is None and os.path.exists(caption_path):
+            try:
+                import torch
+                from transformers import AutoModelForCausalLM, AutoProcessor
+                self._omniparser_caption_processor = AutoProcessor.from_pretrained(
+                    caption_path, trust_remote_code=True
+                )
+                self._omniparser_caption_model = AutoModelForCausalLM.from_pretrained(
+                    caption_path,
+                    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+                    trust_remote_code=True,
+                    attn_implementation="eager",
+                ).to(device)
+            except Exception as e:
+                self._log("OmniParser caption model load failed", str(e), level=_LL.WARN)
+
     def _detect_widgets_via_omniparser(
         self,
         raw_path: str,
         image_width: int,
         image_height: int,
+        ocr_path: str = "",
     ) -> list:
-        """OmniParser v1.5 widget detection — icon detection (YOLOv8) + icon captioning (Florence-2 / BLIP-2).
+        """OmniParser v1.5 widget detection — icon detection (YOLOv8) + icon captioning (Florence-2) + OCR integration.
 
-        Implements Microsoft's OmniParser architecture (Lu et al., 2024, arXiv:2408.00203):
-        1. YOLOv8 icon detection model parses interactable regions & bounding boxes.
-        2. Non-Maximum Suppression (NMS) filters overlapping detections via IOU threshold.
-        3. Icon captioning model describes icon semantics for textless widgets.
-        4. OCR overlays text content onto detected regions.
+        Best practice implementation:
+        1. Reuse in-memory cached YOLOv8 and Florence-2 models.
+        2. Run OCR to detect text elements.
+        3. Run YOLOv8 to detect interactive boxes and icons.
+        4. Batch icon captioning for non-text / icon regions.
+        5. Merge OCR text boxes and captioned icon boxes using NMS.
         """
         try:
             import torch
@@ -540,24 +575,26 @@ class ObserverAgent:
         except ImportError as e:
             raise RuntimeError("PyTorch and Pillow are required for OmniParser detection") from e
 
-        yolo_path = config.OMNIPARSER_YOLO_MODEL_PATH
-        caption_path = config.OMNIPARSER_CAPTION_MODEL_PATH
+        self._load_omniparser_models()
+
         device = config.OMNIPARSER_DEVICE
         box_thresh = config.OMNIPARSER_BOX_THRESHOLD
         iou_thresh = config.OMNIPARSER_IOU_THRESHOLD
 
-        if not os.path.exists(yolo_path):
-            raise FileNotFoundError(f"OmniParser YOLO model not found at {yolo_path}")
-
-        # Step 1: Load YOLOv8 Icon Detector
+        # Step 1: Run OCR detection
+        ocr_raw = self.ocr_extract_text.invoke(
+            {"image_path": raw_path, "save_path": ocr_path}
+        )
         try:
-            from ultralytics import YOLO
-            yolo_model = YOLO(yolo_path)
-        except Exception as e:
-            raise RuntimeError(f"Failed to load OmniParser YOLO model from {yolo_path}: {e}") from e
+            ocr_elements = json.loads(ocr_raw)
+            if isinstance(ocr_elements, dict) and "error" in ocr_elements:
+                ocr_elements = []
+        except Exception:
+            ocr_elements = []
+        ocr_elements = self._merge_ocr_blocks(ocr_elements)
 
         # Step 2: Run YOLO Box Detection
-        results = yolo_model.predict(
+        results = self._omniparser_yolo.predict(
             source=raw_path,
             conf=box_thresh,
             iou=iou_thresh,
@@ -565,72 +602,109 @@ class ObserverAgent:
             verbose=False,
         )
 
-        boxes = []
+        yolo_boxes = []
         if results and len(results) > 0 and results[0].boxes is not None:
             for b in results[0].boxes:
                 xyxy = b.xyxy[0].cpu().numpy().tolist()
                 conf = float(b.conf[0].cpu().numpy())
                 cls_id = int(b.cls[0].cpu().numpy())
-                boxes.append({
-                    "box": [round(xyxy[0]), round(xyxy[1]), round(xyxy[2]), round(xyxy[3])],
-                    "conf": conf,
-                    "cls": cls_id,
-                })
+                x1 = max(0, min(round(xyxy[0]), image_width))
+                y1 = max(0, min(round(xyxy[1]), image_height))
+                x2 = max(0, min(round(xyxy[2]), image_width))
+                y2 = max(0, min(round(xyxy[3]), image_height))
+                if x2 > x1 and y2 > y1:
+                    yolo_boxes.append({
+                        "box": [x1, y1, x2, y2],
+                        "conf": conf,
+                        "cls": cls_id,
+                    })
 
-        # Step 3: Icon Captioning for detected regions (if Florence-2 / BLIP-2 weights available)
+        # Step 3: Match OCR with YOLO boxes to find textless icons for captioning
         image = Image.open(raw_path).convert("RGB")
-        caption_model = None
-        caption_processor = None
+        candidate_icons = []
 
-        if os.path.exists(caption_path):
+        def _box_iou(boxA, boxB):
+            xA, yA = max(boxA[0], boxB[0]), max(boxA[1], boxB[1])
+            xB, yB = min(boxA[2], boxB[2]), min(boxA[3], boxB[3])
+            inter = max(0, xB - xA) * max(0, yB - yA)
+            if inter == 0:
+                return 0.0
+            areaA = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1])
+            areaB = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1])
+            return inter / float(areaA + areaB - inter)
+
+        used_ocr = set()
+        for y_idx, y_item in enumerate(yolo_boxes):
+            y_box = y_item["box"]
+            matched_ocr_idx = -1
+            for o_idx, o_item in enumerate(ocr_elements):
+                if _box_iou(y_box, o_item["bounds"]) > 0.3:
+                    matched_ocr_idx = o_idx
+                    used_ocr.add(o_idx)
+                    break
+
+            if matched_ocr_idx >= 0:
+                y_item["text"] = ocr_elements[matched_ocr_idx].get("text", "")
+                y_item["is_icon"] = False
+            else:
+                y_item["text"] = ""
+                y_item["is_icon"] = True
+                candidate_icons.append((y_idx, y_box))
+
+        # Batch icon captioning using Florence-2
+        if (
+            self._omniparser_caption_model
+            and self._omniparser_caption_processor
+            and candidate_icons
+        ):
             try:
-                from transformers import AutoModelForCausalLM, AutoProcessor
-                caption_processor = AutoProcessor.from_pretrained(caption_path, trust_remote_code=True)
-                caption_model = AutoModelForCausalLM.from_pretrained(
-                    caption_path,
-                    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-                    trust_remote_code=True,
-                    attn_implementation="eager",
+                crops = [image.crop(box) for _, box in candidate_icons]
+                inputs = self._omniparser_caption_processor(
+                    images=crops, return_tensors="pt"
                 ).to(device)
+                generated_ids = self._omniparser_caption_model.generate(
+                    input_ids=inputs.get("input_ids"),
+                    pixel_values=inputs.get("pixel_values"),
+                    max_new_tokens=20,
+                )
+                captions = self._omniparser_caption_processor.batch_decode(
+                    generated_ids, skip_special_tokens=True
+                )
+                for (y_idx, _), cap in zip(candidate_icons, captions):
+                    yolo_boxes[y_idx]["text"] = cap.strip()
             except Exception as e:
-                self._log("OmniParser caption model load skipped", str(e), level=_LL.WARN)
+                self._log("Batch icon captioning failed", str(e), level=_LL.WARN)
 
+        # Step 4: Merge YOLO boxes + unmatched OCR text boxes
         final_widget_set = []
-        for idx, b_item in enumerate(boxes, start=1):
-            x1, y1, x2, y2 = b_item["box"]
-            x1 = max(0, min(x1, image_width))
-            x2 = max(0, min(x2, image_width))
-            y1 = max(0, min(y1, image_height))
-            y2 = max(0, min(y2, image_height))
-
-            if x2 <= x1 or y2 <= y1:
-                continue
-
-            caption_text = ""
-            if caption_model and caption_processor:
-                try:
-                    cropped = image.crop((x1, y1, x2, y2))
-                    inputs = caption_processor(images=cropped, return_tensors="pt").to(device)
-                    generated_ids = caption_model.generate(
-                        input_ids=inputs["input_ids"],
-                        pixel_values=inputs.get("pixel_values"),
-                        max_new_tokens=20,
-                    )
-                    caption_text = caption_processor.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
-                except Exception:
-                    caption_text = ""
-
+        for idx, y_item in enumerate(yolo_boxes, start=1):
+            text = y_item.get("text", "")
             final_widget_set.append({
                 "id": idx,
-                "bounds": [x1, y1, x2, y2],
-                "cv_bounds": [x1, y1, x2, y2],
-                "text": caption_text,
-                "type": "container" if not caption_text else "icon_captioned",
+                "bounds": y_item["box"],
+                "cv_bounds": y_item["box"],
+                "text": text,
+                "type": "icon_captioned" if y_item.get("is_icon") and text else "container",
                 "class": "Interactive",
                 "resource_id": "none",
-                "confidence": b_item["conf"],
+                "confidence": y_item["conf"],
                 "source": "omniparser",
             })
+
+        for o_idx, o_item in enumerate(ocr_elements):
+            if o_idx not in used_ocr:
+                text = o_item.get("text", "").strip()
+                if len(text) >= 2:
+                    final_widget_set.append({
+                        "id": len(final_widget_set) + 1,
+                        "bounds": o_item["bounds"],
+                        "cv_bounds": o_item["bounds"],
+                        "text": text,
+                        "type": "text_stub",
+                        "class": "StaticText",
+                        "resource_id": "none",
+                        "source": "omniparser_ocr",
+                    })
 
         self._log("OmniParser detection complete", f"widgets={len(final_widget_set)}", level=_LL.DEBUG)
         return final_widget_set
@@ -812,7 +886,7 @@ class ObserverAgent:
             print("[Observer] Running OmniParser widget detection...")
             try:
                 final_widget_set = self._detect_widgets_via_omniparser(
-                    raw_path, image_width, image_height
+                    raw_path, image_width, image_height, ocr_path=ocr_path
                 )
                 observation_source = "vision_omniparser"
             except Exception as e:
@@ -931,7 +1005,29 @@ class ObserverAgent:
             and ui_summary_text == prev_ui_summary
         )
 
-        if cache_hit:
+        if detection_method == "omniparser" and observation_source == "vision_omniparser":
+            print("[Observer] OmniParser active: Generating semantic analysis locally (LLM call skipped)...")
+            semantic_lines = []
+            for el in final_widget_set[:50]:
+                txt = el.get("text", "").strip()
+                cls_type = el.get("class", "Interactive")
+                el_type = el.get("type", "widget")
+                if txt:
+                    semantic_lines.append(f"[{el['id']}]: ({cls_type}/{el_type}) \"{txt}\"")
+                else:
+                    semantic_lines.append(f"[{el['id']}]: ({cls_type}/{el_type})")
+            
+            raw_res = (
+                f"SCREEN_SUMMARY: OmniParser detected {len(final_widget_set)} structured UI elements.\n"
+                f"SEMANTIC_MAP:\n" + "\n".join(semantic_lines)
+            )
+            with open(analysis_path, "w", encoding="utf-8") as f:
+                f.write(raw_res)
+            self._log("OmniParser local semantic summary created (LLM skipped)", f"elements={len(final_widget_set)}")
+            new_stagnation_count = self._detect_stagnation(
+                ui_summary_text, current_step, state.get("stagnation_count", 0)
+            )
+        elif cache_hit:
             raw_res = cached_analysis
             new_stagnation_count = state.get("stagnation_count", 0) + 1
             print(

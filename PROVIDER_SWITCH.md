@@ -33,16 +33,10 @@ columns or write to developer-tracking fields. Provider-reported token/cost
 figures may be kept in artifacts when available, but must not create new Excel
 columns or be described as BO credit savings.
 
-**Observer requirement (2026-07-29):** `OBSERVER_DETECTION_METHOD` defaults to
-`"llm"` — the Observer now sends the screenshot straight to `OBSERVER_MODEL`
-for widget grounding via `with_structured_output(...)`, not just semantic
-interpretation. Whatever you set `OBSERVER_MODEL`/`OBSERVER_PROVIDER` to must
-support **vision input + reliable structured/function-calling output**
-(validated against Gemini). If you swap Observer to a text-only or
-function-calling-unreliable model, either verify grounding still works or set
-`OBSERVER_DETECTION_METHOD=cv_ocr` to fall back to the classical Canny+OCR
-pipeline, which has no such requirement. Decider/Reflector/Orchestrator are
-unaffected by this constraint.
+**Observer detection methods:**
+- `OBSERVER_DETECTION_METHOD=omniparser` (Recommended/SOTA): Local YOLOv8 + EasyOCR + Florence-2 captioning on GPU. Bypasses cloud LLM calls in Observer (0 LLM token cost).
+- `OBSERVER_DETECTION_METHOD=llm`: The Observer sends screenshots to `OBSERVER_MODEL` for zero-shot widget grounding via `with_structured_output(...)` + semantic interpretation. Requires vision + structured output support.
+- `OBSERVER_DETECTION_METHOD=cv_ocr`: Classical Canny+EasyOCR fallback without local weights or vision LLM grounding. Decider/Reflector/Orchestrator are unaffected.
 
 ## Gemini (Google AI Studio / Developer API — free tier available)
 

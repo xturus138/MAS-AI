@@ -104,7 +104,11 @@ ORCHESTRATOR → OBSERVER → DECIDER → EXECUTOR → REFLECTOR → (back to OR
 
 Agents are distributed across `agents/` and `core/workflow/`:
 
-- `observer_agent.py` → `analyze()` — always screenshots device, then detects widgets via `OBSERVER_DETECTION_METHOD` (default `"llm"`: zero-shot VLM grounding, `_detect_widgets_via_llm()`, one structured-output call per screen; falls back to the classical `"cv_ocr"` path — Canny+region-fill + EasyOCR + `_merge_and_filter` — on API failure or when explicitly configured). Then dumps uiautomator XML to refine widget coordinates via IoU matching regardless of detection method. Unmatched actionable XML elements are appended as new widgets. Produces `observer_analysis` and `widgets`.
+- `observer_agent.py` → `analyze()` — captures screenshot via ADB, then detects widgets via `OBSERVER_DETECTION_METHOD`:
+  - `"omniparser"`: Local YOLOv8 (icon detection) + EasyOCR (text) + Florence-2 (batch icon captioning). In-memory model caching. Generates structured `SEMANTIC_MAP` directly without an extra cloud LLM call (0 LLM token cost).
+  - `"llm"`: Zero-shot VLM grounding (`_detect_widgets_via_llm()`, one structured-output call per screen) + cloud LLM semantic interpretation.
+  - `"cv_ocr"`: Classical Canny+region-fill + EasyOCR + `_merge_and_filter` (fallback for API/CUDA failure).
+  - Regardless of method, dumps uiautomator XML to refine widget coordinates via IoU matching. Unmatched actionable XML elements are appended. Produces `observer_analysis` and `widgets`.
 - `decider_agent.py` → `decide()` — takes observer output + sub-step instruction, produces `ActionPlan` (structured Pydantic model)
 - `executor_agent.py` → `execute()` — resolves widget ID → coordinates, sends ADB command via `ExecutorTools`
 - `reflector_agent.py` → `evaluate()` — verifies action result, produces PASSED/FAILED verdict; on final step does 3-way verification (screenshot vs. expected text vs. Figma Gold Standard)
@@ -158,7 +162,7 @@ All config is env-driven via `.env` with fallbacks in code. Key variables:
 - Per-agent `*_PROVIDER`, `*_MODEL`, `*_API_KEY`, `*_BASE_URL` for observer/decider/reflector/orchestrator
 - `TARGET_DEVICE` — ADB device ID
 - `FIGMA_ACCESS_TOKEN`, `FIGMA_URL_QA` — Figma integration
-- `OBSERVER_DETECTION_METHOD` — `"llm"` (default, zero-shot VLM grounding) or `"cv_ocr"` (classical Canny+OCR fallback); also used by `core/calibration/run_calibration.py`
+- `OBSERVER_DETECTION_METHOD` — `"omniparser"` (local YOLOv8 + OCR + Florence-2 captioning, 0 LLM call in observer), `"llm"` (zero-shot VLM grounding), or `"cv_ocr"` (classical Canny+OCR fallback); also used by `core/calibration/run_calibration.py`
 
 ### Process Logging (`core/utils/process_logger.py`)
 
