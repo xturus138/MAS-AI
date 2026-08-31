@@ -1174,8 +1174,11 @@ class ObserverAgent:
         if self.monitor is not None:
             self.monitor.on_observer(final_widget_set)
 
+        # DSE Uncertainty is strictly disabled during recovery/bridge steps (current_step < 0)
+        # to ensure zero overhead for operational transitions (Swift-Hand / EpiDroid).
         uncertainty_dir = ""
-        if config.OBSERVER_UNCERTAINTY_ENABLED:
+        is_recovery_phase = current_step < 0 or "recovery" in step_dir.lower()
+        if config.OBSERVER_UNCERTAINTY_ENABLED and not is_recovery_phase:
             unc_builder = self._build_semantic_request_builder()
             unc_img_b64 = self._encode_image(annotated_path, max_height=480)
             unc_elements_json = compress_and_report(
