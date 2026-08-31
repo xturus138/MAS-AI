@@ -4,15 +4,33 @@ from __future__ import annotations
 
 from nicegui import ui
 
+from desktop_app.shell import FOOTER_SCREENS, SCREENS
+
+
+def _register_stub_pages() -> None:
+    """Register a placeholder body for every screen.
+
+    Each of Tasks 9-16 replaces one of these page functions with real
+    content; registration order and route strings must not change, since
+    desktop_app/shell.py's SCREENS/FOOTER_SCREENS lists are the single
+    source of truth other tasks route against.
+    """
+    for route, label, _icon in [*SCREENS, *FOOTER_SCREENS]:
+        _register_one_stub(route, label)
+
+
+def _register_one_stub(route: str, label: str) -> None:
+    from desktop_app.shell import render_shell
+
+    @ui.page(route)
+    def _page(route=route, label=label) -> None:
+        with render_shell(route):
+            ui.label(f"{label} (stub)").classes("text-2xl font-bold text-slate-800")
+
 
 def create_app() -> None:
-    """Configure pages and launch the native NiceGUI window.
-
-    Page registration happens via side-effecting imports in later tasks
-    (each page module calls @ui.page(...) at import time). This function
-    only owns the final ui.run(...) call so there is exactly one place
-    that starts the native window.
-    """
+    """Configure pages and launch the native NiceGUI window."""
+    _register_stub_pages()
     ui.run(
         title="MAS AI Orchestrator",
         native=True,
