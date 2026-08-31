@@ -115,3 +115,9 @@ weights/
 *.safetensors
 *.pt
 *.bin
+
+# PyInstaller build artifacts
+desktop_app/packaging/build/
+desktop_app/packaging/dist/
+desktop_app/vendor/platform-tools/*.exe
+desktop_app/vendor/platform-tools/*.dll
