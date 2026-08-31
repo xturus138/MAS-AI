@@ -6,26 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MAS AI is a multi-agent system for automated Android GUI testing, built with LangGraph. It has two modes: **predefined** (scenario-based, driven by `scenario.xlsx`) and **autonomous** (goal-driven, LLM-planned). Tests execute on physical Android devices via ADB.
 
-## Bayesian test-selection context — still an open research question
+## Bayesian test-selection - thread likely CLOSING (updated 2026-08-31)
 
-The repository contains a representation-comparison pilot at
-`experiment/bayesian/three_method_representation_comparison.ipynb`. It is not
-the implemented multi-agent workflow and it is not evidence that Bayesian
-Optimization (BO) is the thesis method. The pilot uses dummy outcomes only;
-do not call them real Firebase Chat defects.
+BO is not the thesis method, and as of 2026-08-31 this thread is likely being
+closed or redirected after supervisor feedback plus a recomputation of the
+actual kernel values. Do not start new BO work without reading the research
+documents named below.
 
-The open hypothesis is to run all 69 QA cases once, record actual execution
-outcomes, and use that table only as a hidden oracle for offline sequential
-replay. A BO surrogate would receive an outcome only after selecting that
-case. The start policy remains undecided: coverage-first warm start with one
-test per mandatory feature, or a cold start whose first choice is constrained
-by coverage. This is not a conventional train/test split. AI token or credit
-cost is not currently measurable, so no claim about credit savings is valid.
+Why: the kernel used in these experiments turns test-case text into word
+vectors and measures the angle between them, so it scores *wording similarity*,
+not *likelihood of failing together*. Recomputed from
+`scenarios/firebase_chat/scenario.xlsx`, the median similarity across all 2,346
+test-case pairs is only **0.068** (75% of pairs below 0.135), so running one
+test barely moves the model's belief about any other - the mechanical reason
+results tracked random selection. Two tests that assert **opposite** behaviour
+(FC-GPR-002 vs FC-GPR-003) score **0.81**, while login, a precondition for all
+68 other cases, scores only **0.12** against a send-message test.
 
-Before changing production agents, prompts, or workflow logic for this idea,
-read `Hasil AI/JAIST/EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md` in the
-research-document workspace. Treat its conclusions as hypotheses, not settled
-requirements.
+The experiment notebooks live in `experiment/bayesian/reduction/`. The older
+`three_method_representation_comparison.ipynb` referenced here previously no
+longer exists. Their bug labels are dummy labels placed by Menu; never call
+them real Firebase Chat defects.
+
+**The application under test is a BLACK BOX.** Its source code does exist on
+disk, but it must NOT be used for analysis, reasoning, or method design,
+because real QA has no source access. Never propose fault injection, mutation
+testing, coverage instrumentation, or static analysis.
+
+Before touching anything BO-related, read in this order, in the
+research-document workspace: `Hasil AI/CONTINUITY_CONTEXT_FOR_NEW_AI.md`, then
+`Hasil AI/JAIST/BO_6_KEPUTUSAN_SESI_2026-08-31.md`, then
+`Hasil AI/JAIST/BO_3_KONTEKS_UTAMA_DISKUSI.md`. The file this section used to
+point to, `EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md`, no longer exists on
+disk. Treat all of it as hypotheses awaiting supervisor confirmation, not
+settled requirements.
 
 ## Current engineering priority — 69-case predefined baseline
 

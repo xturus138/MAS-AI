@@ -42,8 +42,14 @@ For now, this hypothesis does not change the predefined or autonomous agent
 workflows. AI token and credit cost cannot yet be measured reliably, so the
 future experiment must not claim credit savings. Its provisional outcome metric
 is the number of executed tests needed to reach the selected anomaly or
-confirmed-fault target. The live research note is in the document workspace at
-`Hasil AI/JAIST/EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md`.
+confirmed-fault target. As of 2026-08-31 this thread is likely closing. Recomputing the kernel from
+the workbook showed a median similarity of only 0.068 across all 2,346
+test-case pairs, so the model cannot generalize from one test to another.
+The current research notes are `Hasil AI/CONTINUITY_CONTEXT_FOR_NEW_AI.md`
+and `Hasil AI/JAIST/BO_6_KEPUTUSAN_SESI_2026-08-31.md` in the document
+workspace; the file previously named here no longer exists. Note also that
+the app under test is treated as a black box: its source code must not be
+used for analysis or method design.
 
 ## Current engineering priority: a reliable 69-case baseline
 

@@ -9,9 +9,10 @@ These provider settings do not implement or validate Bayesian Optimization
 would need real execution outcomes, sequential feedback, and an undecided
 coverage-first or cold-start policy before it could affect the multi-agent
 workflow. Do not infer AI credit savings from a provider choice; token and
-credit cost are not yet measured reliably for that experiment. See
-`Hasil AI/JAIST/EXPERIMENT_HYPOTHESIS_BO_QA_TEST_REDUCTION.md` in the research
-document workspace for the current hypothesis and open questions.
+credit cost are not yet measured reliably for that experiment. As of 2026-08-31 that thread is likely
+closing. See `Hasil AI/CONTINUITY_CONTEXT_FOR_NEW_AI.md` and
+`Hasil AI/JAIST/BO_6_KEPUTUSAN_SESI_2026-08-31.md` in the research document
+workspace; the file previously named here no longer exists.
 
 ## Current 69-case baseline scope
 
