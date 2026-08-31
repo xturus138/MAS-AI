@@ -70,9 +70,17 @@ class ObserverUncertaintyService:
             widgets_skipped_count = len(widgets) - max_widgets
 
         per_widget = []
+        target_wid = getattr(self.cfg, "target_widget_id", None)
+        threshold = getattr(self.cfg, "threshold", None)
+
         for idx, w in enumerate(widgets):
             wid = w.get("id")
-            if max_widgets is not None and idx >= max_widgets:
+
+            # If target-only mode is active, skip all non-target widgets to save computation
+            if target_wid is not None and wid != target_wid:
+                continue
+
+            if max_widgets is not None and idx >= max_widgets and target_wid is None:
                 per_widget.append({
                     "element_id": wid,
                     "measurement_status": "skipped_widget_cap",
@@ -101,6 +109,8 @@ class ObserverUncertaintyService:
             r = raw_dse(counts)
             status = "insufficient_samples" if effective_m <= 1 else "ok"
 
+            is_above_threshold = (r > threshold) if (threshold is not None and r is not None) else None
+
             per_widget.append({
                 "element_id": wid,
                 "text": ctx.text,
@@ -116,8 +126,9 @@ class ObserverUncertaintyService:
                 "temperature": self.cfg.temperature,
                 "temperature_status": "provisional_not_evaluated",
                 "temperature_application": "requested_not_verified",
-                "threshold": None,
-                "calibration_status": "not_calibrated",
+                "threshold": threshold,
+                "calibration_status": "calibrated" if threshold is not None else "not_calibrated",
+                "is_above_threshold": is_above_threshold,
                 "measurement_status": status,
             })
 
@@ -133,8 +144,9 @@ class ObserverUncertaintyService:
             "temperature": self.cfg.temperature,
             "temperature_status": "provisional_not_evaluated",
             "temperature_application": "requested_not_verified",
-            "threshold": None,
-            "calibration_status": "not_calibrated",
+            "threshold": threshold,
+            "calibration_status": "calibrated" if threshold is not None else "not_calibrated",
+            "target_widget_id": target_wid,
             "raw_samples": raw_outputs,
             "sampling_failures": sampling_failures,
             "max_widgets": max_widgets,

@@ -200,3 +200,8 @@ OBSERVER_UNCERTAINTY_TEMPERATURE = float(os.getenv("OBSERVER_UNCERTAINTY_TEMPERA
 # Cost cap: entailment clustering issues up to 2 judge calls per (sample, existing cluster)
 # per widget. Widgets beyond this count are skipped and recorded, not silently dropped.
 OBSERVER_UNCERTAINTY_MAX_WIDGETS = int(os.getenv("OBSERVER_UNCERTAINTY_MAX_WIDGETS", "20"))
+# Target-only mode (RecAgent / SafeGround): when true, measures DSE only on the candidate/target widget
+OBSERVER_UNCERTAINTY_TARGET_ONLY = os.getenv("OBSERVER_UNCERTAINTY_TARGET_ONLY", "true").lower() == "true"
+# Optional DSE threshold tau (None or float). If set, triggers safety gate fallback when DSE > tau
+_raw_threshold = os.getenv("OBSERVER_UNCERTAINTY_THRESHOLD", "")
+OBSERVER_UNCERTAINTY_THRESHOLD = float(_raw_threshold) if _raw_threshold and _raw_threshold.lower() != "none" else None

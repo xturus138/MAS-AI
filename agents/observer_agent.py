@@ -83,17 +83,21 @@ class ObserverAgent:
         )
 
     def _maybe_run_uncertainty(self, enabled, builder, scenario_desc,
-                               navigation_context, elements_json, img_b64,
-                               widgets, step_dir, general_knowledge="No relevant prior UI knowledge.") -> str:
-        """When enabled, run M fresh independent DSE samples (never the cached/normal
-        response). Returns the uncertainty artifact dir path, or "" when disabled/failed.
-        DSE is measurement only and never affects the returned Observer analysis."""
+                                navigation_context, elements_json, img_b64,
+                                widgets, step_dir, general_knowledge="No relevant prior UI knowledge.",
+                                target_widget_id=None) -> str:
+        """When enabled, run M fresh independent DSE samples.
+        Supports Target-Only measurement mode (RecAgent / SafeGround) for efficiency.
+        Threshold tau (if configured) is evaluated to provide risk-aware selective gating.
+        """
         if not enabled:
             return ""
         try:
             from core.uncertainty.clusterer import EntailmentClusterer
             from core.uncertainty.config import UncertaintyConfig
             from core.uncertainty.service import ObserverUncertaintyService
+
+            target_wid = target_widget_id if config.OBSERVER_UNCERTAINTY_TARGET_ONLY else None
 
             cfg = UncertaintyConfig(
                 enabled=True,
@@ -103,6 +107,8 @@ class ObserverAgent:
                 model=getattr(self.llm, "model_name", "unknown"),
                 judge_model=getattr(self.llm, "model_name", "unknown"),
                 max_widgets=config.OBSERVER_UNCERTAINTY_MAX_WIDGETS,
+                target_widget_id=target_wid,
+                threshold=config.OBSERVER_UNCERTAINTY_THRESHOLD,
             )
             messages = convert_to_messages(
                 builder.build(
