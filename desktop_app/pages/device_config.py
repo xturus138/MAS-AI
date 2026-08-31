@@ -10,6 +10,8 @@ from adapters.device.adb_adapter import ADBAdapter
 from desktop_app.data.adb_actions import (
     check_readiness,
     clear_app_data,
+    # install_apk, is_package_installed: staged for the upcoming Install APK
+    # file-picker wiring; not yet called anywhere in this file.
     install_apk,
     is_package_installed,
     wake_screen,
@@ -39,7 +41,6 @@ def render_device_config_page() -> None:
             ui.label("Device Configuration").classes("text-2xl font-bold text-slate-800")
             ui.button("Save Configuration").props("color=primary")
 
-        specs_label = {"resolution": None, "dpi": None, "os_version": None, "api_level": None}
         readiness_labels: dict[str, ui.label] = {}
         specs_container = ui.column()
 
@@ -91,7 +92,7 @@ def render_device_config_page() -> None:
                             return
                         _refresh_specs_and_readiness()
 
-                    device_select.on("update:model-value", _on_device_selected)
+                    device_select.on_change(_on_device_selected)
                     ui.button("Refresh Devices", on_click=_refresh_devices)
                     _refresh_devices()
 
