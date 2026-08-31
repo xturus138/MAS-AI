@@ -6,7 +6,7 @@ from nicegui import ui
 
 from desktop_app.shell import FOOTER_SCREENS, SCREENS
 
-_REAL_ROUTES = {"/test-suites", "/reports", "/system-logs", "/settings", "/documentation"}
+_REAL_ROUTES = {"/", "/test-suites", "/reports", "/system-logs", "/settings", "/documentation"}
 
 
 def _register_stub_pages() -> None:
@@ -34,12 +34,17 @@ def _register_one_stub(route: str, label: str) -> None:
 
 def _register_real_pages() -> None:
     from desktop_app.data.manifest import find_latest_run_root
+    from desktop_app.pages.dashboard import render_dashboard_page
     from desktop_app.pages.documentation import render_documentation_page
     from desktop_app.pages.reports import render_reports_page
     from desktop_app.pages.settings import render_settings_page
     from desktop_app.pages.system_logs import render_system_logs_page
     from desktop_app.pages.test_suites import render_test_suites_page
     from desktop_app.state import APP_STATE
+
+    @ui.page("/")
+    def _dashboard_page() -> None:
+        render_dashboard_page()
 
     @ui.page("/test-suites")
     def _test_suites_page() -> None:
