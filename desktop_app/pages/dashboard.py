@@ -77,6 +77,13 @@ def render_dashboard_page() -> None:
                     ui.label(f"Workbook: {APP_STATE.xlsx_path or 'Not loaded'}").classes(
                         "text-sm text-slate-600"
                     )
+                # Toast-spam guard for _refresh_trace's ui.timer below: a
+                # batch failure (exception or silent preflight failure) must
+                # notify exactly once, not on every 1s timer tick. Armed
+                # (False) whenever a new batch is actually started; flipped
+                # to True the first time _refresh_trace reports on it.
+                notification_state = {"notified_this_run": True}
+
                 with ui.card().classes("w-full p-5"):
                     ui.label("Action Controls").classes("font-semibold text-slate-800")
 
@@ -84,6 +91,7 @@ def render_dashboard_page() -> None:
                         if not APP_STATE.xlsx_path:
                             ui.notify("Load a scenario workbook on Test Suites first.", type="warning")
                             return
+                        notification_state["notified_this_run"] = False
                         BATCH_RUNNER.start(APP_STATE.xlsx_path)
 
                     def _resume() -> None:
@@ -91,6 +99,7 @@ def render_dashboard_page() -> None:
                         if not APP_STATE.xlsx_path or not run_root:
                             ui.notify("Nothing to resume yet.", type="warning")
                             return
+                        notification_state["notified_this_run"] = False
                         BATCH_RUNNER.start(APP_STATE.xlsx_path, resume=run_root)
 
                     with ui.column().classes("w-full gap-2 mt-3"):
@@ -130,10 +139,34 @@ def render_dashboard_page() -> None:
                     ui.label("Agent Reasoning Trace").classes("font-semibold text-slate-800")
                     trace_column = ui.column().classes("w-full h-[400px] overflow-y-auto mt-3 gap-1")
 
+        def _is_preflight_failure(result: Any) -> bool:
+            """True when run_predefined_fn returned something other than a
+            normal batch-completion manifest.
+
+            run_predefined() returns None or a PreflightReport object (not an
+            exception) when preflight fails -- e.g. no device connected, a
+            bad workbook, or a config validation failure. A successful batch
+            completion is a dict with a "cases" key, so anything else after a
+            run has actually finished counts as a silent preflight failure
+            that must be surfaced.
+            """
+            if not isinstance(result, dict) or "cases" not in result:
+                return True
+            return False
+
         def _refresh_trace() -> None:
-            error = BATCH_RUNNER.last_error()
-            if error is not None:
-                ui.notify(f"Batch run failed: {error}", type="negative")
+            if not BATCH_RUNNER.is_running() and not notification_state["notified_this_run"]:
+                notification_state["notified_this_run"] = True
+                error = BATCH_RUNNER.last_error()
+                if error is not None:
+                    ui.notify(f"Batch run failed: {error}", type="negative")
+                elif _is_preflight_failure(BATCH_RUNNER.last_result()):
+                    ui.notify(
+                        "Batch did not start: preflight failed (check device connection, "
+                        "workbook, and configuration).",
+                        type="negative",
+                    )
+
             trace_column.clear()
             with trace_column:
                 for timestamp, component, message in LIVE_STATE.log_lines[-40:]:
