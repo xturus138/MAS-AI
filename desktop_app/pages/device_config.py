@@ -42,21 +42,36 @@ def render_device_config_page() -> None:
             ui.button("Save Configuration").props("color=primary")
 
         readiness_labels: dict[str, ui.label] = {}
-        specs_container = ui.column()
 
-        def _refresh_specs_and_readiness() -> None:
+        def _show_empty_specs_and_not_ready() -> None:
             specs_container.clear()
             with specs_container:
-                if _connected_device is None:
-                    ui.label("Connect a device to see specs.").classes("text-sm text-slate-500 mt-2")
-                    return
+                ui.label("Connect a device to see specs.").classes("text-sm text-slate-500 mt-2")
+            for label in readiness_labels.values():
+                label.set_text("Not Ready")
+
+        def _refresh_specs_and_readiness() -> None:
+            global _connected_device
+            if _connected_device is None:
+                _show_empty_specs_and_not_ready()
+                return
+
+            try:
                 specs = read_device_specs(_connected_device.d)
+                readiness = check_readiness(_connected_device.d)
+            except Exception as error:
+                _connected_device = None
+                _show_empty_specs_and_not_ready()
+                ui.notify(f"Lost connection to device: {error}", type="negative")
+                return
+
+            specs_container.clear()
+            with specs_container:
                 ui.label(f"Resolution: {specs.resolution}").classes("text-sm text-slate-700")
                 ui.label(f"DPI: {specs.dpi}").classes("text-sm text-slate-700")
                 ui.label(f"OS Version: Android {specs.os_version}").classes("text-sm text-slate-700")
                 ui.label(f"API Level: {specs.api_level}").classes("text-sm text-slate-700")
 
-            readiness = check_readiness(_connected_device.d if _connected_device else None)
             for key, value in (
                 ("ADB Connection", readiness.adb_connected),
                 ("Screen State", readiness.screen_awake),
@@ -146,7 +161,7 @@ def render_device_config_page() -> None:
             with ui.column().classes("gap-4").style("flex: 1;"):
                 with ui.card().classes("w-full p-5"):
                     ui.label("Device Specs (Auto-Detected)").classes("font-semibold text-slate-800")
-                    specs_container
+                    specs_container = ui.column()
 
                 with ui.card().classes("w-full p-5"):
                     ui.label("System Readiness Checklist").classes("font-semibold text-slate-800")
