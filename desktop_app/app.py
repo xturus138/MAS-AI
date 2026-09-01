@@ -2,9 +2,27 @@
 
 from __future__ import annotations
 
-from nicegui import ui
+from dotenv import load_dotenv
 
-from desktop_app.shell import FOOTER_SCREENS, SCREENS
+from desktop_app.paths import env_file_path
+
+# Must run before any desktop_app import that can transitively import
+# shared.config (e.g. desktop_app.shell -> desktop_app.pages.dashboard ->
+# desktop_app.data.manifest -> shared.config). shared/config.py:4 calls a
+# bare load_dotenv() at import time, which searches upward from the current
+# working directory and knows nothing about the desktop app's managed
+# per-user .env file (desktop_app/paths.py:env_file_path()). Loading the
+# managed file here first, with override=True, ensures Settings-screen
+# writes actually take effect for the env vars shared.config reads at
+# import time -- whichever load_dotenv() call runs LAST wins for a given
+# key, so this call must both run first in wall-clock terms and use
+# override=True to beat shared.config's later no-override call for any key
+# also present in the managed .env.
+load_dotenv(env_file_path(), override=True)
+
+from nicegui import ui  # noqa: E402
+
+from desktop_app.shell import FOOTER_SCREENS, SCREENS  # noqa: E402
 
 _REAL_ROUTES = {
     "/",
