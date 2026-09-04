@@ -121,3 +121,7 @@ desktop_app/packaging/build/
 desktop_app/packaging/dist/
 desktop_app/vendor/platform-tools/*.exe
 desktop_app/vendor/platform-tools/*.dll
+
+# Exclude newly created massive directories
+.opencode/
+MAS AI Orchestrator/
